@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* =============================================================================
+   Mini-ECD Design System
+   Gebaseerd op ux-stylesheet.md (v2, UX-geoptimaliseerd)
+   ============================================================================= */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+:root {
+  /* Basiskleuren */
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F1F5F9;
+  --color-text: #0F172A;
+  --color-text-secondary: #475569;
+  --color-border: #E2E8F0;
+
+  /* Brand & Primary */
+  --color-brand: #3B82F6;
+  --color-brand-hover: #2563EB;
+  --color-brand-active: #1D4ED8;
+  --color-brand-subtle: #EFF6FF;
+
+  /* Neutral CTA */
+  --color-neutral: #334155;
+  --color-neutral-hover: #1F2937;
+
+  /* Module-accenten */
+  --color-module-appointments: #16A34A;
+  --color-module-appointments-bg: #E8F8EF;
+  --color-module-appointments-border: #CDECDC;
+
+  --color-module-meds: #F59E0B;
+  --color-module-meds-bg: #FEF6DC;
+  --color-module-meds-border: #F6E7B6;
+
+  --color-module-labs: #F97316;
+  --color-module-labs-bg: #FFEBDC;
+  --color-module-labs-border: #FFD2B8;
+
+  /* Status & Feedback */
+  --color-success: #16A34A;
+  --color-success-subtle: #ECFDF5;
+  --color-warning: #EAB308;
+  --color-warning-subtle: #FEFCE8;
+  --color-error: #DC2626;
+  --color-error-subtle: #FEF2F2;
+  --color-info: #3B82F6;
+  --color-info-subtle: #EFF6FF;
+
+  /* Badges (Severity DSM-light) */
+  --color-badge-low-bg: #E5E7EB;
+  --color-badge-low-text: #374151;
+  --color-badge-medium-bg: #FEF3C7;
+  --color-badge-medium-text: #92400E;
+  --color-badge-high-bg: #FEE2E2;
+  --color-badge-high-text: #991B1B;
+
+  /* Formulieren */
+  --color-input-bg: #FFFFFF;
+  --color-input-text: #0F172A;
+  --color-input-placeholder: #94A3B8;
+  --color-input-border: #CBD5E1;
+  --color-input-border-hover: #94A3B8;
+  --color-input-focus: #3B82F6;
+  --color-input-focus-border: #2563EB;
+  --color-input-disabled-bg: #F1F5F9;
+  --color-input-disabled-text: #94A3B8;
+  --color-input-invalid-border: #DC2626;
+  --color-input-invalid-text: #B91C1C;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 2px 6px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 20px rgba(15, 23, 42, 0.10);
+
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+@theme inline {
+  /* Basiskleuren */
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-border: var(--color-border);
+
+  /* Brand */
+  --color-brand: var(--color-brand);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --color-info: var(--color-info);
+
+  /* Shadows */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* Fonts */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+/* Dark mode (optioneel, MVP gebruikt licht thema) */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-bg: #0a0a0a;
+    --color-surface: #1a1a1a;
+    --color-text: #ededed;
+    --color-text-secondary: #a1a1a1;
+    --color-border: #333333;
   }
 }
 
+/* Global styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Focus styles (toegankelijkheid) */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* AI source highlighting (gebruikt in Intake editor) */
+.ai-source-highlight {
+  background-color: #fef08a; /* lichtgeel */
+  border-radius: 2px;
+  padding: 1px 0;
 }
