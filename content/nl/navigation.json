@@ -1,0 +1,14 @@
+{
+  "logo": "AI SPEEDRUN",
+  "links": [
+    {
+      "label": "Build Log",
+      "href": "/build-log"
+    },
+    {
+      "label": "Demo",
+      "href": "/demo"
+    }
+  ]
+}
+
