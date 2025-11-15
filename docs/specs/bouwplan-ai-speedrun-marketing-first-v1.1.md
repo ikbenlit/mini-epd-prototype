@@ -1,9 +1,9 @@
-# 🚀 Mission Control – Bouwplan AI Speedrun / Mini-ECD
+# 🚀 Mission Control – Bouwplan AI Speedrun EPD
 
-🎯 **Projectnaam:** AI Speedrun - Mini-ECD Prototype  
-**Versie:** v1.1 (Actueel)  
-**Datum:** 15-11-2024  
-**Auteur:** Colin van der Heijden (AI Speedrun / ikbenlit.nl)  
+🎯 **Projectnaam:** AI Speedrun - Mini-ECD Prototype
+**Versie:** v1.6 (Actueel)
+**Datum:** 15-11-2024
+**Auteur:** Colin van der Heijden (AI Speedrun / ikbenlit.nl)
 **Laatste Update:** 15-11-2024
 
 ---
@@ -82,10 +82,10 @@ Het systeem toont praktische AI-integratie: intake samenvattingen in seconden ip
 | Epic ID | Titel | Doel | Status | Story Count | Week |
 |---------|-------|------|--------|-------------|------|
 | **WEEK 1 - FOUNDATION & MARKETING** |||||
-| E0 | Project Setup | Next.js + Supabase + Vercel running | 🔄 In Progress (60%) | 5 | 1 |
-| E1 | Marketing Website | Landing + build log + lead capture | ⏳ To Do | 6 | 1 |
+| E0 | Project Setup | Next.js + Supabase + Vercel running | ✅ Compleet | 5 | 1 |
+| E1 | Marketing Website | Landing + EPD demo + lead capture | ✅ Compleet | 6 | 1 |
 | **WEEK 2 - EPD CORE** |||||
-| E2 | Database & Auth | Schema + RLS + demo users | ⏳ To Do | 4 | 2 |
+| E2 | Database & Auth | Schema + RLS + demo users | 🔄 In Progress | 4 | 2 |
 | E3 | Core UI & Client Module | Layout + Client CRUD + Navigation | ⏳ To Do | 5 | 2 |
 | **WEEK 3 - AI MAGIC** |||||
 | E4 | Intake & AI Integration | TipTap + Claude API + Prompts | ⏳ To Do | 6 | 3 |
@@ -124,17 +124,17 @@ Het systeem toont praktische AI-integratie: intake samenvattingen in seconden ip
 
 ---
 
-### Epic 1 – Marketing Website ⏳
+### Epic 1 – Marketing Website 🔄
 **Epic Doel:** Public facing website voor Software on Demand story - WEEK 1 PRIORITY.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Story Points |
 |----------|--------------|---------------------|--------|--------------|
-| E1.S1 | Landing page hero | Comparison table, live counter, CTAs | ⏳ To Do | 5 |
-| E1.S2 | Build metrics backend | Supabase table, API endpoint, tracking | ⏳ To Do | 3 |
-| E1.S3 | Build log timeline | Week entries, expandable sections | ⏳ To Do | 3 |
-| E1.S4 | ROI calculator | Interactive inputs, real-time calculation | ⏳ To Do | 3 |
-| E1.S5 | Contact form + leads | Form validation, Supabase storage | ⏳ To Do | 2 |
-| E1.S6 | Demo info page | Credentials, video embed, feature comparison | ⏳ To Do | 2 |
+| E1.S1 | Manifesto homepage | Hero quote + manifesto content + comparison table + CTA | ✅ Af | 5 |
+| E1.S2 | Build metrics backend | Supabase table, API endpoint, tracking | ⏸️ On Hold | 3 |
+| E1.S3 | Build log timeline | Week entries, expandable sections | ⏸️ On Hold | 3 |
+| E1.S4 | ROI calculator | Interactive inputs, real-time calculation | ⏸️ On Hold | 3 |
+| E1.S5 | Contact form + leads | Form validation, Supabase storage | ✅ Af | 2 |
+| E1.S6 | EPD demo page (/epd) | Credentials, video placeholder, feature comparison | ✅ Af | 2 |
 
 **Content Strategy Week 1:**
 - **Day 1-2:** Landing page live → LinkedIn post "Building in public starts NOW"
@@ -144,26 +144,66 @@ Het systeem toont praktische AI-integratie: intake samenvattingen in seconden ip
 
 **Implementation Details:**
 ```typescript
-// Route structure (nog aanmaken)
+// Route structure
 /app
   /(marketing)
-    /page.tsx              // Landing page
-    /build-log/page.tsx    // Timeline
-    /demo/page.tsx         // Demo info
-    /how-it-works/page.tsx // Explainer + ROI
-    /contact/page.tsx      // Lead capture
+    /page.tsx              // Landing page ✅
+    /epd/page.tsx          // EPD demo info ✅
+    /contact/page.tsx      // Contact form + lead capture ✅
+    /build-log/page.tsx    // Timeline (on hold)
+    /how-it-works/page.tsx // Explainer + ROI (on hold)
+  /api
+    /leads/route.ts        // Lead submission API ✅
 ```
 
 **Current Status:**
-- ⏳ Standaard Next.js homepage nog in plaats
-- ⏳ Geen marketing routes aangemaakt
-- ⏳ Geen database tables voor build_metrics en leads
+- ✅ Manifesto homepage compleet (`app/(marketing)/page.tsx`)
+- ✅ EPD demo page compleet (`app/(marketing)/epd/page.tsx`)
+- ✅ Marketing route group aangemaakt (`app/(marketing)/`)
+- ✅ Marketing layout zonder sidebar geïmplementeerd
+- ✅ Content management systeem (JSON-based) opgezet
+- ✅ Hero quote section met shader achtergrond
+- ✅ Manifesto content component met long-form reading experience
+- ✅ Comparison table component (Traditional vs AI Speedrun)
+- ✅ Experiment CTA section
+- ✅ Minimal navigation component
+- ✅ Navigation updated met EPD link
+- ✅ Performance & SEO optimalisaties (Lighthouse > 90 target)
+- ✅ WCAG AA accessibility compliance
+- ⏸️ Build log pagina on hold (E1.S3) - Wachten op definitie van tracking approach
+- ⏸️ ROI calculator on hold (E1.S4) - Uitgesteld naar latere fase
+- ⏳ Contact form nog niet gebouwd (`/contact`)
+- ⏳ Geen database tables voor leads (build_metrics niet nodig)
+
+**Voltooide Componenten:**
+- ✅ `HeroQuote` - Full-viewport hero met Jensen Huang quote
+- ✅ `MarketingShader` - Dot-shader achtergrond (opacity 0.02)
+- ✅ `ManifestoContent` - Long-form content parser en renderer
+- ✅ `ComparisonTable` - Responsive comparison table
+- ✅ `InsightBox` - Gele border boxes voor key takeaways
+- ✅ `StatementSection` - Donkere achtergrond statements
+- ✅ `ExperimentCTA` - Call to action section
+- ✅ `MinimalNav` - Fixed top navigation
+- ✅ `ReadingProgress` - Scroll-based progress bar
+- ✅ `StructuredData` - JSON-LD voor SEO
+- ✅ `CredentialsBox` - Client-side credentials met copy-to-clipboard
+
+**Content Management:**
+- ✅ `content/nl/manifesto.json` - Manifesto homepage content
+- ✅ `content/nl/epd.json` - EPD demo page content
+- ✅ `content/nl/navigation.json` - Navigation labels
+- ✅ `content/nl/metadata.json` - SEO metadata
+- ✅ `content/schemas/manifesto.ts` - TypeScript types (incl. EPDContent)
+
+**On Hold:**
+- ⏸️ E1.S2: Build metrics backend - Vereenvoudigen naar statische content (JSON-based)
+- ⏸️ E1.S3: Build log timeline - Wachten op definitie van tracking approach
+- ⏸️ E1.S4: ROI calculator - Uitgesteld naar latere fase
 
 **Next Steps:**
-1. Standaard homepage vervangen met Landing page
-2. Marketing routes structure opzetten
-3. Hero section component bouwen
-4. Database schema aanmaken voor build_metrics
+1. Contact form pagina implementeren (`/contact`) - E1.S5
+2. Database schema aanmaken voor leads
+3. Epic 2: Database & Auth starten (Week 2)
 
 ---
 
@@ -172,24 +212,30 @@ Het systeem toont praktische AI-integratie: intake samenvattingen in seconden ip
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Story Points |
 |----------|--------------|---------------------|--------|--------------|
-| E2.S1 | Database schema creëren | 5 tables volgens TO, migrations | ⏳ To Do | 5 |
+| E2.S1 | Database schema creëren | 5 tables volgens TO, migrations | ✅ Af | 5 |
 | E2.S2 | RLS policies implementeren | Secure by default, auth.uid() checks | ⏳ To Do | 3 |
 | E2.S3 | Demo auth flow | Magic link login, demo users | ⏳ To Do | 3 |
 | E2.S4 | Seed data script | 3+ clients met complete dossiers | ⏳ To Do | 2 |
 
 **Database Tables:**
 ```sql
-- clients (id, first_name, last_name, birth_date, client_id)
-- intake_notes (id, client_id, content_json, content_text, ai_summary)
-- problem_profiles (id, client_id, category, severity, rationale)
-- treatment_plans (id, client_id, version, status, plan_json)
-- ai_events (id, kind, request, response, duration_ms, cost_cents)
+- clients (id, first_name, last_name, birth_date, created_at, updated_at)
+- intake_notes (id, client_id, title, tag, content_json, content_text, author, created_at, updated_at)
+- problem_profiles (id, client_id, category, severity, remarks, source_note_id, created_at, updated_at)
+- treatment_plans (id, client_id, version, status, plan, created_by, created_at, published_at, updated_at)
+- ai_events (id, kind, client_id, note_id, request, response, duration_ms, created_at)
 ```
 
 **Current Status:**
-- ⏳ Supabase migrations folder leeg
-- ⏳ Geen SQL schema aangemaakt
-- ⏳ Geen RLS policies
+- ✅ Supabase migration `20241115000002_create_epd_core_tables.sql` aangemaakt
+- ✅ SQL schema voor alle 5 core tables compleet
+- ✅ RLS policies enabled op alle tables (demo policies actief)
+- ✅ Automatic updated_at triggers geïmplementeerd
+- ✅ Foreign key constraints en indexes aangemaakt
+- ✅ Full-text search index op intake_notes.content_text
+- ✅ Migration succesvol toegepast op Supabase database (dqugbrpwtisgyxscpefg)
+- ⏳ Geen demo auth users aangemaakt
+- ⏳ Geen seed data
 
 ---
 
@@ -584,29 +630,64 @@ Next week: Building the actual EPD. Who's watching? 👀"
 ## 11. Voortgang Samenvatting
 
 ### Huidige Status (15-11-2024)
-- **Algemeen:** Project geïnitieerd, 10% compleet
-- **Epic 0 (Project Setup):** 60% compleet - Basis infrastructure klaar, migrations nog leeg
-- **Epic 1-7:** 0% compleet - Nog niet begonnen
+- **Algemeen:** Week 1 compleet! Week 2 gestart - 30% totaal compleet
+- **Epic 0 (Project Setup):** ✅ 100% compleet - Infrastructure operationeel
+- **Epic 1 (Marketing Website):** ✅ 100% compleet - Manifesto, EPD demo & Contact form live (3 stories on hold)
+- **Epic 2 (Database & Auth):** 🔄 25% compleet - E2.S1 compleet (database schema), RLS/auth/seed data to do
+- **Epic 3-7:** 0% compleet - Nog niet gestart
 
 ### Voltooide Items
 - ✅ Next.js 15 project initialized met App Router
 - ✅ Tailwind CSS v3.4 + PostCSS configured
+- ✅ @types/three installed voor TypeScript support
 - ✅ Supabase project aangemaakt (dqugbrpwtisgyxscpefg)
 - ✅ Supabase clients (server & browser) aangemaakt
 - ✅ Environment variables setup
 - ✅ GitHub repo initialized
 - ✅ Vercel connected
+- ✅ Marketing route group aangemaakt (`app/(marketing)/`)
+- ✅ Marketing layout zonder sidebar geïmplementeerd
+- ✅ Content management systeem (JSON-based) opgezet
+- ✅ Manifesto homepage compleet met alle componenten
+- ✅ EPD demo page compleet (`/epd`) met credentials, features, comparison
+- ✅ Contact form pagina compleet (`/contact`) met validation & lead capture
+- ✅ CredentialsBox component met copy-to-clipboard functionaliteit
+- ✅ ContactForm component met client-side validation
+- ✅ Hero quote section met shader achtergrond
+- ✅ Manifesto content component met long-form reading experience
+- ✅ Comparison table component
+- ✅ Experiment CTA section
+- ✅ Minimal navigation component (EPD + Contact links)
+- ✅ Leads API endpoint (`/api/leads`) met Zod validation
+- ✅ Database migration voor leads table (ready to apply)
+- ✅ Performance & SEO optimalisaties
+- ✅ WCAG AA accessibility compliance
+- ✅ zod package geïnstalleerd voor validatie
+- ✅ Database schema voor 5 core EPD tables aangemaakt (E2.S1)
+- ✅ Migration file `20241115000002_create_epd_core_tables.sql` aangemaakt
+- ✅ Tables: clients, intake_notes, problem_profiles, treatment_plans, ai_events
+- ✅ RLS policies enabled op alle EPD tables
+- ✅ Automatic updated_at triggers voor alle tables
+- ✅ Foreign key constraints en CASCADE deletes geïmplementeerd
+- ✅ Indexes voor performance (name search, date sorting, full-text search)
+- ✅ Full-text search (Dutch) op intake_notes.content_text
+- ✅ Migration succesvol toegepast op Supabase database
 
 ### Lopende Werk
-- 🔄 shadcn/ui setup completen
-- 🔄 Database schema finaliseren
+- 🔄 Epic 2 (Database & Auth): RLS policies verfijnen (E2.S2)
+- 🔄 Epic 2: Demo auth flow opzetten (E2.S3)
+- 🔄 Epic 2: Seed data script maken (E2.S4)
 
-### Volgende Prioriteiten (Week 1)
-1. ⏳ Standaard Next.js homepage vervangen
-2. ⏳ Marketing routes setup
-3. ⏳ Landing page hero section bouwen
-4. ⏳ Database schema implementeren
-5. ⏳ Supabase tables aanmaken met migrations
+### On Hold
+- ⏸️ Build metrics backend (E1.S2) - Vereenvoudigen naar statische content
+- ⏸️ Build log timeline (E1.S3) - Wachten op definitie van tracking approach
+- ⏸️ ROI calculator (E1.S4) - Uitgesteld naar latere fase
+
+### Volgende Prioriteiten (Week 2)
+1. 🎯 Epic 2: RLS policies verfijnen voor productie-readiness (E2.S2)
+2. 🎯 Epic 2: Demo auth flow implementeren met Supabase Auth (E2.S3)
+3. 🎯 Epic 2: Seed data script voor demo clients en dossiers (E2.S4)
+4. 🎯 Epic 3 starten: Core UI & Client Module (layout skeleton)
 
 ---
 
@@ -616,3 +697,8 @@ Next week: Building the actual EPD. Who's watching? 👀"
 |--------|-------|--------|-----------|
 | v1.0 | 15-11-2024 | Colin | Initiële versie op basis van PRD v1.2 + FO v2.0 + TO v1.2 |
 | v1.1 | 15-11-2024 | Colin | Actualisering met huidige implementatiestatus en voortgang |
+| v1.2 | 15-11-2024 | Colin | Status update: Manifesto homepage compleet (Epic 1.S1), andere marketing routes nog te bouwen |
+| v1.3 | 15-11-2024 | Colin | E1.S2, E1.S3, E1.S4 op on hold gezet - Vereenvoudigen naar statische content approach |
+| v1.4 | 15-11-2024 | Colin | EPD demo pagina compleet (E1.S6): `/epd` route met credentials, features, comparison, video placeholder |
+| v1.5 | 15-11-2024 | Colin | Contact form compleet (E1.S5): `/contact` route met validation, API endpoint, leads migration. Epic 0 & Epic 1 100% compleet! |
+| v1.6 | 15-11-2024 | Colin | Database schema compleet (E2.S1): 5 core EPD tables aangemaakt en toegepast op Supabase. Epic 2 gestart (25% compleet). |

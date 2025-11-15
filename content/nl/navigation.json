@@ -2,12 +2,12 @@
   "logo": "AI SPEEDRUN",
   "links": [
     {
-      "label": "Build Log",
-      "href": "/build-log"
+      "label": "EPD Prototype",
+      "href": "/epd"
     },
     {
-      "label": "Demo",
-      "href": "/demo"
+      "label": "Contact",
+      "href": "/contact"
     }
   ]
 }

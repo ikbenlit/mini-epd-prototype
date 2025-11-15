@@ -179,10 +179,43 @@ body {
   font-family: var(--font-mono), 'Courier New', monospace;
 }
 
-/* Focus styles (toegankelijkheid) */
+/* Focus styles (toegankelijkheid) - WCAG AA compliant */
 *:focus-visible {
   outline: 2px solid var(--color-brand);
   outline-offset: 2px;
+  outline-width: 2px;
+}
+
+/* Skip to main content link (toegankelijkheid) */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 1rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.skip-to-main:focus {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1rem;
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* AI source highlighting (gebruikt in Intake editor) */
