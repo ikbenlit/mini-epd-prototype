@@ -1,0 +1,15 @@
+{
+  "buttons": {
+    "readMore": "Lees verder",
+    "scrollDown": "Scroll naar beneden",
+    "followProgress": "Volg de voortgang",
+    "viewDemo": "Bekijk Demo",
+    "contact": "Contact"
+  },
+  "labels": {
+    "readingTime": "minuten lezen",
+    "lastUpdated": "Laatst bijgewerkt",
+    "share": "Deel"
+  }
+}
+
