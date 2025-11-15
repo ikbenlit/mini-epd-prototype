@@ -1,0 +1,80 @@
+{
+  "hero": {
+    "title": "EPD Prototype",
+    "subtitle": "Van 30 minuten documentatie naar 3 minuten",
+    "description": "Ervaar hoe AI de workflow van GGZ-professionals transformeert. Van intake tot behandelplan in seconden."
+  },
+  "demo": {
+    "title": "Probeer het prototype",
+    "description": "Log in met onderstaande demo credentials om het systeem te verkennen. Alle data is fictief en voor demonstratie doeleinden.",
+    "credentials": {
+      "email": "demo@speedrun.nl",
+      "password": "demo2024",
+      "note": "Deze credentials geven toegang tot een demo-omgeving met voorbeeldcliënten en dossiers."
+    }
+  },
+  "features": {
+    "title": "Wat kan het prototype?",
+    "items": [
+      {
+        "title": "AI-Gestuurde Intake",
+        "description": "Schrijf een intakeverslag en krijg binnen seconden een gestructureerde samenvatting van 5-8 bullets.",
+        "time": "< 5 seconden",
+        "traditional": "15-20 minuten handmatig"
+      },
+      {
+        "title": "Automatische DSM Classificatie",
+        "description": "Het systeem analyseert de intake en stelt DSM-categorieën voor met severity scoring en rationale.",
+        "time": "< 3 seconden",
+        "traditional": "10-15 minuten analyse"
+      },
+      {
+        "title": "Behandelplan Generatie",
+        "description": "Van probleemprofiel naar compleet SMART behandelplan met doelen, interventies en tijdlijn.",
+        "time": "< 10 seconden",
+        "traditional": "30-45 minuten schrijfwerk"
+      },
+      {
+        "title": "B1 Readability",
+        "description": "Herschrijf complexe teksten naar B1 Nederlands op een druk op de knop voor cliëntcommunicatie.",
+        "time": "< 3 seconden",
+        "traditional": "20-30 minuten herschrijven"
+      }
+    ]
+  },
+  "comparison": {
+    "title": "Tijdsbesparing per cliënt",
+    "traditional": {
+      "label": "Traditioneel",
+      "intake": "20 min",
+      "profile": "15 min",
+      "plan": "45 min",
+      "total": "80 minuten"
+    },
+    "speedrun": {
+      "label": "Met AI Speedrun",
+      "intake": "5 sec",
+      "profile": "3 sec",
+      "plan": "10 sec",
+      "total": "18 seconden"
+    },
+    "savings": "99.6% sneller"
+  },
+  "video": {
+    "title": "Demo Video",
+    "description": "Bekijk een complete walkthrough van het EPD prototype in 5 minuten.",
+    "placeholder": "Video wordt binnenkort toegevoegd"
+  },
+  "cta": {
+    "heading": "Klaar om te starten?",
+    "subheading": "Log in met de demo credentials hierboven en ervaar zelf de kracht van Software on Demand.",
+    "primaryButton": {
+      "text": "Probeer het prototype",
+      "href": "#demo-login"
+    },
+    "secondaryButton": {
+      "text": "Terug naar manifesto",
+      "href": "/"
+    }
+  }
+}

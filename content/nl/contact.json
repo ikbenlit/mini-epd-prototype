@@ -1,0 +1,123 @@
+{
+  "hero": {
+    "title": "Laten we bouwen",
+    "subtitle": "Van idee naar werkend prototype in 4 weken",
+    "description": "Klaar om jouw software sneller en goedkoper te bouwen? Vul het formulier in en we nemen binnen 24 uur contact op."
+  },
+  "form": {
+    "title": "Start je speedrun",
+    "fields": {
+      "name": {
+        "label": "Naam",
+        "placeholder": "Je volledige naam",
+        "required": true,
+        "error": "Naam is verplicht"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "je@bedrijf.nl",
+        "required": true,
+        "error": "Geldig email adres is verplicht"
+      },
+      "company": {
+        "label": "Bedrijf",
+        "placeholder": "Je bedrijfsnaam (optioneel)",
+        "required": false
+      },
+      "projectType": {
+        "label": "Type project",
+        "placeholder": "Selecteer een type",
+        "required": true,
+        "error": "Selecteer een project type",
+        "options": [
+          "Web applicatie",
+          "Mobile app",
+          "Dashboard / Admin panel",
+          "API / Backend",
+          "MVP / Prototype",
+          "Anders"
+        ]
+      },
+      "budget": {
+        "label": "Budget indicatie",
+        "placeholder": "Selecteer een range",
+        "required": false,
+        "options": [
+          "< €5.000",
+          "€5.000 - €10.000",
+          "€10.000 - €25.000",
+          "€25.000 - €50.000",
+          "> €50.000",
+          "Nog niet bekend"
+        ]
+      },
+      "message": {
+        "label": "Project beschrijving",
+        "placeholder": "Vertel ons over je project: wat wil je bouwen en waarom?",
+        "required": true,
+        "error": "Beschrijving is verplicht",
+        "minLength": 20
+      }
+    },
+    "buttons": {
+      "submit": "Verstuur aanvraag",
+      "submitting": "Versturen..."
+    },
+    "success": {
+      "title": "Aanvraag ontvangen!",
+      "message": "We hebben je aanvraag ontvangen en nemen binnen 24 uur contact op. Check je inbox (en spam folder).",
+      "cta": "Terug naar home"
+    },
+    "error": {
+      "title": "Er ging iets mis",
+      "message": "We konden je aanvraag niet verwerken. Probeer het opnieuw of mail direct naar contact@speedrun.nl",
+      "retry": "Opnieuw proberen"
+    }
+  },
+  "benefits": {
+    "title": "Waarom AI Speedrun?",
+    "items": [
+      {
+        "title": "4 weken doorlooptijd",
+        "description": "Van eerste gesprek tot werkend prototype in één maand.",
+        "icon": "clock"
+      },
+      {
+        "title": "€200 build cost",
+        "description": "Transparante pricing zonder verborgen kosten of uurtarieven.",
+        "icon": "euro"
+      },
+      {
+        "title": "Modern tech stack",
+        "description": "Next.js, Supabase, AI - battle-tested en toekomstbestendig.",
+        "icon": "code"
+      },
+      {
+        "title": "Build in public",
+        "description": "Volg de voortgang live via GitHub en wekelijkse updates.",
+        "icon": "eye"
+      }
+    ]
+  },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "items": [
+      {
+        "question": "Wat krijg ik voor €200?",
+        "answer": "Een werkend MVP/prototype met moderne tech stack (Next.js, Supabase), gehost op Vercel, met volledige source code toegang via GitHub. De €200 is de build cost - geen uurtarieven of verborgen kosten."
+      },
+      {
+        "question": "Hoe lang duurt het echt?",
+        "answer": "4 weken van kick-off tot werkend prototype. Week 1: requirements & design. Week 2-3: development. Week 4: testing & launch. Je krijgt wekelijkse updates en kan de voortgang live volgen."
+      },
+      {
+        "question": "Wat als ik meer features wil?",
+        "answer": "We beginnen altijd met een MVP scope voor de €200. Extra features kunnen daarna als iteraties worden toegevoegd. We helpen je prioriteren wat er in de eerste 4 weken moet zitten."
+      },
+      {
+        "question": "Krijg ik de source code?",
+        "answer": "Ja, 100%. Alles wordt gebouwd in een GitHub repository waar je volledige toegang toe hebt. Na oplevering is het volledig van jou."
+      }
+    ]
+  }
+}
