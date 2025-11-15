@@ -75,9 +75,17 @@
   --shadow-md: 0 2px 6px rgba(15, 23, 42, 0.08);
   --shadow-lg: 0 8px 20px rgba(15, 23, 42, 0.10);
 
-  /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Fonts (injected by Next.js font loader) */
+  /* --font-serif, --font-sans, --font-mono are available via className in layout.tsx */
+  
+  /* Typography Scale (Manifesto) */
+  --text-hero: clamp(2.5rem, 6vw, 4rem);      /* Quote */
+  --text-h1: clamp(2rem, 5vw, 3rem);          /* Section headings */
+  --text-h2: clamp(1.5rem, 4vw, 2.5rem);     /* Subsections */
+  --text-body: 1.25rem;                       /* Content */
+  --text-small: 0.875rem;                     /* Metadata */
+  --line-height-tight: 1.2;                   /* Headings */
+  --line-height-relaxed: 1.8;                  /* Body */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -156,6 +164,19 @@
 /* Global styles */
 body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Typography utilities voor manifesto */
+.font-serif {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.font-sans {
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), 'Courier New', monospace;
 }
 
 /* Focus styles (toegankelijkheid) */
