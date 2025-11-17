@@ -15,7 +15,7 @@
 import type { Metadata } from 'next'
 import { getContent } from '@/lib/content/loader'
 import type { MetadataContent } from '@/content/schemas/manifesto'
-import { HeroQuote } from './components/hero-quote'
+import { HeroSectionClient } from './components/hero-section-client'
 import { BuildTimeline } from './components/build-timeline'
 
 // Generate metadata for SEO
@@ -114,8 +114,33 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Quote Section */}
-      <HeroQuote content={manifestoContent.hero} />
+      {/* Hero Section */}
+      <HeroSectionClient
+        logo={{
+          url: "/next.svg",
+          alt: "AI Speedrun Logo",
+          text: "AI Speedrun"
+        }}
+        slogan="BUILD IN PUBLIC"
+        title={
+          <>
+            Software on Demand
+            <br />
+            <span className="text-teal-600">Van €100k naar €200</span>
+          </>
+        }
+        subtitle="Enterprise software hoeft niet meer €100.000+ per jaar te kosten. AI-powered development verkort dit naar 4 weken en €200 totale kosten. Dit EPD prototype is het levende bewijs."
+        callToAction={{
+          text: "PROBEER HET PROTOTYPE →",
+          href: "/login"
+        }}
+        backgroundImage="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
+        contactInfo={{
+          website: "aispeedrun.nl",
+          phone: "Demo Project",
+          address: "Build in Public"
+        }}
+      />
 
       {/* Statement Section - Software on Demand */}
       <section className="w-full md:max-w-[750px] mx-auto px-4 md:px-16 py-16 md:py-24">
@@ -157,7 +182,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4 text-center bg-gradient-to-br from-teal-50 to-white">
+      <section className="py-24 px-4 text-center bg-gradient-to-br from-slate-50 to-white">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             Klaar om het prototype te proberen?

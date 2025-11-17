@@ -105,7 +105,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
         `}
       >
         {/* Header with logo and collapse button */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-br from-teal-50 to-white">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
           {!isCollapsed && (
             <Link href="/" className="flex items-center space-x-2.5 group">
               <div className="w-9 h-9 bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
@@ -127,7 +127,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
           {/* Desktop collapse button */}
           <button
             onClick={toggleCollapse}
-            className="hidden md:flex p-1.5 rounded-md hover:bg-white/80 transition-all duration-200"
+            className="hidden md:flex p-1.5 rounded-md hover:bg-slate-100 transition-all duration-200"
             aria-label={isCollapsed ? "Uitklappen" : "Inklappen"}
           >
             {isCollapsed ? (
@@ -153,7 +153,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
                     className={`
                       w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group
                       ${isActive
-                        ? "bg-teal-50 text-teal-700"
+                        ? "bg-slate-100 text-slate-900"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }
                       ${isCollapsed ? "justify-center px-2" : ""}
@@ -165,7 +165,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
                         className={`
                           h-5 w-5 flex-shrink-0
                           ${isActive
-                            ? "text-teal-600"
+                            ? "text-slate-700"
                             : "text-slate-500 group-hover:text-slate-700"
                           }
                         `}
@@ -181,7 +181,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
                           <span className={`
                             px-2 py-0.5 text-xs font-medium rounded-full
                             ${isActive
-                              ? "bg-teal-100 text-teal-700"
+                              ? "bg-slate-200 text-slate-700"
                               : "bg-slate-100 text-slate-600"
                             }
                           `}>
@@ -211,7 +211,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
           <div className={`border-b border-slate-200 bg-slate-50/30 ${isCollapsed ? 'py-3 px-2' : 'p-3'}`}>
             {!isCollapsed ? (
               <div className="flex items-center px-3 py-2 rounded-md bg-white hover:bg-slate-50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-sm">
                   <span className="text-white font-medium text-xs">{userInitials}</span>
                 </div>
                 <div className="flex-1 min-w-0 ml-2.5">
@@ -227,7 +227,7 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
             ) : (
               <div className="flex justify-center">
                 <div className="relative">
-                  <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
+                  <div className="w-9 h-9 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-sm">
                     <span className="text-white font-medium text-xs">{userInitials}</span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
