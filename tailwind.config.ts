@@ -57,12 +57,39 @@ const config: Config = {
         // Borders
         border: '#E2E8F0',
 
-        // Brand & Primary
+        // Brand & Primary (Teal-first design system)
         brand: {
-          DEFAULT: '#3B82F6',
-          hover: '#2563EB',
-          active: '#1D4ED8',
-          subtle: '#EFF6FF',
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          200: '#99F6E4',
+          300: '#5EEAD4',
+          400: '#2DD4BF',
+          500: '#14B8A6',
+          600: '#0D9488',   // PRIMARY
+          700: '#0F766E',
+          800: '#115E59',
+          900: '#134E4A',
+          DEFAULT: '#0D9488',
+          hover: '#0F766E',
+          active: '#115E59',
+          subtle: '#F0FDFA',
+        },
+
+        // AI Features (Amber)
+        ai: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F59E0B',   // PRIMARY AI
+          600: '#D97706',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
+          DEFAULT: '#F59E0B',
+          hover: '#D97706',
+          subtle: '#FFFBEB',
         },
 
         // Neutral CTA
@@ -104,8 +131,8 @@ const config: Config = {
           subtle: '#FEF2F2',
         },
         info: {
-          DEFAULT: '#3B82F6',
-          subtle: '#EFF6FF',
+          DEFAULT: '#0D9488',  // Uses brand teal
+          subtle: '#CCFBF1',   // teal-100
         },
 
         // Severity badges (DSM-light)
@@ -131,7 +158,7 @@ const config: Config = {
           placeholder: '#94A3B8',
           border: '#CBD5E1',
           'border-hover': '#94A3B8',
-          focus: '#3B82F6',
+          focus: '#0D9488',  // Teal focus states
           disabled: {
             bg: '#F1F5F9',
             text: '#94A3B8',
@@ -145,7 +172,7 @@ const config: Config = {
         'lg': '0 8px 20px rgba(15,23,42,0.10)',
       },
       ringColor: {
-        DEFAULT: '#3B82F6',
+        DEFAULT: '#0D9488',  // Teal ring for focus states
       },
       ringWidth: {
         DEFAULT: '2px',
