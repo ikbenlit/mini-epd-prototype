@@ -16,6 +16,7 @@ import type { Metadata } from 'next'
 import { getContent } from '@/lib/content/loader'
 import type { MetadataContent } from '@/content/schemas/manifesto'
 import { HeroQuote } from './components/hero-quote'
+import { BuildTimeline } from './components/build-timeline'
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -68,7 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// Statement content interface
+// Content interfaces
 interface StatementContent {
   hero: {
     quote: string
@@ -78,14 +79,43 @@ interface StatementContent {
   }
 }
 
+interface Feature {
+  title: string
+  description: string
+  time?: string
+  traditional?: string
+  icon: "Rocket" | "Database" | "Sparkles" | "Palette" | "Calendar" | "Layout" | "Users" | "Smartphone" | "FileText" | "Brain" | "Tags" | "Target" | "HelpCircle" | "Zap" | "Eye"
+}
+
+interface WeekData {
+  weekNumber: number
+  title: string
+  status: "completed" | "in_progress" | "planned"
+  description: string
+  features: Feature[]
+  metrics: {
+    hours: string
+    cost: string
+    linesOfCode: string
+  }
+  achievements: string[]
+}
+
+interface TimelineContent {
+  heading: string
+  description: string
+  weeks: WeekData[]
+}
+
 export default async function HomePage() {
-  // Load hero content from existing manifesto
-  const content = await getContent<StatementContent>('nl', 'manifesto')
+  // Load content
+  const manifestoContent = await getContent<StatementContent>('nl', 'manifesto')
+  const timelineContent = await getContent<TimelineContent>('nl', 'timeline')
 
   return (
     <>
       {/* Hero Quote Section */}
-      <HeroQuote content={content.hero} />
+      <HeroQuote content={manifestoContent.hero} />
 
       {/* Statement Section - Software on Demand */}
       <section className="w-full md:max-w-[750px] mx-auto px-4 md:px-16 py-16 md:py-24">
@@ -121,18 +151,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Timeline Section - Coming in E1.S3 */}
-      <section id="timeline" className="w-full bg-slate-50 py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Build in Public: 4 Weken
-            </h2>
-            <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-              Timeline komt hier in E1.S3 - volledige transparantie over voortgang, features en metrics
-            </p>
-          </div>
-        </div>
+      {/* Timeline Section */}
+      <section id="timeline">
+        <BuildTimeline data={timelineContent} />
       </section>
 
       {/* CTA Section */}

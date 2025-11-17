@@ -74,9 +74,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect to /clients if authenticated and trying to access login
+  // Redirect to /epd/clients if authenticated and trying to access login
   if (user && pathname === '/login') {
-    return NextResponse.redirect(new URL('/clients', request.url))
+    return NextResponse.redirect(new URL('/epd/clients', request.url))
   }
 
   return supabaseResponse

@@ -1,0 +1,160 @@
+{
+  "heading": "Build in Public: 4 Weken",
+  "description": "Volg de ontwikkeling van een volledig EPD prototype - van idee tot werkende applicatie. Volledige transparantie over features, tijd en kosten.",
+  "weeks": [
+    {
+      "weekNumber": 1,
+      "title": "Week 1 • Nov 11-17",
+      "status": "completed",
+      "description": "Foundation & Marketing - Technische basis opzetten en marketing website bouwen met teal-first design system. Database schema, auth flow en vereenvoudigde user journey.",
+      "features": [
+        {
+          "title": "Project Setup",
+          "description": "Next.js 15 + Supabase + Vercel running met complete development environment",
+          "icon": "Rocket"
+        },
+        {
+          "title": "Database & Auth",
+          "description": "PostgreSQL schema met 5 core tables en RLS policies voor data isolatie",
+          "icon": "Database"
+        },
+        {
+          "title": "Marketing Refactor",
+          "description": "Vereenvoudigde homepage met statement section en timeline component",
+          "icon": "Sparkles"
+        },
+        {
+          "title": "Teal Design System",
+          "description": "Modern, innovatief brand identity met teal primary color en WCAG AA compliance",
+          "icon": "Palette"
+        }
+      ],
+      "metrics": {
+        "hours": "32 uur",
+        "cost": "€0",
+        "linesOfCode": "~2500"
+      },
+      "achievements": [
+        "✅ Development environment compleet",
+        "✅ Database schema en RLS policies live",
+        "✅ Marketing website refactored",
+        "✅ Teal design system geïmplementeerd"
+      ]
+    },
+    {
+      "weekNumber": 2,
+      "title": "Week 2 • Nov 18-24",
+      "status": "planned",
+      "description": "EPD Core - Client management module met CRUD operations, responsive UI en navigatie. De basis van het EPD systeem.",
+      "features": [
+        {
+          "title": "Coming Soon Dashboard",
+          "description": "Placeholder dashboard met roadmap en verwachtingen management",
+          "icon": "Calendar"
+        },
+        {
+          "title": "App Layout & Navigation",
+          "description": "Header, sidebar, breadcrumbs en logout flow voor EPD applicatie",
+          "icon": "Layout"
+        },
+        {
+          "title": "Client CRUD",
+          "description": "Volledige client management: toevoegen, bewerken, verwijderen en zoeken",
+          "icon": "Users"
+        },
+        {
+          "title": "Responsive Design",
+          "description": "Mobile-first UI met adaptive layouts voor alle schermformaten",
+          "icon": "Smartphone"
+        }
+      ],
+      "metrics": {
+        "hours": "~28 uur",
+        "cost": "~€50",
+        "linesOfCode": "~2000"
+      },
+      "achievements": []
+    },
+    {
+      "weekNumber": 3,
+      "title": "Week 3 • Nov 25-Dec 1",
+      "status": "planned",
+      "description": "AI Magic - TipTap editor, Claude API integratie en AI-gestuurde workflows. Het hart van de time-saving features.",
+      "features": [
+        {
+          "title": "TipTap Rich Text Editor",
+          "description": "ProseMirror-based editor voor intake notes met formatting en shortcuts",
+          "icon": "FileText"
+        },
+        {
+          "title": "AI Intake Samenvatting",
+          "description": "Claude 3.5 Sonnet genereert samenvattingen in < 5 seconden",
+          "time": "< 5 sec",
+          "traditional": "15-20 min",
+          "icon": "Brain"
+        },
+        {
+          "title": "DSM-light Classificatie",
+          "description": "Automatische categorisatie van problematiek op basis van intake",
+          "time": "< 3 sec",
+          "traditional": "10-15 min",
+          "icon": "Tags"
+        },
+        {
+          "title": "SMART Behandelplan",
+          "description": "AI-gegenereerde behandelplannen met doelen en interventies",
+          "time": "< 5 sec",
+          "traditional": "20-30 min",
+          "icon": "Target"
+        }
+      ],
+      "metrics": {
+        "hours": "~35 uur",
+        "cost": "~€50",
+        "linesOfCode": "~3000"
+      },
+      "achievements": []
+    },
+    {
+      "weekNumber": 4,
+      "title": "Week 4 • Dec 2-8",
+      "status": "planned",
+      "description": "Polish & Launch - Onboarding, performance optimization en demo preparation. Klaar voor de wereld.",
+      "features": [
+        {
+          "title": "User Onboarding",
+          "description": "Tooltips en walkthrough voor first-time users met feature highlights",
+          "icon": "HelpCircle"
+        },
+        {
+          "title": "Performance Optimization",
+          "description": "Lighthouse score > 90, LCP < 2.5s en code splitting",
+          "icon": "Zap"
+        },
+        {
+          "title": "Accessibility Audit",
+          "description": "WCAG AA compliance, keyboard navigation en focus states",
+          "icon": "Eye"
+        },
+        {
+          "title": "Production Deployment",
+          "description": "Live op Vercel met monitoring en error tracking setup",
+          "icon": "Rocket"
+        }
+      ],
+      "metrics": {
+        "hours": "~25 uur",
+        "cost": "~€50",
+        "linesOfCode": "~1500"
+      },
+      "achievements": []
+    }
+  ],
+  "totals": {
+    "totalHours": "120 uur",
+    "totalCost": "€150",
+    "traditionalCost": "€100.000+",
+    "traditionalTime": "12-24 maanden",
+    "savings": "99.85% goedkoper, 99% sneller"
+  }
+}
