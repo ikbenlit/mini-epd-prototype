@@ -3,6 +3,56 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loginWithMagicLink, loginWithPassword } from '@/lib/auth/client'
+import { Brain, Zap, Target, FileText, Clock, TrendingDown } from 'lucide-react'
+import { BentoGrid, BentoCard } from '@/components/ui/bento-grid'
+
+// Bento grid features with different sizes for visual interest
+const bentoFeatures = [
+  {
+    name: 'AI Intake Samenvatting',
+    description: 'Van 30 minuten handmatig werk naar 5 seconden automatisch. AI leest, begrijpt en structureert intake gesprekken.',
+    icon: Brain,
+    className: 'col-span-3 lg:col-span-2',
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-teal-600/20" />
+    ),
+    href: '#',
+    cta: 'Meer info'
+  },
+  {
+    name: '90%+ Tijdsbesparing',
+    description: 'Gemiddeld bespaar je 2+ uur per dag op documentatie',
+    icon: TrendingDown,
+    className: 'col-span-3 lg:col-span-1',
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-amber-600/20" />
+    ),
+    href: '#',
+    cta: 'Zie metrics'
+  },
+  {
+    name: 'DSM Classificatie',
+    description: 'Automatische categorisatie in 3 seconden vs 15 minuten handmatig',
+    icon: Zap,
+    className: 'col-span-3 lg:col-span-1',
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-purple-600/20" />
+    ),
+    href: '#',
+    cta: 'Ontdekken'
+  },
+  {
+    name: 'SMART Behandelplannen',
+    description: 'Gestructureerde doelen en interventies in 10 seconden. AI genereert evidence-based plannen.',
+    icon: Target,
+    className: 'col-span-3 lg:col-span-2',
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-blue-600/20" />
+    ),
+    href: '#',
+    cta: 'Bekijk voorbeeld'
+  }
+]
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,7 +103,7 @@ export default function LoginPage() {
 
       // Redirect to EPD
       setTimeout(() => {
-        router.push('/clients')
+        router.push('/epd/clients')
       }, 1000)
     } catch (error: any) {
       setMessage({
@@ -75,7 +125,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await loginWithPassword('demo@mini-ecd.demo', 'Demo2024!')
-      router.push('/clients')
+      router.push('/epd/clients')
     } catch (error: any) {
       setMessage({
         type: 'error',
@@ -86,26 +136,76 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Mini-ECD Login
-          </h1>
-          <p className="text-gray-600">
-            AI-powered EPD voor de GGZ sector
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Side - Bento Grid Showcase (60%) */}
+      <div className="lg:w-3/5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 md:p-8 lg:p-12 flex flex-col justify-center">
+        <div className="max-w-5xl mx-auto w-full">
+          {/* Header */}
+          <div className="mb-8">
+            <a href="/" className="inline-block mb-6 text-slate-300 hover:text-white transition-colors">
+              ← Terug naar home
+            </a>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              AI-Gestuurde EPD Workflows
+            </h1>
+            <p className="text-slate-300 text-lg md:text-xl max-w-2xl">
+              Van uren documentatie naar seconden. Ontdek hoe AI je dagelijkse workflow transformeert.
+            </p>
+          </div>
 
-        {/* Main Card */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+          {/* Bento Grid */}
+          <BentoGrid className="mb-8">
+            {bentoFeatures.map((feature, index) => (
+              <BentoCard
+                key={index}
+                name={feature.name}
+                description={feature.description}
+                Icon={feature.icon}
+                className={feature.className}
+                background={feature.background}
+                href={feature.href}
+                cta={feature.cta}
+              />
+            ))}
+          </BentoGrid>
+
+          {/* Stats Footer */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+              <div className="text-2xl md:text-3xl font-bold text-teal-400">90%+</div>
+              <div className="text-xs md:text-sm text-slate-400 mt-1">Tijdsbesparing</div>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+              <div className="text-2xl md:text-3xl font-bold text-amber-400">&lt; 5 sec</div>
+              <div className="text-xs md:text-sm text-slate-400 mt-1">Gemiddelde respons</div>
+            </div>
+            <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+              <div className="text-2xl md:text-3xl font-bold text-purple-400">4 weken</div>
+              <div className="text-xs md:text-sm text-slate-400 mt-1">Build tijd</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Login Form (40%) */}
+      <div className="md:w-2/5 bg-white p-8 md:p-12 flex flex-col justify-center">
+        <div className="w-full max-w-md mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+              Login
+            </h2>
+            <p className="text-slate-600">
+              Toegang tot EPD prototype
+            </p>
+          </div>
+
           {/* Message Display */}
           {message && (
             <div
               className={`mb-6 p-4 rounded-lg ${
                 message.type === 'success'
-                  ? 'bg-green-50 text-green-800 border border-green-200'
+                  ? 'bg-teal-50 text-teal-800 border border-teal-200'
                   : 'bg-red-50 text-red-800 border border-red-200'
               }`}
             >
@@ -116,15 +216,15 @@ export default function LoginPage() {
           {/* Magic Link Login */}
           {!showDemoLogin && (
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
                 📧 Login met Magic Link
-              </h2>
+              </h3>
 
               <form onSubmit={handleMagicLinkLogin} className="space-y-4">
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-700 mb-1"
                   >
                     Email
                   </label>
@@ -135,9 +235,9 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="jouw@email.nl"
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     Nieuw? Account wordt automatisch aangemaakt!
                   </p>
                 </div>
@@ -145,7 +245,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Verzenden...' : 'Stuur Magic Link'}
                 </button>
@@ -154,17 +254,17 @@ export default function LoginPage() {
               {/* Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+                  <div className="w-full border-t border-slate-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">of</span>
+                  <span className="px-2 bg-white text-slate-500">of</span>
                 </div>
               </div>
 
               {/* Demo Account Toggle */}
               <button
                 onClick={() => setShowDemoLogin(true)}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-4 rounded-lg transition-colors"
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-lg transition-colors"
               >
                 🎯 Login met Demo Account
               </button>
@@ -173,7 +273,7 @@ export default function LoginPage() {
               <button
                 onClick={handleQuickDemoLogin}
                 disabled={loading}
-                className="mt-3 w-full bg-yellow-50 hover:bg-yellow-100 text-yellow-800 text-sm font-medium py-2 px-4 rounded-lg border border-yellow-200 transition-colors disabled:opacity-50"
+                className="mt-3 w-full bg-amber-50 hover:bg-amber-100 text-amber-800 text-sm font-medium py-2 px-4 rounded-lg border border-amber-200 transition-colors disabled:opacity-50"
               >
                 ⚡ Snelle Demo Login
               </button>
@@ -184,26 +284,26 @@ export default function LoginPage() {
           {showDemoLogin && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-slate-900">
                   🎯 Demo Account Login
-                </h2>
+                </h3>
                 <button
                   onClick={() => {
                     setShowDemoLogin(false)
                     setPassword('')
                   }}
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="text-sm text-slate-600 hover:text-slate-900"
                 >
                   ← Terug
                 </button>
               </div>
 
               {/* Demo Credentials Info */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                <p className="text-sm font-medium text-yellow-800 mb-2">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                <p className="text-sm font-medium text-amber-800 mb-2">
                   📋 Demo Credentials:
                 </p>
-                <div className="text-xs text-yellow-700 font-mono space-y-1">
+                <div className="text-xs text-amber-700 font-mono space-y-1">
                   <p>Email: demo@mini-ecd.demo</p>
                   <p>Password: Demo2024!</p>
                 </div>
@@ -213,7 +313,7 @@ export default function LoginPage() {
                 <div>
                   <label
                     htmlFor="demo-email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-700 mb-1"
                   >
                     Email
                   </label>
@@ -224,14 +324,14 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="demo@mini-ecd.demo"
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-700 mb-1"
                   >
                     Password
                   </label>
@@ -242,34 +342,34 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Inloggen...' : 'Login'}
                 </button>
               </form>
             </div>
           )}
-        </div>
 
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Build in Public door{' '}
-          <a
-            href="https://ikbenlit.nl"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-green-600 hover:text-green-700 font-medium"
-          >
-            AI Speedrun
-          </a>
-        </p>
+          {/* Footer */}
+          <p className="text-center text-xs text-slate-500 mt-8">
+            Build in Public door{' '}
+            <a
+              href="https://ikbenlit.nl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-600 hover:text-teal-700 font-medium"
+            >
+              AI Speedrun
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   )
