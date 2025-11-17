@@ -65,13 +65,13 @@ const config: Config = {
           300: '#5EEAD4',
           400: '#2DD4BF',
           500: '#14B8A6',
-          600: '#0D9488',   // PRIMARY
-          700: '#0F766E',
+          600: '#0D9488',   // UI components (3:1 on white)
+          700: '#0F766E',   // PRIMARY text (5.47:1 on white - WCAG AA)
           800: '#115E59',
           900: '#134E4A',
-          DEFAULT: '#0D9488',
-          hover: '#0F766E',
-          active: '#115E59',
+          DEFAULT: '#0F766E',  // Changed to teal-700 for better contrast
+          hover: '#115E59',     // Changed to teal-800
+          active: '#0D9488',    // Changed to teal-600
           subtle: '#F0FDFA',
         },
 
@@ -172,7 +172,7 @@ const config: Config = {
         'lg': '0 8px 20px rgba(15,23,42,0.10)',
       },
       ringColor: {
-        DEFAULT: '#0D9488',  // Teal ring for focus states
+        DEFAULT: '#0F766E',  // Teal-700 ring for focus states (WCAG AA)
       },
       ringWidth: {
         DEFAULT: '2px',

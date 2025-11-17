@@ -47,7 +47,6 @@ export async function middleware(request: NextRequest) {
     '/',
     '/login',
     '/auth/callback',
-    '/epd',
     '/contact',
     '/api/leads',
     '/robots.txt',

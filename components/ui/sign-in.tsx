@@ -151,10 +151,10 @@ const AnimatedSignIn: React.FC = () => {
               <div className="flex justify-end mb-6">
                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                   Don't have an account? 
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     className={`ml-1 font-medium ${
-                      theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
+                      theme === 'dark' ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-500'
                     }`}
                   >
                     Sign up
@@ -164,7 +164,7 @@ const AnimatedSignIn: React.FC = () => {
 
               <div className="mb-8">
                 <h1 className={`text-2xl font-bold mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                  Sign in to <span className="text-blue-500">Jobsly</span>
+                  Sign in to <span className="text-teal-600">Jobsly</span>
                 </h1>
                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                   Welcome to Jobsly, please enter your login details below to using the app.
@@ -189,9 +189,9 @@ const AnimatedSignIn: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className={`block w-full rounded-md border py-3 px-4 focus:outline-none focus:ring-2 sm:text-sm ${
-                        theme === 'dark' 
-                          ? 'bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 focus:ring-blue-500' 
-                          : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:ring-blue-500'
+                        theme === 'dark'
+                          ? 'bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 focus:ring-teal-500'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:ring-teal-500'
                       }`}
                       placeholder="your.email@example.com"
                       required
@@ -216,9 +216,9 @@ const AnimatedSignIn: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className={`block w-full rounded-md border py-3 px-4 pr-10 focus:outline-none focus:ring-2 sm:text-sm ${
-                        theme === 'dark' 
-                          ? 'bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 focus:ring-blue-500' 
-                          : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:ring-blue-500'
+                        theme === 'dark'
+                          ? 'bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 focus:ring-teal-500'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:ring-teal-500'
                       }`}
                       placeholder="••••••••"
                       required
@@ -240,10 +240,10 @@ const AnimatedSignIn: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-end">
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     className={`text-sm font-medium ${
-                      theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-600'
+                      theme === 'dark' ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-500'
                     }`}
                   >
                     Forgot the password?
@@ -254,9 +254,9 @@ const AnimatedSignIn: React.FC = () => {
                   type="submit"
                   disabled={isLoading}
                   className={`flex w-full justify-center rounded-md py-3 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-300 ${
-                    theme === 'dark' 
-                      ? 'bg-blue-600 hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500' 
-                      : 'bg-blue-600 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                    theme === 'dark'
+                      ? 'bg-teal-600 hover:bg-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500'
+                      : 'bg-teal-600 hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600'
                   } ${isLoading ? 'cursor-not-allowed opacity-70' : ''}`}
                 >
                   {isLoading ? (

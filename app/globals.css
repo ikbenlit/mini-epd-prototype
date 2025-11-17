@@ -16,11 +16,16 @@
   --color-text-secondary: #475569;
   --color-border: #E2E8F0;
 
-  /* Brand & Primary */
-  --color-brand: #3B82F6;
-  --color-brand-hover: #2563EB;
-  --color-brand-active: #1D4ED8;
-  --color-brand-subtle: #EFF6FF;
+  /* Brand & Primary (Teal-first Design System) */
+  --color-brand: #0F766E;      /* teal-700 - PRIMARY (5.47:1 on white - WCAG AA) */
+  --color-brand-hover: #115E59;  /* teal-800 */
+  --color-brand-active: #0D9488; /* teal-600 */
+  --color-brand-subtle: #F0FDFA; /* teal-50 */
+
+  /* AI Features (Amber) */
+  --color-ai: #D97706;         /* amber-600 - PRIMARY AI (3.19:1 on white - WCAG AA large) */
+  --color-ai-hover: #B45309;   /* amber-700 */
+  --color-ai-subtle: #FFFBEB;  /* amber-50 */
 
   /* Neutral CTA */
   --color-neutral: #334155;
@@ -46,8 +51,8 @@
   --color-warning-subtle: #FEFCE8;
   --color-error: #DC2626;
   --color-error-subtle: #FEF2F2;
-  --color-info: #3B82F6;
-  --color-info-subtle: #EFF6FF;
+  --color-info: #0F766E;      /* teal-700 - Brand consistency (WCAG AA) */
+  --color-info-subtle: #CCFBF1; /* teal-100 */
 
   /* Badges (Severity DSM-light) */
   --color-badge-low-bg: #E5E7EB;
@@ -63,8 +68,8 @@
   --color-input-placeholder: #94A3B8;
   --color-input-border: #CBD5E1;
   --color-input-border-hover: #94A3B8;
-  --color-input-focus: #3B82F6;
-  --color-input-focus-border: #2563EB;
+  --color-input-focus: #0F766E;      /* teal-700 - Focus states (WCAG AA) */
+  --color-input-focus-border: #115E59; /* teal-800 */
   --color-input-disabled-bg: #F1F5F9;
   --color-input-disabled-text: #94A3B8;
   --color-input-invalid-border: #DC2626;

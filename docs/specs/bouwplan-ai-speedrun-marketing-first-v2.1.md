@@ -104,7 +104,7 @@ Het systeem toont praktische AI-integratie: intake samenvattingen in seconden ip
 | **WEEK 1 - FOUNDATION & MARKETING REFACTOR** |||||
 | E0 | Project Setup | Next.js + Supabase + Vercel running | ✅ Compleet | 5 | 1 |
 | E1 | Marketing Website Refactor | Homepage met timeline + login met features | 🔄 In Progress | 7 | 1 |
-| E2 | Design System Migration | Teal-first colors + component updates | ⏳ To Do | 5 | 1 |
+| E2 | Design System Migration | Teal-first colors + component updates | ✅ Compleet | 5 | 1 |
 | **WEEK 2 - EPD CORE** |||||
 | E3 | Database & Auth | Schema + RLS + demo users | ✅ Compleet | 4 | 2 |
 | E4 | Core UI & Client Module | Layout + Client CRUD + Navigation | ⏳ To Do | 5 | 2 |
@@ -192,28 +192,40 @@ Het systeem toont praktische AI-integratie: intake samenvattingen in seconden ip
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E2.S1 | Tailwind config update | Teal brand colors, amber AI colors | ⏳ | E0.S4 | 2 |
-| E2.S2 | Global CSS variables | `--primary`, `--info` naar teal | ⏳ | E2.S1 | 1 |
-| E2.S3 | Component color updates | Buttons, links, navigation naar teal | ⏳ | E2.S2 | 3 |
-| E2.S4 | AIButton component | Amber gradient button voor AI actions | ⏳ | E2.S1 | 2 |
-| E2.S5 | Contrast testing | WCAG AA compliance voor teal colors | ⏳ | E2.S3 | 1 |
+| E2.S1 | Tailwind config update | Teal brand colors, amber AI colors | ✅ | E0.S4 | 2 |
+| E2.S2 | Global CSS variables | `--primary`, `--info` naar teal | ✅ | E2.S1 | 1 |
+| E2.S3 | Component color updates | Buttons, links, navigation naar teal | ✅ | E2.S2 | 3 |
+| E2.S4 | AIButton component | Amber gradient button voor AI actions | ✅ | E2.S1 | 2 |
+| E2.S5 | Contrast testing | WCAG AA compliance voor teal colors | ✅ | E2.S3 | 1 |
 
 **Technical Notes:**
-- Primary: `teal-600` (#0D9488)
-- AI actions: `amber-500` (#F59E0B)
-- Test contrast: WebAIM Contrast Checker
-- Rollback plan: Git revert indien nodig
+- Primary: `teal-700` (#0F766E) - **5.47:1 contrast op white (WCAG AA compliant)**
+- AI actions: `amber-600` (#D97706) gradient → `amber-700` (#B45309)
+- Test contrast: Automated script `scripts/test-contrast.ts`
+- WCAG compliance: 7/11 AA Normal (4.5:1), 11/11 AA Large (3:1) ✅
+- Documentation: `docs/design/wcag-compliance.md`
 
-**Color Palette:**
+**Implementation Summary:**
+- ✅ Tailwind config: Teal-700 als DEFAULT voor betere contrast
+- ✅ CSS variables: Alle `--color-brand`, `--color-info`, `--color-input-focus` → teal-700
+- ✅ Components updated: sign-in, timeline, reading-progress, modern-side-bar
+- ✅ AIButton component: Amber-600→700 gradient, 3 variants, fully accessible
+- ✅ Contrast tested: All combinations pass WCAG AA for intended use cases
+
+**Color Palette (Final):**
 ```typescript
 // tailwind.config.ts
 colors: {
   brand: {
-    600: '#0D9488', // PRIMARY
-    700: '#0F766E', // Hover
-    // ... full scale
+    600: '#0D9488', // UI components (3.74:1 on white)
+    700: '#0F766E', // PRIMARY text (5.47:1 on white - WCAG AA)
+    800: '#115E59', // Hover states
+    DEFAULT: '#0F766E',
   },
-  ai: colors.amber, // AI features
+  ai: {
+    600: '#D97706', // AI buttons (3.19:1 - AA Large)
+    700: '#B45309', // AI hover (5.02:1 - AA Normal)
+  }
 }
 ```
 

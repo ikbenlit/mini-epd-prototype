@@ -87,68 +87,32 @@ export async function isAuthenticated() {
 
 /**
  * Check if current user is a demo user (server-side)
+ * @deprecated Demo users are no longer supported
  */
 export async function isDemoUser(): Promise<boolean> {
-  const supabase = await createClient()
-  const user = await getUser()
-
-  if (!user) return false
-
-  const { data, error } = await supabase
-    .from('demo_users')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-
-  if (error) return false
-
-  return !!data
+  return false
 }
 
 /**
  * Get demo user info (server-side)
+ * @deprecated Demo users are no longer supported
  */
 export async function getDemoUserInfo() {
-  const supabase = await createClient()
-  const user = await getUser()
-
-  if (!user) return null
-
-  const { data, error } = await supabase
-    .from('demo_users')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
-
-  if (error) return null
-
-  return data
+  return null
 }
 
 /**
  * Check if demo user has write access
+ * @deprecated All authenticated users can write
  */
 export async function canWrite(): Promise<boolean> {
-  const demoInfo = await getDemoUserInfo()
-
-  // Non-demo users can write
-  if (!demoInfo) return true
-
-  // Only 'interactive' and 'presenter' demo users can write
-  return ['interactive', 'presenter'].includes(demoInfo.access_level)
+  return true
 }
 
 /**
  * Track demo user login
+ * @deprecated Demo users are no longer supported
  */
-export async function trackDemoLogin(userId: string) {
-  const supabase = await createClient()
-
-  await supabase
-    .from('demo_users')
-    .update({
-      usage_count: supabase.rpc('increment', { row_id: userId }),
-      last_login_at: new Date().toISOString()
-    })
-    .eq('user_id', userId)
+export async function trackDemoLogin(_userId: string) {
+  // No-op
 }

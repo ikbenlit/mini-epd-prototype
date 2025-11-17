@@ -123,40 +123,16 @@ export function onAuthStateChange(
 
 /**
  * Check if current user is a demo user
+ * @deprecated Demo users are no longer supported
  */
 export async function isDemoUser(): Promise<boolean> {
-  const supabase = createClient()
-  const user = await getUser()
-
-  if (!user) return false
-
-  const { data, error } = await supabase
-    .from('demo_users')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-
-  if (error) return false
-
-  return !!data
+  return false
 }
 
 /**
  * Get demo user access level
+ * @deprecated Demo users are no longer supported
  */
 export async function getDemoAccessLevel(): Promise<'read_only' | 'interactive' | 'presenter' | null> {
-  const supabase = createClient()
-  const user = await getUser()
-
-  if (!user) return null
-
-  const { data, error } = await supabase
-    .from('demo_users')
-    .select('access_level')
-    .eq('user_id', user.id)
-    .single()
-
-  if (error) return null
-
-  return data.access_level as 'read_only' | 'interactive' | 'presenter'
+  return null
 }
