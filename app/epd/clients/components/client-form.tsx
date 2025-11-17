@@ -30,10 +30,11 @@ export function ClientForm({ client }: ClientFormProps) {
     try {
       if (client) {
         await updateClient(client.id, formData);
+        router.push(`/epd/clients/${client.id}`);
       } else {
-        await createClient(formData);
+        const newClient = await createClient(formData);
+        router.push(`/epd/clients/${newClient.id}`);
       }
-      router.push('/epd/clients');
       router.refresh();
     } catch (err) {
       console.error('Form submission error:', err);
