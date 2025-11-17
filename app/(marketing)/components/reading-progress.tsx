@@ -60,7 +60,7 @@ export function ReadingProgress() {
       aria-label="Leesvoortgang"
     >
       <div
-        className={`h-full bg-blue-500 ${reducedMotion ? '' : 'transition-all duration-150 ease-out'}`}
+        className={`h-full bg-teal-600 ${reducedMotion ? '' : 'transition-all duration-150 ease-out'}`}
         style={{ width: `${progress}%` }}
       />
     </div>
