@@ -22,7 +22,7 @@ const bentoFeatures = [
   {
     name: '90%+ Tijdsbesparing',
     description: 'Gemiddeld bespaar je 2+ uur per dag op documentatie',
-    icon: TrendingDown,
+    icon: Clock,
     className: 'col-span-3 lg:col-span-1',
     background: (
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-amber-600/20" />
@@ -36,7 +36,7 @@ const bentoFeatures = [
     icon: Zap,
     className: 'col-span-3 lg:col-span-1',
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-purple-600/20" />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-500/20" />
     ),
     href: '#',
     cta: 'Ontdekken'
@@ -47,7 +47,7 @@ const bentoFeatures = [
     icon: Target,
     className: 'col-span-3 lg:col-span-2',
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-blue-600/20" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20" />
     ),
     href: '#',
     cta: 'Bekijk voorbeeld'
@@ -172,7 +172,7 @@ export default function LoginPage() {
           {/* Stats Footer */}
           <div className="grid grid-cols-3 gap-4 mt-8">
             <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-              <div className="text-2xl md:text-3xl font-bold text-teal-400">90%+</div>
+              <div className="text-2xl md:text-3xl font-bold text-amber-400">90%+</div>
               <div className="text-xs md:text-sm text-slate-400 mt-1">Tijdsbesparing</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
@@ -180,7 +180,7 @@ export default function LoginPage() {
               <div className="text-xs md:text-sm text-slate-400 mt-1">Gemiddelde respons</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-              <div className="text-2xl md:text-3xl font-bold text-purple-400">4 weken</div>
+              <div className="text-2xl md:text-3xl font-bold text-slate-300">4 weken</div>
               <div className="text-xs md:text-sm text-slate-400 mt-1">Build tijd</div>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="jouw@email.nl"
                     required
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   />
                   <p className="mt-1 text-xs text-slate-500">
                     Nieuw? Account wordt automatisch aangemaakt!
@@ -324,7 +324,7 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="demo@mini-ecd.demo"
                     required
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   />
                 </div>
 
@@ -342,7 +342,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   />
                 </div>
 
