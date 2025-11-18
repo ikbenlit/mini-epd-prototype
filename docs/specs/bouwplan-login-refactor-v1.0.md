@@ -24,8 +24,8 @@ Het huidige login scherm heeft Magic Link als primaire methode, maar voor een **
 **Gewenste situatie:**
 - Email + Password formulier als primair scherm
 - One-click demo login prominent zichtbaar
-- Magic Link als alternatieve optie onderaan
-- Alle opties altijd zichtbaar (geen toggle)
+- Magic Link als minimale fallback (kleine link onderaan)
+- Focus op snelheid: Quick Demo button is de CTA
 
 **Context:**
 - Dit is een DEMO platform, geen productie EPD
@@ -98,19 +98,26 @@ app/login/page.tsx        - Volledige UI refactor
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|-----------------|
 | E1.S1 | Verwijder conditional toggle logic | `showDemoLogin` state verwijderd, geen toggle buttons meer | ⏳ | — | 2 |
-| E1.S2 | Herstructureer page layout | Email+Password bovenaan, Magic Link onderaan met divider | ⏳ | E1.S1 | 3 |
-| E1.S3 | Update copy & labels | Primaire form heet "Login", Magic Link "Alternatieve optie" | ⏳ | E1.S2 | 1 |
+| E1.S2 | Herstructureer page layout | Email+Password primair, Magic Link achter kleine link | ⏳ | E1.S1 | 3 |
+| E1.S3 | Update copy & labels | Focus op Quick Demo, Magic Link minimaal | ⏳ | E1.S2 | 1 |
 
 **Technical Notes:**
 
-**E1.S1 - Toggle Logic Verwijderen:**
+**E1.S1 - Toggle Logic Aanpassen:**
 ```typescript
 // VERWIJDER:
 const [showDemoLogin, setShowDemoLogin] = useState(false)
 
-// VERWIJDER buttons:
+// VERVANG door:
+const [showMagicLink, setShowMagicLink] = useState(false)
+
+// VERWIJDER oude toggle buttons:
 <button onClick={() => setShowDemoLogin(true)}>Login met Demo Account</button>
 <button onClick={() => setShowDemoLogin(false)}>← Terug</button>
+
+// NIEUWE logic:
+// Default = Email+Password form zichtbaar
+// showMagicLink = true → Toon Magic Link form in plaats van password form
 ```
 
 **E1.S2 - Layout Herstructureren:**
@@ -129,21 +136,27 @@ NIEUWE STRUCTUUR:
 │                                         │
 │  [Demo Credentials Info Box - E2.S2]   │
 │                                         │
-│  ─────────── of ───────────            │
-│                                         │
-│  Gebruik Magic Link (geen wachtwoord)  │
-│  Email: [________________]             │
-│  [Stuur Magic Link]                    │
+│  Liever zonder wachtwoord?             │
+│  [Gebruik magic link →]                │
 └─────────────────────────────────────────┘
+
+MAGIC LINK FLOW (na click op link):
+- Conditional state: showMagicLink = true
+- Toon email input + "Stuur Magic Link" button
+- "← Terug naar login" link
 ```
 
 **E1.S3 - Copy Updates:**
 ```typescript
 // OUD → NIEUW
 "🔑 Demo Account Login" → "Login"
-"📧 Login met Magic Link" → "Of gebruik Magic Link"
+"📧 Login met Magic Link" → [VERBORGEN achter link]
 "Login met Demo Account" → [VERWIJDERD - QuickDemoButton vervangt dit]
-"Snelle Demo Login" → "🚀 Start Demo" (in QuickDemoButton)
+"Snelle Demo Login" → "🚀 Start Demo (geen registratie)"
+
+// NIEUW
+"Liever zonder wachtwoord?" → Link onderaan
+"Gebruik magic link →" → Toont magic link formulier
 ```
 
 ---
@@ -335,9 +348,10 @@ function QuickDemoButton() {
 ✅ **Functional Requirements:**
 - Email + Password is primair formulier (bovenaan pagina)
 - Quick demo button werkt (one-click login)
-- Magic Link optie blijft beschikbaar (onderaan)
+- Magic Link optie minimaal zichtbaar (kleine link)
 - Demo credentials info box zichtbaar
 - Alle 3 login methoden getest en werkend
+- Focus op Quick Demo als primaire CTA
 
 ✅ **Quality Requirements:**
 - Geen console errors/warnings
