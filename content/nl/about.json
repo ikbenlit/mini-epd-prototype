@@ -1,0 +1,95 @@
+{
+  "title": "Over mij",
+  "subtitle": "AI-gedreven development in de praktijk",
+  "image": {
+    "src": "/images/colin-office-6.webp",
+    "alt": "Colin van der Heijden - AI Development Specialist"
+  },
+  "paragraphs": [
+    "Na jaren in traditionele software development te hebben gewerkt, zag ik hoe bedrijven vast liepen in eindeloze implementatietrajecten en vendor lock-in. De belofte van AI-powered development klonk te mooi om waar te zijn - totdat ik het zelf ging testen.",
+    "Dit EPD prototype is geen marketingpraatje, maar een hands-on bewijs van wat er mogelijk is. Elke regel code, elk design decision, elke feature - allemaal gedocumenteerd en transparant. Want de beste manier om te laten zien wat AI-development kan, is het gewoon doen."
+  ],
+  "stats": [
+    {
+      "value": "4 weken",
+      "label": "Van concept tot werkend prototype"
+    },
+    {
+      "value": "€200",
+      "label": "Totale build cost"
+    },
+    {
+      "value": "10+ jaar",
+      "label": "Ervaring in software development"
+    },
+    {
+      "value": "100%",
+      "label": "Transparant build in public"
+    }
+  ],
+  "expertise": {
+    "label": "Tech Stack & Expertise",
+    "items": [
+      {
+        "name": "Gezond Verstand",
+        "category": "Mindset",
+        "highlight": true
+      },
+      {
+        "name": "Supabase",
+        "category": "Backend",
+        "highlight": false
+      },
+      {
+        "name": "Goeie werkethos",
+        "category": "Mindset",
+        "highlight": true
+      },
+      {
+        "name": "Gemini AI",
+        "category": "AI Tool",
+        "highlight": false
+      },
+      {
+        "name": "Claude AI",
+        "category": "AI Tool",
+        "highlight": false
+      },
+      {
+        "name": "Cursor IDE",
+        "category": "Development",
+        "highlight": false
+      },
+      {
+        "name": "No Bullshit",
+        "category": "Mindset",
+        "highlight": true
+      },
+      {
+        "name": "Vercel",
+        "category": "Hosting",
+        "highlight": false
+      },
+      {
+        "name": "Supabase",
+        "category": "Database",
+        "highlight": false
+      },
+      {
+        "name": "Bak ervaring",
+        "category": "Integration",
+        "highlight": false
+      },
+      {
+        "name": "Handson",
+        "category": "Mindset",
+        "highlight": true
+      },
+      {
+        "name": "Next.js",
+        "category": "Frontend",
+        "highlight": false
+      }
+    ]
+  }
+}

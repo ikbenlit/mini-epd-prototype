@@ -3,20 +3,25 @@
 import { HeroSection } from '@/components/ui/hero-section-2'
 
 interface HeroSectionClientProps {
-  logo: {
+  logo?: {
     url: string
     alt: string
     text?: string
   }
   slogan?: string
   title: React.ReactNode
-  subtitle: string
+  subtitle: string | React.ReactNode
+  punchline?: string | React.ReactNode
   callToAction: {
     text: string
     href: string
   }
+  secondaryCallToAction?: {
+    text: string
+    href: string
+  }
   backgroundImage: string
-  contactInfo: {
+  contactInfo?: {
     website: string
     phone: string
     address: string
