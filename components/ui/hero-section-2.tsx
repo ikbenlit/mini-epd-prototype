@@ -37,13 +37,18 @@ interface HeroSectionProps {
   };
   slogan?: string;
   title: React.ReactNode;
-  subtitle: string;
+  subtitle: string | React.ReactNode;
+  punchline?: string | React.ReactNode;
   callToAction: {
     text: string;
     href: string;
   };
+  secondaryCallToAction?: {
+    text: string;
+    href: string;
+  };
   backgroundImage: string;
-  contactInfo: {
+  contactInfo?: {
     website: string;
     phone: string;
     address: string;
@@ -52,7 +57,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
-  ({ className, logo, slogan, title, subtitle, callToAction, backgroundImage, contactInfo, ...props }, ref) => {
+  ({ className, logo, slogan, title, subtitle, punchline, callToAction, secondaryCallToAction, backgroundImage, contactInfo, ...props }, ref) => {
     
     // Animation variants for the container to orchestrate children animations
     const containerVariants = {
@@ -108,36 +113,64 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </motion.header>
 
                 <motion.main variants={containerVariants}>
-                    <motion.h1 className="text-4xl font-bold leading-tight text-foreground md:text-5xl" variants={itemVariants}>
+                    <motion.h1 className="text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl" variants={itemVariants}>
                         {title}
                     </motion.h1>
                     <motion.div className="my-6 h-1 w-20 bg-primary" variants={itemVariants}></motion.div>
-                    <motion.p className="mb-8 max-w-md text-base text-muted-foreground" variants={itemVariants}>
+                    <motion.div className="mb-6 max-w-lg text-base md:text-lg leading-relaxed text-slate-600" variants={itemVariants}>
                         {subtitle}
-                    </motion.p>
-                    <motion.a href={callToAction.href} className="text-lg font-bold tracking-widest text-primary transition-colors hover:text-primary/80" variants={itemVariants}>
-                        {callToAction.text}
-                    </motion.a>
+                    </motion.div>
+
+                    {punchline && (
+                        <motion.aside
+                            className="mb-8 max-w-lg md:max-w-2xl border-l-4 border-primary bg-slate-50 p-6 rounded-r-lg"
+                            variants={itemVariants}
+                            role="note"
+                        >
+                            <div className="text-base md:text-lg font-medium text-slate-800 leading-relaxed [&_*:not(br)]:whitespace-normal md:[&_*:not(br)]:whitespace-nowrap">
+                                {punchline}
+                            </div>
+                        </motion.aside>
+                    )}
+
+                    <motion.div className="flex flex-col sm:flex-row gap-4" variants={itemVariants}>
+                        <a
+                            href={callToAction.href}
+                            className="inline-block px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-base tracking-wide rounded-lg transition-colors text-center"
+                        >
+                            {callToAction.text}
+                        </a>
+                        {secondaryCallToAction && (
+                            <a
+                                href={secondaryCallToAction.href}
+                                className="inline-block px-8 py-4 border-2 border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-base rounded-lg transition-colors text-center"
+                            >
+                                {secondaryCallToAction.text}
+                            </a>
+                        )}
+                    </motion.div>
                 </motion.main>
             </div>
 
             {/* Bottom Section: Footer Info */}
-            <motion.footer className="mt-12 w-full" variants={itemVariants}>
-                <div className="grid grid-cols-1 gap-6 text-xs text-muted-foreground sm:grid-cols-3">
-                    <div className="flex items-center">
-                        <InfoIcon type="website" />
-                        <span>{contactInfo.website}</span>
+            {contactInfo && (
+                <motion.footer className="mt-12 w-full" variants={itemVariants}>
+                    <div className="grid grid-cols-1 gap-6 text-xs text-muted-foreground sm:grid-cols-3">
+                        <div className="flex items-center">
+                            <InfoIcon type="website" />
+                            <span>{contactInfo.website}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <InfoIcon type="phone" />
+                            <span>{contactInfo.phone}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <InfoIcon type="address" />
+                            <span>{contactInfo.address}</span>
+                        </div>
                     </div>
-                    <div className="flex items-center">
-                        <InfoIcon type="phone" />
-                        <span>{contactInfo.phone}</span>
-                    </div>
-                    <div className="flex items-center">
-                        <InfoIcon type="address" />
-                        <span>{contactInfo.address}</span>
-                    </div>
-                </div>
-            </motion.footer>
+                </motion.footer>
+            )}
         </div>
 
         {/* Right Side: Image with Clip Path Animation */}

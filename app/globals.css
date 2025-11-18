@@ -211,15 +211,39 @@ body {
   outline-offset: 2px;
 }
 
+/* Floating animation for expertise badges */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(0.5deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(-0.5deg);
+  }
+  75% {
+    transform: translateY(-7px) rotate(0.3deg);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.02ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0.03ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .animate-float {
+    animation: none !important;
   }
 }
 

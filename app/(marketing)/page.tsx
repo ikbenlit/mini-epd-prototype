@@ -17,6 +17,7 @@ import { getContent } from '@/lib/content/loader'
 import type { MetadataContent } from '@/content/schemas/manifesto'
 import { HeroSectionClient } from './components/hero-section-client'
 import { BuildTimeline } from './components/build-timeline'
+import { WhyMe } from '@/components/ui/why-me'
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -70,13 +71,31 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Content interfaces
-interface StatementContent {
-  hero: {
-    quote: string
-    attribution: string
-    attributionContext: string
-    subtitle: string
+interface HeroContent {
+  title: {
+    main: string
+    accent: string
   }
+  subtitle: string
+  punchline: {
+    question: string
+    answer: string
+  }
+  callToAction: {
+    primary: {
+      text: string
+      href: string
+    }
+    secondary: {
+      text: string
+      href: string
+    }
+  }
+  backgroundImage: string
+}
+
+interface StatementContent {
+  hero: HeroContent
 }
 
 interface Feature {
@@ -111,35 +130,32 @@ export default async function HomePage() {
   // Load content
   const manifestoContent = await getContent<StatementContent>('nl', 'manifesto')
   const timelineContent = await getContent<TimelineContent>('nl', 'timeline')
+  const heroContent = manifestoContent.hero
 
   return (
     <>
       {/* Hero Section */}
       <HeroSectionClient
-        logo={{
-          url: "/next.svg",
-          alt: "AI Speedrun Logo",
-          text: "AI Speedrun"
-        }}
-        slogan="BUILD IN PUBLIC"
         title={
           <>
-            Software on Demand
-            <br />
-            <span className="text-teal-600">Van €100k naar €200</span>
+            {heroContent.title.main}{' '}
+            <span className="text-teal-600 block mt-2">
+              {heroContent.title.accent}
+            </span>
           </>
         }
-        subtitle="Enterprise software hoeft niet meer €100.000+ per jaar te kosten. AI-powered development verkort dit naar 4 weken en €200 totale kosten. Dit EPD prototype is het levende bewijs."
-        callToAction={{
-          text: "PROBEER HET PROTOTYPE →",
-          href: "/login"
-        }}
-        backgroundImage="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-        contactInfo={{
-          website: "aispeedrun.nl",
-          phone: "Demo Project",
-          address: "Build in Public"
-        }}
+        subtitle={heroContent.subtitle}
+        punchline={
+          <>
+            {heroContent.punchline.question}
+            <br />
+            <br />
+            <strong>{heroContent.punchline.answer}</strong>
+          </>
+        }
+        callToAction={heroContent.callToAction.primary}
+        secondaryCallToAction={heroContent.callToAction.secondary}
+        backgroundImage={heroContent.backgroundImage}
       />
 
       {/* Statement Section - Software on Demand */}
@@ -180,6 +196,9 @@ export default async function HomePage() {
       <section id="timeline">
         <BuildTimeline data={timelineContent} />
       </section>
+
+      {/* About Me Section */}
+      <WhyMe />
 
       {/* CTA Section */}
       <section className="py-24 px-4 text-center bg-gradient-to-br from-slate-50 to-white">
