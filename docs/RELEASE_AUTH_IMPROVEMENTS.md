@@ -49,6 +49,40 @@ Alle foutmeldingen zijn nu duidelijker en helpen je beter op weg:
 
 ---
 
+## 📋 Voor Bestaande Magic Link Gebruikers
+
+Heb je je eerder aangemeld met een magic link en wil je nu ook met een wachtwoord kunnen inloggen? Dat kan!
+
+### Hoe stel je een wachtwoord in?
+
+1. **Ga naar de wachtwoord reset pagina**
+   - Klik op "Wachtwoord vergeten?" op de login pagina
+   - Of ga direct naar `/reset-password`
+
+2. **Vul je email in**
+   - Gebruik hetzelfde emailadres waarmee je via magic link inlogt
+   - Klik op "Stuur Reset Link"
+
+3. **Check je inbox**
+   - Je ontvangt binnen enkele minuten een email
+   - Klik op de link in de email (geldig voor 1 uur)
+
+4. **Stel je wachtwoord in**
+   - Kies een sterk wachtwoord (minimaal 8 tekens)
+   - Bevestig het wachtwoord
+   - Klaar!
+
+### Na het instellen van een wachtwoord
+
+Je kunt nu kiezen hoe je wilt inloggen:
+
+- 🔑 **Met wachtwoord** - Sneller, direct inloggen zonder email te checken
+- ✉️ **Met magic link** - Blijft ook gewoon werken zoals voorheen
+
+Beide methodes blijven beschikbaar, je kiest zelf wat je het prettigst vindt!
+
+---
+
 ## 🚀 Voor Ontwikkelaars
 
 De volgende functies zijn toegevoegd aan `lib/auth/client.ts`:
