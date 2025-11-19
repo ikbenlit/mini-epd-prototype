@@ -128,9 +128,9 @@ export async function signUpWithPassword(email: string, password: string) {
  */
 export async function resetPasswordForEmail(email: string) {
   const supabase = createClient()
-  // Redirect directly to /update-password - route handler will do code exchange
+  // Redirect to callback route which will handle code exchange and redirect to /update-password
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/update-password`
+    redirectTo: `${window.location.origin}/auth/callback?next=/update-password`
   })
 
   if (error) throw error
