@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "types:generate": "npx supabase gen types typescript --project-id dqugbrpwtisgyxscpefg > lib/supabase/types.ts"
+    "types:generate": "npx supabase gen types typescript --project-id dqugbrpwtisgyxscpefg > lib/supabase/types.ts",
+    "setup:auth-hook": "tsx scripts/setup-auth-hook.ts"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",
