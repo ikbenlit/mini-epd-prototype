@@ -7,7 +7,6 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { MDXRemote } from 'next-mdx-remote/rsc'
 
 const RELEASES_DIR = path.join(process.cwd(), 'content/nl/releases')
 
