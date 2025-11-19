@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateUserPassword } from '@/lib/auth/client'
+import { updateUserPassword, getSession } from '@/lib/auth/client'
 
 export default function UpdatePasswordPage() {
   const router = useRouter()
@@ -11,6 +11,27 @@ export default function UpdatePasswordPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
+
+  // Check if user has an active session (required for password update)
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const session = await getSession()
+        if (!session) {
+          // No session - redirect to login
+          router.push('/login?error=session_required')
+          return
+        }
+        setCheckingSession(false)
+      } catch (err) {
+        console.error('Session check error:', err)
+        router.push('/login?error=session_check_failed')
+      }
+    }
+
+    checkSession()
+  }, [router])
 
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault()
@@ -38,6 +59,20 @@ export default function UpdatePasswordPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-sm text-center space-y-4">
+          <div className="text-5xl mb-4">⏳</div>
+          <h1 className="text-2xl font-bold text-slate-900">Bezig met laden...</h1>
+          <p className="text-slate-600">
+            Even geduld terwijl we je sessie controleren...
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (success) {
