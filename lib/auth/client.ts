@@ -129,7 +129,7 @@ export async function signUpWithPassword(email: string, password: string) {
 export async function resetPasswordForEmail(email: string) {
   const supabase = createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/callback?type=recovery&next=/update-password`
+    redirectTo: `${window.location.origin}/auth/callback?next=/update-password`
   })
 
   if (error) throw error

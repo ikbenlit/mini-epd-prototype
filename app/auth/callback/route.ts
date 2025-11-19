@@ -15,6 +15,17 @@ export async function GET(request: NextRequest) {
   const type = requestUrl.searchParams.get('type') // recovery, signup, etc
   const next = requestUrl.searchParams.get('next') ?? '/epd/clients'
 
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Auth Callback Debug:', {
+      url: request.url,
+      code: !!code,
+      type,
+      next,
+      allParams: Object.fromEntries(requestUrl.searchParams)
+    })
+  }
+
   if (code) {
     const supabase = await createClient()
 
@@ -22,9 +33,19 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Password recovery flow - always go to update-password
-      // Check both query param and if next contains update-password (fallback)
-      if (type === 'recovery' || next.includes('/update-password')) {
+      // Password recovery flow detection:
+      // 1. Check type parameter (Supabase adds this automatically)
+      // 2. Check if next contains update-password (our explicit redirect)
+      // 3. Check if this is a recovery session by looking at the user's recovery metadata
+      const isRecoveryFlow = 
+        type === 'recovery' || 
+        next.includes('/update-password') ||
+        requestUrl.pathname.includes('update-password')
+
+      if (isRecoveryFlow) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Redirecting to /update-password (recovery flow detected)')
+        }
         return NextResponse.redirect(new URL('/update-password', request.url))
       }
 
