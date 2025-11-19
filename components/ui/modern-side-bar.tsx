@@ -63,6 +63,10 @@ export function Sidebar({ className = "" }: SidebarProps) {
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
   const handleItemClick = (itemId: string) => {
+    if (itemId === 'logout') {
+      window.location.href = '/auth/logout';
+      return;
+    }
     setActiveItem(itemId);
     if (window.innerWidth < 768) {
       setIsOpen(false);
