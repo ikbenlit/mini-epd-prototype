@@ -8,31 +8,61 @@
 
 ---
 
-## Layout Components (Consistent across all views)
+## Navigation Architecture
+
+### Two-Level Context System
+
+**LEVEL 1: Behandelaar Context** (No client selected)
+- Sidebar shows: Dashboard | Cliënten | Agenda | Rapportage
+- Header: No client dropdown (or disabled/empty)
+- Focus: Behandelaar's caseload, tasks, and global views
+
+**LEVEL 2: Client Dossier Context** (Client selected)
+- Sidebar shows: ← Cliënten | Dashboard | Intake | Diagnose | Behandelplan | Rapportage
+- Header: Shows selected client with dropdown "Bas Jansen ▼"
+- Focus: Individual client data and treatment information
+
+**Context Switch Trigger:**
+- Clicking a client row in the cliënten lijst switches from Level 1 → Level 2
+- Clicking "← Cliënten" in sidebar switches from Level 2 → Level 1
+
+---
+
+## Layout Components
 
 ### Header Bar (Fixed, 60px height)
 - Background: White with subtle bottom border
 - Padding: 16px vertical, 24px horizontal
 - Layout (flex, space-between):
   - **Left**: "Mini-ECD" text/logo (medium weight)
-  - **Center**: Client dropdown "Bas Jansen ▼" (clickable)
-    - Sub-text below: "ID: CL0002 | Geb: 20-11-1992" (small, muted)
+  - **Center**: Context-aware client selector
+    - **In Behandelaar Context**: Empty or behandelaar name (optional)
+    - **In Client Dossier Context**: Client dropdown "Bas Jansen ▼" (clickable)
+      - Sub-text below: "ID: CL0002 | Geb: 20-11-1992" (small, muted)
+      - Dropdown shows recent clients for quick switching
   - **Right**: Search input "Zoek cliënt..." with icon (rounded, light border)
+    - Always available for quick client lookup
 
 ### Sidebar (Fixed left, 240px width)
 - Background: Very light gray
 - Padding: 16px
 
-**Top section (when in client dossier):**
-- "← Cliënten" button (full width, left-aligned, subtle hover)
-- Subtle horizontal divider (8px margin bottom)
+**Context-Aware Navigation:**
 
-**Menu items:**
-- Dashboard (icon + text)
-- Intakes (icon + text)
-- Probleemprofiel (icon + text)
-- Behandelplan (icon + text)
-- Agenda (icon + text)
+**BEHANDELAAR CONTEXT (Level 1) - No client selected:**
+- Dashboard (icon + text) → Behandelaar dashboard (caseload, taken, aandachtspunten)
+- Cliënten (icon + text) → Caseload overzicht met zoek/filter
+- Agenda (icon + text) → Behandelaar agenda (alle afspraken)
+- Rapportage (icon + text) → BI dashboards en statistieken
+
+**CLIENT DOSSIER CONTEXT (Level 2) - Client selected:**
+- "← Cliënten" button (full width, left-aligned, subtle hover) → Terug naar behandelaar context
+- Subtle horizontal divider (8px margin bottom)
+- Dashboard (icon + text) → Client dossier overzicht (afgelopen/komende afspraken)
+- Intake (icon + text) → Intake gesprekken en notities
+- Diagnose (icon + text) → DSM-classificatie, probleemprofiel
+- Behandelplan (icon + text) → Doelen, interventies, planning
+- Rapportage (icon + text) → Client-specifieke voortgang en metrics
 
 **Styling:**
 - Each item: 12px padding vertical, 12px padding horizontal
@@ -49,15 +79,45 @@
 
 ---
 
-## Screen 1: Cliënten (Search/List View)
+## LEVEL 1 SCREENS: Behandelaar Context
 
-### Sidebar (different in this view)
-- No "← Cliënten" button (we're already here)
-- Menu items:
-  - Dashboard (global, for practitioner)
-  - **Cliënten** ← ACTIVE
-  - Agenda (global, all appointments)
-  - Rapportage (global, statistics)
+---
+
+## Screen 1A: Behandelaar Dashboard
+
+### Sidebar
+- **Dashboard** ← ACTIVE
+- Cliënten
+- Agenda
+- Rapportage
+
+### Main Content
+**Page title:** "Dashboard" (large, semi-bold)
+**Subtitle:** "Welkom terug, [Behandelaar naam]" (optional)
+
+**Content (to be further defined):**
+- Caseload overzicht (aantal actieve cliënten, wachtlijst, etc.)
+- Aandachtspunten (urgente taken, follow-ups)
+- Behandelplannen die nog niet definitief zijn
+- Berichten en notificaties
+- Recente activiteit
+- Aankomende afspraken (vandaag/deze week)
+
+**Note:** Detailed content and layout to be specified in later iteration.
+
+---
+
+## Screen 1B: Cliënten (Search/List View)
+
+### Sidebar
+- Dashboard
+- **Cliënten** ← ACTIVE
+- Agenda
+- Rapportage
+
+### Header
+- No client dropdown in center (behandelaar context)
+- Search bar available in top right
 
 ### Main Content
 **Top bar:**
@@ -65,11 +125,20 @@
 - Button: "+ Nieuwe Cliënt" (primary style, right)
 - Space-between layout
 
-**Search bar (below title):**
+**Search & Filter bar (below title):**
 - Full-width input field
 - Placeholder: "Zoek op naam, BSN, of cliënt ID..."
 - Icon: magnifying glass left side
+- Filter options (to be specified):
+  - Afdeling filter
+  - Team filter
+  - Status filter (Actief, Wachtlijst, Afgesloten)
 - 16px margin bottom
+
+**Recent clients section (optional):**
+- "Recent bekeken" subtitle (small, muted)
+- 3-5 most recent client cards (compact)
+- Horizontal scroll or grid
 
 **Client list (table/card hybrid):**
 
@@ -116,7 +185,8 @@ Row 3:
 │Dashboard  │ Cliënten         [+ Nieuwe Cliënt]  │
 │Cliënten ← │                                      │
 │Agenda     │ [Zoek op naam, BSN, of cliënt ID]   │
-│Rapportage │                                      │
+│Rapportage │ [Filters: Afdeling, Team, Status]   │
+│           │                                      │
 │           │ Naam      ID      Geb    Status      │
 │           │ ──────────────────────────────────   │
 │           │ Bas J.    CL0002  20-11  Actief      │
@@ -125,26 +195,78 @@ Row 3:
 └───────────┴─────────────────────────────────────┘
 ```
 
+**User action to switch context:**
+- Click on a client row (e.g., "Bas Jansen") → Switches to Level 2 (Client Dossier Context)
+
 ---
 
-## Screen 2: Dashboard (Client Dossier)
-
-### Header
-- Same as default, but with "Bas Jansen ▼" visible in center
+## Screen 1C: Behandelaar Agenda
 
 ### Sidebar
-- "← Cliënten" button at top
-- Horizontal divider
-- **Dashboard** ← ACTIVE
-- Intakes
-- Probleemprofiel
-- Behandelplan
-- Agenda
+- Dashboard
+- Cliënten
+- **Agenda** ← ACTIVE
+- Rapportage
 
 ### Main Content
-**Breadcrumb:** "Dashboard > Overzicht" (small, muted)
+**Page title:** "Agenda" (large, semi-bold)
 
-**Page title:** "Dashboard Overzicht" (large, semi-bold, 16px margin bottom)
+**Content (to be further defined):**
+- Calendar view (week/month)
+- Behandelaar's appointments (all clients)
+- Appointment details: time, client, type
+- Create new appointment button
+
+**Note:** Detailed content and layout to be specified in later iteration.
+
+---
+
+## Screen 1D: Behandelaar Rapportage
+
+### Sidebar
+- Dashboard
+- Cliënten
+- Agenda
+- **Rapportage** ← ACTIVE
+
+### Main Content
+**Page title:** "Rapportage" (large, semi-bold)
+
+**Content (to be further defined):**
+- BI-style dashboards
+- KPI's (aantal cliënten, gemiddelde behandelduur, etc.)
+- Trends en statistieken
+- Export functionaliteit
+
+**Note:** Detailed content and layout to be specified in later iteration.
+
+---
+
+## LEVEL 2 SCREENS: Client Dossier Context
+
+**Context Switch:** User clicked on a client in the cliënten lijst
+
+---
+
+## Screen 2A: Client Dashboard (Dossier Overzicht)
+
+### Header
+- **Center**: "Bas Jansen ▼" dropdown visible
+  - Sub-text: "ID: CL0002 | Geb: 20-11-1992"
+  - Dropdown shows recent clients for quick switching
+- **Right**: Search bar still available
+
+### Sidebar
+- "← Cliënten" button at top (returns to behandelaar context)
+- Horizontal divider
+- **Dashboard** ← ACTIVE
+- Intake
+- Diagnose
+- Behandelplan
+- Rapportage
+
+### Main Content
+**Page title:** "Dossier Overzicht" (large, semi-bold, 16px margin bottom)
 
 **Grid layout:**
 
@@ -158,37 +280,41 @@ Column 1 - Cliëntinformatie card:
   - Cliënt ID: CL0002
   - Naam: Bas Jansen
   - Geboortedatum: 20-11-1992
+  - Leeftijd: 31 jaar (computed)
   - Verzekering: [naam verzekeraar]
   - BSN: [nummer]
 - Labels: muted, small
 - Values: normal weight, darker
+- Action: "Bewerken →" link (small, at bottom)
 
 Column 2 - Laatste Intake card:
 - Card style: same as column 1
-- Title: "Laatste Intake Notitie"
-- Date/time: "Intake - 12-10-2023" (small, muted)
+- Title: "Laatste Intake"
+- Date/time: "12-10-2023, 14:30" (small, muted)
 - Preview text (3 lines max):
-  "Bas komt op gesprek vanwege spanningsklachten en paniekeaanvallen. Hij beschrijft situaties in het openbaar vervoer en drukke winkels als triggerend. De aanvallen kenmerken zich door..."
-- "Lees meer →" link (small, at bottom)
+  "Bas komt op gesprek vanwege spanningsklachten en paniekeaanvallen. Hij beschrijft situaties in het openbaar vervoer en drukke winkels als triggerend..."
+- "Bekijk intake →" link (small, at bottom) → navigates to Intake section
 
-Column 3 - Probleemprofiel card:
+Column 3 - Diagnose card:
 - Card style: same as above
-- Title: "Probleemprofiel"
+- Title: "Diagnose"
 - Status badge: "Hoog" (red/warning bg, red text, rounded pill, inline with title)
 - Subtitle: "Angststoornissen" (medium weight)
 - Description text:
-  "Opmerkingen: Panietstoornis met agorafobie. De frequentie van paniekeaanvallen en het vermijdingsgedrag zijn..."
-- "Bekijk profiel →" link (small, at bottom)
+  "Panietstoornis met agorafobie. De frequentie van paniekeaanvallen en het vermijdingsgedrag zijn..."
+- "Bekijk diagnose →" link (small, at bottom) → navigates to Diagnose section
 
 **Row 2: Full width (margin top: 24px)**
 
 Behandelplan card:
 - Card style: same
 - Title: "Behandelplan"
-- Empty state:
+- If exists: Show summary with status badge (Concept, Actief, Afgerond)
+- If not exists (empty state):
   - Light gray background section inside card
   - Centered text: "Geen behandelplan gevonden."
   - "+ Maak behandelplan" button (secondary style, centered below)
+- "Bekijk behandelplan →" link → navigates to Behandelplan section
 
 **Row 3: Full width (margin top: 24px)**
 
@@ -197,30 +323,34 @@ Afspraken card:
 - Title: "Afspraken"
 
 Section 1:
-- Subtitle: "Laatste Afspraak" (small, muted, 8px margin bottom)
-- Item: "14-11-2025, 16:26 - Intake" (with subtle icon left)
+- Subtitle: "Afgelopen Afspraak" (small, muted, 8px margin bottom)
+- Item: "14-11-2025, 16:26 - Intake gesprek" (with subtle icon left)
+- Shows: type, duration, practitioner (if available)
 
 Divider line (subtle, 16px margin vertical)
 
 Section 2:
-- Subtitle: "Eerstvolgende 3 Afspraken" (small, muted)
+- Subtitle: "Komende Afspraken" (small, muted)
 - Item 1: "22-11-2025, 16:26 - Psycho-educatie"
 - Item 2: "29-11-2025, 16:26 - Exposure therapie sessie"
 - Item 3: "06-12-2025, 16:26 - Evaluatie gesprek"
 - Each with subtle left border accent (blue)
+- Shows: date, time, type
+- If no appointments: "Geen geplande afspraken" (muted text)
 
 **Layout structure:**
 ```
 ┌──────────────────────────────────────────────────┐
 │ Header: Logo | Bas Jansen ▼ | Search             │
+│              | ID: CL0002 | Geb: 20-11-1992      │
 ├──────────┬───────────────────────────────────────┤
-│← Cliënten│ Dashboard Overzicht                   │
+│← Cliënten│ Dossier Overzicht                     │
 │──────    │                                       │
 │Dashboard │ ┌─────────┬─────────┬──────────┐     │
-│Intakes   │ │  Info   │ Intake  │ Problem  │     │
-│Probleem  │ │  Card   │  Card   │  Card    │     │
+│Intake    │ │  Info   │ Intake  │ Diagnose │     │
+│Diagnose  │ │  Card   │  Card   │  Card    │     │
 │Behandel  │ └─────────┴─────────┴──────────┘     │
-│Agenda    │ ┌──────────────────────────────┐     │
+│Rapport   │ ┌──────────────────────────────┐     │
 │          │ │    Behandelplan Card         │     │
 │          │ └──────────────────────────────┘     │
 │          │ ┌──────────────────────────────┐     │
@@ -231,19 +361,20 @@ Section 2:
 
 ---
 
-## Screen 3: Intakes (Client Dossier)
+## Screen 2B: Intake (Client Dossier)
 
 ### Header
-- Same, "Bas Jansen ▼" in center
+- **Center**: "Bas Jansen ▼" with ID and birthdate
+- **Right**: Search bar available
 
 ### Sidebar
-- "← Cliënten" button
+- "← Cliënten" button (returns to behandelaar context)
 - Divider
 - Dashboard
-- **Intakes** ← ACTIVE
-- Probleemprofiel
+- **Intake** ← ACTIVE
+- Diagnose
 - Behandelplan
-- Agenda
+- Rapportage
 
 ### Main Content
 **Breadcrumb:** "Intakes > Overzicht"
@@ -296,15 +427,201 @@ Intake item 3:
 ```
 ┌──────────────────────────────────────────────────┐
 │ Header: Logo | Bas Jansen ▼ | Search             │
+│              | ID: CL0002 | Geb: 20-11-1992      │
 ├──────────┬───────────────────────────────────────┤
-│← Cliënten│ Intakes            [+ Nieuwe Intake]  │
+│← Cliënten│ Intake             [+ Nieuwe Intake]  │
 │──────    │                                       │
 │Dashboard │ Datum    Type     Status  Samenvat..  │
-│Intakes ← │ ─────────────────────────────────     │
-│Probleem  │ 12-10    Intake   Afgr.   Eerste...   │
+│Intake  ← │ ─────────────────────────────────     │
+│Diagnose  │ 12-10    Intake   Afgr.   Eerste...   │
 │Behandel  │ 05-10    Telef.   Afgr.   Korte...    │
-│Agenda    │ 28-09    Intake   Afgr.   Geen sh...  │
+│Rapport   │ 28-09    Intake   Afgr.   Geen sh...  │
 │          │                                       │
+└──────────┴───────────────────────────────────────┘
+```
+
+---
+
+## Screen 2C: Diagnose (Client Dossier)
+
+### Header
+- **Center**: "Bas Jansen ▼" with ID and birthdate
+- **Right**: Search bar available
+
+### Sidebar
+- "← Cliënten" button (returns to behandelaar context)
+- Divider
+- Dashboard
+- Intake
+- **Diagnose** ← ACTIVE
+- Behandelplan
+- Rapportage
+
+### Main Content
+**Top bar:**
+- Title: "Diagnose & Probleemprofiel" (large, semi-bold, left)
+- Button: "AI Analyse" (primary style with sparkles icon, right)
+
+**DSM-light Categorieën:**
+- Visual grid/dashboard showing classified problem areas
+- Categories:
+  - Stemming & Depressie (blauw)
+  - Angst (paars)
+  - Gedrag & Impuls (rood)
+  - Middelengebruik (oranje)
+  - Cognitief (groen)
+  - Context & Psychosociaal (teal)
+
+**Ernst Indicatie:**
+- Visual indicator: Laag (green) | Middel (yellow) | Hoog (red)
+- Linked to intake sources (bronverwijzing)
+
+**Content (to be further defined in Week 3):**
+- AI-generated classification based on intake notes
+- Manual override/editing capability
+- Timeline/history of diagnoses
+- Notes and observations section
+
+**Layout structure:**
+```
+┌──────────────────────────────────────────────────┐
+│ Header: Logo | Bas Jansen ▼ | Search             │
+├──────────┬───────────────────────────────────────┤
+│← Cliënten│ Diagnose & Probleemprofiel [AI Analyse]│
+│──────    │                                       │
+│Dashboard │ DSM-light Categorieën:                │
+│Intake    │ ┌────────┬────────┬────────┐         │
+│Diagnose← │ │Stemming│ Angst  │ Gedrag │         │
+│Behandel  │ │ Hoog   │Middel  │  Laag  │         │
+│Rapport   │ └────────┴────────┴────────┘         │
+│          │ ┌──────────────────────────┐         │
+│          │ │ Ernst: ●●●○○ (Hoog)     │         │
+│          │ │ Bronnen: Intake 12-10   │         │
+│          │ └──────────────────────────┘         │
+└──────────┴───────────────────────────────────────┘
+```
+
+---
+
+## Screen 2D: Behandelplan (Client Dossier)
+
+### Header
+- **Center**: "Bas Jansen ▼" with ID and birthdate
+- **Right**: Search bar available
+
+### Sidebar
+- "← Cliënten" button (returns to behandelaar context)
+- Divider
+- Dashboard
+- Intake
+- Diagnose
+- **Behandelplan** ← ACTIVE
+- Rapportage
+
+### Main Content
+**Top bar:**
+- Title: "Behandelplan" (large, semi-bold, left)
+- Buttons: 
+  - "Genereer Plan" (primary style with AI icon, right)
+  - "Nieuwe Versie" (secondary style, if plan exists)
+
+**Plan Structuur:**
+1. **SMART Doelen** section
+   - Specifieke, Meetbare, Acceptabele, Realistische, Tijdgebonden doelen
+   - Multiple goals per plan
+   - Status tracking per goal
+
+2. **Interventies** section
+   - Evidence-based behandelmethoden (CGT, ACT, EMDR, etc.)
+   - Linked to specific goals
+   - Description and rationale
+
+3. **Frequentie & Planning** section
+   - Sessie planning
+   - Behandelintensiteit
+   - Duration estimate
+
+4. **Meetmomenten** section
+   - Evaluation schedule
+   - Progress measurements
+   - Review dates
+
+**Versioning:**
+- Multiple versions per client (v1, v2, etc.)
+- Status: Concept | Actief | Afgerond
+- Timestamp and practitioner info
+
+**Content (to be further defined in Week 3):**
+- AI plan generator based on intake + diagnose
+- JSONB data structure for flexibility
+- PDF export functionality
+
+**Layout structure:**
+```
+┌──────────────────────────────────────────────────┐
+│ Header: Logo | Bas Jansen ▼ | Search             │
+├──────────┬───────────────────────────────────────┤
+│← Cliënten│ Behandelplan      [Genereer Plan]    │
+│──────    │                                       │
+│Dashboard │ Versie 1 - Actief | 12-10-2023       │
+│Intake    │                                       │
+│Diagnose  │ 1. SMART Doelen                       │
+│Behandel← │ ┌──────────────────────────────┐     │
+│Rapport   │ │ • Verminderen paniekeaanv..  │     │
+│          │ │ • Uitbreiden sociale activ.. │     │
+│          │ └──────────────────────────────┘     │
+│          │ 2. Interventies                       │
+│          │ ┌──────────────────────────────┐     │
+│          │ │ • CGT - Cognitieve herstr... │     │
+│          │ │ • Exposure therapie          │     │
+│          │ └──────────────────────────────┘     │
+└──────────┴───────────────────────────────────────┘
+```
+
+---
+
+## Screen 2E: Rapportage (Client Dossier)
+
+### Header
+- **Center**: "Bas Jansen ▼" with ID and birthdate
+- **Right**: Search bar available
+
+### Sidebar
+- "← Cliënten" button (returns to behandelaar context)
+- Divider
+- Dashboard
+- Intake
+- Diagnose
+- Behandelplan
+- **Rapportage** ← ACTIVE
+
+### Main Content
+**Page title:** "Rapportage & Voortgang" (large, semi-bold)
+
+**Content (to be further defined):**
+- Client-specific progress metrics
+- Treatment timeline
+- Session attendance
+- Goal achievement tracking
+- Measurement instruments (ROM, questionnaires)
+- Graphs and visualizations
+- Export functionality (PDF, CSV)
+
+**Layout structure:**
+```
+┌──────────────────────────────────────────────────┐
+│ Header: Logo | Bas Jansen ▼ | Search             │
+├──────────┬───────────────────────────────────────┤
+│← Cliënten│ Rapportage & Voortgang               │
+│──────    │                                       │
+│Dashboard │ ┌──────────────────────────────┐     │
+│Intake    │ │ Behandelduur: 8 weken        │     │
+│Diagnose  │ │ Sessies: 6 van 12            │     │
+│Behandel  │ │ Voortgang: ████████░░░░ 67%  │     │
+│Rapport ← │ └──────────────────────────────┘     │
+│          │                                       │
+│          │ Doelvoortgang:                        │
+│          │ [Graph/Chart placeholder]             │
 └──────────┴───────────────────────────────────────┘
 ```
 
@@ -433,11 +750,16 @@ Divider
 ## Interaction Notes
 
 ### Navigation flow:
-1. Start: Cliënten list view
-2. Click client row → Navigate to Dashboard (with client in header + sidebar)
-3. Sidebar shows "← Cliënten" to go back
-4. Header search always available for quick switch
-5. Header client dropdown shows recent/favorite clients
+1. Start: Behandelaar Dashboard (Level 1)
+2. Sidebar navigation: Dashboard | Cliënten | Agenda | Rapportage
+3. Click "Cliënten" → Cliënten list view
+4. Click client row → Context switch to Level 2 (Client Dossier)
+5. Sidebar changes to: ← Cliënten | Dashboard | Intake | Diagnose | Behandelplan | Rapportage
+6. Header shows selected client: "Bas Jansen ▼" with dropdown
+7. Navigate within client dossier using sidebar menu
+8. Click "← Cliënten" → Context switch back to Level 1
+9. Header client dropdown always available (in Level 2) for quick client switching
+10. Header search always available for quick client lookup
 
 ### State management:
 - Active menu item: always visible (highlighted)
@@ -457,28 +779,99 @@ Divider
 
 ### Routing structure (Next.js):
 ```
-/clients                    → Cliënten list
-/clients/[id]/dashboard     → Dashboard view
-/clients/[id]/intakes       → Intakes view
-/clients/[id]/intakes/[intakeId] → Intake detail (modal)
-/clients/[id]/probleemprofiel
-/clients/[id]/behandelplan
-/clients/[id]/agenda
+LEVEL 1: Behandelaar Context
+/epd/dashboard              → Behandelaar dashboard (caseload, taken, aandachtspunten)
+/epd/clients                → Cliënten list (zoek, filter, recent)
+/epd/agenda                 → Behandelaar agenda (alle afspraken)
+/epd/reports                → BI rapportage (statistieken, KPI's)
+
+LEVEL 2: Client Dossier Context
+/epd/clients/[id]           → Client dashboard (dossier overzicht)
+/epd/clients/[id]/intake    → Intake lijst en notities
+/epd/clients/[id]/intake/[intakeId] → Intake detail (modal/slide-in)
+/epd/clients/[id]/diagnose  → Diagnose en probleemprofiel
+/epd/clients/[id]/plan      → Behandelplan (SMART doelen, interventies)
+/epd/clients/[id]/reports   → Client rapportage (voortgang, metrics)
+
+Utility routes:
+/epd/clients/new            → Nieuwe cliënt formulier
+/epd/clients/[id]/edit      → Cliënt gegevens bewerken
 ```
 
 ### Component structure:
 ```
-app/
-├── layout.tsx (header + sidebar logic)
+app/epd/
+├── layout.tsx                      // Root EPD layout (detects context)
+├── components/
+│   ├── epd-header.tsx             // Context-aware header
+│   └── epd-sidebar.tsx            // Context-aware sidebar
+│
+├── dashboard/
+│   └── page.tsx                   // Behandelaar dashboard
+│
 ├── clients/
-│   ├── page.tsx (list view)
+│   ├── page.tsx                   // Cliënten lijst (Level 1)
+│   ├── components/
+│   │   ├── client-list.tsx
+│   │   ├── client-search.tsx
+│   │   └── client-filters.tsx
+│   ├── new/
+│   │   └── page.tsx               // Nieuwe cliënt form
 │   └── [id]/
-│       ├── layout.tsx (client-specific sidebar)
-│       ├── dashboard/page.tsx
-│       ├── intakes/
-│       │   ├── page.tsx (list)
-│       │   └── [intakeId]/page.tsx (detail modal)
-│       └── ...
+│       ├── layout.tsx             // Client dossier layout (Level 2 context)
+│       ├── page.tsx               // Client dashboard (dossier overzicht)
+│       ├── edit/
+│       │   └── page.tsx           // Edit client
+│       ├── intake/
+│       │   ├── page.tsx           // Intake lijst
+│       │   ├── components/
+│       │   │   ├── intake-list.tsx
+│       │   │   └── intake-editor.tsx
+│       │   └── [intakeId]/
+│       │       └── page.tsx       // Intake detail (modal/slide-in)
+│       ├── diagnose/
+│       │   ├── page.tsx           // Diagnose & probleemprofiel
+│       │   └── components/
+│       │       ├── dsm-categories.tsx
+│       │       └── severity-indicator.tsx
+│       ├── plan/
+│       │   ├── page.tsx           // Behandelplan
+│       │   └── components/
+│       │       ├── smart-goals.tsx
+│       │       ├── interventions.tsx
+│       │       └── plan-generator.tsx
+│       └── reports/
+│           ├── page.tsx           // Client rapportage
+│           └── components/
+│               ├── progress-chart.tsx
+│               └── metrics-dashboard.tsx
+│
+├── agenda/
+│   └── page.tsx                   // Behandelaar agenda
+│
+└── reports/
+    └── page.tsx                   // BI rapportage (behandelaar)
+```
+
+### Key Implementation Details:
+
+**app/epd/layout.tsx:**
+- Detects current context (Level 1 vs Level 2) based on URL
+- Passes context to EPDSidebar and EPDHeader
+- Manages global state for selected client
+
+**app/epd/clients/[id]/layout.tsx:**
+- Wraps all client dossier pages
+- Fetches client data and provides to children
+- Ensures sidebar shows Level 2 navigation
+- Ensures header shows client dropdown
+
+**Context Detection Logic:**
+```typescript
+// In app/epd/layout.tsx
+const isClientDossier = pathname.includes('/clients/') && 
+                        pathname.match(/\/clients\/[^\/]+\/?[^\/]*$/);
+const clientId = isClientDossier ? pathname.split('/')[3] : null;
 ```
 
 ### Data requirements:

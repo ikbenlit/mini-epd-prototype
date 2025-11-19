@@ -6,10 +6,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-
-type MDXComponents = {
-  [key: string]: React.ComponentType<any>
-}
+import type { MDXComponents } from 'mdx/types'
 
 export const mdxComponents: MDXComponents = {
   // Headings with anchor links
