@@ -124,7 +124,8 @@ export function ClientList({ initialClients }: ClientListProps) {
               {filteredClients.map((client) => (
                 <tr
                   key={client.id}
-                  className="hover:bg-slate-50 transition-colors"
+                  onClick={() => router.push(`/epd/clients/${client.id}`)}
+                  className="hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -153,7 +154,10 @@ export function ClientList({ initialClients }: ClientListProps) {
                     {new Date(client.created_at).toLocaleDateString('nl-NL')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
+                    <div
+                      className="flex items-center justify-end gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Link
                         href={`/epd/clients/${client.id}`}
                         className="text-teal-600 hover:text-teal-900 p-1 rounded hover:bg-teal-50 transition-colors"
