@@ -12,25 +12,39 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const token = requestUrl.searchParams.get('token') // Fallback for older templates
+  const token_hash = requestUrl.searchParams.get('token_hash') // Supabase uses this for email links
   const type = requestUrl.searchParams.get('type') // recovery, signup, etc
   const next = requestUrl.searchParams.get('next') ?? '/epd/clients'
 
-  // Debug logging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 Auth Callback Debug:', {
-      url: request.url,
-      code: !!code,
-      type,
-      next,
-      allParams: Object.fromEntries(requestUrl.searchParams)
-    })
-  }
+  // Debug logging - ALWAYS log to diagnose redirect issues
+  console.log('🔍 Auth Callback Debug:', {
+    url: request.url,
+    code: !!code,
+    token: !!token,
+    token_hash: !!token_hash,
+    codeValue: code?.substring(0, 10) + '...',
+    type,
+    next,
+    allParams: Object.fromEntries(requestUrl.searchParams)
+  })
 
-  if (code) {
+  // Use code, token, or token_hash (different Supabase versions use different params)
+  const authCode = code || token || token_hash
+
+  if (authCode) {
     const supabase = await createClient()
 
     // Exchange code for session
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode)
+
+    if (error) {
+      console.error('❌ Auth Callback Exchange Error:', {
+        message: error.message,
+        status: error.status,
+        code: error.code
+      })
+    }
 
     if (!error && data.user) {
       // PRIORITY: If next is /update-password, ALWAYS go there (password reset flow)
