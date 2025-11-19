@@ -29,63 +29,95 @@ export async function GET(request: NextRequest) {
     allParams: Object.fromEntries(requestUrl.searchParams)
   })
 
-  // Use code, token, or token_hash (different Supabase versions use different params)
-  const authCode = code || token || token_hash
+  const supabase = await createClient()
+  let data: any = null
+  let error: any = null
 
-  if (authCode) {
-    const supabase = await createClient()
+  // Check if this is a token_hash flow (email magic links, password reset)
+  if (token_hash && type) {
+    console.log('🔐 Using verifyOtp for token_hash flow')
 
-    // Exchange code for session
-    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode)
+    // For email links (magic link, password reset), use verifyOtp
+    const result = await supabase.auth.verifyOtp({
+      token_hash,
+      type: type as any // 'recovery', 'signup', 'magiclink', etc.
+    })
 
-    if (error) {
-      console.error('❌ Auth Callback Exchange Error:', {
-        message: error.message,
-        status: error.status,
-        code: error.code
-      })
-    }
+    data = result.data
+    error = result.error
+  }
+  // Check if this is a PKCE code flow (OAuth callbacks)
+  else if (code) {
+    console.log('🔐 Using exchangeCodeForSession for PKCE flow')
 
-    if (!error && data.user) {
-      // PRIORITY: If next is /update-password, ALWAYS go there (password reset flow)
-      if (next === '/update-password' || next.includes('update-password')) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Redirecting to /update-password (next parameter detected)')
-        }
-        return NextResponse.redirect(new URL('/update-password', request.url))
-      }
+    const result = await supabase.auth.exchangeCodeForSession(code)
+    data = result.data
+    error = result.error
+  }
+  // Fallback for older 'token' parameter
+  else if (token) {
+    console.log('🔐 Using exchangeCodeForSession for legacy token flow')
 
-      // Password recovery flow detection:
-      // Check type parameter (Supabase adds this automatically for recovery)
-      if (type === 'recovery') {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Redirecting to /update-password (recovery type detected)')
-        }
-        return NextResponse.redirect(new URL('/update-password', request.url))
-      }
-
-      // Check if new user (first login)
-      const isNewUser = new Date(data.user.created_at).getTime() ===
-        new Date(data.user.last_sign_in_at || '').getTime()
-
-      // Check if user signed up with password (has identity provider = 'email')
-      const hasPassword = data.user.identities?.some(
-        identity => identity.provider === 'email'
-      )
-
-      if (isNewUser && !hasPassword) {
-        // Redirect new magic link users to set-password page (optional)
-        return NextResponse.redirect(new URL('/set-password', request.url))
-      }
-
-      // Redirect to the specified next URL or default to /epd/clients
-      // This includes: password signups, confirmed email users, and returning users
-      return NextResponse.redirect(new URL(next, request.url))
-    }
+    const result = await supabase.auth.exchangeCodeForSession(token)
+    data = result.data
+    error = result.error
   }
 
-  // Return the user to an error page with instructions
+  // Handle errors
+  if (error) {
+    console.error('❌ Auth Callback Error:', {
+      message: error.message,
+      status: error.status,
+      code: error.code
+    })
+    // Redirect to debug page with error info
+    const debugParams = new URLSearchParams(requestUrl.searchParams)
+    debugParams.set('auth_error', error.message)
+    debugParams.set('error_code', error.code || 'unknown')
+    return NextResponse.redirect(
+      new URL('/auth/debug?' + debugParams.toString(), request.url)
+    )
+  }
+
+  // Success - user authenticated
+  if (data?.user) {
+    console.log('✅ Auth successful, user:', data.user.email)
+
+    // PRIORITY: If next is /update-password, ALWAYS go there (password reset flow)
+    if (next === '/update-password' || next.includes('update-password')) {
+      console.log('✅ Redirecting to /update-password (next parameter detected)')
+      return NextResponse.redirect(new URL('/update-password', request.url))
+    }
+
+    // Password recovery flow detection:
+    // Check type parameter (Supabase adds this automatically for recovery)
+    if (type === 'recovery') {
+      console.log('✅ Redirecting to /update-password (recovery type detected)')
+      return NextResponse.redirect(new URL('/update-password', request.url))
+    }
+
+    // Check if new user (first login)
+    const isNewUser = new Date(data.user.created_at).getTime() ===
+      new Date(data.user.last_sign_in_at || '').getTime()
+
+    // Check if user signed up with password (has identity provider = 'email')
+    const hasPassword = data.user.identities?.some(
+      identity => identity.provider === 'email'
+    )
+
+    if (isNewUser && !hasPassword) {
+      // Redirect new magic link users to set-password page (optional)
+      return NextResponse.redirect(new URL('/set-password', request.url))
+    }
+
+    // Redirect to the specified next URL or default to /epd/clients
+    // This includes: password signups, confirmed email users, and returning users
+    return NextResponse.redirect(new URL(next, request.url))
+  }
+
+  // Return the user to debug page to see what parameters came through
+  console.error('❌ Auth Callback Failed - No auth token received')
   return NextResponse.redirect(
-    new URL('/login?error=auth_callback_error', request.url)
+    new URL('/auth/debug?' + requestUrl.searchParams.toString(), request.url)
   )
 }
