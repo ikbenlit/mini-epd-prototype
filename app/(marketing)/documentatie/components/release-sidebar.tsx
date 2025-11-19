@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
-import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/releases'
+import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/documentatie'
 
 interface ReleaseSidebarProps {
   releases: ReleaseNote[]
@@ -46,7 +46,7 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
   }, {} as Record<string, ReleaseNote[]>)
 
   // Check if we're on a specific release page
-  const isReleaseDetail = pathname.startsWith('/releases/') && pathname !== '/releases'
+  const isReleaseDetail = pathname.startsWith('/documentatie/') && pathname !== '/documentatie'
 
   return (
     <>
@@ -54,9 +54,9 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
       <div className="lg:hidden bg-white border-b border-slate-200 sticky top-16 z-40">
         <div className="flex gap-2 p-4 overflow-x-auto">
           <Link
-            href="/releases"
+            href="/documentatie"
             className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              pathname === '/releases'
+              pathname === '/documentatie'
                 ? 'bg-teal-100 text-teal-700'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
@@ -66,9 +66,9 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
           {releases.map((release) => (
             <Link
               key={release.slug}
-              href={`/releases/${release.slug}`}
+              href={`/documentatie/${release.slug}`}
               className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === `/releases/${release.slug}`
+                pathname === `/documentatie/${release.slug}`
                   ? 'bg-teal-100 text-teal-700'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
@@ -89,9 +89,9 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
           <nav className="space-y-1">
             {/* Overview link */}
             <Link
-              href="/releases"
+              href="/documentatie"
               className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === '/releases' && !isReleaseDetail
+                pathname === '/documentatie' && !isReleaseDetail
                   ? 'bg-teal-50 text-teal-700'
                   : 'text-slate-700 hover:bg-slate-50'
               }`}
@@ -125,12 +125,12 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
                     {isExpanded && (
                       <div className="space-y-1 ml-2">
                         {groupReleases.map((release) => {
-                          const isActive = pathname === `/releases/${release.slug}`
+                          const isActive = pathname === `/documentatie/${release.slug}`
 
                           return (
                             <Link
                               key={release.slug}
-                              href={`/releases/${release.slug}`}
+                              href={`/documentatie/${release.slug}`}
                               className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
                                 isActive
                                   ? 'bg-teal-50 text-teal-700'

@@ -84,10 +84,10 @@ export default async function ReleasePage({ params }: ReleasePageProps) {
         </div>
 
         {/* Footer Navigation */}
-        <footer className="mt-12 pt-8 border-t border-slate-200">
+        <footer className="mt-12 pt-8 border-slate-200">
           <div className="flex justify-between items-center">
             <a
-              href="/releases"
+              href="/documentatie"
               className="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

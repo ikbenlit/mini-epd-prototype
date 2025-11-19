@@ -242,7 +242,7 @@ export const BuildTimeline = ({ data }: BuildTimelineProps) => {
 
               {/* Link to detailed documentation */}
               <a
-                href="/releases"
+                href="/documentatie"
                 className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium text-sm transition-colors"
               >
                 <span>Bekijk uitgebreide documentatie</span>

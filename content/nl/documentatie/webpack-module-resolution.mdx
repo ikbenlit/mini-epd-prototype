@@ -25,8 +25,8 @@ Opgelost: Kritieke webpack module resolution error die optrad bij het laden van 
 ```
 TypeError: Cannot read properties of undefined (reading 'call')
     at eval (webpack-internal:///356:9:118)
-    at 356 (.next/dev/static/chunks/app/(marketing)/releases/layout.js:28:1)
-    at ReleasesLayout (app/(marketing)/releases/layout.tsx:24:11)
+    at 356 (.next/dev/static/chunks/app/(marketing)/documentatie/layout.js:28:1)
+    at ReleasesLayout (app/(marketing)/documentatie/layout.tsx:24:11)
 ```
 
 ### What Was Happening
@@ -67,7 +67,7 @@ Maak een tussenlaag die de import isoleert en een default export gebruikt:
 
 **Bestanden structuur:**
 ```
-app/(marketing)/releases/
+app/(marketing)/documentatie/
 ├── layout.tsx                            # Server Component
 ├── components/
 │   ├── release-sidebar.tsx              # Client Component (named export)
@@ -79,7 +79,7 @@ app/(marketing)/releases/
 ```tsx
 // release-sidebar-wrapper.tsx (NIEUW)
 import { ReleaseSidebar } from './release-sidebar'
-import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/releases'
+import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/documentatie'
 
 interface ReleaseSidebarWrapperProps {
   releases: ReleaseNote[]
@@ -220,7 +220,7 @@ Dit is een **bekend probleem** in:
 
 ## Testing Checklist
 
-- [x] `/releases` pagina laadt zonder errors
+- [x] `/documentatie` pagina laadt zonder errors
 - [x] Sidebar toont alle groups (Foundation, Features, Infrastructure, Bugs)
 - [x] Navigatie tussen release pages werkt
 - [x] Hard refresh werkt correct
@@ -233,11 +233,11 @@ Dit is een **bekend probleem** in:
 ## Files Changed
 
 ### Modified
-1. `app/(marketing)/releases/layout.tsx`
+1. `app/(marketing)/documentatie/layout.tsx`
    - Import via wrapper in plaats van direct
 
 ### Added
-2. `app/(marketing)/releases/components/release-sidebar-wrapper.tsx`
+2. `app/(marketing)/documentatie/components/release-sidebar-wrapper.tsx`
    - Nieuwe wrapper component met default export
 
 3. `docs/troubleshooting/webpack-module-resolution-error.md`
@@ -315,7 +315,7 @@ Dit is een **bekend probleem** in:
 
 **Internal Documentation:**
 - [Troubleshooting Guide](/docs/troubleshooting/webpack-module-resolution-error.md)
-- [Release Notes System Docs](/releases/release-notes-system)
+- [Release Notes System Docs](/documentatie/release-notes-system)
 
 **External Links:**
 - [Next.js Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components)

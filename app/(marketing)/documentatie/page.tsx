@@ -98,7 +98,7 @@ export default async function ReleasesPage() {
 function ReleaseCard({ release }: { release: any }) {
   return (
     <Link
-      href={`/releases/${release.slug}`}
+      href={`/documentatie/${release.slug}`}
       className="block bg-white rounded-lg border border-slate-200 p-6 hover:border-teal-300 hover:shadow-md transition-all"
     >
       <div className="flex items-start justify-between gap-4">
