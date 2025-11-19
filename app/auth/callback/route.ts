@@ -12,6 +12,7 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const type = requestUrl.searchParams.get('type') // recovery, signup, etc
   const next = requestUrl.searchParams.get('next') ?? '/epd/clients'
 
   if (code) {
@@ -21,6 +22,11 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
+      // Password recovery flow - always go to update-password
+      if (type === 'recovery') {
+        return NextResponse.redirect(new URL('/update-password', request.url))
+      }
+
       // Check if new user (first login)
       const isNewUser = new Date(data.user.created_at).getTime() ===
         new Date(data.user.last_sign_in_at || '').getTime()
