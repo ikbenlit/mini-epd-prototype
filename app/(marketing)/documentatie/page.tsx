@@ -5,7 +5,7 @@
  */
 
 import Link from 'next/link'
-import { getAllReleases } from '@/lib/mdx/releases'
+import { getAllReleases } from '@/lib/mdx/documentatie'
 
 export const metadata = {
   title: 'Documentatie - AI Speedrun',

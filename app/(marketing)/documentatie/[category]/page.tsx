@@ -6,7 +6,7 @@
 
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
-import { getRelease, getAllReleases } from '@/lib/mdx/releases'
+import { getRelease, getAllReleases } from '@/lib/mdx/documentatie'
 import { mdxComponents } from '../components/mdx-components'
 
 interface ReleasePageProps {

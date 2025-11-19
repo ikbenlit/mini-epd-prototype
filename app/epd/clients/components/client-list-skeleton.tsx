@@ -1,3 +1,5 @@
+'use client'
+
 export function ClientListSkeleton() {
   return (
     <div className="space-y-4">

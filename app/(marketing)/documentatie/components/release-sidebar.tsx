@@ -55,11 +55,10 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
         <div className="flex gap-2 p-4 overflow-x-auto">
           <Link
             href="/documentatie"
-            className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              pathname === '/documentatie'
+            className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === '/documentatie'
                 ? 'bg-teal-100 text-teal-700'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+              }`}
           >
             Overzicht
           </Link>
@@ -67,11 +66,10 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
             <Link
               key={release.slug}
               href={`/documentatie/${release.slug}`}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === `/documentatie/${release.slug}`
+              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === `/documentatie/${release.slug}`
                   ? 'bg-teal-100 text-teal-700'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+                }`}
             >
               {release.frontmatter.title}
             </Link>
@@ -80,7 +78,7 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
       </div>
 
       {/* Desktop: Fixed sidebar */}
-      <aside className="hidden lg:block w-64 fixed top-16 bottom-0 bg-white border-r border-slate-200 overflow-y-auto">
+      <aside className="hidden lg:block w-80 fixed top-16 bottom-0 bg-white border-r border-slate-200 overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
             Documentatie
@@ -90,11 +88,10 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
             {/* Overview link */}
             <Link
               href="/documentatie"
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === '/documentatie' && !isReleaseDetail
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === '/documentatie' && !isReleaseDetail
                   ? 'bg-teal-50 text-teal-700'
                   : 'text-slate-700 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <span>Overzicht</span>
             </Link>
@@ -131,19 +128,17 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
                             <Link
                               key={release.slug}
                               href={`/documentatie/${release.slug}`}
-                              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
-                                isActive
+                              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${isActive
                                   ? 'bg-teal-50 text-teal-700'
                                   : 'text-slate-700 hover:bg-slate-50'
-                              }`}
+                                }`}
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <StatusDot status={release.frontmatter.status} />
-                                <span className="truncate">{release.frontmatter.title}</span>
+                                <span className="whitespace-normal">{release.frontmatter.title}</span>
                               </div>
-                              <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${
-                                isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
-                              }`} />
+                              <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+                                }`} />
                             </Link>
                           )
                         })}

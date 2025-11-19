@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Release Sidebar Wrapper
  *
@@ -5,7 +7,7 @@
  */
 
 import { ReleaseSidebar } from './release-sidebar'
-import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/releases'
+import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/documentatie'
 
 interface ReleaseSidebarWrapperProps {
   releases: ReleaseNote[]

@@ -1,0 +1,134 @@
+---
+title: "Spraakgestuurd Rapporteren"
+category: "voice-controlled-reporting"
+group: "features"
+version: "1.0.0"
+releaseDate: "TBD"
+status: "planned"
+description: "AI-gedreven spraakopname voor dictaat en automatische metingen extractie in de GGZ praktijk"
+---
+
+## Overview
+
+Behandelaren kunnen efficiënter werken door te dicteren in plaats van te typen. Het systeem transcribeert spraak naar tekst en herkent automatisch metingen en belangrijke data.
+
+**LinkedIn Feedback:**
+> "Spraakgestuurd rapporteren met AI is "hot" in ECD/EPD land. Dit kun jij natuurlijk ook! Een psychiater rapporteert (dicteert). In de gesproken tekst zit een meting (bv bloeddruk); die als meting op slaan in ECD. + De psychiater wil "praten" tegen zijn de "Clientkaart" - Toon alle bloedruk metingen van de afgelopen periode. Zonder te klikken naar het "metingen" scherm worden deze netjes getoond. Heel veel succes"
+
+**Twee hoofdfuncties:**
+- **Dicteren met data-extractie**: Spreek notities in, AI herkent automatisch metingen (ROM-scores, observaties)
+- **Spraakcommando's**: Vraag data op zonder te klikken ("Toon alle PHQ-9 scores afgelopen maand")
+
+---
+
+## Kernfunctionaliteit
+
+**Dictaat met AI Extractie:**
+- Behandelaar dicteert behandelnotitie tijdens/na consult
+- AI transcribeert en herkent automatisch:
+  - ROM-scores (PHQ-9, GAD-7, HONOS)
+  - Observaties (stemming, gedrag, risico's)
+  - Medicatie informatie
+- Data wordt gestructureerd opgeslagen
+- Narratieve tekst wordt notitie in dossier
+
+**Spraakcommando's:**
+- Hands-free data opvragen tijdens gesprek met cliënt
+- Voorbeelden:
+  - "Toon laatste PHQ-9 score"
+  - "Wanneer was laatste medicatie wijziging"
+  - "Laat suïcidaliteit trend zien afgelopen maand"
+- Directe visualisatie zonder klikken of typen
+
+---
+
+## Voorbeeld Scenario
+
+**Dictaat na consult:**
+```
+"Gesprek met meneer Jansen vandaag.
+Hij presenteert zich beter dan vorige week.
+PHQ-9 score is 12, dat is een daling van 18.
+Medicatie wordt goed verdragen, geen bijwerkingen.
+Suïcidale gedachten zijn afgenomen naar passief niveau.
+Plan: Doorgaan met huidige behandeling, volgende week
+weer PHQ-9 afnemen om trend te bevestigen."
+```
+
+**AI processing:**
+- Herkent: PHQ-9 = 12 (vorige keer 18)
+- Herkent: Suïcidaliteit = passief (verbetering)
+- Opslaan: ROM-score + observatie + behandelnotitie
+- Resultaat: Gestructureerde data + leesbare notitie
+
+**Spraakcommando tijdens consult:**
+- Cliënt vraagt: "Hoe ging het de laatste weken?"
+- Behandelaar zegt: "Laat PHQ-9 trend zien afgelopen maand"
+- Scherm toont automatisch grafiek met scores
+- Behandelaar en cliënt bespreken samen de voortgang
+
+---
+
+## Voordelen
+
+**Tijdsbesparing:**
+- 50% sneller dan typen
+- Minder administratieve last na consult
+- Meer tijd voor daadwerkelijk cliënt contact
+
+**Kwaliteit:**
+- Gestructureerde data vanaf invoer (geen handmatig invoeren achteraf)
+- Minder fouten door tikwerk
+- Consistente terminologie door AI
+
+**Gebruikerservaring:**
+- Natuurlijke workflow (praten vs typen)
+- Hands-free tijdens consult
+- Direct visualisatie van data
+
+---
+
+## Techniek (kort)
+
+**Stack:**
+- OpenAI Whisper API voor transcriptie (Nederlands)
+- GPT-4 voor data extractie uit transcript
+- Web Speech API voor spraakcommando's
+- Supabase Edge Functions voor processing
+
+**Privacy:**
+- Audio automatisch verwijderd na 90 dagen
+- Cliënt toestemming vereist
+- End-to-end versleuteling
+- AVG compliant
+
+---
+
+## MVP Scope
+
+**Eerste versie:**
+- ✅ Basis dicteren en transcriptie
+- ✅ ROM-scores herkennen (PHQ-9, GAD-7, HONOS)
+- ✅ Observaties extractie (stemming, gedrag, risico)
+- ✅ Opslag in gestructureerde database
+- ✅ Simpele visualisatie van trends
+
+**Later toevoegen:**
+- 🔄 Real-time transcriptie tijdens consult
+- 🔄 Spraakcommando's voor data queries
+- 🔄 Multi-taal support (Engels, Arabisch)
+- 🔄 Medicatie informatie herkenning
+- 🔄 Automatische behandelplan suggesties
+
+---
+
+## Gerelateerde Documentatie
+
+**Features:**
+- [GGZ Overdracht Systeem](/documentatie/nursing-handover-system) - Voice integratie
+- Intake Systeem (binnenkort)
+- [Interface Design System](/documentatie/interface-design) - UI patterns
+
+**Basis:**
+- [Authentication System](/documentatie/authentication) - Toegangsbeheer
+- Database Schema (binnenkort)

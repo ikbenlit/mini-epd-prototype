@@ -1,0 +1,643 @@
+---
+title: "Interface Design System"
+category: "interface-design"
+group: "foundation"
+version: "1.0.0"
+releaseDate: "2024-11-19"
+status: "completed"
+description: "Complete UI/UX design specificatie voor het Mini-ECD prototype met two-level navigation systeem"
+---
+
+## Overview
+
+Het Mini-ECD interface design definieert een complete gebruikerservaring voor behandelaars met een two-level context systeem. Desktop-first, geoptimaliseerd voor professioneel gebruik in een klinische omgeving.
+
+**Design Principes:**
+- Context-aware navigation (Behandelaar vs. Client Dossier)
+- Desktop-only MVP (1280px - 1920px)
+- Clean, professional healthcare UI
+- Maximale efficiency voor behandelaars
+
+---
+
+## Two-Level Context System
+
+### Level 1: Behandelaar Context
+
+**Wanneer:** Geen cliënt geselecteerd
+
+**Navigatie:**
+- 📊 Dashboard - Caseload overzicht en taken
+- 👥 Cliënten - Zoeken en selecteren
+- 📅 Agenda - Alle afspraken
+- 📈 Rapportage - BI dashboards
+
+**Use Case:** Behandelaar krijgt overzicht van de hele caseload, plant afspraken, en ziet aandachtspunten.
+
+### Level 2: Client Dossier Context
+
+**Wanneer:** Cliënt geselecteerd (via klik op cliënt in lijst)
+
+**Navigatie:**
+- ← Cliënten - Terug naar behandelaar context
+- 📋 Dashboard - Dossier overzicht
+- 💬 Intake - Gesprekken en notities
+- 🧠 Diagnose - DSM classificatie
+- 📝 Behandelplan - SMART doelen en interventies
+- 📊 Rapportage - Cliënt-specifieke voortgang
+
+**Use Case:** Behandelaar werkt intensief met een specifieke cliënt, bekijkt historie, maakt diagnose, stelt behandelplan op.
+
+---
+
+## Layout Components
+
+### Header Bar (60px fixed)
+
+**Structuur:**
+```
+┌──────────────────────────────────────────────┐
+│ Mini-ECD    [Bas Jansen ▼]      [🔍 Zoek]   │
+│             ID: CL0002                       │
+└──────────────────────────────────────────────┘
+```
+
+**Elementen:**
+- **Links:** Logo/branding
+- **Center:** Context-aware client selector
+  - Level 1: Leeg of behandelaar naam
+  - Level 2: Client dropdown met ID en geboortedatum
+- **Rechts:** Global search "Zoek cliënt..."
+
+### Sidebar (240px fixed)
+
+**Context-Aware Menu:**
+
+**Level 1 (Behandelaar):**
+```
+┌──────────────┐
+│ Dashboard    │ ← Active
+│ Cliënten     │
+│ Agenda       │
+│ Rapportage   │
+└──────────────┘
+```
+
+**Level 2 (Client Dossier):**
+```
+┌──────────────┐
+│ ← Cliënten   │ ← Back button
+│ ────────     │
+│ Dashboard    │ ← Active
+│ Intake       │
+│ Diagnose     │
+│ Behandelplan │
+│ Rapportage   │
+└──────────────┘
+```
+
+**Styling:**
+- Light gray background
+- Active state: highlighted bg + left border accent
+- Icons: 20px with 12px gap
+- 4px spacing between items
+
+### Main Content Area
+
+**Layout:**
+- White background
+- 32px padding all sides
+- Full scrollable height
+- Responsive grid system voor cards
+
+---
+
+## Screen Specifications
+
+### Level 1 Screens
+
+#### 1A: Behandelaar Dashboard
+
+**Content Cards:**
+- Caseload overzicht (aantal actieve cliënten)
+- Aandachtspunten en urgente taken
+- Behandelplannen in concept status
+- Recente activiteit timeline
+- Aankomende afspraken (vandaag/deze week)
+
+**Layout:**
+```
+┌────────────────────────────────────┐
+│ Dashboard                          │
+│ Welkom terug, [Behandelaar]        │
+│                                    │
+│ ┌──────┐ ┌──────┐ ┌──────┐        │
+│ │Caseload│Taken  │Afspraken│        │
+│ │  24   │   8   │    3    │        │
+│ └──────┘ └──────┘ └──────┘        │
+│                                    │
+│ Aandachtspunten                    │
+│ • Behandelplan Bas Jansen (Concept)│
+│ • Follow-up Anna de Vries          │
+└────────────────────────────────────┘
+```
+
+#### 1B: Cliënten Lijst
+
+**Features:**
+- Zoekbalk met filters (Afdeling, Team, Status)
+- Recent bekeken cliënten (quick access)
+- Tabel met: Naam | ID | Geboortedatum | Status | Laatste Contact
+- "Nieuwe Cliënt" button (top right)
+
+**Client Row:**
+```
+Bas Jansen    CL0002    20-11-1992    [Actief]    12-10-2023
+```
+
+**Hover State:** Light background + pointer cursor
+
+**Click Action:** → Switches to Level 2 (Client Dossier)
+
+**Empty State:**
+```
+    👥
+  Nog geen cliënten
+  Voeg je eerste cliënt toe om te beginnen
+
+  [+ Nieuwe Cliënt]
+```
+
+#### 1C: Behandelaar Agenda
+
+**Features (to be detailed):**
+- Week/maand kalender view
+- Alle afspraken van alle cliënten
+- Type, tijd, cliënt, locatie
+- Nieuwe afspraak maken
+
+#### 1D: Behandelaar Rapportage
+
+**Features (to be detailed):**
+- KPI dashboards
+- Statistieken (behandelduur, outcomes)
+- Trends over tijd
+- Export functionaliteit
+
+---
+
+### Level 2 Screens
+
+#### 2A: Client Dashboard (Dossier Overzicht)
+
+**Header Shows:**
+```
+Bas Jansen ▼
+ID: CL0002 | Geb: 20-11-1992
+```
+
+**Card Grid (3 columns):**
+
+**Column 1 - Cliëntinformatie:**
+```
+┌────────────────────┐
+│ Cliëntinformatie   │
+│                    │
+│ ID:         CL0002 │
+│ Naam:  Bas Jansen  │
+│ Geboren: 20-11-1992│
+│ Leeftijd:  31 jaar │
+│ Verzekering: [...]  │
+│ BSN:       [...]    │
+│                    │
+│ Bewerken →         │
+└────────────────────┘
+```
+
+**Column 2 - Laatste Intake:**
+```
+┌────────────────────┐
+│ Laatste Intake     │
+│ 12-10-2023, 14:30  │
+│                    │
+│ Bas komt op gesprek│
+│ vanwege spannings- │
+│ klachten en paniek-│
+│ aanvallen...       │
+│                    │
+│ Bekijk intake →    │
+└────────────────────┘
+```
+
+**Column 3 - Diagnose:**
+```
+┌────────────────────┐
+│ Diagnose    [Hoog] │
+│                    │
+│ Angststoornissen   │
+│                    │
+│ Panietstoornis met │
+│ agorafobie. De     │
+│ frequentie van...  │
+│                    │
+│ Bekijk diagnose →  │
+└────────────────────┘
+```
+
+**Full Width - Behandelplan:**
+```
+┌────────────────────────────────────┐
+│ Behandelplan                       │
+│                                    │
+│ [Concept]  Versie 1 - 12-10-2023   │
+│                                    │
+│ SMART Doelen:                      │
+│ • Verminderen paniekeaanvallen     │
+│ • Uitbreiden sociale activiteiten  │
+│                                    │
+│ Bekijk behandelplan →              │
+└────────────────────────────────────┘
+```
+
+**Empty State:**
+```
+┌────────────────────────────────────┐
+│ Behandelplan                       │
+│                                    │
+│     Geen behandelplan gevonden     │
+│                                    │
+│     [+ Maak behandelplan]          │
+└────────────────────────────────────┘
+```
+
+**Full Width - Afspraken:**
+```
+┌────────────────────────────────────┐
+│ Afspraken                          │
+│                                    │
+│ Afgelopen Afspraak                 │
+│ 📅 14-11-2025, 16:26 - Intake      │
+│                                    │
+│ ─────────────────────────────────  │
+│                                    │
+│ Komende Afspraken                  │
+│ │ 22-11-2025, 16:26 - Psycho-edu   │
+│ │ 29-11-2025, 16:26 - Exposure     │
+│ │ 06-12-2025, 16:26 - Evaluatie    │
+└────────────────────────────────────┘
+```
+
+#### 2B: Intake Overzicht
+
+**Top Bar:**
+```
+Intakes                    [+ Nieuwe Intake]
+```
+
+**Intake Lijst:**
+
+Header: `Datum | Type | Status | Samenvatting | Acties`
+
+**Intake Items:**
+```
+┌────────────────────────────────────────────┐
+│ 12-10-2023, 14:30                          │
+│ [Intake gesprek] [Afgerond]                │
+│ Eerste intake. Cliënt presenteert zich...  │
+│                             [Bekijk]       │
+├────────────────────────────────────────────┤
+│ 05-10-2023, 10:15                          │
+│ [Telefonische intake] [Afgerond]           │
+│ Korte telefonische screening...            │
+│                             [Bekijk]       │
+└────────────────────────────────────────────┘
+```
+
+**Empty State:**
+```
+    📋
+  Nog geen intakes
+  Klik op 'Nieuwe Intake' om te beginnen
+
+  [+ Nieuwe Intake]
+```
+
+#### 2C: Diagnose & Probleemprofiel
+
+**Top Bar:**
+```
+Diagnose & Probleemprofiel        [✨ AI Analyse]
+```
+
+**DSM-light Categorieën Grid:**
+```
+┌─────────┬─────────┬─────────┐
+│ Stemming│  Angst  │ Gedrag  │
+│  Hoog   │ Middel  │  Laag   │
+├─────────┼─────────┼─────────┤
+│ Middel  │ Cognitief│Context  │
+│         │         │         │
+└─────────┴─────────┴─────────┘
+```
+
+**Ernst Indicatie:**
+```
+┌────────────────────────────┐
+│ Ernst: ●●●○○ (Hoog)       │
+│ Bronnen: Intake 12-10-2023 │
+│                            │
+│ Primaire diagnose:         │
+│ Panietstoornis met         │
+│ agorafobie                 │
+└────────────────────────────┘
+```
+
+**Features:**
+- AI-gegenereerde classificatie
+- Manual override mogelijkheid
+- Geschiedenis van diagnoses
+- Notities en observaties
+
+#### 2D: Behandelplan
+
+**Top Bar:**
+```
+Behandelplan         [🤖 Genereer Plan] [Nieuwe Versie]
+```
+
+**Versie Header:**
+```
+Versie 1 - Actief | 12-10-2023
+```
+
+**Plan Structuur:**
+
+**1. SMART Doelen:**
+```
+┌────────────────────────────────────┐
+│ 1. SMART Doelen                    │
+│                                    │
+│ • Verminderen paniekeaanvallen van │
+│   3x per week naar 1x per maand    │
+│   [In Progress]                    │
+│                                    │
+│ • Uitbreiden sociale activiteiten: │
+│   minimaal 2x per week uitgaan     │
+│   [Not Started]                    │
+└────────────────────────────────────┘
+```
+
+**2. Interventies:**
+```
+┌────────────────────────────────────┐
+│ 2. Interventies                    │
+│                                    │
+│ • CGT - Cognitieve herstructurering│
+│   Rationale: [...]                 │
+│                                    │
+│ • Exposure therapie (gradueel)     │
+│   Rationale: [...]                 │
+└────────────────────────────────────┘
+```
+
+**3. Frequentie & Planning:**
+```
+┌────────────────────────────────────┐
+│ 3. Frequentie & Planning           │
+│                                    │
+│ • Sessies: 1x per week             │
+│ • Duur: 60 minuten                 │
+│ • Behandelduur: 12-16 weken        │
+└────────────────────────────────────┘
+```
+
+**4. Meetmomenten:**
+```
+┌────────────────────────────────────┐
+│ 4. Meetmomenten                    │
+│                                    │
+│ • Week 0: Baseline (ROM)           │
+│ • Week 6: Tussentijdse evaluatie   │
+│ • Week 12: Einde behandeling       │
+└────────────────────────────────────┘
+```
+
+**Versioning:**
+- Status: Concept | Actief | Afgerond
+- Meerdere versies mogelijk (v1, v2, etc.)
+- Timestamp + behandelaar info
+
+#### 2E: Rapportage & Voortgang
+
+**Metrics Cards:**
+```
+┌──────────────────────────────┐
+│ Behandelduur: 8 weken        │
+│ Sessies: 6 van 12            │
+│ Voortgang: ████████░░░░ 67%  │
+└──────────────────────────────┘
+```
+
+**Features (to be detailed):**
+- Progress tracking per doel
+- Session attendance
+- ROM instrumenten
+- Grafieken en visualisaties
+- Export functionaliteit (PDF, CSV)
+
+---
+
+## Intake Detail View (Slide-in Panel)
+
+**Trigger:** Klik "Bekijk" op intake item
+
+**Panel (400px from right):**
+
+```
+┌────────────────────────┐
+│ Intake - 12-10-2023  ✕ │
+├────────────────────────┤
+│                        │
+│ Algemene informatie    │
+│ Datum: 12-10-2023      │
+│ Tijd: 14:30            │
+│ Type: Intake gesprek   │
+│ Duur: 60 minuten       │
+│                        │
+│ ──────────────────     │
+│                        │
+│ Gespreksnotities       │
+│                        │
+│ Bas komt op gesprek    │
+│ vanwege spannings-     │
+│ klachten en paniek...  │
+│ [full scrollable text] │
+│                        │
+│ ──────────────────     │
+│                        │
+│ ✨ AI Samenvatting     │
+│ • Paniekeaanvallen     │
+│ • Vermijdingsgedrag    │
+│ • Werkstress trigger   │
+│                        │
+├────────────────────────┤
+│ Verwijderen  Bewerken  │
+└────────────────────────┘
+```
+
+**Features:**
+- Sticky header + footer
+- Scrollable content
+- AI samenvatting (light blue bg)
+- Edit + Delete actions
+
+---
+
+## Design Tokens
+
+### Spacing Scale
+```
+xs:  4px
+sm:  8px
+md:  16px
+lg:  24px
+xl:  32px
+```
+
+### Typography Scale
+```
+Page title:     28px, semi-bold
+Card title:     18px, semi-bold
+Section title:  14px, semi-bold
+Body text:      15px, normal
+Small text:     13px, normal
+Tiny text:      12px, normal
+```
+
+### Border Radius
+```
+Badges:  12px (full rounded)
+Buttons:  6px
+Cards:    8px
+```
+
+### Shadows
+```
+Card:       0 1px 3px rgba(0,0,0,0.1)
+Card hover: 0 4px 6px rgba(0,0,0,0.1)
+Modal:      0 20px 25px rgba(0,0,0,0.15)
+```
+
+### Component Patterns
+
+**Card:**
+- White background
+- 1px border (light gray)
+- 8px border radius
+- 16px padding
+- Subtle shadow
+
+**Badge/Pill:**
+- 13px font size
+- 4px vertical, 12px horizontal padding
+- Full rounded (12px)
+- Contextual colors:
+  - Green: Success/Actief
+  - Yellow: Warning/Wachtlijst
+  - Red: High severity
+  - Blue: Info/Type indicator
+
+**Button:**
+- Primary: Solid bg, white text
+- Secondary: Border outline
+- Destructive: Red theme
+- 8px vertical, 16px horizontal padding
+- 6px border radius
+
+---
+
+## Hoe werkt de navigatie?
+
+**Typische workflow:**
+
+1. **Start** - Je begint op het behandelaar dashboard met overzicht van je caseload
+2. **Cliënt selecteren** - Klik op "Cliënten" in het menu om je cliëntenlijst te zien
+3. **Dossier openen** - Klik op een cliënt (bijv. "Bas Jansen") om het dossier te openen
+4. **Context wijzigt** - Het menu toont nu cliënt-specifieke opties (Intake, Diagnose, Behandelplan)
+5. **Door dossier navigeren** - Gebruik het menu om tussen secties te wisselen
+6. **Terug naar overzicht** - Klik op "← Cliënten" om terug te gaan naar je caseload
+7. **Snel wisselen** - Gebruik de dropdown in de header om snel naar een andere cliënt te gaan
+8. **Zoeken** - Gebruik de zoekbalk rechtsboven om direct naar een cliënt te springen
+
+---
+
+## Toegankelijkheid
+
+Het systeem is ontworpen om toegankelijk te zijn voor alle gebruikers:
+
+**Toetsenbord navigatie:**
+- Alle knoppen en links zijn bereikbaar met Tab
+- Logische volgorde door de pagina
+- Duidelijk zichtbare focus indicatie
+
+**Kleurgebruik:**
+- Voldoende contrast voor leesbaarheid
+- Status badges zijn ook zonder kleur te onderscheiden
+- Hover effecten zijn duidelijk zichtbaar
+
+---
+
+## Wat zit er NIET in de MVP?
+
+Om snel te kunnen leveren focussen we eerst op de kern functionaliteit. Deze features komen later:
+
+**Niet in eerste versie:**
+- ❌ Mobile/tablet versie (alleen desktop)
+- ❌ Dark mode
+- ❌ Rechten en rollen systeem
+- ❌ Geavanceerde filters en bulk acties
+- ❌ Export naar PDF/CSV
+- ❌ Agenda integratie (Google Calendar, etc.)
+- ❌ Push notificaties
+- ❌ Aangepaste velden per instelling
+- ❌ Document templates
+
+**Waarom deze keuzes?**
+
+We bouwen eerst een solide basis voor de kernworkflow van behandelaars. Na de MVP kunnen we op basis van jullie feedback de meest waardevolle features toevoegen.
+
+---
+
+## Wat komt er nu?
+
+**In ontwikkeling:**
+- ✅ Design systeem gedocumenteerd
+- 🔄 Component library bouwen
+- 🔄 Cliënten lijst met zoeken
+- ⏳ Dashboard voor behandelaars
+- ⏳ Client dossier schermen
+
+**Toekomstige verbeteringen:**
+- Mobile versie voor on-the-go toegang
+- Dark mode voor avondwerk
+- Geavanceerde filters en sortering
+- Keyboard shortcuts voor power users
+- Template systeem voor intakes en plannen
+- Export functionaliteit
+
+---
+
+## Gerelateerde Documentatie
+
+**Basis Systeem:**
+- [Authentication System](/documentatie/authentication) - Inloggen en gebruikersbeheer
+- Database Schema (binnenkort)
+
+**Features:**
+- Client Management (binnenkort)
+- Intake Systeem (binnenkort)
+- Behandelplanning (binnenkort)
+
+**Meer Informatie:**
+- Component Library (binnenkort)
+- Design Tokens (binnenkort)
