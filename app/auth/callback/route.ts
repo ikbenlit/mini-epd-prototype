@@ -33,18 +33,19 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Password recovery flow detection:
-      // 1. Check type parameter (Supabase adds this automatically)
-      // 2. Check if next contains update-password (our explicit redirect)
-      // 3. Check if this is a recovery session by looking at the user's recovery metadata
-      const isRecoveryFlow = 
-        type === 'recovery' || 
-        next.includes('/update-password') ||
-        requestUrl.pathname.includes('update-password')
-
-      if (isRecoveryFlow) {
+      // PRIORITY: If next is /update-password, ALWAYS go there (password reset flow)
+      if (next === '/update-password' || next.includes('update-password')) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Redirecting to /update-password (recovery flow detected)')
+          console.log('✅ Redirecting to /update-password (next parameter detected)')
+        }
+        return NextResponse.redirect(new URL('/update-password', request.url))
+      }
+
+      // Password recovery flow detection:
+      // Check type parameter (Supabase adds this automatically for recovery)
+      if (type === 'recovery') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Redirecting to /update-password (recovery type detected)')
         }
         return NextResponse.redirect(new URL('/update-password', request.url))
       }
