@@ -1,0 +1,108 @@
+---
+title: "Verpleegkundige Overdracht"
+category: "verpleegkundige-overdracht"
+group: "features"
+version: "1.0.0"
+releaseDate: "TBD"
+status: "planned"
+description: "Efficiënte overdracht workflow voor GGZ professionals met 6+ overdrachten per dag, geïntegreerd met ROM-metingen en observaties"
+---
+
+## Overview
+
+GGZ professionals in klinische settings moeten meerdere keren per dag cliënt overdrachten doen aan psychiaters, psychologen en collega's van de volgende dienst. Dit systeem helpt om dat efficiënter te maken.
+
+**LinkedIn Feedback:**
+> "Kun je iets slims bouwen voor een verpleegkundige die 6 overdrachten heeft per dag aan artsen aan de volgende dienst en ondertussen ook allerlei metingen doet en moet opslaan?"
+
+---
+
+## Kernfunctionaliteit
+
+**Overdracht Workflow:**
+- SBAR templates aangepast voor GGZ (Situation, Background, Assessment, Recommendation)
+- Dienst schema met 6+ overdrachten per dag (nacht→dag, visite, avond→nacht)
+- Automatisch ophalen van laatste observaties en ROM-scores
+- Risico markers (Stabiel, Observatie, Verhoogd risico, Crisis)
+
+**Observaties & Metingen:**
+- Psychische observaties (stemming, angst, suïcidaliteit, agressie)
+- ROM-metingen (PHQ-9, GAD-7, HONOS)
+- Gedragsobservaties (slaap, eetpatroon, zelfzorg)
+- Medicatie compliance en bijwerkingen
+- Trend visualisatie over tijd
+
+**Multi-Cliënt Overzicht:**
+- Dashboard met alle cliënten en hun risico niveau
+- Quick actions voor urgente situaties
+- Template library (nieuwe opname, crisis, proefverlof, ontslag)
+
+---
+
+## Voordelen
+
+**Tijdsbesparing:**
+- Van 10 minuten → 5 minuten per overdracht
+- Automatische data aggregatie (geen handmatig opzoeken)
+- Templates elimineren herhaling
+
+**Kwaliteit & Veiligheid:**
+- Gestructureerde methode voorkomt vergeten details
+- Continuïteit tussen diensten (cruciaal bij risico's)
+- Trend visualisatie helpt vroeg signaleren
+- Audit trail voor verantwoording
+
+**Stress Reductie:**
+- Duidelijk overzicht welke cliënten verhoogd risico hebben
+- Prioritering automatisch (crisis eerst, daarna routine)
+- Minder mental load bij grote caseload (12+ cliënten)
+
+---
+
+## Voorbeeld Scenario
+
+**Dienst Overdracht (22:00 Avond → Nacht):**
+
+SPV loopt 12 cliënten door met nachtdienst:
+- Systeem toont per cliënt: laatste observaties, risico niveau, actiepunten
+- Verhoogd risico cliënten eerst (suïcidaliteit, agressie)
+- Automatisch voorgevulde SBAR met wijzigingen sinds vorige dienst
+- Quick export naar print of digitaal doorgeven
+
+**Crisis Alert:**
+- Cliënt vertoont acute suïcidaliteit
+- SPV klikt "Crisis Alert" → haalt laatste scores op
+- Pre-filled urgent overdracht naar psychiater
+- Push notificatie + SMS naar dienstdoende arts
+- Observatie niveau automatisch verhoogd naar Q15min
+
+---
+
+## MVP Scope
+
+**Eerste versie:**
+- ✅ SBAR overdracht templates voor GGZ
+- ✅ Dienst schema en planning (6+ overdrachten)
+- ✅ Multi-cliënt dashboard met risico indicators
+- ✅ Handmatige input observaties en ROM-scores
+- ✅ Crisis alert functionaliteit
+
+**Later toevoegen:**
+- 🔄 Voice-to-text input (hands-free tijdens observatie rondes)
+- 🔄 AI samenvatting en gedragspatroon detectie
+- 🔄 Mobile app voor on-the-go observaties
+- 🔄 Integratie met bestaande EPD systemen (Nedap, Ysis)
+- 🔄 ROM instrument koppeling (automatische import)
+
+---
+
+## Gerelateerde Documentatie
+
+**Features:**
+- Client Management (binnenkort)
+- Intake Systeem (binnenkort)
+- [Interface Design System](/documentatie/interface-design) - UI patterns
+
+**Basis:**
+- [Authentication System](/documentatie/authentication) - Toegangsbeheer
+- Database Schema (binnenkort)
