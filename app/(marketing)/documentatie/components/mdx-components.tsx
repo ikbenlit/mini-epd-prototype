@@ -33,9 +33,9 @@ export const mdxComponents: MDXComponents = {
 
   // Paragraphs
   p: ({ children, ...props }) => (
-    <p className="text-slate-700 leading-relaxed mb-4" {...props}>
+    <div className="text-slate-700 leading-relaxed mb-4" {...props}>
       {children}
-    </p>
+    </div>
   ),
 
   // Lists
