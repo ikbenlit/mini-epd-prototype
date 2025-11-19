@@ -12,7 +12,7 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const next = requestUrl.searchParams.get('next') ?? '/clients'
+  const next = requestUrl.searchParams.get('next') ?? '/epd/clients'
 
   if (code) {
     const supabase = await createClient()
@@ -25,12 +25,18 @@ export async function GET(request: NextRequest) {
       const isNewUser = new Date(data.user.created_at).getTime() ===
         new Date(data.user.last_sign_in_at || '').getTime()
 
-      if (isNewUser) {
-        // Redirect new users to set-password page
+      // Check if user signed up with password (has identity provider = 'email')
+      const hasPassword = data.user.identities?.some(
+        identity => identity.provider === 'email'
+      )
+
+      if (isNewUser && !hasPassword) {
+        // Redirect new magic link users to set-password page (optional)
         return NextResponse.redirect(new URL('/set-password', request.url))
       }
 
-      // Redirect to the specified next URL or default to /clients
+      // Redirect to the specified next URL or default to /epd/clients
+      // This includes: password signups, confirmed email users, and returning users
       return NextResponse.redirect(new URL(next, request.url))
     }
   }

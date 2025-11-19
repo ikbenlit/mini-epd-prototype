@@ -28,12 +28,38 @@ Deze directory bevat HTML email templates die gebruikt kunnen worden in Supabase
 
 ## Hoe te gebruiken in Supabase
 
+### Stap 1: Site URL Configureren
+
+**BELANGRIJK:** Zorg eerst dat je Site URL correct is ingesteld, anders verwijzen alle email links naar localhost!
+
 1. Log in op je Supabase Dashboard
-2. Ga naar **Authentication** → **Email Templates**
-3. Selecteer het juiste template type (Confirm signup of Reset Password)
-4. Kopieer de volledige HTML inhoud van het corresponderende `.html` bestand
-5. Plak deze in het Supabase email template veld
-6. Klik op **Save**
+2. Ga naar **Authentication** → **URL Configuration**
+3. Stel de **Site URL** in:
+   - **Development:** `http://localhost:3000`
+   - **Production:** `https://aispeedrun.nl`
+4. Voeg de volgende **Redirect URLs** toe (één per regel):
+   ```
+   http://localhost:3000/auth/callback
+   http://localhost:3000/update-password
+   http://localhost:3000/set-password
+   http://localhost:3000/reset-password
+   https://aispeedrun.nl/auth/callback
+   https://aispeedrun.nl/update-password
+   https://aispeedrun.nl/set-password
+   https://aispeedrun.nl/reset-password
+   ```
+
+   **Note:** Je kunt zowel localhost als productie URLs toevoegen, zodat beide omgevingen werken.
+
+5. Klik op **Save**
+
+### Stap 2: Email Templates Instellen
+
+1. Ga naar **Authentication** → **Email Templates**
+2. Selecteer het juiste template type (Confirm signup of Reset Password)
+3. Kopieer de volledige HTML inhoud van het corresponderende `.html` bestand
+4. Plak deze in het Supabase email template veld
+5. Klik op **Save**
 
 ## Design Kenmerken
 
