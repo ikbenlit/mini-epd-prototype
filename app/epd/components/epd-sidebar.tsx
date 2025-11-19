@@ -238,33 +238,31 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
 
           {/* Logout Button */}
           <div className="p-3">
-            <form action="/auth/logout" method="POST">
-              <button
-                type="submit"
-                className={`
-                  w-full flex items-center rounded-md text-left transition-all duration-200 group
-                  text-red-600 hover:bg-red-50 hover:text-red-700
-                  ${isCollapsed ? "justify-center p-2.5" : "space-x-2.5 px-3 py-2.5"}
-                `}
-                title={isCollapsed ? "Uitloggen" : undefined}
-              >
-                <div className="flex items-center justify-center min-w-[20px]">
-                  <LogOut className="h-5 w-5 flex-shrink-0 text-red-500 group-hover:text-red-600" />
+            <button
+              onClick={() => window.location.href = '/auth/logout'}
+              className={`
+                w-full flex items-center rounded-md text-left transition-all duration-200 group
+                text-red-600 hover:bg-red-50 hover:text-red-700
+                ${isCollapsed ? "justify-center p-2.5" : "space-x-2.5 px-3 py-2.5"}
+              `}
+              title={isCollapsed ? "Uitloggen" : undefined}
+            >
+              <div className="flex items-center justify-center min-w-[20px]">
+                <LogOut className="h-5 w-5 flex-shrink-0 text-red-500 group-hover:text-red-600" />
+              </div>
+
+              {!isCollapsed && (
+                <span className="text-sm">Uitloggen</span>
+              )}
+
+              {/* Tooltip for collapsed state */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                  Uitloggen
+                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
                 </div>
-
-                {!isCollapsed && (
-                  <span className="text-sm">Uitloggen</span>
-                )}
-
-                {/* Tooltip for collapsed state */}
-                {isCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-                    Uitloggen
-                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
-                  </div>
-                )}
-              </button>
-            </form>
+              )}
+            </button>
           </div>
         </div>
       </div>
