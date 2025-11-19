@@ -8,8 +8,8 @@ import Link from 'next/link'
 import { getAllReleases } from '@/lib/mdx/releases'
 
 export const metadata = {
-  title: 'Release Notes - AI Speedrun',
-  description: 'Volledige changelog van het Mini-ECD prototype. Transparant build-in-public overzicht van features, fixes en improvements.',
+  title: 'Documentatie - AI Speedrun',
+  description: 'Feature documentatie van het Mini-ECD prototype. Transparant build-in-public overzicht van gebouwde functionaliteit.',
 }
 
 export default async function ReleasesPage() {
@@ -26,10 +26,10 @@ export default async function ReleasesPage() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-            Release Notes
+            Feature Documentatie
           </h1>
           <p className="text-xl text-slate-600 max-w-3xl">
-            Volledige changelog van het Mini-ECD prototype. Build in public met transparantie over features, tijd en kosten.
+            Uitgebreide documentatie van alle gebouwde functionaliteit. Build in public met transparantie over features, implementatie en kosten.
           </p>
         </div>
 

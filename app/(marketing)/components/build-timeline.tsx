@@ -240,12 +240,12 @@ export const BuildTimeline = ({ data }: BuildTimelineProps) => {
                 </div>
               )}
 
-              {/* Link to detailed release notes */}
+              {/* Link to detailed documentation */}
               <a
                 href="/releases"
                 className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium text-sm transition-colors"
               >
-                <span>Bekijk gedetailleerde release notes</span>
+                <span>Bekijk uitgebreide documentatie</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

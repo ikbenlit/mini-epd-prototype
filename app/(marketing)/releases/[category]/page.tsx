@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: ReleasePageProps) {
   }
 
   return {
-    title: `${release.frontmatter.title} - Release Notes`,
+    title: `${release.frontmatter.title} - Documentatie`,
     description: release.frontmatter.description,
   }
 }
