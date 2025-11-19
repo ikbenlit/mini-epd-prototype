@@ -29,19 +29,39 @@ interface EPDSidebarProps {
   userName?: string;
 }
 
-// EPD Navigation items
-const navigationItems: NavigationItem[] = [
-  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/epd/clients" },
+// LEVEL 1: Behandelaar Context Navigation
+const level1NavigationItems: NavigationItem[] = [
+  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/epd/dashboard" },
   { id: "clients", name: "Cliënten", icon: Users, href: "/epd/clients" },
-  { id: "documentation", name: "Documentatie", icon: FileText, href: "/epd/docs" },
-  { id: "settings", name: "Instellingen", icon: Settings, href: "/epd/settings" },
-  { id: "help", name: "Help", icon: HelpCircle, href: "/epd/help" },
+  { id: "agenda", name: "Agenda", icon: FileText, href: "/epd/agenda" },
+  { id: "reports", name: "Rapportage", icon: Settings, href: "/epd/reports" },
+];
+
+// LEVEL 2: Client Dossier Context Navigation (clientId gets injected)
+const level2NavigationItems: NavigationItem[] = [
+  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { id: "intake", name: "Intake", icon: FileText, href: "/intake" },
+  { id: "diagnose", name: "Diagnose", icon: Settings, href: "/diagnose" },
+  { id: "plan", name: "Behandelplan", icon: HelpCircle, href: "/plan" },
+  { id: "reports", name: "Rapportage", icon: Settings, href: "/reports" },
 ];
 
 export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Context detection: Level 2 if URL contains /clients/[id]
+  const isClientContext = pathname.match(/\/epd\/clients\/[^\/]+/);
+  const clientId = isClientContext ? pathname.split('/')[3] : null;
+
+  // Determine which navigation items to show
+  const navigationItems = isClientContext
+    ? level2NavigationItems.map(item => ({
+        ...item,
+        href: `/epd/clients/${clientId}${item.href}`
+      }))
+    : level1NavigationItems;
 
   // Auto-open sidebar on desktop
   useEffect(() => {
@@ -140,6 +160,20 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {/* Back to Cliënten button (Level 2 only) */}
+          {isClientContext && (
+            <>
+              <Link
+                href="/epd/clients"
+                className="flex items-center gap-2 px-3 py-2.5 mb-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {!isCollapsed && <span>Cliënten</span>}
+              </Link>
+              <div className="h-px bg-slate-200 my-2 mx-3" />
+            </>
+          )}
+
           <ul className="space-y-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
