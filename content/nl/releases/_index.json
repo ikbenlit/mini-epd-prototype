@@ -17,6 +17,12 @@
       "title": "Infrastructure",
       "description": "Ondersteunende systemen",
       "order": 3
+    },
+    {
+      "id": "bugs",
+      "title": "Bugs & Fixes",
+      "description": "Opgeloste bugs en troubleshooting",
+      "order": 4
     }
   ],
   "categories": [
@@ -82,6 +88,13 @@
       "group": "infrastructure",
       "description": "Optimalisaties en monitoring",
       "order": 9
+    },
+    {
+      "slug": "webpack-module-resolution",
+      "title": "Webpack Module Resolution",
+      "group": "bugs",
+      "description": "Fix voor Server/Client Component import issues",
+      "order": 10
     }
   ]
 }
