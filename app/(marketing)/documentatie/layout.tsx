@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react'
 import { getAllReleases, getCategoryMetadata } from '@/lib/mdx/documentatie'
-import ReleaseSidebar from './components/release-sidebar-wrapper'
+import { ReleaseSidebar } from './components/release-sidebar'
 
 interface ReleasesLayoutProps {
   children: ReactNode
