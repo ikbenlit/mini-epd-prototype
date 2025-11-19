@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
 
     if (!error && data.user) {
       // Password recovery flow - always go to update-password
-      if (type === 'recovery') {
+      // Check both query param and if next contains update-password (fallback)
+      if (type === 'recovery' || next.includes('/update-password')) {
         return NextResponse.redirect(new URL('/update-password', request.url))
       }
 
