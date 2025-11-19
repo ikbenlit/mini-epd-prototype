@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
 
     // Check if user signed up with password (has identity provider = 'email')
     const hasPassword = data.user.identities?.some(
-      identity => identity.provider === 'email'
+      (identity: any) => identity.provider === 'email'
     )
 
     if (isNewUser && !hasPassword) {
