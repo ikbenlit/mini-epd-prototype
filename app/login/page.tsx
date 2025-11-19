@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loginWithPassword, signUpWithPassword } from '@/lib/auth/client'
-import { Brain, Zap, Target, Clock } from 'lucide-react'
+import { Brain, Zap, Target, Clock, Eye, EyeOff } from 'lucide-react'
 import { BentoGrid, BentoCard } from '@/components/ui/bento-grid'
 import Link from 'next/link'
 
@@ -62,6 +62,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('') // Only for signup
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [message, setMessage] = useState<{
     type: 'success' | 'error'
     text: string
@@ -104,10 +106,10 @@ export default function LoginPage() {
       } else {
         // Login Flow
         await loginWithPassword(email, password)
-        
+
         setMessage({
           type: 'success',
-          text: 'Ingelogd! Redirect naar EPD...'
+          text: 'Ingelogd! Je wordt doorgestuurd...'
         })
 
         // Redirect to EPD
@@ -115,7 +117,7 @@ export default function LoginPage() {
           router.push('/epd/clients')
         }, 1000)
       }
-      } catch (error: any) {
+    } catch (error: any) {
         // Check for duplicate email error with auto-login
         if (error.code === 'user_already_registered' && error.data?.session) {
           // User was auto-logged in (client-side detection succeeded)
@@ -139,6 +141,20 @@ export default function LoginPage() {
             setPassword('')
             setConfirmPassword('')
           }, 2000)
+        }
+        // Invalid credentials during login - suggest signup
+        else if (error.code === 'invalid_credentials' && mode === 'login') {
+          setMessage({
+            type: 'error',
+            text: error.message || 'Email of wachtwoord is onjuist.'
+          })
+        }
+        // Email not confirmed
+        else if (error.code === 'email_not_confirmed') {
+          setMessage({
+            type: 'error',
+            text: error.message || 'Je email is nog niet geverifieerd. Check je inbox.'
+          })
         }
         // Generic error handling
         else {
@@ -303,16 +319,30 @@ export default function LoginPage() {
               >
                 Wachtwoord
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                minLength={8}
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  className="w-full px-4 py-2.5 pr-11 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  aria-label={showPassword ? 'Verberg wachtwoord' : 'Toon wachtwoord'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               {mode === 'login' && (
                 <div className="mt-1 text-right">
                   <Link
@@ -333,16 +363,30 @@ export default function LoginPage() {
                 >
                   Bevestig Wachtwoord
                 </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  minLength={8}
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    minLength={8}
+                    className="w-full px-4 py-2.5 pr-11 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showConfirmPassword ? 'Verberg wachtwoord' : 'Toon wachtwoord'}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
             )}
 

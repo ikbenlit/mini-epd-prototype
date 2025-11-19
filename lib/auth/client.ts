@@ -158,7 +158,29 @@ export async function loginWithPassword(email: string, password: string) {
     password
   })
 
-  if (error) throw error
+  if (error) {
+    // Provide user-friendly error messages
+    const errorMessage = error.message?.toLowerCase() || ''
+
+    // Invalid login credentials (account doesn't exist OR wrong password)
+    if (errorMessage.includes('invalid login credentials') ||
+        errorMessage.includes('invalid credentials') ||
+        error.status === 400) {
+      const friendlyError = new Error('Email of wachtwoord is onjuist. Controleer je gegevens en probeer opnieuw.')
+      ;(friendlyError as any).code = 'invalid_credentials'
+      throw friendlyError
+    }
+
+    // Email not confirmed
+    if (errorMessage.includes('email not confirmed')) {
+      const friendlyError = new Error('Je email is nog niet geverifieerd. Check je inbox voor de verificatie link.')
+      ;(friendlyError as any).code = 'email_not_confirmed'
+      throw friendlyError
+    }
+
+    // Generic error fallback
+    throw error
+  }
 
   return {
     success: true,
