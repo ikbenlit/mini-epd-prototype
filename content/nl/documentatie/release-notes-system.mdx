@@ -146,7 +146,7 @@ Styled components voor consistente formatting:
 
 ```
 # Code
-app/(marketing)/releases/
+app/(marketing)/documentatie/
 ├── layout.tsx              # Sidebar wrapper
 ├── page.tsx               # Overview
 ├── [category]/
@@ -156,7 +156,7 @@ app/(marketing)/releases/
     └── mdx-components.tsx
 
 # Content
-content/nl/releases/
+content/nl/documentatie/
 ├── _index.json            # Categories metadata
 ├── authentication.mdx
 └── release-notes-system.mdx
@@ -235,7 +235,7 @@ export async function generateStaticParams() {
 **Stap 1:** Kopieer template
 ```bash
 cp docs/templates/release-note-template.mdx \
-   content/nl/releases/new-feature.mdx
+   content/nl/documentatie/new-feature.mdx
 ```
 
 **Stap 2:** Vul frontmatter in
@@ -255,7 +255,7 @@ description: "Short description here"
 
 **Stap 4:** (Optioneel) Voeg screenshots toe
 ```bash
-mkdir -p public/releases/new-feature/
+mkdir -p public/documentatie/new-feature/
 # Add images: screenshot-1.png, etc.
 ```
 
@@ -263,12 +263,12 @@ mkdir -p public/releases/new-feature/
 ```bash
 npm run build
 npm run dev
-# Visit /releases/new-feature
+# Visit /documentatie/new-feature
 ```
 
 **Stap 6:** Commit en push
 ```bash
-git add content/nl/releases/new-feature.mdx
+git add content/nl/documentatie/new-feature.mdx
 git commit -m "docs: add new-feature release note"
 ```
 
@@ -281,7 +281,7 @@ git commit -m "docs: add new-feature release note"
 Timeline component heeft nu link naar release notes:
 
 ```tsx
-<a href="/releases">
+<a href="/documentatie">
   Bekijk gedetailleerde release notes →
 </a>
 ```
@@ -293,7 +293,7 @@ Header navigatie heeft "Releases" link toegevoegd:
 ```json
 {
   "links": [
-    { "label": "Releases", "href": "/releases" },
+    { "label": "Releases", "href": "/documentatie" },
     { "label": "Contact", "href": "/contact" },
     { "label": "Login", "href": "/login" }
   ]

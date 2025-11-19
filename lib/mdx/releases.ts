@@ -8,7 +8,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 
-const RELEASES_DIR = path.join(process.cwd(), 'content/nl/releases')
+const RELEASES_DIR = path.join(process.cwd(), 'content/nl/documentatie')
 
 export interface ReleaseFrontmatter {
   title: string
