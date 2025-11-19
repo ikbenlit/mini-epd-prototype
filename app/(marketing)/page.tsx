@@ -18,6 +18,7 @@ import type { MetadataContent } from '@/content/schemas/manifesto'
 import { HeroSectionClient } from './components/hero-section-client'
 import { BuildTimeline } from './components/build-timeline'
 import { WhyMe } from '@/components/ui/why-me'
+import { AuthCodeHandler } from './components/auth-code-handler'
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -134,6 +135,9 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Handle auth codes that Supabase redirects to home page */}
+      <AuthCodeHandler />
+      
       {/* Hero Section */}
       <HeroSectionClient
         title={
