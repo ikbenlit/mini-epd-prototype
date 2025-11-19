@@ -226,7 +226,7 @@ export const BuildTimeline = ({ data }: BuildTimelineProps) => {
 
               {/* Achievements */}
               {week.achievements.length > 0 && (
-                <div className="bg-teal-50 border border-teal-100 rounded-lg p-4">
+                <div className="bg-teal-50 border border-teal-100 rounded-lg p-4 mb-4">
                   <h4 className="text-sm font-semibold text-teal-700 uppercase tracking-wide mb-2">
                     Achievements
                   </h4>
@@ -239,6 +239,17 @@ export const BuildTimeline = ({ data }: BuildTimelineProps) => {
                   </ul>
                 </div>
               )}
+
+              {/* Link to detailed release notes */}
+              <a
+                href="/releases"
+                className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium text-sm transition-colors"
+              >
+                <span>Bekijk gedetailleerde release notes</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
             </div>
           </div>
         ))}

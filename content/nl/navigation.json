@@ -2,6 +2,10 @@
   "logo": "AI SPEEDRUN",
   "links": [
     {
+      "label": "Releases",
+      "href": "/releases"
+    },
+    {
       "label": "Contact",
       "href": "/contact"
     },
