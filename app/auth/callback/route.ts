@@ -18,9 +18,18 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     // Exchange code for session
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error) {
+    if (!error && data.user) {
+      // Check if new user (first login)
+      const isNewUser = new Date(data.user.created_at).getTime() ===
+        new Date(data.user.last_sign_in_at || '').getTime()
+
+      if (isNewUser) {
+        // Redirect new users to set-password page
+        return NextResponse.redirect(new URL('/set-password', request.url))
+      }
+
       // Redirect to the specified next URL or default to /clients
       return NextResponse.redirect(new URL(next, request.url))
     }
