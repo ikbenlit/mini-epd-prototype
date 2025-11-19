@@ -1,8 +1,8 @@
 {
   "hero": {
     "title": "Laten we bouwen",
-    "subtitle": "Van idee naar werkend prototype in 4 weken",
-    "description": "Klaar om jouw software sneller en goedkoper te bouwen? Vul het formulier in en we nemen binnen 24 uur contact op."
+    "subtitle": "Van idee naar werkend prototype",
+    "description": "Klaar om jouw software te bouwen? Vul het formulier in en we nemen contact op."
   },
   "form": {
     "title": "Start je speedrun",
@@ -65,12 +65,12 @@
     },
     "success": {
       "title": "Aanvraag ontvangen!",
-      "message": "We hebben je aanvraag ontvangen en nemen binnen 24 uur contact op. Check je inbox (en spam folder).",
+      "message": "We hebben je aanvraag ontvangen en nemen contact op. Check je inbox (en spam folder).",
       "cta": "Terug naar home"
     },
     "error": {
       "title": "Er ging iets mis",
-      "message": "We konden je aanvraag niet verwerken. Probeer het opnieuw of mail direct naar contact@speedrun.nl",
+      "message": "We konden je aanvraag niet verwerken. Probeer het opnieuw.",
       "retry": "Opnieuw proberen"
     }
   },
@@ -78,14 +78,9 @@
     "title": "Waarom AI Speedrun?",
     "items": [
       {
-        "title": "4 weken doorlooptijd",
-        "description": "Van eerste gesprek tot werkend prototype in één maand.",
+        "title": "Snelle doorlooptijd",
+        "description": "Van eerste gesprek tot werkend prototype in korte tijd.",
         "icon": "clock"
-      },
-      {
-        "title": "€200 build cost",
-        "description": "Transparante pricing zonder verborgen kosten of uurtarieven.",
-        "icon": "euro"
       },
       {
         "title": "Modern tech stack",
@@ -103,16 +98,16 @@
     "title": "Veelgestelde vragen",
     "items": [
       {
-        "question": "Wat krijg ik voor €200?",
-        "answer": "Een werkend MVP/prototype met moderne tech stack (Next.js, Supabase), gehost op Vercel, met volledige source code toegang via GitHub. De €200 is de build cost - geen uurtarieven of verborgen kosten."
+        "question": "Wat voor projecten bouw je?",
+        "answer": "Een werkend MVP/prototype met moderne tech stack (Next.js, Supabase), gehost op Vercel, met volledige source code toegang via GitHub."
       },
       {
-        "question": "Hoe lang duurt het echt?",
-        "answer": "4 weken van kick-off tot werkend prototype. Week 1: requirements & design. Week 2-3: development. Week 4: testing & launch. Je krijgt wekelijkse updates en kan de voortgang live volgen."
+        "question": "Hoe lang duurt het?",
+        "answer": "Afhankelijk van de scope en complexiteit van het project. Week 1: requirements & design. Week 2-N: development. Laatste week: testing & launch. Je krijgt wekelijkse updates en kan de voortgang live volgen."
       },
       {
         "question": "Wat als ik meer features wil?",
-        "answer": "We beginnen altijd met een MVP scope voor de €200. Extra features kunnen daarna als iteraties worden toegevoegd. We helpen je prioriteren wat er in de eerste 4 weken moet zitten."
+        "answer": "We beginnen altijd met een MVP scope. Extra features kunnen daarna als iteraties worden toegevoegd. We helpen je prioriteren wat er in de eerste versie moet zitten."
       },
       {
         "question": "Krijg ik de source code?",
