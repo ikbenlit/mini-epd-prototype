@@ -1,0 +1,87 @@
+{
+  "groups": [
+    {
+      "id": "foundation",
+      "title": "Foundation",
+      "description": "Basis setup en infrastructuur",
+      "order": 1
+    },
+    {
+      "id": "features",
+      "title": "Core Features",
+      "description": "EPD functionaliteit",
+      "order": 2
+    },
+    {
+      "id": "infrastructure",
+      "title": "Infrastructure",
+      "description": "Ondersteunende systemen",
+      "order": 3
+    }
+  ],
+  "categories": [
+    {
+      "slug": "authentication",
+      "title": "Authentication",
+      "group": "foundation",
+      "description": "Login, signup en password reset",
+      "order": 1
+    },
+    {
+      "slug": "database",
+      "title": "Database & Schema",
+      "group": "foundation",
+      "description": "PostgreSQL schema en RLS policies",
+      "order": 2
+    },
+    {
+      "slug": "environment",
+      "title": "Environment Setup",
+      "group": "foundation",
+      "description": "Development en deployment configuratie",
+      "order": 3
+    },
+    {
+      "slug": "dashboard",
+      "title": "Dashboard & Navigation",
+      "group": "features",
+      "description": "EPD layout en navigatie",
+      "order": 4
+    },
+    {
+      "slug": "client-management",
+      "title": "Client Management",
+      "group": "features",
+      "description": "CRUD operations voor cliënten",
+      "order": 5
+    },
+    {
+      "slug": "ai-features",
+      "title": "AI Integrations",
+      "group": "features",
+      "description": "AI-gestuurde workflows",
+      "order": 6
+    },
+    {
+      "slug": "hosting",
+      "title": "Hosting & Deployment",
+      "group": "infrastructure",
+      "description": "Vercel deployment en CI/CD",
+      "order": 7
+    },
+    {
+      "slug": "design-system",
+      "title": "Design System",
+      "group": "infrastructure",
+      "description": "UI components en styling",
+      "order": 8
+    },
+    {
+      "slug": "performance",
+      "title": "Performance",
+      "group": "infrastructure",
+      "description": "Optimalisaties en monitoring",
+      "order": 9
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+---
+title: "[Feature Name] - Descriptive Title"
+category: "category-slug"
+group: "foundation | features | infrastructure"
+version: "0.1.0"
+releaseDate: "2024-11-15"
+status: "completed | in_progress | planned"
+description: "Korte beschrijving (1-2 zinnen) voor overview pagina"
+---
+
+## Overview
+
+Korte introductie van wat er is gebouwd. Waarom is dit belangrijk? Welk probleem lost het op?
+
+Bijvoorbeeld:
+> "De authentication flow is de basis van het EPD systeem. Gebruikers kunnen nu veilig inloggen, accounts aanmaken en wachtwoorden resetten via Supabase Auth."
+
+---
+
+## Features
+
+### Feature 1: [Naam]
+
+![Screenshot beschrijving](/releases/[category]/[image].png)
+*Caption: Beschrijf wat je in de screenshot ziet*
+
+Beschrijving van de feature:
+- Belangrijkste functionaliteit
+- User benefits
+- Edge cases afgehandeld
+
+**Demo:**
+- Stap 1: Open `/login`
+- Stap 2: Vul credentials in
+- Stap 3: Klik op login knop
+- Resultaat: Redirect naar `/epd/clients`
+
+**Code voorbeeld** (optioneel):
+```tsx
+// Relevante code snippet
+const handleLogin = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  if (error) throw error
+  return data
+}
+```
+
+### Feature 2: [Naam]
+
+[Herhaal bovenstaande structuur...]
+
+---
+
+## Improvements
+
+Verbeteringen aan bestaande functionaliteit:
+
+- **Performance:** Login response tijd van 2s naar 500ms
+- **UX:** Error messages nu user-friendly
+- **Accessibility:** Keyboard navigation toegevoegd
+
+---
+
+## Bug Fixes
+
+Opgeloste bugs (indien van toepassing):
+
+- ✅ Fixed: Wachtwoord reset email kwam niet aan
+- ✅ Fixed: Session expiry handling
+- ✅ Fixed: Redirect loop bij logout
+
+---
+
+## Technical Notes
+
+### Architecture
+
+Technische details voor developers:
+
+- **Stack:** Supabase Auth + Next.js 15 + Server Actions
+- **Database:** RLS policies voor user isolation
+- **Security:** PKCE flow voor OAuth
+- **Session:** JWT tokens in httpOnly cookies
+
+### File Structure
+
+```
+app/
+├── login/
+│   └── page.tsx           # Login form
+├── signup/
+│   └── page.tsx           # Signup form
+└── auth/
+    └── callback/
+        └── route.ts       # OAuth callback handler
+
+lib/
+├── auth/
+│   ├── client.ts          # Client-side auth functions
+│   └── server.ts          # Server-side auth helpers
+```
+
+### Database Schema
+
+```sql
+-- Relevant tables/policies
+CREATE POLICY "Users can only read own data"
+  ON profiles FOR SELECT
+  USING (auth.uid() = id);
+```
+
+### Configuration
+
+Environment variables vereist:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+```
+
+---
+
+## Breaking Changes
+
+⚠️ **Let op:** Breaking changes voor developers (indien van toepassing):
+
+- `loginUser()` functie hernoemd naar `signInWithPassword()`
+- `UserSession` type nu `Session` (import van @supabase/supabase-js)
+
+**Migration guide:**
+```tsx
+// ❌ Oud
+import { loginUser } from '@/lib/auth'
+const session = await loginUser(email, password)
+
+// ✅ Nieuw
+import { signInWithPassword } from '@/lib/auth/client'
+const { data } = await signInWithPassword(email, password)
+```
+
+---
+
+## Testing
+
+### Manual Test Checklist
+
+- [ ] Login met valid credentials werkt
+- [ ] Login met invalid credentials toont error
+- [ ] Signup flow compleet doorlopen
+- [ ] Password reset email ontvangen
+- [ ] Session persists na page reload
+- [ ] Logout werkt correct
+
+### Automated Tests
+
+```bash
+# Run tests
+npm run test:auth
+
+# Coverage
+npm run test:coverage
+```
+
+---
+
+## Metrics
+
+**Development:**
+- ⏱️ Build tijd: 8 uur
+- 📝 Lines of code: ~450
+- 🧪 Test coverage: 85%
+
+**Performance:**
+- 🚀 Login response: < 500ms (was 2s)
+- 📦 Bundle size: +12kb (auth client)
+- 💾 Database queries: 2 per login
+
+**Cost:**
+- 💰 Supabase: €0 (free tier)
+- 💰 Vercel: €0 (hobby plan)
+
+---
+
+## Screenshots
+
+### Login Screen
+![Login screen](/releases/authentication/login-screen.png)
+*Login formulier met email/password en demo account optie*
+
+### Signup Flow
+![Signup screen](/releases/authentication/signup-flow.png)
+*Signup formulier met password confirmation*
+
+### Error States
+![Error handling](/releases/authentication/error-states.png)
+*User-friendly error messages voor verschillende scenarios*
+
+---
+
+## Related Links
+
+**Timeline:**
+- [Week 1 - Foundation](/timeline#week-1)
+
+**Documentation:**
+- [Database Schema](/docs/database-schema)
+- [API Documentation](/docs/api)
+
+**External:**
+- [Supabase Auth Docs](https://supabase.com/docs/guides/auth)
+- [Next.js Auth Guide](https://nextjs.org/docs/authentication)
+
+---
+
+## What's Next
+
+Geplande verbeteringen voor volgende releases:
+
+- 🔜 OAuth providers (Google, GitHub)
+- 🔜 Multi-factor authentication (MFA)
+- 🔜 Magic link login
+- 🔜 Session management dashboard
+
+---
+
+## Feedback
+
+Vragen of feedback? [Open een issue](https://github.com/[org]/[repo]/issues) of [stuur een email](mailto:contact@example.com).
