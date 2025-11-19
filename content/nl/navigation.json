@@ -6,10 +6,6 @@
       "href": "/documentatie"
     },
     {
-      "label": "Contact",
-      "href": "/contact"
-    },
-    {
       "label": "Login",
       "href": "/login"
     }
