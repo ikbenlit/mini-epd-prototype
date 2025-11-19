@@ -128,10 +128,12 @@ export async function signUpWithPassword(email: string, password: string) {
  */
 export async function resetPasswordForEmail(email: string) {
   const supabase = createClient()
-  // Redirect to callback route - Supabase will automatically add type=recovery parameter
-  // The callback route will detect type=recovery and redirect to /update-password
+  // Force Supabase to bounce back via the auth callback with next=/update-password
+  const params = new URLSearchParams({ next: '/update-password' })
+  const redirectTo = `${window.location.origin}/auth/callback?${params.toString()}`
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/callback`
+    redirectTo
   })
 
   if (error) throw error
