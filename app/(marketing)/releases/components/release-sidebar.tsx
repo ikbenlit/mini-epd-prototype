@@ -27,6 +27,7 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
     foundation: true,
     features: true,
     infrastructure: true,
+    bugs: true,
   })
 
   const toggleGroup = (groupId: string) => {

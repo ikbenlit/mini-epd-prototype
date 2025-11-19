@@ -13,7 +13,7 @@ const RELEASES_DIR = path.join(process.cwd(), 'content/nl/releases')
 export interface ReleaseFrontmatter {
   title: string
   category: string
-  group: 'foundation' | 'features' | 'infrastructure'
+  group: 'foundation' | 'features' | 'infrastructure' | 'bugs'
   version: string
   releaseDate: string
   status: 'completed' | 'in_progress' | 'planned'
@@ -49,7 +49,7 @@ export async function getAllReleases(): Promise<ReleaseNote[]> {
 
   // Sort by group order and then by category
   return releases.sort((a, b) => {
-    const groupOrder = { foundation: 1, features: 2, infrastructure: 3 }
+    const groupOrder = { foundation: 1, features: 2, infrastructure: 3, bugs: 4 }
     const aOrder = groupOrder[a.frontmatter.group]
     const bOrder = groupOrder[b.frontmatter.group]
 
@@ -79,7 +79,7 @@ export async function getRelease(slug: string): Promise<ReleaseNote | null> {
 }
 
 /**
- * Get releases grouped by their group (foundation, features, infrastructure)
+ * Get releases grouped by their group (foundation, features, infrastructure, bugs)
  */
 export async function getReleasesGrouped() {
   const releases = await getAllReleases()
@@ -88,6 +88,7 @@ export async function getReleasesGrouped() {
     foundation: releases.filter(r => r.frontmatter.group === 'foundation'),
     features: releases.filter(r => r.frontmatter.group === 'features'),
     infrastructure: releases.filter(r => r.frontmatter.group === 'infrastructure'),
+    bugs: releases.filter(r => r.frontmatter.group === 'bugs'),
   }
 }
 
