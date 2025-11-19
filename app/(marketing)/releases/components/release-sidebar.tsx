@@ -82,7 +82,7 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
       <aside className="hidden lg:block w-64 fixed top-16 bottom-0 bg-white border-r border-slate-200 overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
-            Release Notes
+            Documentatie
           </h2>
 
           <nav className="space-y-1">
