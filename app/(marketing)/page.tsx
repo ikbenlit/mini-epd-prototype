@@ -13,6 +13,7 @@
  */
 
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { getContent } from '@/lib/content/loader'
 import type { MetadataContent } from '@/content/schemas/manifesto'
 import { HeroSectionClient } from './components/hero-section-client'
@@ -136,7 +137,9 @@ export default async function HomePage() {
   return (
     <>
       {/* Handle auth codes that Supabase redirects to home page */}
-      <AuthCodeHandler />
+      <Suspense fallback={null}>
+        <AuthCodeHandler />
+      </Suspense>
       
       {/* Hero Section */}
       <HeroSectionClient
