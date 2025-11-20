@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from "react";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -71,7 +71,7 @@ const BentoCard = ({
         className="pointer-events-auto inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground h-9 px-3"
       >
         {cta}
-        <ArrowRightIcon className="ml-2 h-4 w-4" />
+        <ArrowRight className="ml-2 h-4 w-4" />
       </a>
     </div>
     <div className="pointer-events-none absolute inset-0 transform-gpu transition-all duration-300 group-hover:bg-black/[.03] group-hover:dark:bg-neutral-800/10" />

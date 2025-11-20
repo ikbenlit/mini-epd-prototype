@@ -247,6 +247,16 @@ body {
   }
 }
 
+/* Scrollbar hide utility for horizontal scroll menus */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
 /* AI source highlighting (gebruikt in Intake editor) */
 .ai-source-highlight {
   background-color: #fef08a; /* lichtgeel */

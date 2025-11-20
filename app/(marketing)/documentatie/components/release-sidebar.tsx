@@ -9,8 +9,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ChevronRight, ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronRight, ChevronDown, ChevronLeft, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/documentatie'
 
 interface ReleaseSidebarProps {
@@ -23,12 +23,18 @@ interface ReleaseSidebarProps {
 
 export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
   const pathname = usePathname()
+  const [isExpanded, setIsExpanded] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     foundation: true,
     features: true,
     infrastructure: true,
     bugs: true,
   })
+
+  // Auto-close sidebar on navigation
+  useEffect(() => {
+    setIsExpanded(false)
+  }, [pathname])
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => ({
@@ -50,34 +56,125 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
 
   return (
     <>
-      {/* Mobile: Horizontal scroll menu */}
-      <div className="lg:hidden bg-white border-b border-slate-200 sticky top-16 z-40">
-        <div className="flex gap-2 p-4 overflow-x-auto">
-          <Link
-            href="/documentatie"
-            className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === '/documentatie'
-                ? 'bg-teal-100 text-teal-700'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-          >
-            Overzicht
-          </Link>
-          {releases.map((release) => (
-            <Link
-              key={release.slug}
-              href={`/documentatie/${release.slug}`}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === `/documentatie/${release.slug}`
-                  ? 'bg-teal-100 text-teal-700'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-            >
-              {release.frontmatter.title}
-            </Link>
-          ))}
-        </div>
-      </div>
+      {/* MOBILE: Overlay when expanded */}
+      {isExpanded && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-30 top-16"
+          onClick={() => setIsExpanded(false)}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* Desktop: Fixed sidebar */}
+      {/* MOBILE: Collapsible sidebar from left */}
+      <aside 
+        className={`
+          lg:hidden
+          fixed top-16 bottom-0 left-0 z-40
+          bg-white border-r border-slate-200
+          transition-all duration-300 ease-in-out
+          ${isExpanded ? 'w-80 shadow-2xl' : 'w-12'}
+        `}
+      >
+        {/* Collapsed state: Icon bar */}
+        {!isExpanded && (
+          <div className="flex flex-col items-center pt-6">
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="p-2 rounded-lg hover:bg-teal-50 transition-colors group"
+              aria-label="Open documentatie menu"
+            >
+              <ChevronRight className="w-6 h-6 text-slate-600 group-hover:text-teal-600 transition-colors" />
+            </button>
+          </div>
+        )}
+
+        {/* Expanded state: Full navigation */}
+        {isExpanded && (
+          <div className="p-6 overflow-y-auto h-full">
+            {/* Header met close button */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+              <h2 className="text-lg font-bold text-slate-900">Documentatie</h2>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors group"
+                aria-label="Sluit menu"
+              >
+                <ChevronLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-700 transition-colors" />
+              </button>
+            </div>
+
+            <nav className="space-y-1">
+              {/* Overzicht link */}
+              <Link
+                href="/documentatie"
+                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === '/documentatie' && !isReleaseDetail
+                    ? 'bg-teal-50 text-teal-700'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span>Overzicht</span>
+              </Link>
+
+              {/* Grouped releases */}
+              {metadata?.groups && metadata.groups
+                .sort((a, b) => a.order - b.order)
+                .map((group) => {
+                  const groupReleases = releasesByGroup[group.id] || []
+                  const isGroupExpanded = expandedGroups[group.id]
+
+                  return (
+                    <div key={group.id} className="space-y-1">
+                      {/* Group header */}
+                      <button
+                        onClick={() => toggleGroup(group.id)}
+                        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide hover:text-slate-700 transition-colors"
+                      >
+                        <span>{group.title}</span>
+                        {isGroupExpanded ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </button>
+
+                      {/* Group items */}
+                      {isGroupExpanded && (
+                        <div className="space-y-1 ml-2">
+                          {groupReleases.map((release) => {
+                            const isActive = pathname === `/documentatie/${release.slug}`
+
+                            return (
+                              <Link
+                                key={release.slug}
+                                href={`/documentatie/${release.slug}`}
+                                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                                  isActive
+                                    ? 'bg-teal-50 text-teal-700'
+                                    : 'text-slate-700 hover:bg-slate-50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <StatusDot status={release.frontmatter.status} />
+                                  <span className="whitespace-normal">{release.frontmatter.title}</span>
+                                </div>
+                                <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${
+                                  isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+                                }`} />
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+            </nav>
+          </div>
+        )}
+      </aside>
+
+      {/* DESKTOP: Fixed sidebar */}
       <aside className="hidden lg:block w-80 fixed top-16 bottom-0 bg-white border-r border-slate-200 overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
@@ -97,7 +194,7 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
             </Link>
 
             {/* Grouped releases */}
-            {metadata.groups
+            {metadata?.groups && metadata.groups
               .sort((a, b) => a.order - b.order)
               .map((group) => {
                 const groupReleases = releasesByGroup[group.id] || []

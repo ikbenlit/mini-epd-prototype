@@ -22,8 +22,11 @@ export async function getClients(filters?: ClientFilters) {
 
   // Apply search filter
   if (filters?.search) {
-    const search = `%${filters.search}%`;
-    query = query.or(`first_name.ilike.${search},last_name.ilike.${search}`);
+    const searchTerm = filters.search.trim();
+    // Use PostgREST or() syntax: column.operator.value,column.operator.value
+    // Format: column.operator.value,column.operator.value (no quotes needed for ilike)
+    const searchPattern = `%${searchTerm}%`;
+    query = query.or(`first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`);
   }
 
   // Apply sorting
