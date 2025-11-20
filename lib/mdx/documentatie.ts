@@ -116,7 +116,24 @@ interface IndexData {
 }
 
 export async function getCategoryMetadata(): Promise<IndexData> {
-  const indexPath = path.join(RELEASES_DIR, '_index.json')
-  const indexContent = fs.readFileSync(indexPath, 'utf-8')
-  return JSON.parse(indexContent)
+  try {
+    const indexPath = path.join(RELEASES_DIR, '_index.json')
+
+    if (!fs.existsSync(indexPath)) {
+      console.warn('_index.json not found, returning empty metadata')
+      return {
+        groups: [],
+        categories: []
+      }
+    }
+
+    const indexContent = fs.readFileSync(indexPath, 'utf-8')
+    return JSON.parse(indexContent)
+  } catch (error) {
+    console.error('Error loading category metadata:', error)
+    return {
+      groups: [],
+      categories: []
+    }
+  }
 }
