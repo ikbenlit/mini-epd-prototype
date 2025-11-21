@@ -167,6 +167,10 @@
 }
 
 /* Global styles */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }

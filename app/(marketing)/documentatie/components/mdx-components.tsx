@@ -8,28 +8,69 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { MDXComponents } from 'mdx/types'
 
+/**
+ * Generate slug from heading text for anchor links
+ */
+function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+}
+
+/**
+ * Extract text content from React children
+ */
+function getTextContent(children: React.ReactNode): string {
+  if (typeof children === 'string') return children
+  if (Array.isArray(children)) return children.map(getTextContent).join('')
+  if (children && typeof children === 'object' && 'props' in children) {
+    return getTextContent(children.props.children)
+  }
+  return ''
+}
+
 export const mdxComponents: MDXComponents = {
   // Headings with anchor links
-  h1: ({ children, ...props }) => (
-    <h1 className="text-4xl font-bold text-slate-900 mt-8 mb-4" {...props}>
-      {children}
-    </h1>
-  ),
-  h2: ({ children, ...props }) => (
-    <h2 className="text-3xl font-bold text-slate-900 mt-8 mb-4 border-b border-slate-200 pb-2" {...props}>
-      {children}
-    </h2>
-  ),
-  h3: ({ children, ...props }) => (
-    <h3 className="text-2xl font-semibold text-slate-900 mt-6 mb-3" {...props}>
-      {children}
-    </h3>
-  ),
-  h4: ({ children, ...props }) => (
-    <h4 className="text-xl font-semibold text-slate-900 mt-4 mb-2" {...props}>
-      {children}
-    </h4>
-  ),
+  h1: ({ children, ...props }) => {
+    const text = getTextContent(children)
+    const id = slugify(text)
+    return (
+      <h1 id={id} className="text-4xl font-bold text-slate-900 mt-8 mb-4 scroll-mt-20" {...props}>
+        {children}
+      </h1>
+    )
+  },
+  h2: ({ children, ...props }) => {
+    const text = getTextContent(children)
+    const id = slugify(text)
+    return (
+      <h2 id={id} className="text-3xl font-bold text-slate-900 mt-8 mb-4 border-b border-slate-200 pb-2 scroll-mt-20" {...props}>
+        {children}
+      </h2>
+    )
+  },
+  h3: ({ children, ...props }) => {
+    const text = getTextContent(children)
+    const id = slugify(text)
+    return (
+      <h3 id={id} className="text-2xl font-semibold text-slate-900 mt-6 mb-3 scroll-mt-20" {...props}>
+        {children}
+      </h3>
+    )
+  },
+  h4: ({ children, ...props }) => {
+    const text = getTextContent(children)
+    const id = slugify(text)
+    return (
+      <h4 id={id} className="text-xl font-semibold text-slate-900 mt-4 mb-2 scroll-mt-20" {...props}>
+        {children}
+      </h4>
+    )
+  },
 
   // Paragraphs
   p: ({ children, ...props }) => (
@@ -67,7 +108,7 @@ export const mdxComponents: MDXComponents = {
   ),
 
   // Images
-  img: ({ src, alt, ...props }) => {
+  img: ({ src, alt, width, height, ...props }) => {
     if (!src) return null
 
     return (
@@ -76,8 +117,8 @@ export const mdxComponents: MDXComponents = {
           <Image
             src={src}
             alt={alt || ''}
-            width={1200}
-            height={675}
+            width={Number(width) || 1200}
+            height={Number(height) || 675}
             className="w-full h-auto"
             {...props}
           />

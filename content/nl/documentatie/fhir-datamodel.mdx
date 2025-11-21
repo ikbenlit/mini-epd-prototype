@@ -1,0 +1,476 @@
+---
+title: "FHIR Datamodel"
+category: "fhir-datamodel"
+group: "architecture"
+version: "2.0.0"
+releaseDate: "2024-11-21"
+status: "active"
+description: "FHIR-compliant datamodel voor GGZ-gegevens volgens MedMIJ standaarden - patiënten, behandelaren, contactmomenten en behandelplannen"
+---
+
+## Overview
+
+Het Mini-EPD gebruikt een **FHIR-compliant datamodel** voor alle GGZ-gegevens. FHIR (Fast Healthcare Interoperability Resources) is de internationale standaard voor uitwisseling van zorggegevens en maakt toekomstige integratie mogelijk met:
+
+- **MedMIJ** - Nederlandse patiëntportalen
+- **Koppeltaal** - eHealth apps en interventies
+- **Landelijk Schakelpunt (LSP)** - Medicatie-uitwisseling
+- **Andere zorginstellingen** - Via standaard FHIR API's
+
+**Pragmatische aanpak:**
+We implementeren **6 kern FHIR resources** die essentieel zijn voor een werkend GGZ-dossier. Dit zorgt voor data-uitwisselbaarheid zonder onnodige complexiteit.
+
+---
+
+## Standaard Compliance
+
+### MedMIJ Basisgegevens GGZ 2.0
+
+Ons datamodel volgt de **MedMIJ Basisgegevens GGZ 2.0** specificatie. Dit betekent dat alle velden en structuren compatibel zijn met het Nederlandse afsprakenstelsel voor patiëntportalen.
+
+**Voordelen:**
+- ✅ Cliënten kunnen later hun eigen dossier inzien via een PGO-app
+- ✅ Gegevens kunnen veilig gedeeld worden met andere zorgaanbieders
+- ✅ Automatische uitwisseling met huisartsen en andere verwijzers
+- ✅ Geen vendor lock-in - data is altijd exporteerbaar
+
+### FHIR R4 Resources
+
+Alle tabellen zijn gebaseerd op **FHIR R4** resource definities:
+- Veldnamen volgen FHIR naming conventions
+- Data types komen overeen met FHIR specificaties
+- Relaties tussen resources volgen FHIR reference structuur
+- API endpoints kunnen direct FHIR JSON genereren
+
+---
+
+## Geïmplementeerde Resources
+
+### 1. **Practitioners** - Behandelaren
+
+**Doel:** Registratie van alle zorgprofessionals die in het systeem werken.
+
+**Belangrijkste gegevens:**
+- BIG-nummer (indien van toepassing)
+- AGB-code voor facturatie
+- Naam en kwalificaties
+- Contactgegevens
+- Actieve status
+
+**FHIR Mapping:**
+Volgt de `Practitioner` resource uit FHIR R4. Ondersteunt Nederlandse BIG en AGB identificatie systemen.
+
+**Praktisch gebruik:**
+- Toewijzen van behandelverantwoordelijkheid
+- Autorisatie en toegangscontrole
+- Facturatie en declaratie
+- Handtekeningen op documenten
+
+---
+
+### 2. **Organizations** - Instellingen
+
+**Doel:** Registratie van de GGZ-instelling en externe samenwerkingspartners.
+
+**Belangrijkste gegevens:**
+- AGB-code instelling
+- KVK-nummer
+- Naam en nevenvestigingen
+- Adres en contactgegevens
+
+**FHIR Mapping:**
+Volgt de `Organization` resource uit FHIR R4.
+
+**Praktisch gebruik:**
+- Juridische verantwoordelijkheid
+- Facturatie en contracten
+- Verwijzingen naar andere instellingen
+- Netwerkzorg registratie
+
+---
+
+### 3. **Patients** - Patiënten/Cliënten
+
+**Doel:** Centrale registratie van alle patiënten die behandeling ontvangen.
+
+**Belangrijkste gegevens:**
+- BSN (versleuteld opgeslagen)
+- Naam, geboortedatum, geslacht
+- Adres en contactgegevens
+- Verzekeringsgegevens
+- Huisarts (naam + AGB)
+- Noodcontactpersoon
+
+**FHIR Mapping:**
+Volgt de `Patient` resource uit FHIR R4. Komt overeen met de Nederlandse **ZIB Patient** (ZorgInformatieBouwsteen).
+
+**Privacy:**
+- BSN wordt versleuteld opgeslagen
+- Toegang via Row Level Security (RLS)
+- AVG-compliant logging van alle toegang
+
+**Praktisch gebruik:**
+- Basis voor alle andere dossiergegevens
+- Identificatie bij contact
+- Facturatie naar verzekering
+- Communicatie met cliënt
+
+---
+
+### 4. **Encounters** - Contactmomenten
+
+**Doel:** Registratie van elk contact tussen cliënt en behandelaar.
+
+**Belangrijkste gegevens:**
+- Type contact (intake, diagnostiek, behandeling, crisis)
+- Status (gepland, lopend, afgerond)
+- Datum en tijd
+- Behandelaar en cliënt
+- Locatie (polikliniek, online, kliniek)
+- Aanmeldingsreden
+
+**FHIR Mapping:**
+Volgt de `Encounter` resource uit FHIR R4. Komt overeen met de Nederlandse **ZIB Contact**.
+
+**Praktisch gebruik:**
+- Timeline van alle contacten per cliënt
+- Facturatie per contactmoment
+- Koppeling van diagnoses aan intake
+- Planning en agenda-beheer
+
+**Waarom belangrijk:**
+Alle andere gegevens (diagnoses, observaties, behandelplannen) worden gekoppeld aan een specifiek contactmoment. Dit maakt het later mogelijk om te zien: *"Deze diagnose is gesteld tijdens de intake van 15 maart 2024"*.
+
+---
+
+### 5. **Conditions** - Diagnoses
+
+**Doel:** Registratie van diagnoses volgens DSM-5 of ICD-10.
+
+**Belangrijkste gegevens:**
+- DSM-5/ICD-10 code (bijv. "F32.2")
+- Omschrijving (bijv. "Depressieve episode, ernstig")
+- Klinische status (actief, in remissie, opgelost)
+- Ernst (mild, matig, ernstig)
+- Verificatie status (voorlopig, bevestigd)
+- Vastgesteld door welke behandelaar
+- Bij welk contactmoment
+
+**FHIR Mapping:**
+Volgt de `Condition` resource uit FHIR R4. Komt overeen met de Nederlandse **ZIB Problem**.
+
+**Praktisch gebruik:**
+- Problemlijst per cliënt
+- Basis voor behandelplan
+- DBC registratie en facturatie
+- Rapportage en statistiek
+
+**Voorbeeld flow:**
+1. Intake: voorlopige diagnose "F32.2 - Depressieve episode, ernstig"
+2. Na diagnostiek: bevestiging van diagnose
+3. Na behandeling: status wijzigt naar "in remissie"
+4. Bij herstel: status wordt "opgelost"
+
+---
+
+### 6. **Observations** - Metingen en Observaties
+
+**Doel:** Registratie van alle metingen, scores en observaties tijdens behandeling.
+
+**Belangrijkste gegevens:**
+- Type observatie (ROM-score, risico-inschatting, vitaliteit)
+- Uitkomst/waarde
+- Interpretatie (normaal, afwijkend)
+- Datum en tijd
+- Uitgevoerd door welke behandelaar
+- Gekoppeld aan welk contactmoment
+
+**FHIR Mapping:**
+Volgt de `Observation` resource uit FHIR R4. Komt overeen met de Nederlandse **ZIB LaboratoryTestResult** en **ZIB Alert**.
+
+**Categorieën:**
+- **ROM-metingen:** PHQ-9, GAD-7, OQ-45 (routine outcome monitoring)
+- **Risico-inschattingen:** Suïcidaliteit, agressie, verwaarlozing
+- **Middelengebruik:** Alcohol, drugs, medicatie-compliance
+- **Vitale functies:** Bloeddruk, hartslag (indien relevant)
+
+**Praktisch gebruik:**
+- Voortgang monitoren met ROM-scores
+- Veiligheidsbewaking (risico's)
+- Wetenschappelijk onderzoek
+- Kwaliteitsindicatoren
+
+**Voorbeeld:**
+- PHQ-9 vragenlijst ingevuld: score 18 → interpretatie: "Matig-ernstige depressie"
+- Risico-inschatting: "Suïcidale gedachten, geen plannen" → interpretatie: "Matig risico"
+
+---
+
+### 7. **CarePlans** - Behandelplannen
+
+**Doel:** Overzicht van de geplande behandeling met doelen en interventies.
+
+**Belangrijkste gegevens:**
+- Titel en beschrijving
+- Status (concept, actief, afgerond, gestopt)
+- Looptijd (start- en einddatum)
+- Behandeldoelen (SMART geformuleerd)
+- Behandelactiviteiten (interventies, frequentie)
+- Welke diagnoses worden behandeld
+- Regiebehandelaar
+
+**FHIR Mapping:**
+Volgt de `CarePlan` resource uit FHIR R4. Komt overeen met de Nederlandse **ZIB TreatmentDirective**.
+
+**Pragmatische keuze:**
+Doelen (Goals) en Activiteiten zijn embedded in de CarePlan als JSONB fields. Dit is eenvoudiger dan aparte tabellen en voldoet nog steeds aan FHIR structuur.
+
+**Praktisch gebruik:**
+- Multidisciplinair behandelplan opstellen
+- Voortgang monitoren
+- Communicatie met cliënt
+- Evaluatie en bijstelling
+
+**Koppeltaal-integratie:**
+Via de CarePlan kunnen later eHealth apps gekoppeld worden. Bijvoorbeeld: *"Opdracht: 3x per week mindfulness oefening via app MindDistrict"* → automatisch gesynchroniseerd tussen EPD en app.
+
+**Voorbeeld structuur:**
+```
+Behandelplan: "Behandeling depressie"
+├─ Diagnose: F32.2 (Depressieve episode, ernstig)
+├─ Doel 1: "PHQ-9 score < 10 binnen 12 weken"
+├─ Doel 2: "Herstel dagelijks functioneren (werk/sociaal)"
+├─ Activiteit 1: Individuele CGT - 1x/week, 12 sessies
+├─ Activiteit 2: ROM-meting PHQ-9 - elke 4 weken
+└─ Activiteit 3: Medicatie - Sertraline 50mg dagelijks
+```
+
+---
+
+## Relaties tussen Resources
+
+```
+Patient (Patiënt)
+  │
+  └─── Encounters (Contactmomenten)
+         │
+         ├─── Conditions (Diagnoses)
+         │      └─── ondersteund door Observations (ROM-scores)
+         │
+         ├─── Observations (Metingen/Risico's)
+         │
+         └─── CarePlans (Behandelplannen)
+                ├─── Doelen (Goals)
+                └─── Activiteiten (Interventies)
+
+Uitgevoerd door: Practitioner (Behandelaar)
+Binnen: Organization (Instelling)
+```
+
+**Werkwijze:**
+1. **Aanmelding** → Encounter (intake) wordt aangemaakt
+2. **Diagnostiek** → Conditions (diagnoses) gekoppeld aan Encounter
+3. **ROM-meting** → Observations gekoppeld aan Encounter
+4. **Behandelplan** → CarePlan gekoppeld aan Patient + Conditions
+5. **Behandeling** → Nieuwe Encounters voor sessies
+6. **Evaluatie** → Nieuwe Observations (ROM) om voortgang te meten
+
+---
+
+## Data-uitwisselbaarheid
+
+### FHIR API Endpoints
+
+Alle resources zijn beschikbaar via RESTful FHIR API endpoints:
+
+```
+GET    /api/fhir/Patient              → Lijst van patiënten
+GET    /api/fhir/Patient/{id}         → Specifieke patiënt
+POST   /api/fhir/Patient              → Nieuwe patiënt aanmaken
+PUT    /api/fhir/Patient/{id}         → Patiënt bijwerken
+
+GET    /api/fhir/Practitioner         → Lijst van behandelaren
+GET    /api/fhir/CarePlan/{id}        → Behandelplan ophalen
+POST   /api/fhir/CarePlan             → Behandelplan importeren
+```
+
+**Response format:**
+- Content-Type: `application/fhir+json`
+- Volledig FHIR R4 compliant JSON
+- Ondersteunt FHIR search parameters
+- Error responses via FHIR OperationOutcome
+
+### Export/Import Scenario
+
+**Voorbeeld - Behandelplan delen:**
+1. Behandelaar maakt behandelplan in Mini-EPD
+2. Export via API: `GET /api/fhir/CarePlan/abc-123`
+3. FHIR JSON response bevat volledig behandelplan
+4. Andere instelling importeert: `POST /api/fhir/CarePlan`
+5. ✅ Behandelplan is succesvol gedeeld tussen systemen
+
+**MedMIJ scenario (toekomst):**
+1. Cliënt opent PGO-app (Persoonlijke Gezondheidsomgeving)
+2. App vraagt toestemming voor toegang tot dossier
+3. Mini-EPD API deelt FHIR resources met app
+4. Cliënt ziet eigen behandelplan, diagnoses en ROM-scores
+5. ✅ Data-uitwisselbaarheid volgens MedMIJ standaard
+
+---
+
+## Privacy & Beveiliging
+
+### Toegangscontrole (Row Level Security)
+
+Elke tabel heeft RLS policies:
+- **Behandelaren** zien alleen hun eigen patiënten
+- **Patiënten** kunnen later hun eigen data inzien (via patiëntenportaal)
+- **Administrators** hebben beperkte toegang (geen medische data)
+
+### Encryptie
+
+- **BSN** wordt versleuteld opgeslagen (pgcrypto)
+- **Communicatie** via HTTPS/TLS
+- **Database** backups zijn versleuteld
+
+### AVG-compliance
+
+- **Recht op inzage** - Cliënt kan eigen data opvragen via API
+- **Recht op correctie** - Data kan bijgewerkt worden
+- **Recht op vergetelheid** - Data kan verwijderd worden (na wettelijke bewaartermijn)
+- **Logging** - Alle toegang wordt gelogd in audit trail
+- **Toestemming** - Consent management via Consents resource (toekomstig)
+
+---
+
+## Roadmap
+
+### ✅ Fase 1: Foundation (Voltooid)
+
+- Database schema met 6 FHIR resources
+- TypeScript type definitions
+- Data migratie van legacy tabellen
+- Seed data voor demo
+
+### ✅ Fase 2: API & UI (Voltooid)
+
+- FHIR transform library (DB ↔ FHIR JSON)
+- Patient API endpoints (GET/POST/PUT)
+- Practitioner API endpoints (GET/POST)
+- Patient UI (lijst, detail, formulieren)
+
+### ⏳ Fase 3: Encounters & Conditions (In planning)
+
+- Encounter API endpoints
+- Condition API endpoints
+- Observation API endpoints
+- UI voor contactmomenten en diagnoses
+
+### 🎯 Fase 4: CarePlans (Hoofddoel)
+
+- CarePlan API endpoints
+- Wizard UI voor behandelplan opstellen
+- Doelen en activiteiten beheer
+- Voortgang monitoring
+
+### 🔮 Fase 5: Integraties (Toekomst)
+
+- MedMIJ aansluiting (patiëntportaal)
+- Koppeltaal aansluiting (eHealth apps)
+- Landelijk Schakelpunt (medicatie)
+- Swagger/OpenAPI documentatie
+
+---
+
+## Technische Details
+
+### Database: PostgreSQL (Supabase)
+
+- **Type-safe ENUMs** voor statussen (draft, active, completed, etc.)
+- **Automatische timestamps** (created_at, updated_at)
+- **Foreign keys** voor relaties tussen resources
+- **Indexes** op veel-gebruikte velden voor performance
+- **JSONB fields** voor flexibele embedded data (goals, activities)
+
+### Veldnamen volgen FHIR
+
+Voorbeelden:
+- `name_family` → `Patient.name.family`
+- `identifier_bsn` → `Patient.identifier[system=bsn].value`
+- `status` → `CarePlan.status`
+
+Dit maakt transformatie naar FHIR JSON eenvoudig en voorspelbaar.
+
+### Transform Pattern
+
+```typescript
+// Database → FHIR
+const fhirPatient = dbPatientToFHIR(dbRow);
+
+// FHIR → Database
+const dbInsert = fhirPatientToDB(fhirResource);
+```
+
+Alle transforms zijn in `lib/fhir/transforms/` met 100% type safety.
+
+---
+
+## Voor Functioneel Beheerders
+
+### Wat betekent dit voor dagelijks gebruik?
+
+**Voor behandelaren:**
+- Intuïtieve UI, geen FHIR kennis nodig
+- Alle data logisch gestructureerd
+- Diagnoses gekoppeld aan intake-moment
+- Behandelplan volgt automatisch uit diagnose
+
+**Voor beheerders:**
+- Export naar andere systemen is mogelijk
+- Backups bevatten FHIR-compliant data
+- Audits en rapportages zijn eenvoudig
+- Geen vendor lock-in
+
+**Voor ICT:**
+- Database schema volgt internationale standaard
+- API endpoints zijn FHIR-compliant
+- Integraties zijn goed gedocumenteerd
+- Migratie naar andere systemen is eenvoudig
+
+### Veelgestelde Vragen
+
+**Q: Moet ik FHIR kennen om het systeem te gebruiken?**
+A: Nee, de UI abstracteert alle FHIR complexiteit. Je werkt gewoon met patiënten, contacten en behandelplannen.
+
+**Q: Kunnen we later gemakkelijk overstappen naar een ander EPD?**
+A: Ja, alle data is in FHIR format te exporteren. Geen vendor lock-in.
+
+**Q: Is dit compatible met MedMIJ?**
+A: Ja, het datamodel volgt MedMIJ Basisgegevens GGZ 2.0 specificaties.
+
+**Q: Hoe zit het met privacy?**
+A: BSN versleuteld, RLS policies, audit logging, AVG-compliant.
+
+---
+
+## Referenties
+
+**FHIR Specificaties:**
+- FHIR R4: https://hl7.org/fhir/R4/
+- FHIR Patient: https://hl7.org/fhir/R4/patient.html
+- FHIR CarePlan: https://hl7.org/fhir/R4/careplan.html
+
+**Nederlandse Standaarden:**
+- MedMIJ GGZ: https://informatiestandaarden.nictiz.nl/wiki/MedMij:V2020.01/OntwerpGGZ
+- ZIBs: https://zibs.nl/
+
+**Project Documentatie:**
+- Technisch schema: `lib/supabase/20241121_fhir_ggz_schema.sql`
+- Bouwplan: `docs/bouwplan-pragmatisch-fhir.md`
+- Datamodel details: `docs/datamodel-documentatie.md`
+
+---
+
+**Laatst bijgewerkt:** 21 november 2024
+**Versie:** 2.0.0 (Pragmatisch FHIR)
+**Status:** Actief - Epic 1 & 2 Voltooid
