@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronRight, ChevronDown, ChevronLeft, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/documentatie'
+import type { ReleaseNote, GroupMetadata, CategoryMetadata, TocItem } from '@/lib/mdx/documentatie'
 
 interface ReleaseSidebarProps {
   releases: ReleaseNote[]
@@ -19,13 +19,15 @@ interface ReleaseSidebarProps {
     groups: GroupMetadata[]
     categories: CategoryMetadata[]
   }
+  tocMap: Record<string, TocItem[]>
 }
 
-export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
+export function ReleaseSidebar({ releases, metadata, tocMap }: ReleaseSidebarProps) {
   const pathname = usePathname()
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     foundation: true,
+    architecture: true,
     features: true,
     infrastructure: true,
     bugs: true,
@@ -143,25 +145,44 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
                         <div className="space-y-1 ml-2">
                           {groupReleases.map((release) => {
                             const isActive = pathname === `/documentatie/${release.slug}`
+                            const toc = tocMap[release.slug] || []
 
                             return (
-                              <Link
-                                key={release.slug}
-                                href={`/documentatie/${release.slug}`}
-                                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
-                                  isActive
-                                    ? 'bg-teal-50 text-teal-700'
-                                    : 'text-slate-700 hover:bg-slate-50'
-                                }`}
-                              >
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <StatusDot status={release.frontmatter.status} />
-                                  <span className="whitespace-normal">{release.frontmatter.title}</span>
-                                </div>
-                                <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${
-                                  isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
-                                }`} />
-                              </Link>
+                              <div key={release.slug}>
+                                <Link
+                                  href={`/documentatie/${release.slug}`}
+                                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                                    isActive
+                                      ? 'bg-teal-50 text-teal-700'
+                                      : 'text-slate-700 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <StatusDot status={release.frontmatter.status} />
+                                    <span className="whitespace-normal">{release.frontmatter.title}</span>
+                                  </div>
+                                  <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${
+                                    isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+                                  }`} />
+                                </Link>
+
+                                {/* Table of Contents for active page */}
+                                {isActive && toc.length > 0 && (
+                                  <div className="ml-4 mt-1 space-y-1 border-l-2 border-teal-200">
+                                    {toc.map((item) => (
+                                      <a
+                                        key={item.id}
+                                        href={`#${item.id}`}
+                                        className={`block py-1.5 text-xs text-slate-600 hover:text-teal-600 transition-colors ${
+                                          item.level === 2 ? 'pl-3 font-medium' : 'pl-6'
+                                        }`}
+                                      >
+                                        {item.text}
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             )
                           })}
                         </div>
@@ -220,23 +241,42 @@ export function ReleaseSidebar({ releases, metadata }: ReleaseSidebarProps) {
                       <div className="space-y-1 ml-2">
                         {groupReleases.map((release) => {
                           const isActive = pathname === `/documentatie/${release.slug}`
+                          const toc = tocMap[release.slug] || []
 
                           return (
-                            <Link
-                              key={release.slug}
-                              href={`/documentatie/${release.slug}`}
-                              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${isActive
-                                  ? 'bg-teal-50 text-teal-700'
-                                  : 'text-slate-700 hover:bg-slate-50'
-                                }`}
-                            >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <StatusDot status={release.frontmatter.status} />
-                                <span className="whitespace-normal">{release.frontmatter.title}</span>
-                              </div>
-                              <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
-                                }`} />
-                            </Link>
+                            <div key={release.slug}>
+                              <Link
+                                href={`/documentatie/${release.slug}`}
+                                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${isActive
+                                    ? 'bg-teal-50 text-teal-700'
+                                    : 'text-slate-700 hover:bg-slate-50'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <StatusDot status={release.frontmatter.status} />
+                                  <span className="whitespace-normal">{release.frontmatter.title}</span>
+                                </div>
+                                <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+                                  }`} />
+                              </Link>
+
+                              {/* Table of Contents for active page */}
+                              {isActive && toc.length > 0 && (
+                                <div className="ml-4 mt-1 space-y-1 border-l-2 border-teal-200">
+                                  {toc.map((item) => (
+                                    <a
+                                      key={item.id}
+                                      href={`#${item.id}`}
+                                      className={`block py-1.5 text-xs text-slate-600 hover:text-teal-600 transition-colors ${
+                                        item.level === 2 ? 'pl-3 font-medium' : 'pl-6'
+                                      }`}
+                                    >
+                                      {item.text}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           )
                         })}
                       </div>

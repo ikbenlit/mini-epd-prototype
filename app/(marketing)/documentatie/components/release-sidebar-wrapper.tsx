@@ -7,7 +7,7 @@
  */
 
 import { ReleaseSidebar } from './release-sidebar'
-import type { ReleaseNote, GroupMetadata, CategoryMetadata } from '@/lib/mdx/documentatie'
+import type { ReleaseNote, GroupMetadata, CategoryMetadata, TocItem } from '@/lib/mdx/documentatie'
 
 interface ReleaseSidebarWrapperProps {
   releases: ReleaseNote[]
@@ -15,6 +15,7 @@ interface ReleaseSidebarWrapperProps {
     groups: GroupMetadata[]
     categories: CategoryMetadata[]
   }
+  tocMap: Record<string, TocItem[]>
 }
 
 export default function ReleaseSidebarWrapper(props: ReleaseSidebarWrapperProps) {

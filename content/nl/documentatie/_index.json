@@ -7,22 +7,28 @@
       "order": 1
     },
     {
+      "id": "architecture",
+      "title": "Architecture",
+      "description": "Datamodel en FHIR standaarden",
+      "order": 2
+    },
+    {
       "id": "features",
       "title": "Core Features",
       "description": "EPD functionaliteit",
-      "order": 2
+      "order": 3
     },
     {
       "id": "infrastructure",
       "title": "Infrastructure",
       "description": "Ondersteunende systemen",
-      "order": 3
+      "order": 4
     },
     {
       "id": "bugs",
       "title": "Bugs & Fixes",
       "description": "Opgeloste bugs en troubleshooting",
-      "order": 4
+      "order": 5
     }
   ],
   "categories": [
@@ -46,6 +52,22 @@
       "group": "foundation",
       "description": "Development en deployment configuratie",
       "order": 3
+    },
+    {
+      "slug": "fhir-datamodel",
+      "title": "FHIR Datamodel",
+      "group": "architecture",
+      "description": "FHIR-compliant datamodel voor GGZ-gegevens volgens MedMIJ standaarden",
+      "order": 1,
+      "status": "active"
+    },
+    {
+      "slug": "fhir-api",
+      "title": "FHIR REST API",
+      "group": "architecture",
+      "description": "RESTful FHIR API endpoints voor data-uitwisseling",
+      "order": 2,
+      "status": "in-progress"
     },
     {
       "slug": "dashboard",

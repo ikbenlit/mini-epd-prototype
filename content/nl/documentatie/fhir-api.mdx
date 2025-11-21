@@ -1,0 +1,1508 @@
+---
+title: "FHIR REST API"
+category: "fhir-api"
+group: "architecture"
+version: "2.0.0"
+releaseDate: "2024-11-21"
+status: "in-progress"
+description: "RESTful FHIR API endpoints voor data-uitwisseling - patiënten, contactmomenten, diagnoses en behandelplannen"
+---
+
+## Overview
+
+Het Mini-EPD biedt een **RESTful FHIR API** voor uitwisseling van GGZ-gegevens. De API volgt de FHIR R4 specificatie en ondersteunt standaard HTTP methods (GET, POST, PUT) voor CRUD operaties.
+
+**Waarom een FHIR API?**
+- ✅ **Data-uitwisselbaarheid** - Andere systemen kunnen jouw data lezen/schrijven
+- ✅ **Standaard compliant** - Volgt internationale FHIR R4 specificatie
+- ✅ **Toekomstbestendig** - Compatible met MedMIJ, Koppeltaal, LSP
+- ✅ **Veilig** - Bearer token authenticatie, RLS policies, audit logging
+
+**API Base URL:**
+```
+https://jouw-domein.nl/api/fhir/
+```
+
+**Response Format:**
+- Content-Type: `application/fhir+json`
+- FHIR R4 compliant JSON
+- Errors via FHIR OperationOutcome
+
+---
+
+## Implementatie Status
+
+### ✅ Epic 2: Voltooid (21 november 2024)
+
+**Patient API** - CRUD voor patiëntgegevens
+- GET, POST, PUT volledig werkend
+- Zoeken op naam, BSN, geboortedatum
+- FHIR Bundle responses
+
+**Practitioner API** - Behandelaren beheer
+- GET, POST werkend
+- Zoeken op naam, BIG, AGB
+- Nederlandse identificatie systemen
+
+### ⏳ Epic 3-7: In Planning
+
+**Encounter API** - Contactmomenten (Q1 2025)
+**Condition API** - Diagnoses DSM-5/ICD-10 (Q1 2025)
+**Observation API** - ROM-metingen & risico's (Q1 2025)
+**CarePlan API** - Behandelplannen 🎯 (Q1 2025)
+
+---
+
+## Patient API
+
+**Status:** ✅ **Actief** (sinds 21 november 2024)
+
+### Endpoints
+
+#### GET /api/fhir/Patient - Lijst van patiënten
+
+**Beschrijving:**
+Ophalen van alle patiënten met optionele zoekfilters.
+
+**Query Parameters:**
+- `name` - Zoeken op voor- of achternaam (case-insensitive)
+- `identifier` - Zoeken op BSN
+- `birthdate` - Zoeken op geboortedatum (YYYY-MM-DD)
+
+**Response:**
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 3,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "identifier": [
+          {
+            "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+            "value": "123456789",
+            "use": "official"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "de Vries",
+            "given": ["Jan", "Peter"]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1985-03-15",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+31612345678",
+            "use": "mobile"
+          }
+        ],
+        "active": true
+      }
+    }
+  ]
+}
+```
+
+**Gebruik:**
+```bash
+# Alle patiënten
+GET /api/fhir/Patient
+
+# Zoeken op naam
+GET /api/fhir/Patient?name=vries
+
+# Zoeken op BSN
+GET /api/fhir/Patient?identifier=123456789
+```
+
+---
+
+#### GET /api/fhir/Patient/[id] - Specifieke patiënt
+
+**Beschrijving:**
+Ophalen van één specifieke patiënt op basis van ID.
+
+**Path Parameters:**
+- `id` - UUID van de patiënt
+
+**Response:**
+```json
+{
+  "resourceType": "Patient",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "identifier": [
+    {
+      "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+      "value": "123456789",
+      "use": "official"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "de Vries",
+      "given": ["Jan", "Peter"],
+      "prefix": ["Dhr."]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1985-03-15",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+31612345678",
+      "use": "mobile"
+    },
+    {
+      "system": "email",
+      "value": "jan.devries@example.com"
+    }
+  ],
+  "address": [
+    {
+      "use": "home",
+      "line": ["Hoofdstraat 123"],
+      "city": "Amsterdam",
+      "postalCode": "1012 AB",
+      "country": "NL"
+    }
+  ],
+  "generalPractitioner": [
+    {
+      "display": "Dr. Jansen",
+      "identifier": {
+        "system": "http://fhir.nl/fhir/NamingSystem/agb-z",
+        "value": "12345678"
+      }
+    }
+  ],
+  "active": true,
+  "meta": {
+    "lastUpdated": "2024-11-21T10:30:00Z"
+  }
+}
+```
+
+**Gebruik:**
+```bash
+GET /api/fhir/Patient/550e8400-e29b-41d4-a716-446655440000
+```
+
+**Error Response (404):**
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "not-found",
+      "diagnostics": "Patient with id 550e8400-... not found"
+    }
+  ]
+}
+```
+
+---
+
+#### POST /api/fhir/Patient - Nieuwe patiënt aanmaken
+
+**Beschrijving:**
+Aanmaken van een nieuwe patiënt vanuit FHIR JSON.
+
+**Request Body:**
+```json
+{
+  "resourceType": "Patient",
+  "identifier": [
+    {
+      "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+      "value": "987654321",
+      "use": "official"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Jansen",
+      "given": ["Marie"]
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1990-06-20",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+31687654321",
+      "use": "mobile"
+    }
+  ],
+  "active": true
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "resourceType": "Patient",
+  "id": "660e8400-e29b-41d4-a716-446655440001",
+  "identifier": [
+    {
+      "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+      "value": "987654321",
+      "use": "official"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Jansen",
+      "given": ["Marie"]
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1990-06-20",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+31687654321",
+      "use": "mobile"
+    }
+  ],
+  "active": true,
+  "meta": {
+    "lastUpdated": "2024-11-21T14:25:00Z"
+  }
+}
+```
+
+**Headers:**
+- `Location: /api/fhir/Patient/660e8400-e29b-41d4-a716-446655440001`
+
+**Gebruik:**
+```bash
+POST /api/fhir/Patient
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Patient",
+  ...
+}
+```
+
+**Validatie:**
+Verplichte velden:
+- `resourceType` moet "Patient" zijn
+- `name` moet aanwezig zijn
+- `gender` moet aanwezig zijn
+- `birthDate` moet aanwezig zijn
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Missing required field: birthDate"
+    }
+  ]
+}
+```
+
+---
+
+#### PUT /api/fhir/Patient/[id] - Patiënt bijwerken
+
+**Beschrijving:**
+Bijwerken van een bestaande patiënt.
+
+**Path Parameters:**
+- `id` - UUID van de patiënt
+
+**Request Body:**
+```json
+{
+  "resourceType": "Patient",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "identifier": [
+    {
+      "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+      "value": "123456789",
+      "use": "official"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "de Vries-Bakker",
+      "given": ["Jan", "Peter"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1985-03-15",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+31698765432",
+      "use": "mobile"
+    }
+  ],
+  "active": true
+}
+```
+
+**Response (200 OK):**
+Volledige bijgewerkte Patient resource.
+
+**Gebruik:**
+```bash
+PUT /api/fhir/Patient/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Patient",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  ...
+}
+```
+
+**Validatie:**
+- ID in URL moet overeenkomen met ID in body (indien aanwezig)
+- Patiënt moet bestaan (anders 404)
+
+---
+
+## Practitioner API
+
+**Status:** ✅ **Actief** (sinds 21 november 2024)
+
+### Endpoints
+
+#### GET /api/fhir/Practitioner - Lijst van behandelaren
+
+**Beschrijving:**
+Ophalen van alle behandelaren met optionele zoekfilters.
+
+**Query Parameters:**
+- `name` - Zoeken op voor- of achternaam
+- `identifier` - Zoeken op BIG-nummer of AGB-code
+
+**Response:**
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "770e8400-e29b-41d4-a716-446655440002",
+        "identifier": [
+          {
+            "system": "http://fhir.nl/fhir/NamingSystem/big",
+            "value": "12345678901",
+            "use": "official"
+          },
+          {
+            "system": "http://fhir.nl/fhir/NamingSystem/agb-z",
+            "value": "87654321",
+            "use": "official"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Bakker",
+            "given": ["Sarah"],
+            "prefix": ["Dr."]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+31201234567",
+            "use": "work"
+          },
+          {
+            "system": "email",
+            "value": "s.bakker@ggz-instelling.nl",
+            "use": "work"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0360",
+                  "display": "GZ-psycholoog"
+                }
+              ],
+              "text": "GZ-psycholoog"
+            }
+          }
+        ],
+        "active": true
+      }
+    }
+  ]
+}
+```
+
+**Gebruik:**
+```bash
+# Alle behandelaren
+GET /api/fhir/Practitioner
+
+# Zoeken op naam
+GET /api/fhir/Practitioner?name=Bakker
+
+# Zoeken op BIG of AGB
+GET /api/fhir/Practitioner?identifier=12345678901
+```
+
+---
+
+#### GET /api/fhir/Practitioner/[id] - Specifieke behandelaar
+
+**Beschrijving:**
+Ophalen van één specifieke behandelaar.
+
+**Response:**
+Volledige Practitioner resource met BIG, AGB, kwalificaties en contactgegevens.
+
+**Gebruik:**
+```bash
+GET /api/fhir/Practitioner/770e8400-e29b-41d4-a716-446655440002
+```
+
+---
+
+#### POST /api/fhir/Practitioner - Nieuwe behandelaar aanmaken
+
+**Beschrijving:**
+Aanmaken van een nieuwe behandelaar vanuit FHIR JSON.
+
+**Request Body:**
+```json
+{
+  "resourceType": "Practitioner",
+  "identifier": [
+    {
+      "system": "http://fhir.nl/fhir/NamingSystem/big",
+      "value": "98765432109",
+      "use": "official"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "de Jong",
+      "given": ["Peter"]
+    }
+  ],
+  "qualification": [
+    {
+      "code": {
+        "text": "Psychiater"
+      }
+    }
+  ],
+  "active": true
+}
+```
+
+**Response (201 Created):**
+Volledige Practitioner resource met gegenereerd ID.
+
+**Gebruik:**
+```bash
+POST /api/fhir/Practitioner
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Practitioner",
+  ...
+}
+```
+
+---
+
+## Encounter API
+
+**Status:** ⏳ **In Planning** (Epic 3 - Q1 2025)
+
+### Geplande Endpoints
+
+#### GET /api/fhir/Encounter - Contactmomenten
+
+**Doel:**
+Ophalen van alle contactmomenten met zoekfilters.
+
+**Query Parameters (gepland):**
+- `patient` - Filter op patiënt ID
+- `date` - Filter op datum
+- `type` - Type contact (intake, behandeling, crisis)
+- `status` - Status (planned, in-progress, finished)
+
+**Use Case:**
+```bash
+# Alle contacten van patiënt
+GET /api/fhir/Encounter?patient=550e8400-e29b-41d4-a716-446655440000
+
+# Contacten van deze maand
+GET /api/fhir/Encounter?date=ge2024-11-01&date=le2024-11-30
+
+# Alleen intakes
+GET /api/fhir/Encounter?type=intake
+```
+
+**Response (voorbeeld):**
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 5,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "880e8400-...",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "Ambulatory (polikliniek)"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "intake",
+                "display": "Intakegesprek"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/550e8400-...",
+          "display": "Jan de Vries"
+        },
+        "participant": [
+          {
+            "individual": {
+              "reference": "Practitioner/770e8400-...",
+              "display": "Dr. Sarah Bakker"
+            }
+          }
+        ],
+        "period": {
+          "start": "2024-11-15T10:00:00Z",
+          "end": "2024-11-15T11:00:00Z"
+        },
+        "reasonCode": [
+          {
+            "text": "Depressieve klachten"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### POST /api/fhir/Encounter - Contact aanmaken
+
+**Doel:**
+Nieuw contactmoment registreren.
+
+**Gebruik (voorbeeld):**
+```bash
+POST /api/fhir/Encounter
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Encounter",
+  "status": "planned",
+  "class": {
+    "code": "AMB"
+  },
+  "type": [
+    {
+      "coding": [
+        {
+          "code": "behandeling",
+          "display": "Behandelsessie"
+        }
+      ]
+    }
+  ],
+  "subject": {
+    "reference": "Patient/550e8400-..."
+  },
+  "participant": [
+    {
+      "individual": {
+        "reference": "Practitioner/770e8400-..."
+      }
+    }
+  ],
+  "period": {
+    "start": "2024-12-01T14:00:00Z"
+  }
+}
+```
+
+---
+
+#### PUT /api/fhir/Encounter/[id] - Contact bijwerken
+
+**Doel:**
+Status en gegevens van contactmoment bijwerken (bijv. van "planned" naar "finished").
+
+---
+
+## Condition API
+
+**Status:** ⏳ **In Planning** (Epic 4 - Q1 2025)
+
+### Geplande Endpoints
+
+#### GET /api/fhir/Condition - Diagnoses
+
+**Doel:**
+Ophalen van diagnoses per patiënt.
+
+**Query Parameters (gepland):**
+- `patient` - Filter op patiënt ID
+- `clinical-status` - Filter op status (active, remission, resolved)
+- `code` - Filter op DSM-5/ICD-10 code
+
+**Use Case:**
+```bash
+# Alle diagnoses van patiënt
+GET /api/fhir/Condition?patient=550e8400-...
+
+# Alleen actieve diagnoses
+GET /api/fhir/Condition?patient=550e8400-...&clinical-status=active
+
+# Specifieke diagnose (F32.2)
+GET /api/fhir/Condition?code=F32.2
+```
+
+**Response (voorbeeld):**
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "990e8400-...",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "severity": {
+          "coding": [
+            {
+              "code": "24484000",
+              "display": "Severe"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10",
+              "code": "F32.2",
+              "display": "Depressieve episode, ernstig zonder psychotische kenmerken"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/550e8400-...",
+          "display": "Jan de Vries"
+        },
+        "encounter": {
+          "reference": "Encounter/880e8400-...",
+          "display": "Intake 15-11-2024"
+        },
+        "onsetDateTime": "2024-09-01",
+        "recordedDate": "2024-11-15T10:30:00Z",
+        "recorder": {
+          "reference": "Practitioner/770e8400-...",
+          "display": "Dr. Sarah Bakker"
+        }
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### POST /api/fhir/Condition - Diagnose toevoegen
+
+**Doel:**
+Nieuwe diagnose registreren met DSM-5/ICD-10 code.
+
+---
+
+#### PUT /api/fhir/Condition/[id] - Diagnose bijwerken
+
+**Doel:**
+Status wijzigen (bijv. van "active" naar "remission").
+
+---
+
+## Observation API
+
+**Status:** ⏳ **In Planning** (Epic 6 - Q1 2025)
+
+### Geplande Endpoints
+
+#### GET /api/fhir/Observation - Metingen & ROM-scores
+
+**Doel:**
+Ophalen van observaties, ROM-metingen en risico-inschattingen.
+
+**Query Parameters (gepland):**
+- `patient` - Filter op patiënt ID
+- `category` - Type observatie (survey, risk-assessment, vital-signs)
+- `code` - LOINC code voor specifieke meting (bijv. PHQ-9)
+- `date` - Datum filter
+
+**Use Case:**
+```bash
+# Alle ROM-metingen van patiënt
+GET /api/fhir/Observation?patient=550e8400-...&category=survey
+
+# PHQ-9 scores
+GET /api/fhir/Observation?patient=550e8400-...&code=44249-1
+
+# Recente metingen (laatste 30 dagen)
+GET /api/fhir/Observation?patient=550e8400-...&date=ge2024-10-22
+```
+
+**Response (voorbeeld - PHQ-9):**
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 3,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "aa0e8400-...",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "44249-1",
+              "display": "PHQ-9 total score"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/550e8400-...",
+          "display": "Jan de Vries"
+        },
+        "effectiveDateTime": "2024-11-15T10:45:00Z",
+        "performer": [
+          {
+            "reference": "Practitioner/770e8400-...",
+            "display": "Dr. Sarah Bakker"
+          }
+        ],
+        "valueQuantity": {
+          "value": 18,
+          "unit": "score",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                "code": "H",
+                "display": "High"
+              }
+            ],
+            "text": "Matig-ernstige depressie"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### POST /api/fhir/Observation - Meting toevoegen
+
+**Doel:**
+Nieuwe ROM-score of observatie registreren.
+
+**Gebruik (voorbeeld - GAD-7):**
+```json
+{
+  "resourceType": "Observation",
+  "status": "final",
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "survey"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "69737-5",
+        "display": "GAD-7 total score"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/550e8400-..."
+  },
+  "effectiveDateTime": "2024-11-21T14:00:00Z",
+  "valueQuantity": {
+    "value": 12,
+    "unit": "score",
+    "code": "{score}"
+  },
+  "interpretation": [
+    {
+      "text": "Matige angst"
+    }
+  ]
+}
+```
+
+---
+
+## CarePlan API
+
+**Status:** 🎯 **In Planning** (Epic 5 - Q1 2025) - **HOOFDDOEL**
+
+### Geplande Endpoints
+
+#### GET /api/fhir/CarePlan - Behandelplannen
+
+**Doel:**
+Ophalen van behandelplannen met doelen en activiteiten.
+
+**Query Parameters (gepland):**
+- `patient` - Filter op patiënt ID
+- `status` - Filter op status (draft, active, completed)
+- `category` - Type behandelplan
+
+**Use Case:**
+```bash
+# Alle behandelplannen van patiënt
+GET /api/fhir/CarePlan?patient=550e8400-...
+
+# Alleen actieve plannen
+GET /api/fhir/CarePlan?patient=550e8400-...&status=active
+```
+
+**Response (voorbeeld - volledig behandelplan):**
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "bb0e8400-...",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.4.3.11.999.7.6",
+            "value": "BP-2024-001"
+          }
+        ],
+        "status": "active",
+        "intent": "plan",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "ggz-behandelplan",
+                "display": "GGZ Behandelplan"
+              }
+            ]
+          }
+        ],
+        "title": "Behandelplan Depressie",
+        "description": "Cognitieve gedragstherapie voor ernstige depressieve episode",
+        "subject": {
+          "reference": "Patient/550e8400-...",
+          "display": "Jan de Vries"
+        },
+        "period": {
+          "start": "2024-11-20",
+          "end": "2025-05-20"
+        },
+        "created": "2024-11-20T09:00:00Z",
+        "author": {
+          "reference": "Practitioner/770e8400-...",
+          "display": "Dr. Sarah Bakker"
+        },
+        "addresses": [
+          {
+            "reference": "Condition/990e8400-...",
+            "display": "F32.2 - Depressieve episode, ernstig"
+          }
+        ],
+        "goal": [
+          {
+            "description": {
+              "text": "PHQ-9 score verlagen naar < 10 binnen 12 weken"
+            },
+            "target": [
+              {
+                "measure": {
+                  "coding": [
+                    {
+                      "system": "http://loinc.org",
+                      "code": "44249-1"
+                    }
+                  ]
+                },
+                "detailQuantity": {
+                  "value": 10,
+                  "comparator": "<",
+                  "unit": "score"
+                },
+                "dueDate": "2025-02-12"
+              }
+            ]
+          },
+          {
+            "description": {
+              "text": "Herstel dagelijks functioneren (werk/sociaal)"
+            }
+          }
+        ],
+        "activity": [
+          {
+            "detail": {
+              "code": {
+                "text": "Individuele Cognitieve Gedragstherapie (CGT)"
+              },
+              "status": "in-progress",
+              "scheduledTiming": {
+                "repeat": {
+                  "frequency": 1,
+                  "period": 1,
+                  "periodUnit": "wk"
+                }
+              },
+              "performer": [
+                {
+                  "reference": "Practitioner/770e8400-...",
+                  "display": "Dr. Sarah Bakker"
+                }
+              ],
+              "description": "Wekelijkse CGT sessies, totaal 12 sessies"
+            }
+          },
+          {
+            "detail": {
+              "code": {
+                "text": "ROM-meting PHQ-9"
+              },
+              "status": "scheduled",
+              "scheduledTiming": {
+                "repeat": {
+                  "frequency": 1,
+                  "period": 4,
+                  "periodUnit": "wk"
+                }
+              },
+              "description": "Elke 4 weken PHQ-9 invullen"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### POST /api/fhir/CarePlan - Behandelplan aanmaken
+
+**Doel:**
+Nieuw behandelplan opstellen met doelen en interventies.
+
+**Gebruik (voorbeeld):**
+```json
+{
+  "resourceType": "CarePlan",
+  "status": "active",
+  "intent": "plan",
+  "title": "Behandelplan Angststoornis",
+  "subject": {
+    "reference": "Patient/550e8400-..."
+  },
+  "addresses": [
+    {
+      "reference": "Condition/cc0e8400-...",
+      "display": "F41.1 - Gegeneraliseerde angststoornis"
+    }
+  ],
+  "goal": [
+    {
+      "description": {
+        "text": "GAD-7 score < 5 binnen 16 weken"
+      },
+      "target": [
+        {
+          "detailQuantity": {
+            "value": 5,
+            "comparator": "<"
+          },
+          "dueDate": "2025-03-15"
+        }
+      ]
+    }
+  ],
+  "activity": [
+    {
+      "detail": {
+        "code": {
+          "text": "Exposure therapy"
+        },
+        "status": "not-started",
+        "scheduledTiming": {
+          "repeat": {
+            "frequency": 1,
+            "period": 1,
+            "periodUnit": "wk"
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### PUT /api/fhir/CarePlan/[id] - Behandelplan bijwerken
+
+**Doel:**
+Status, doelen of activiteiten van behandelplan bijwerken.
+
+**Belangrijke use cases:**
+- Status wijzigen (draft → active → completed)
+- Nieuwe doelen toevoegen
+- Activiteiten bijwerken
+- Voortgang registreren
+
+---
+
+## API Documentatie & Testing
+
+**Status:** ⏳ **In Planning** (Epic 7 - Q1 2025)
+
+### Swagger/OpenAPI Documentatie
+
+**Geplande features:**
+- Interactieve API documentatie op `/api/docs`
+- Try-it-out functionaliteit voor alle endpoints
+- Request/response voorbeelden
+- Schema validatie
+
+**Voorbeeld URL:**
+```
+https://jouw-domein.nl/api/docs
+```
+
+### FHIR Validator
+
+**Doel:**
+Automatische validatie van alle FHIR requests/responses tegen FHIR R4 spec.
+
+**Implementatie (gepland):**
+- @hapi/fhir validator integratie
+- Strikte validatie mode (optioneel)
+- Duidelijke error messages bij validatiefouten
+
+---
+
+## Authenticatie & Autorisatie
+
+### Bearer Token Authenticatie
+
+**Huidige implementatie:**
+- Supabase Auth sessies
+- RLS (Row Level Security) op database niveau
+- Behandelaren zien alleen eigen patiënten
+
+**Headers:**
+```
+Authorization: Bearer {supabase-session-token}
+Content-Type: application/fhir+json
+```
+
+### Toekomstige uitbreiding
+
+**SMART-on-FHIR (gepland):**
+- OAuth2 authenticatie
+- Scopes voor granulaire toegangscontrole
+- Support voor externe apps (MedMIJ, Koppeltaal)
+
+**Scopes (voorbeeld):**
+- `patient/*.read` - Lezen van alle patiënt resources
+- `patient/Patient.read` - Alleen Patient lezen
+- `patient/CarePlan.write` - CarePlans aanmaken/wijzigen
+
+---
+
+## Error Handling
+
+### FHIR OperationOutcome
+
+Alle errors worden geretourneerd als FHIR OperationOutcome resource:
+
+**400 Bad Request - Validatiefout:**
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Missing required field: birthDate"
+    }
+  ]
+}
+```
+
+**404 Not Found - Resource niet gevonden:**
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "not-found",
+      "diagnostics": "Patient with id 550e8400-... not found"
+    }
+  ]
+}
+```
+
+**500 Internal Server Error - Serverfout:**
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "exception",
+      "diagnostics": "Database connection failed"
+    }
+  ]
+}
+```
+
+### HTTP Status Codes
+
+| Code | Betekenis | Gebruik |
+|------|-----------|---------|
+| 200 | OK | Succesvolle GET/PUT |
+| 201 | Created | Succesvolle POST |
+| 400 | Bad Request | Validatiefout |
+| 401 | Unauthorized | Geen/ongeldige authenticatie |
+| 403 | Forbidden | Geen toegang tot resource |
+| 404 | Not Found | Resource bestaat niet |
+| 500 | Internal Server Error | Serverfout |
+
+---
+
+## Data-uitwisseling Scenario's
+
+### Scenario 1: Behandelplan Delen
+
+**Use Case:**
+Een patiënt verhuist naar een andere GGZ-instelling. Het behandelplan moet worden gedeeld.
+
+**Workflow:**
+```bash
+# Stap 1: Export behandelplan
+GET /api/fhir/CarePlan/bb0e8400-...
+→ Volledige FHIR JSON response
+
+# Stap 2: Opslaan als bestand
+careplan-export.json
+
+# Stap 3: Import in andere instelling
+POST https://andere-instelling.nl/api/fhir/CarePlan
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "CarePlan",
+  ... (volledige careplan data)
+}
+
+# Stap 4: Succes!
+201 Created
+Location: /api/fhir/CarePlan/nieuwe-id
+```
+
+**Resultaat:**
+✅ Behandelplan succesvol overgedragen tussen instellingen
+
+---
+
+### Scenario 2: MedMIJ Patiëntenportaal
+
+**Use Case (toekomst):**
+Patiënt opent PGO-app en vraagt toegang tot eigen dossier.
+
+**Workflow:**
+```bash
+# Patiënt authoriseert app via OAuth2
+# App vraagt toestemming voor:
+# - Lezen van diagnoses
+# - Lezen van behandelplan
+# - Lezen van ROM-scores
+
+# App haalt data op:
+GET /api/fhir/Condition?patient=[id]
+GET /api/fhir/CarePlan?patient=[id]
+GET /api/fhir/Observation?patient=[id]&category=survey
+
+# Patiënt ziet in app:
+# - Diagnose: F32.2 - Depressieve episode, ernstig
+# - Behandelplan: CGT 12 sessies
+# - ROM-scores: PHQ-9 timeline (18 → 14 → 10)
+```
+
+**Resultaat:**
+✅ Patiënt heeft inzage in eigen dossier via standaard PGO-app
+
+---
+
+### Scenario 3: Koppeltaal eHealth App
+
+**Use Case (toekomst):**
+Behandelaar schrijft mindfulness app voor als onderdeel van behandelplan.
+
+**Workflow:**
+```bash
+# Behandelaar maakt CarePlan met activity:
+POST /api/fhir/CarePlan
+{
+  "activity": [
+    {
+      "detail": {
+        "code": {
+          "text": "Mindfulness oefeningen via MindDistrict"
+        },
+        "status": "scheduled",
+        "scheduledTiming": {
+          "repeat": {
+            "frequency": 3,
+            "period": 1,
+            "periodUnit": "wk"
+          }
+        }
+      }
+    }
+  ]
+}
+
+# Koppeltaal sync:
+# - Mini-EPD stuurt CarePlan activity naar Koppeltaal
+# - Koppeltaal activeert opdracht in MindDistrict app
+# - Patiënt ziet opdracht in app
+# - Voortgang komt terug naar Mini-EPD via Observation
+```
+
+**Resultaat:**
+✅ Naadloze integratie tussen EPD en eHealth app
+
+---
+
+## Performance & Schaalbaarheid
+
+### Optimalisaties
+
+**Database Indexes:**
+- Index op `patient_id` voor snelle patient queries
+- Index op `identifier` velden (BSN, BIG, AGB)
+- Index op `status` velden voor filtering
+
+**Paginering:**
+```bash
+# Standaard: max 50 resultaten
+GET /api/fhir/Patient
+
+# Custom page size
+GET /api/fhir/Patient?_count=20
+
+# Volgende pagina (geplande feature)
+GET /api/fhir/Patient?_count=20&_offset=20
+```
+
+**Response Time Targets:**
+- GET single resource: < 100ms
+- GET search (50 results): < 500ms
+- POST/PUT: < 200ms
+
+---
+
+## Roadmap
+
+### ✅ Fase 1: Patient & Practitioner (Voltooid - November 2024)
+- Patient API (GET/POST/PUT)
+- Practitioner API (GET/POST)
+- FHIR transforms
+- Basic error handling
+
+### ⏳ Fase 2: Encounters & Conditions (Q1 2025)
+- Encounter API (GET/POST/PUT)
+- Condition API (GET/POST/PUT)
+- Timeline integratie
+
+### 🎯 Fase 3: CarePlans (Q1 2025) - HOOFDDOEL
+- CarePlan API (GET/POST/PUT)
+- Goals embedded in JSONB
+- Activities embedded in JSONB
+- Voortgang monitoring
+
+### ⏳ Fase 4: Observations (Q1 2025)
+- Observation API (GET/POST)
+- ROM-metingen (PHQ-9, GAD-7)
+- Risico-inschattingen
+
+### 🔮 Fase 5: API Polish (Q1 2025)
+- Swagger/OpenAPI documentatie
+- FHIR validator integratie
+- Paginering
+- Advanced search
+
+### 🔮 Fase 6: Integraties (Q2 2025)
+- MedMIJ aansluiting
+- Koppeltaal support
+- SMART-on-FHIR OAuth2
+
+---
+
+## Voor Functioneel Beheerders
+
+### Wat betekent dit voor jou?
+
+**Als behandelaar:**
+- Je hoeft niets van deze API te weten
+- UI abstracteert alle complexiteit
+- Gewoon werken met patiënten en behandelplannen
+
+**Als ICT-beheerder:**
+- API is volledig FHIR-compliant
+- Integraties zijn goed gedocumenteerd
+- Export/import is standaard
+
+**Als management:**
+- Geen vendor lock-in
+- Toekomstbestendige architectuur
+- Compatible met MedMIJ/Koppeltaal
+
+### Veelgestelde Vragen
+
+**Q: Moet ik als behandelaar de API gebruiken?**
+A: Nee, de UI doet dit automatisch. De API is voor integraties met andere systemen.
+
+**Q: Kan ik data exporteren naar Excel?**
+A: Ja, via de API kun je FHIR JSON ophalen en omzetten naar CSV/Excel.
+
+**Q: Hoe veilig is de API?**
+A: Authenticatie via tokens, RLS policies, encryptie, audit logging.
+
+**Q: Werkt dit met ons huidige EPD?**
+A: Als het EPD FHIR ondersteunt, ja. Anders via export/import.
+
+---
+
+## Technische Referenties
+
+**FHIR Specificaties:**
+- FHIR R4: https://hl7.org/fhir/R4/
+- RESTful API: https://hl7.org/fhir/R4/http.html
+- Search: https://hl7.org/fhir/R4/search.html
+
+**Project Documentatie:**
+- Transform library: `lib/fhir/transforms/`
+- API routes: `app/api/fhir/`
+- Bouwplan: `docs/bouwplan-pragmatisch-fhir.md`
+
+**Tools:**
+- FHIR Validator: https://validator.fhir.org/
+- Postman FHIR Collection: https://www.postman.com/fhir
+
+---
+
+**Laatst bijgewerkt:** 21 november 2024
+**Versie:** 2.0.0
+**Status:** In Progress - Patient & Practitioner API Actief
