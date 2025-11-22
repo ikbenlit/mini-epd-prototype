@@ -46,6 +46,15 @@ export async function GET(request: NextRequest) {
       query = query.eq('birth_date', birthdate);
     }
 
+    // Filter by status
+    const status = searchParams.get('status');
+    if (status && status !== 'all') {
+      query = query.eq('status', status);
+    }
+
+    // Order by updated_at descending (newest first)
+    query = query.order('updated_at', { ascending: false });
+
     // Execute query
     const { data: patients, error } = await query;
 

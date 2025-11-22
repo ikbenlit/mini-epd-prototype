@@ -16,12 +16,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
  */
 export async function getPatients(filters?: {
   search?: string;
+  status?: string;
 }) {
   try {
     const url = new URL(`${API_BASE_URL}/api/fhir/Patient`);
 
     if (filters?.search) {
       url.searchParams.set('name', filters.search);
+    }
+
+    if (filters?.status) {
+      url.searchParams.set('status', filters.status);
     }
 
     const response = await fetch(url.toString(), {

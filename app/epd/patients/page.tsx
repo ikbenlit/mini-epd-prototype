@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 interface SearchParams {
   search?: string;
+  status?: string;
 }
 
 export default async function PatientsPage({
@@ -20,9 +21,9 @@ export default async function PatientsPage({
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Patiënten (FHIR)</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Patiënten</h1>
             <p className="text-sm text-slate-600 mt-1">
-              FHIR-compliant patiëntenbeheer
+              Overzicht van alle patiënten met screening en intake status
             </p>
           </div>
           <Link
@@ -46,6 +47,7 @@ export default async function PatientsPage({
 async function PatientListWrapper({ searchParams }: { searchParams: SearchParams }) {
   const patients = await getPatients({
     search: searchParams.search,
+    status: searchParams.status,
   });
 
   return <PatientList initialPatients={patients} />;

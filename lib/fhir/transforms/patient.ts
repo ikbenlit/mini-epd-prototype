@@ -131,6 +131,31 @@ export function dbPatientToFHIR(row: PatientRow): FHIRPatient {
     meta: {
       lastUpdated: row.updated_at || undefined,
     },
+
+    // Extension for episode status (non-standard FHIR, but needed for our workflow)
+    extension: [
+      row.status
+        ? {
+            url: 'http://mini-epd.local/fhir/StructureDefinition/episode-status',
+            valueCode: row.status,
+          }
+        : undefined,
+      row.is_john_doe
+        ? {
+            url: 'http://mini-epd.local/fhir/StructureDefinition/john-doe',
+            valueBoolean: true,
+          }
+        : undefined,
+      row.insurance_company
+        ? {
+            url: 'http://mini-epd.local/fhir/StructureDefinition/insurance',
+            valueString: JSON.stringify({
+              company: row.insurance_company,
+              number: row.insurance_number,
+            }),
+          }
+        : undefined,
+    ].filter((x): x is NonNullable<typeof x> => x !== undefined),
   };
 }
 
@@ -172,6 +197,30 @@ export function fhirPatientToDB(fhir: FHIRPatient): PatientInsert {
   const gpName = gp?.display;
   const gpAgb = gp?.identifier?.value;
 
+  // Extract status and john_doe from extensions
+  const statusExtension = fhir.extension?.find(
+    (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/episode-status'
+  );
+  const johnDoeExtension = fhir.extension?.find(
+    (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/john-doe'
+  );
+  const insuranceExtension = fhir.extension?.find(
+    (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/insurance'
+  );
+
+  // Parse insurance data from extension
+  let insuranceCompany: string | undefined;
+  let insuranceNumber: string | undefined;
+  if (insuranceExtension?.valueString) {
+    try {
+      const insuranceData = JSON.parse(insuranceExtension.valueString);
+      insuranceCompany = insuranceData.company;
+      insuranceNumber = insuranceData.number;
+    } catch (e) {
+      console.error('Failed to parse insurance extension:', e);
+    }
+  }
+
   return {
     id: fhir.id,
     identifier_bsn: bsn || '999999990', // Default placeholder
@@ -194,5 +243,9 @@ export function fhirPatientToDB(fhir: FHIRPatient): PatientInsert {
     general_practitioner_name: gpName || undefined,
     general_practitioner_agb: gpAgb || undefined,
     active: fhir.active ?? true,
+    status: (statusExtension?.valueCode as any) || 'planned',
+    is_john_doe: johnDoeExtension?.valueBoolean || false,
+    insurance_company: insuranceCompany || undefined,
+    insurance_number: insuranceNumber || undefined,
   };
 }
