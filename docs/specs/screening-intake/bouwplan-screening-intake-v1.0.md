@@ -42,7 +42,7 @@
 | Epic ID | Titel | Doel | Status | Stories |
 |---------|-------|------|--------|---------|
 | E1 | Database & Types | Datamodel implementeren in Supabase | ✅ Done | 3 |
-| E2 | Cliëntenbeheer | Lijstweergave en aanmaken cliënten | 🔨 In Progress | 3 |
+| E2 | Cliëntenbeheer | Lijstweergave en aanmaken cliënten | ✅ Done | 3 |
 | E3 | Screening Module | Screening tab en functionaliteit | ⏳ To Do | 4 |
 | E4 | Intake Core | Intake overzicht en navigatie | ✅ Done | 3 |
 | E5 | Intake Details | Specifieke tabbladen (Contact, Risico, etc.) | ⏳ To Do | 5 |
@@ -62,15 +62,15 @@
 | E1.S2 | ✅ Done | Migration toepassen | Migration succesvol toegepast op Supabase database met:<br>- Foreign keys en constraints<br>- RLS policies voor alle nieuwe tabellen<br>- Indexes voor performance<br>- Triggers voor `updated_at` timestamps |
 | E1.S3 | ✅ Done | TypeScript Types genereren | Types gegenereerd met `supabase gen types` en geëxporteerd naar `lib/supabase/database.types.ts`<br>- 2148+ regels TypeScript types<br>- Alle nieuwe tabellen en enums geëxporteerd |
 
-### Epic 2 — Cliëntenbeheer (Level 1) 🔨
+### Epic 2 — Cliëntenbeheer (Level 1) ✅
 **Doel:** Behandelaars kunnen cliënten vinden en nieuwe cliënten aanmaken.
-**Status:** In Progress - 2 van 3 stories voltooid op 22-11-2025
+**Status:** Done - Alle stories voltooid op 22-11-2025
 
 | Story ID | Status | Beschrijving | Acceptatiecriteria |
 |----------|--------|--------------|---------------------|
 | E2.S1 | ✅ Done | Cliëntenlijst | Tabel met zoekfunctie, filters en status badges:<br>- `patient-list.tsx` geüpdatet met client-side search bar<br>- Status filter dropdown (alle/screening/actief/afgerond/afgemeld)<br>- StatusBadge component met color-coded badges<br>- Tabel kolommen: Status, Naam, BSN, Laatst gewijzigd<br>- API route `/api/fhir/Patient` ondersteunt status filtering<br>- FHIR transform aangepast voor status extension |
 | E2.S2 | ✅ Done | Nieuwe Cliënt Flow | Formulier voor aanmaken cliënt met John Doe logica:<br>- `patient-form.tsx` compleet herschreven met alle FO velden<br>- John Doe checkbox met conditional BSN requirement<br>- BSN validatie met Modulo-11 check<br>- Alle velden: naam, BSN, geboortedatum, geslacht, adres (straat, postcode, plaats), contact (telefoon, email), verzekering (verzekeraar, polisnummer)<br>- Warning messages voor John Doe patiënten<br>- Status altijd 'planned' voor nieuwe patiënten<br>- Redirect naar patient detail page na aanmaken<br>- FHIR transform ondersteunt insurance extension (bidirectioneel) |
-| E2.S3 | ⏳ To Do | Cliënt Header & Nav | Context-aware header en sidebar navigatie (Level 2). |
+| E2.S3 | ✅ Done | Cliënt Header & Nav | Context-aware header en sidebar navigatie (Level 2):<br>- `ClientHeader` component met naam, status badge, laatst gewijzigd en John Doe indicator<br>- `ClientSidebar` component met navigatie naar alle tabs<br>- Patient detail layout met header en sidebar<br>- Dashboard pagina met quick actions en volgende stappen<br>- Basisgegevens pagina met patient form en John Doe warning<br>- Placeholder paginas voor alle tabs: Screening, Intake, Diagnose, Behandelplan, Rapportage<br>- Alle tabs altijd zichtbaar, ongeacht status |
 
 ### Epic 3 — Screening Module (Level 2)
 **Doel:** Faciliteren van het screeningsproces.
