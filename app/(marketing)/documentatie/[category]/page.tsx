@@ -53,7 +53,7 @@ export default async function ReleasePage({ params }: ReleasePageProps) {
 
   return (
     <div className="min-h-screen bg-white pb-16">
-      <article className="max-w-4xl mx-auto px-4 md:px-8 pt-20 md:pt-8">
+      <article className="max-w-4xl mx-auto px-4 md:px-8 pt-20 md:pt-20">
         {/* Header */}
         <header className="mb-8 pb-8 border-b border-slate-200">
           <div className="flex items-center gap-3 mb-4">

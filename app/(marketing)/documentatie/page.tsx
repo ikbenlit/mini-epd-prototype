@@ -24,7 +24,7 @@ export default async function ReleasesPage() {
     <div className="min-h-screen bg-slate-50 pb-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
-        <div className="mb-8 md:mb-12 pt-20 md:pt-8">
+        <div className="mb-8 md:mb-12 pt-20 md:pt-20">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3 md:mb-4">
             Feature Documentatie
           </h1>
