@@ -44,7 +44,7 @@
 | E1 | Database & Types | Datamodel implementeren in Supabase | ✅ Done | 3 |
 | E2 | Cliëntenbeheer | Lijstweergave en aanmaken cliënten | 🔨 In Progress | 3 |
 | E3 | Screening Module | Screening tab en functionaliteit | ⏳ To Do | 4 |
-| E4 | Intake Core | Intake overzicht en navigatie | ⏳ To Do | 3 |
+| E4 | Intake Core | Intake overzicht en navigatie | ✅ Done | 3 |
 | E5 | Intake Details | Specifieke tabbladen (Contact, Risico, etc.) | ⏳ To Do | 5 |
 | E6 | Diagnose & Advies | Diagnose stelling en behandeladvies | ⏳ To Do | 3 |
 
@@ -82,14 +82,15 @@
 | E3.S3 | Screeningsbesluit | Formulier voor besluit (geschikt/niet geschikt) + status update logica. |
 | E3.S4 | Basisgegevens Tab | Read-only weergave met edit-modus voor NAW gegevens. |
 
-### Epic 4 — Intake Core (Level 2)
+### Epic 4 — Intake Core (Level 2) ✅
 **Doel:** Beheer van intakes (meerdere per cliënt mogelijk).
+**Status:** Done - Alle stories voltooid op 22-11-2025
 
-| Story ID | Beschrijving | Acceptatiecriteria |
-|----------|--------------|---------------------|
-| E4.S1 | Intake Overzicht | Kaartweergave van alle intakes per cliënt. |
-| E4.S2 | Nieuwe Intake | Modal/page voor starten nieuwe intake. |
-| E4.S3 | Intake Layout | Sub-navigatie (tabs) binnen een specifieke intake. |
+| Story ID | Status | Beschrijving | Acceptatiecriteria |
+|----------|--------|--------------|---------------------|
+| E4.S1 | ✅ Done | Intake Overzicht | Kaartweergave van alle intakes per cliënt:<br>- `IntakeCard` component met status badges<br>- `IntakeList` component voor grid weergave<br>- Server Action `getIntakesByClientId` voor data fetching<br>- Geïntegreerd in `IntakeTab` op cliënt detail pagina |
+| E4.S2 | ✅ Done | Nieuwe Intake | Modal/page voor starten nieuwe intake:<br>- `NewIntakeForm` met Zod validatie<br>- Velden: Titel, Afdeling, Startdatum<br>- Server Action `createIntake` voor aanmaken record<br>- Redirect naar intake lijst na succes |
+| E4.S3 | ✅ Done | Intake Layout | Sub-navigatie (tabs) binnen een specifieke intake:<br>- `IntakeLayout` met `IntakeHeader` en `IntakeTabs`<br>- Header toont titel, status, en datums<br>- Tabs voor navigatie naar sub-onderdelen (Algemeen, Contact, etc.)<br>- Server Action `getIntakeById` voor ophalen details |
 
 ### Epic 5 — Intake Details (Tabs)
 **Doel:** Inhoudelijke registratie van de intake.
