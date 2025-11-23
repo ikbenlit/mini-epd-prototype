@@ -4,7 +4,7 @@
  * Type definitions for client-related data structures
  */
 
-import { Database } from '@/lib/database.types';
+import { Database } from '@/lib/supabase/database.types';
 
 // Base client type from database
 export type Client = Database['public']['Tables']['clients']['Row'];

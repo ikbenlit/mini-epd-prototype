@@ -3,7 +3,7 @@
  * Convert between Database rows and FHIR Patient resources
  */
 
-import type { Tables, TablesInsert } from '../../database.types';
+import type { Tables, TablesInsert } from '../../supabase/database.types';
 import type { FHIRPatient } from '../types';
 
 type PatientRow = Tables<'patients'>;

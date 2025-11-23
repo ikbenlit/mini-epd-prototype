@@ -3,7 +3,7 @@
  * Convert between Database rows and FHIR Practitioner resources
  */
 
-import type { Tables, TablesInsert } from '../../database.types';
+import type { Tables, TablesInsert } from '../../supabase/database.types';
 import type { FHIRPractitioner } from '../types';
 
 type PractitionerRow = Tables<'practitioners'>;
