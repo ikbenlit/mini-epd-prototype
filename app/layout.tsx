@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Toaster } from '@/components/ui/toaster';
 
 // Serif font voor long-form content (manifesto) - lokaal geladen om build zonder netwerk te laten slagen
 const crimsonText = localFont({
@@ -129,6 +130,7 @@ export default function RootLayout({
         className={`${crimsonText.variable} ${inter.variable} ${jetBrainsMono.variable} antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -2,13 +2,16 @@
 
 /**
  * Client Header Component
- * E2.S3: Context-aware header showing client name, status, and last modified
+ * E2.S3: Context-aware header showing client name, status, last modified en acties
  */
 
+import { Mic } from 'lucide-react';
 import type { FHIRPatient } from '@/lib/fhir';
+import { Button } from '@/components/ui/button';
 
 interface ClientHeaderProps {
   patient: FHIRPatient;
+  onNewReport?: () => void;
 }
 
 // Status badge component
@@ -35,7 +38,7 @@ function StatusBadge({ status }: { status?: string }) {
   );
 }
 
-export function ClientHeader({ patient }: ClientHeaderProps) {
+export function ClientHeader({ patient, onNewReport }: ClientHeaderProps) {
   // Extract name
   const name = patient.name?.[0];
   const fullName = [
@@ -97,9 +100,15 @@ export function ClientHeader({ patient }: ClientHeaderProps) {
           </div>
         </div>
 
-        {/* Patient ID (subtle) */}
-        <div className="text-xs text-slate-400">
-          ID: {patient.id}
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-slate-400">
+            ID: {patient.id}
+          </div>
+          {onNewReport && (
+            <Button type="button" size="sm" onClick={onNewReport}>
+              <Mic className="mr-2 h-4 w-4" /> Nieuwe rapportage
+            </Button>
+          )}
         </div>
       </div>
     </div>
