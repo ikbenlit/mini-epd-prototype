@@ -29,7 +29,7 @@ export default function SetPasswordPage() {
 
         try {
             await updateUserPassword(password)
-            router.push('/epd/clients')
+            router.push('/epd/patients')
         } catch (err: any) {
             setError(err.message)
         } finally {

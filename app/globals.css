@@ -346,3 +346,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+.ProseMirror p.is-empty::before {
+  color: #475569;
+  opacity: 0.9;
+  white-space: pre-wrap;
+  font-style: italic;
+}

@@ -137,18 +137,18 @@ Het Mini EPD is een modern dossier systeem voor behandelaren in de GGZ. Het onde
 **Routing structure:**
 ```
 /epd/dashboard              → Behandelaar dashboard (Level 1)
-/epd/clients                → Cliënten lijst (Level 1)
-/epd/clients/[id]           → Client dashboard (Level 2)
-/epd/clients/[id]/intake    → Intake sectie (Level 2)
-/epd/clients/[id]/diagnose  → Diagnose sectie (Level 2)
-/epd/clients/[id]/plan      → Behandelplan (Level 2)
+/epd/patients               → Patiënten lijst (Level 1)
+/epd/patients/[id]          → Patient dashboard (Level 2)
+/epd/patients/[id]/intakes  → Intake sectie (Level 2)
+/epd/patients/[id]/diagnose → Diagnose sectie (Level 2)
+/epd/patients/[id]/plan     → Behandelplan (Level 2)
 ```
 
 **Context detection logic:**
 ```typescript
-const isClientDossier = pathname.includes('/clients/') &&
-                        pathname.match(/\/clients\/[^\/]+/);
-const clientId = isClientDossier ? pathname.split('/')[3] : null;
+const isPatientDossier = pathname.includes('/patients/') &&
+                         pathname.match(/\/patients\/[^\/]+/);
+const patientId = isPatientDossier ? pathname.split('/')[3] : null;
 ```
 
 **Components:**
@@ -198,10 +198,10 @@ const debouncedSearch = useMemo(
 ```
 
 **Components:**
-- `app/epd/clients/page.tsx` - Cliënten lijst
-- `app/epd/clients/components/client-list.tsx`
-- `app/epd/clients/components/client-search.tsx`
-- `app/epd/clients/new/page.tsx` - Nieuwe cliënt form
+- `app/epd/patients/page.tsx` - Patiënten lijst
+- `app/epd/patients/components/patient-list.tsx`
+- `app/epd/patients/components/patient-search.tsx`
+- `app/epd/patients/new/page.tsx` - Nieuwe patiënt form
 
 ---
 
@@ -250,9 +250,9 @@ intake_notes (
 ```
 
 **Components:**
-- `app/epd/clients/[id]/intake/page.tsx` - Intake lijst
-- `app/epd/clients/[id]/intake/components/intake-editor.tsx`
-- `app/epd/clients/[id]/intake/components/intake-detail-panel.tsx`
+- `app/epd/patients/[id]/intakes/page.tsx` - Intake lijst
+- `app/epd/patients/[id]/intakes/components/intake-editor.tsx`
+- `app/epd/patients/[id]/intakes/components/intake-detail-panel.tsx`
 
 ---
 
@@ -293,9 +293,9 @@ const SEVERITY_CONFIG = {
 ```
 
 **Components:**
-- `app/epd/clients/[id]/diagnose/page.tsx`
-- `app/epd/clients/[id]/diagnose/components/dsm-categories.tsx`
-- `app/epd/clients/[id]/diagnose/components/severity-indicator.tsx`
+- `app/epd/patients/[id]/diagnose/page.tsx`
+- `app/epd/patients/[id]/diagnose/components/dsm-categories.tsx`
+- `app/epd/patients/[id]/diagnose/components/severity-indicator.tsx`
 
 ---
 
@@ -357,10 +357,10 @@ await supabase
 ```
 
 **Components:**
-- `app/epd/clients/[id]/plan/page.tsx`
-- `app/epd/clients/[id]/plan/components/smart-goals.tsx`
-- `app/epd/clients/[id]/plan/components/interventions.tsx`
-- `app/epd/clients/[id]/plan/components/plan-version-selector.tsx`
+- `app/epd/patients/[id]/plan/page.tsx`
+- `app/epd/patients/[id]/plan/components/smart-goals.tsx`
+- `app/epd/patients/[id]/plan/components/interventions.tsx`
+- `app/epd/patients/[id]/plan/components/plan-version-selector.tsx`
 
 ---
 

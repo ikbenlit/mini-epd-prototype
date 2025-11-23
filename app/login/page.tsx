@@ -93,7 +93,7 @@ export default function LoginPage() {
             text: 'Account aangemaakt! Je wordt doorgestuurd...'
           })
           setTimeout(() => {
-            router.push('/epd/clients')
+            router.push('/epd/patients')
           }, 1000)
         } else {
           // Email confirmation required - user needs to check inbox
@@ -126,7 +126,7 @@ export default function LoginPage() {
             text: 'Dit emailadres bestaat al. Je bent nu ingelogd!'
           })
           setTimeout(() => {
-            router.push('/epd/clients')
+            router.push('/epd/patients')
           }, 1000)
         }
         // Check for duplicate email error (from Auth Hook or client-side)

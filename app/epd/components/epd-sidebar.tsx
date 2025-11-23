@@ -12,7 +12,12 @@ import {
   ChevronRight,
   FileText,
   HelpCircle,
-  LayoutDashboard
+  LayoutDashboard,
+  User,
+  ClipboardList,
+  Stethoscope,
+  Calendar,
+  FileBarChart
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -32,18 +37,20 @@ interface EPDSidebarProps {
 // LEVEL 1: Behandelaar Context Navigation
 const level1NavigationItems: NavigationItem[] = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/epd/dashboard" },
-  { id: "clients", name: "Cliënten", icon: Users, href: "/epd/clients" },
+  { id: "clients", name: "Cliënten", icon: Users, href: "/epd/patients" },
   { id: "agenda", name: "Agenda", icon: FileText, href: "/epd/agenda" },
   { id: "reports", name: "Rapportage", icon: Settings, href: "/epd/reports" },
 ];
 
 // LEVEL 2: Client Dossier Context Navigation (clientId gets injected)
 const level2NavigationItems: NavigationItem[] = [
-  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { id: "intake", name: "Intake", icon: FileText, href: "/intake" },
-  { id: "diagnose", name: "Diagnose", icon: Settings, href: "/diagnose" },
-  { id: "plan", name: "Behandelplan", icon: HelpCircle, href: "/plan" },
-  { id: "reports", name: "Rapportage", icon: Settings, href: "/reports" },
+  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "" },
+  { id: "basisgegevens", name: "Basisgegevens", icon: User, href: "/basisgegevens" },
+  { id: "screening", name: "Screening", icon: ClipboardList, href: "/screening" },
+  { id: "intake", name: "Intake", icon: FileText, href: "/intakes" },
+  { id: "diagnose", name: "Diagnose", icon: Stethoscope, href: "/diagnose" },
+  { id: "behandelplan", name: "Behandelplan", icon: Calendar, href: "/behandelplan" },
+  { id: "rapportage", name: "Rapportage", icon: FileBarChart, href: "/rapportage" },
 ];
 
 export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarProps) {
@@ -51,15 +58,15 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Context detection: Level 2 if URL contains /clients/[id]
-  const isClientContext = pathname.match(/\/epd\/clients\/[^\/]+/);
-  const clientId = isClientContext ? pathname.split('/')[3] : null;
+  // Context detection: Level 2 if URL contains /patients/[id]
+  const isPatientContext = pathname.match(/\/epd\/patients\/[^\/]+/);
+  const patientId = isPatientContext ? pathname.split('/')[3] : null;
 
   // Determine which navigation items to show
-  const navigationItems = isClientContext
+  const navigationItems = isPatientContext
     ? level2NavigationItems.map(item => ({
         ...item,
-        href: `/epd/clients/${clientId}${item.href}`
+        href: `/epd/patients/${patientId}${item.href}`
       }))
     : level1NavigationItems;
 
@@ -161,10 +168,10 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto">
           {/* Back to Cliënten button (Level 2 only) */}
-          {isClientContext && (
+          {isPatientContext && (
             <>
               <Link
-                href="/epd/clients"
+                href="/epd/patients"
                 className="flex items-center gap-2 px-3 py-2.5 mb-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -177,7 +184,11 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
           <ul className="space-y-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+              // For Dashboard (empty suffix), only match exact path
+              // For others, match exact or any sub-route
+              const isActive = item.id === 'dashboard'
+                ? pathname === item.href
+                : pathname === item.href || (item.href && pathname.startsWith(item.href + '/'));
 
               return (
                 <li key={item.id}>

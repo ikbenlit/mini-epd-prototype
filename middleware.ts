@@ -56,6 +56,9 @@ export async function middleware(request: NextRequest) {
     '/sitemap.xml',
   ]
 
+  // API routes - let them handle auth themselves
+  const isApiRoute = pathname.startsWith('/api/')
+
   // Check if current path is public
   const isPublicRoute = publicRoutes.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
@@ -70,6 +73,11 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
+  // Allow API routes to pass through - they handle auth internally
+  if (isApiRoute) {
+    return supabaseResponse
+  }
+
   // Redirect to login if not authenticated and trying to access protected route
   if (!user && !isPublicRoute) {
     const redirectUrl = new URL('/login', request.url)
@@ -77,9 +85,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect to /epd/clients if authenticated and trying to access login
+  // Redirect to /epd/patients if authenticated and trying to access login
   if (user && pathname === '/login') {
-    return NextResponse.redirect(new URL('/epd/clients', request.url))
+    return NextResponse.redirect(new URL('/epd/patients', request.url))
   }
 
   return supabaseResponse

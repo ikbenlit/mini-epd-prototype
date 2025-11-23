@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const token = requestUrl.searchParams.get('token') // Fallback for older templates
   const token_hash = requestUrl.searchParams.get('token_hash') // Supabase uses this for email links
   const type = requestUrl.searchParams.get('type') // recovery, signup, etc
-  const next = requestUrl.searchParams.get('next') ?? '/epd/clients'
+  const next = requestUrl.searchParams.get('next') ?? '/epd/patients'
 
   // Debug logging - ALWAYS log to diagnose redirect issues
   console.log('🔍 Auth Callback Debug:', {

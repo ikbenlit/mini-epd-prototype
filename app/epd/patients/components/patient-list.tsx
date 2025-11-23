@@ -2,17 +2,20 @@
 
 /**
  * Patient List Component
- * E2.S1: Cliëntenlijst met zoekfunctie, filters en status badges
+ * E3.S2: Patiëntenlijst met zoekfunctie, filters, paginatie en sortering
  */
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, Search, Filter } from 'lucide-react';
+import { User, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import type { FHIRPatient } from '@/lib/fhir';
 
 interface PatientListProps {
-  initialPatients: FHIRPatient[];
+  patients: FHIRPatient[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 // Status badge component
@@ -39,36 +42,90 @@ function StatusBadge({ status }: { status?: string }) {
   );
 }
 
-export function PatientList({ initialPatients }: PatientListProps) {
+export function PatientList({ patients, total, page, pageSize }: PatientListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
-  const [patients] = useState<FHIRPatient[]>(initialPatients);
+  const [genderFilter, setGenderFilter] = useState(searchParams.get('gender') || 'all');
+  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || '');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>((searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc');
+
+  // Calculate pagination info
+  const totalPages = Math.ceil(total / pageSize);
+  const startIndex = (page - 1) * pageSize + 1;
+  const endIndex = Math.min(page * pageSize, total);
+
+  // Build URL params helper
+  const buildUrlParams = (updates: Record<string, string | number | undefined>) => {
+    const params = new URLSearchParams();
+    const allParams = {
+      search: searchTerm,
+      status: statusFilter,
+      gender: genderFilter,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      page: page.toString(),
+      ...updates,
+    };
+
+    Object.entries(allParams).forEach(([key, value]) => {
+      if (value && value !== 'all' && value !== '1') {
+        params.set(key, value.toString());
+      }
+    });
+
+    return params.toString();
+  };
 
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchTerm) params.set('search', searchTerm);
-    if (statusFilter !== 'all') params.set('status', statusFilter);
-    router.push(`/epd/patients?${params.toString()}`);
+    router.push(`/epd/patients?${buildUrlParams({ page: 1 })}`);
   };
 
   // Handle status filter change
   const handleStatusFilterChange = (newStatus: string) => {
     setStatusFilter(newStatus);
-    const params = new URLSearchParams();
-    if (searchTerm) params.set('search', searchTerm);
-    if (newStatus !== 'all') params.set('status', newStatus);
-    router.push(`/epd/patients?${params.toString()}`);
+    router.push(`/epd/patients?${buildUrlParams({ status: newStatus, page: 1 })}`);
+  };
+
+  // Handle gender filter change
+  const handleGenderFilterChange = (newGender: string) => {
+    setGenderFilter(newGender);
+    router.push(`/epd/patients?${buildUrlParams({ gender: newGender, page: 1 })}`);
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    router.push(`/epd/patients?${buildUrlParams({ page: newPage })}`);
+  };
+
+  // Handle sorting
+  const handleSort = (column: string) => {
+    const newSortOrder = sortBy === column && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(column);
+    setSortOrder(newSortOrder);
+    router.push(`/epd/patients?${buildUrlParams({ sortBy: column, sortOrder: newSortOrder, page: 1 })}`);
+  };
+
+  // Render sort icon
+  const renderSortIcon = (column: string) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="h-4 w-4 text-slate-400" />;
+    }
+    return sortOrder === 'asc' ? (
+      <ArrowUp className="h-4 w-4 text-teal-600" />
+    ) : (
+      <ArrowDown className="h-4 w-4 text-teal-600" />
+    );
   };
 
   if (patients.length === 0) {
     return (
       <div>
         {/* Search and Filter Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="mb-6 flex flex-col lg:flex-row gap-4">
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="flex-1">
             <div className="relative">
@@ -89,13 +146,29 @@ export function PatientList({ initialPatients }: PatientListProps) {
             <select
               value={statusFilter}
               onChange={(e) => handleStatusFilterChange(e.target.value)}
-              className="pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[180px]"
+              className="pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[160px]"
             >
               <option value="all">Alle statussen</option>
               <option value="planned">Screening</option>
               <option value="active">Actief</option>
               <option value="finished">Afgerond</option>
               <option value="cancelled">Afgemeld</option>
+            </select>
+          </div>
+
+          {/* Gender Filter */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <select
+              value={genderFilter}
+              onChange={(e) => handleGenderFilterChange(e.target.value)}
+              className="pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[160px]"
+            >
+              <option value="all">Alle geslachten</option>
+              <option value="male">Man</option>
+              <option value="female">Vrouw</option>
+              <option value="other">Anders</option>
+              <option value="unknown">Onbekend</option>
             </select>
           </div>
         </div>
@@ -105,7 +178,7 @@ export function PatientList({ initialPatients }: PatientListProps) {
           <User className="mx-auto h-12 w-12 text-slate-400" />
           <h3 className="mt-4 text-lg font-medium text-slate-900">Geen patiënten gevonden</h3>
           <p className="mt-2 text-sm text-slate-600">
-            {searchTerm || statusFilter !== 'all'
+            {searchTerm || statusFilter !== 'all' || genderFilter !== 'all'
               ? 'Probeer een andere zoekopdracht of filter.'
               : 'Begin met het toevoegen van een nieuwe patiënt.'}
           </p>
@@ -117,7 +190,7 @@ export function PatientList({ initialPatients }: PatientListProps) {
   return (
     <div>
       {/* Search and Filter Bar */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      <div className="mb-6 flex flex-col lg:flex-row gap-4">
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="flex-1">
           <div className="relative">
@@ -138,13 +211,29 @@ export function PatientList({ initialPatients }: PatientListProps) {
           <select
             value={statusFilter}
             onChange={(e) => handleStatusFilterChange(e.target.value)}
-            className="pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[180px]"
+            className="pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[160px]"
           >
             <option value="all">Alle statussen</option>
             <option value="planned">Screening</option>
             <option value="active">Actief</option>
             <option value="finished">Afgerond</option>
             <option value="cancelled">Afgemeld</option>
+          </select>
+        </div>
+
+        {/* Gender Filter */}
+        <div className="relative">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+          <select
+            value={genderFilter}
+            onChange={(e) => handleGenderFilterChange(e.target.value)}
+            className="pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[160px]"
+          >
+            <option value="all">Alle geslachten</option>
+            <option value="male">Man</option>
+            <option value="female">Vrouw</option>
+            <option value="other">Anders</option>
+            <option value="unknown">Onbekend</option>
           </select>
         </div>
       </div>
@@ -155,20 +244,44 @@ export function PatientList({ initialPatients }: PatientListProps) {
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Naam
+                <th className="px-6 py-3 text-left">
+                  <button
+                    onClick={() => handleSort('name')}
+                    className="flex items-center gap-2 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors"
+                  >
+                    Naam
+                    {renderSortIcon('name')}
+                  </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   BSN
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Geboortedatum
+                <th className="px-6 py-3 text-left">
+                  <button
+                    onClick={() => handleSort('birthDate')}
+                    className="flex items-center gap-2 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors"
+                  >
+                    Geboortedatum
+                    {renderSortIcon('birthDate')}
+                  </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Status
+                <th className="px-6 py-3 text-left">
+                  <button
+                    onClick={() => handleSort('status')}
+                    className="flex items-center gap-2 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors"
+                  >
+                    Status
+                    {renderSortIcon('status')}
+                  </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Laatst gewijzigd
+                <th className="px-6 py-3 text-left">
+                  <button
+                    onClick={() => handleSort('_lastUpdated')}
+                    className="flex items-center gap-2 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors"
+                  >
+                    Laatst gewijzigd
+                    {renderSortIcon('_lastUpdated')}
+                  </button>
                 </th>
               </tr>
             </thead>
@@ -247,6 +360,69 @@ export function PatientList({ initialPatients }: PatientListProps) {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+            {/* Results info */}
+            <div className="text-sm text-slate-600">
+              Resultaten {startIndex}-{endIndex} van {total}
+            </div>
+
+            {/* Pagination buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page === 1}
+                className="p-2 rounded-lg border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Vorige pagina"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {/* Page numbers */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 7) {
+                    pageNum = i + 1;
+                  } else if (page <= 4) {
+                    pageNum = i + 1;
+                  } else if (page >= totalPages - 3) {
+                    pageNum = totalPages - 6 + i;
+                  } else {
+                    pageNum = page - 3 + i;
+                  }
+
+                  if (pageNum < 1 || pageNum > totalPages) return null;
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`min-w-[2.5rem] px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        page === pageNum
+                          ? 'bg-teal-600 text-white border-teal-600'
+                          : 'border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page === totalPages}
+                className="p-2 rounded-lg border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Volgende pagina"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

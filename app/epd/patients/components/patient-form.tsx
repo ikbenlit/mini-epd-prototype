@@ -64,6 +64,27 @@ export function PatientForm({ patient }: PatientFormProps) {
     }
   }
 
+  // Extract GP (huisarts) data from extension
+  const gpExtension = patient?.extension?.find(
+    (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/general-practitioner'
+  );
+  let existingGP: { name?: string; agb?: string } = {};
+  if (gpExtension?.valueString) {
+    try {
+      existingGP = JSON.parse(gpExtension.valueString);
+    } catch (e) {
+      console.error('Failed to parse GP extension:', e);
+    }
+  }
+
+  // Extract emergency contact data from contact field
+  const emergencyContact = patient?.contact?.find(
+    (c) => c.relationship?.some(r => r.coding?.some(code => code.code === 'C'))
+  );
+  const emergencyName = emergencyContact?.name?.text || '';
+  const emergencyRelationship = emergencyContact?.relationship?.[0]?.text || '';
+  const emergencyPhone = emergencyContact?.telecom?.find(t => t.system === 'phone')?.value || '';
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
@@ -159,7 +180,49 @@ export function PatientForm({ patient }: PatientFormProps) {
                 }),
               }
             : undefined,
+          // GP (huisarts) extension
+          formData.get('gpName')
+            ? {
+                url: 'http://mini-epd.local/fhir/StructureDefinition/general-practitioner',
+                valueString: JSON.stringify({
+                  name: formData.get('gpName'),
+                  agb: formData.get('gpAgb'),
+                }),
+              }
+            : undefined,
         ].filter((ext): ext is NonNullable<typeof ext> => ext !== undefined),
+
+        // Emergency contact (FHIR contact field)
+        contact: formData.get('emergencyName')
+          ? [
+              {
+                relationship: [
+                  {
+                    coding: [
+                      {
+                        system: 'http://terminology.hl7.org/CodeSystem/v2-0131',
+                        code: 'C',
+                        display: 'Emergency Contact',
+                      },
+                    ],
+                    text: formData.get('emergencyRelationship') as string || 'Noodcontact',
+                  },
+                ],
+                name: {
+                  text: formData.get('emergencyName') as string,
+                },
+                telecom: formData.get('emergencyPhone')
+                  ? [
+                      {
+                        system: 'phone' as const,
+                        value: formData.get('emergencyPhone') as string,
+                        use: 'home' as const,
+                      },
+                    ]
+                  : undefined,
+              },
+            ]
+          : undefined,
       };
 
       let createdPatient: FHIRPatient;
@@ -429,6 +492,88 @@ export function PatientForm({ patient }: PatientFormProps) {
               name="insuranceNumber"
               defaultValue={existingInsurance.number || ''}
               placeholder="123456789"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* General Practitioner (Huisarts) */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-slate-900 border-b pb-2">Huisarts</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="gpName" className="block text-sm font-medium text-slate-700 mb-1">
+              Naam huisarts
+            </label>
+            <input
+              type="text"
+              id="gpName"
+              name="gpName"
+              defaultValue={existingGP.name || ''}
+              placeholder="Dr. J. de Vries"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label htmlFor="gpAgb" className="block text-sm font-medium text-slate-700 mb-1">
+              AGB-code huisarts
+            </label>
+            <input
+              type="text"
+              id="gpAgb"
+              name="gpAgb"
+              defaultValue={existingGP.agb || ''}
+              placeholder="12345678"
+              maxLength={8}
+              pattern="[0-9]{8}"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+            <p className="text-xs text-slate-500 mt-1">8 cijfers</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Emergency Contact */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-slate-900 border-b pb-2">Noodcontact</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="emergencyName" className="block text-sm font-medium text-slate-700 mb-1">
+              Naam contactpersoon
+            </label>
+            <input
+              type="text"
+              id="emergencyName"
+              name="emergencyName"
+              defaultValue={emergencyName}
+              placeholder="M. Jansen"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label htmlFor="emergencyRelationship" className="block text-sm font-medium text-slate-700 mb-1">
+              Relatie
+            </label>
+            <input
+              type="text"
+              id="emergencyRelationship"
+              name="emergencyRelationship"
+              defaultValue={emergencyRelationship}
+              placeholder="Partner / Ouder / Kind"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label htmlFor="emergencyPhone" className="block text-sm font-medium text-slate-700 mb-1">
+              Telefoonnummer
+            </label>
+            <input
+              type="tel"
+              id="emergencyPhone"
+              name="emergencyPhone"
+              defaultValue={emergencyPhone}
+              placeholder="+31612345678"
               className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>

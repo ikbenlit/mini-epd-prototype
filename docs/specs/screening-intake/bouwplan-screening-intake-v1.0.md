@@ -39,14 +39,14 @@
 
 ## 3. Epics & Stories Overzicht
 
-| Epic ID | Titel | Doel | Status | Stories |
-|---------|-------|------|--------|---------|
-| E1 | Database & Types | Datamodel implementeren in Supabase | ✅ Done | 3 |
-| E2 | Cliëntenbeheer | Lijstweergave en aanmaken cliënten | ✅ Done | 3 |
-| E3 | Screening Module | Screening tab en functionaliteit | ⏳ To Do | 4 |
-| E4 | Intake Core | Intake overzicht en navigatie | ✅ Done | 3 |
-| E5 | Intake Details | Specifieke tabbladen (Contact, Risico, etc.) | ⏳ To Do | 5 |
-| E6 | Diagnose & Advies | Diagnose stelling en behandeladvies | ⏳ To Do | 3 |
+| Epic ID | Titel | Doel | Status | Stories | Progress |
+|---------|-------|------|--------|---------|----------|
+| E1 | Database & Types | Datamodel implementeren in Supabase | ✅ Done | 3 | 3/3 ✅ |
+| E2 | Cliëntenbeheer | Lijstweergave en aanmaken cliënten | ✅ Done | 3 | 3/3 ✅ |
+| E3 | Screening Module | Screening tab en functionaliteit | ⏳ To Do | 4 | 0/4 ⏳ |
+| E4 | Intake Core | Intake overzicht en navigatie | ✅ Done | 3 | 3/3 ✅ |
+| E5 | Intake Details | Specifieke tabbladen (Contact, Risico, etc.) | ✅ Done | 5 | 5/5 ✅ |
+| E6 | Diagnose & Advies | Diagnose stelling en behandeladvies | ⏳ To Do | 3 | 0/3 ⏳ |
 
 ---
 
@@ -74,13 +74,19 @@
 
 ### Epic 3 — Screening Module (Level 2)
 **Doel:** Faciliteren van het screeningsproces.
+**Status:** ⏳ To Do - Database schema voltooid (E1), UI functionaliteit nog te implementeren
 
-| Story ID | Beschrijving | Acceptatiecriteria |
-|----------|--------------|---------------------|
-| E3.S1 | Activiteitenlog | Tijdlijn component met toevoeg-functionaliteit. |
-| E3.S2 | Documenten & Hulpvraag | Upload functionaliteit en tekstveld voor hulpvraag. |
-| E3.S3 | Screeningsbesluit | Formulier voor besluit (geschikt/niet geschikt) + status update logica. |
-| E3.S4 | Basisgegevens Tab | Read-only weergave met edit-modus voor NAW gegevens. |
+| Story ID | Status | Beschrijving | Acceptatiecriteria |
+|----------|--------|--------------|---------------------|
+| E3.S1 | ✅ Done | Activiteitenlog | Tijdlijn component met activiteiten (datum, type, beschrijving):<br>- Chronologische weergave van screeningsactiviteiten<br>- Formulier om nieuwe activiteit toe te voegen<br>- Server Action `addScreeningActivity` voor persistentie<br>- Activity types: Telefoongesprek, Email, Consult, Overig<br>- Integratie met `screening_activities` tabel |
+| E3.S2 | ✅ Done | Documenten & Hulpvraag | Upload functionaliteit en hulpvraag registratie:<br>- Document upload component met file preview<br>- Opslag in Supabase Storage (`screening-documents` bucket)<br>- Metadata opslag in `screening_documents` tabel<br>- Hulpvraag tekstveld (rich text) opgeslagen in `screenings.help_request`<br>- Server Actions voor upload en opslaan |
+| E3.S3 | ✅ Done | Screeningsbesluit | Formulier voor screeningsbesluit met status update + verwijsbrief-warning:<br>- Besluit opties: Geschikt / Niet geschikt<br>- Motivation textbox + afdeling selectie<br>- Status update logica naar `screenings.decision` + patiënstatus<br>- Warning bij ontbrekende verwijsbrief |
+| E3.S4 | ⏳ To Do | Basisgegevens Tab | Read-only weergave met edit-modus voor NAW:<br>- Display mode toont alle patient basisgegevens<br>- Edit knop voor wijzigingsmodus<br>- Inline editing of modal voor NAW gegevens<br>- Hergebruik van `PatientForm` component<br>- Save changes via `updatePatient` action<br>- Cancel/Reset functionaliteit |
+
+**Database Dependencies (✅ Voltooid in E1):**
+- `screenings` tabel met decision en help_request velden
+- `screening_activities` tabel voor activiteitenlog
+- `screening_documents` tabel voor document metadata
 
 ### Epic 4 — Intake Core (Level 2) ✅
 **Doel:** Beheer van intakes (meerdere per cliënt mogelijk).
@@ -97,11 +103,11 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria |
 |----------|--------------|---------------------|
-| E5.S1 | Tab Algemeen | Overzicht van intake details, status en notities. |
-| E5.S2 | Tab Contactmomenten | CRUD voor contactmomenten (datum, type, verslag). |
-| E5.S3 | Tab Kindcheck | Formulier voor kindcheck registratie. |
-| E5.S4 | Tab Risicotaxatie | Formulier voor risico-inschatting. |
-| E5.S5 | Tabs Anamnese, Onderzoek, ROM | Generieke of specifieke formulieren voor deze onderdelen. |
+| E5.S1 | ✅ Done | Tab Algemeen (read-only hulpvraag/besluit + notities). |
+| E5.S2 | ✅ Done | Tab Contactmomenten (lijst + CRUD via `encounters`). |
+| E5.S3 | ✅ Done | Tab Kindcheck (JSON-editing + alerts). |
+| E5.S4 | ✅ Done | Tab Risicotaxatie (`risk_assessments` CRUD). |
+| E5.S5 | ✅ Done | Tabs Anamnese, Onderzoek, ROM (gedeelde component met Supabase opslag). |
 
 ### Epic 6 — Diagnose & Advies
 **Doel:** Afronding van de intake met diagnose en advies.

@@ -1,10 +1,11 @@
 /**
  * Basisgegevens Page
- * E2.S3: Patient basic information with edit functionality
+ * E3.S3: Patient basic information with edit and delete functionality
  */
 
 import { getPatient } from '../../actions';
 import { PatientForm } from '../../components/patient-form';
+import { DeletePatientButton } from '../../components/delete-patient-button';
 import { AlertCircle } from 'lucide-react';
 
 export default async function BasisgegevensPage({
@@ -14,6 +15,16 @@ export default async function BasisgegevensPage({
 }) {
   const { id } = await params;
   const patient = await getPatient(id);
+
+  // Get patient name for delete confirmation
+  const patientName = patient.name?.[0]
+    ? [
+        ...(patient.name[0].given || []),
+        patient.name[0].family,
+      ]
+        .filter(Boolean)
+        .join(' ')
+    : 'deze patiënt';
 
   // Check if John Doe
   const isJohnDoe = (patient as any).extension?.find(
@@ -28,14 +39,6 @@ export default async function BasisgegevensPage({
 
   return (
     <div className="p-6">
-      {/* Page Header */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">Basisgegevens</h2>
-        <p className="text-sm text-slate-600 mt-1">
-          NAW-gegevens en contactinformatie
-        </p>
-      </div>
-
       {/* John Doe Warning */}
       {isJohnDoe && hasMissingBSN && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
@@ -56,6 +59,9 @@ export default async function BasisgegevensPage({
       {/* Patient Form */}
       <div className="bg-white rounded-lg border border-slate-200 p-6">
         <PatientForm patient={patient} />
+
+        {/* Delete Patient Button */}
+        <DeletePatientButton patientId={id} patientName={patientName} />
       </div>
     </div>
   );

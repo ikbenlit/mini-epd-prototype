@@ -7,6 +7,10 @@ import Link from 'next/link';
 interface SearchParams {
   search?: string;
   status?: string;
+  gender?: string;
+  page?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export default async function PatientsPage({
@@ -45,10 +49,16 @@ export default async function PatientsPage({
 }
 
 async function PatientListWrapper({ searchParams }: { searchParams: SearchParams }) {
-  const patients = await getPatients({
+  const page = searchParams.page ? parseInt(searchParams.page, 10) : 1;
+
+  const result = await getPatients({
     search: searchParams.search,
     status: searchParams.status,
+    gender: searchParams.gender,
+    page,
+    sortBy: searchParams.sortBy,
+    sortOrder: searchParams.sortOrder,
   });
 
-  return <PatientList initialPatients={patients} />;
+  return <PatientList {...result} />;
 }

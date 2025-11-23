@@ -50,7 +50,7 @@ export function ClientSidebar({ patientId }: ClientSidebarProps) {
     },
     {
       label: 'Intake',
-      href: `/epd/patients/${patientId}/intake`,
+      href: `/epd/patients/${patientId}/intakes`,
       icon: FileText,
     },
     {
@@ -87,7 +87,10 @@ export function ClientSidebar({ patientId }: ClientSidebarProps) {
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          // Special handling for Intake tab: active when on /intakes or /intakes/[id]
+          const isActive = item.href.includes('/intakes')
+            ? pathname.startsWith(`/epd/patients/${patientId}/intakes`)
+            : pathname === item.href;
 
           return (
             <Link
