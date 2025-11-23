@@ -152,7 +152,7 @@ const AnimatedSignIn: React.FC = () => {
             >
               <div className="flex justify-end mb-6">
                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Don't have an account? 
+                  Don&apos;t have an account? 
                   <a
                     href="#"
                     className={`ml-1 font-medium ${

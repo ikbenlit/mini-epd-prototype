@@ -16,7 +16,7 @@ export default function ReportsPage() {
           Behandelaar Rapportage
         </p>
         <p className="text-slate-500 text-sm">
-          BI dashboards, KPI's, trends en statistieken
+          BI dashboards, KPI&apos;s, trends en statistieken
         </p>
         <p className="text-xs text-slate-400 mt-4">
           Placeholder - Not designed yet

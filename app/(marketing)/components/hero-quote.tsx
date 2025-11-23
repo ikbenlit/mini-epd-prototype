@@ -35,7 +35,7 @@ export function HeroQuote({ content }: HeroQuoteProps) {
           }}
           cite={content.attribution}
         >
-          "{content.quote}"
+          &ldquo;{content.quote}&rdquo;
         </blockquote>
         
         <div className="text-white font-sans text-sm md:text-base" style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.4)' }}>
@@ -56,4 +56,3 @@ export function HeroQuote({ content }: HeroQuoteProps) {
     </section>
   )
 }
-

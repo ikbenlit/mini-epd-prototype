@@ -58,6 +58,75 @@ export type Database = {
             columns: ["note_id"]
             isOneToOne: false
             referencedRelation: "intake_notes"
+          referencedColumns: ["id"]
+        },
+      ]
+      }
+      anamneses: {
+        Row: {
+          anamnese_date: string
+          anamnese_type:
+            | "psychiatrisch"
+            | "sociaal"
+            | "medisch"
+            | "familie"
+            | "ontwikkeling"
+            | "overig"
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          intake_id: string
+          notes: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          anamnese_date?: string
+          anamnese_type:
+            | "psychiatrisch"
+            | "sociaal"
+            | "medisch"
+            | "familie"
+            | "ontwikkeling"
+            | "overig"
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          intake_id: string
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          anamnese_date?: string
+          anamnese_type?:
+            | "psychiatrisch"
+            | "sociaal"
+            | "medisch"
+            | "familie"
+            | "ontwikkeling"
+            | "overig"
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          intake_id?: string
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anamneses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anamneses_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
             referencedColumns: ["id"]
           },
         ]
@@ -66,6 +135,10 @@ export type Database = {
         Row: {
           activities: Json | null
           addresses_condition_ids: string[] | null
+          based_on_anamneses: string[] | null
+          based_on_examinations: string[] | null
+          based_on_intake_id: string | null
+          based_on_risk_assessments: string[] | null
           author_id: string | null
           care_team_ids: string[] | null
           category_code: string | null
@@ -90,6 +163,10 @@ export type Database = {
         Insert: {
           activities?: Json | null
           addresses_condition_ids?: string[] | null
+          based_on_anamneses?: string[] | null
+          based_on_examinations?: string[] | null
+          based_on_intake_id?: string | null
+          based_on_risk_assessments?: string[] | null
           author_id?: string | null
           care_team_ids?: string[] | null
           category_code?: string | null
@@ -114,6 +191,10 @@ export type Database = {
         Update: {
           activities?: Json | null
           addresses_condition_ids?: string[] | null
+          based_on_anamneses?: string[] | null
+          based_on_examinations?: string[] | null
+          based_on_intake_id?: string | null
+          based_on_risk_assessments?: string[] | null
           author_id?: string | null
           care_team_ids?: string[] | null
           category_code?: string | null
@@ -155,6 +236,13 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_plans_based_on_intake_id_fkey"
+            columns: ["based_on_intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
             referencedColumns: ["id"]
           },
         ]
@@ -341,6 +429,7 @@ export type Database = {
           discharge_disposition: string | null
           id: string
           identifier: string | null
+          intake_id: string | null
           intake_note_id: string | null
           notes: string | null
           organization_id: string | null
@@ -365,6 +454,7 @@ export type Database = {
           discharge_disposition?: string | null
           id?: string
           identifier?: string | null
+          intake_id?: string | null
           intake_note_id?: string | null
           notes?: string | null
           organization_id?: string | null
@@ -389,6 +479,7 @@ export type Database = {
           discharge_disposition?: string | null
           id?: string
           identifier?: string | null
+          intake_id?: string | null
           intake_note_id?: string | null
           notes?: string | null
           organization_id?: string | null
@@ -414,6 +505,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "encounters_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "encounters_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -430,6 +528,69 @@ export type Database = {
           {
             foreignKeyName: "encounters_practitioner_id_fkey"
             columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intakes: {
+        Row: {
+          created_at: string | null
+          department: string
+          end_date: string | null
+          id: string
+          kindcheck_data: Json | null
+          notes: string | null
+          patient_id: string
+          psychologist_id: string | null
+          start_date: string
+          status: string
+          title: string
+          treatment_advice: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          end_date?: string | null
+          id?: string
+          kindcheck_data?: Json | null
+          notes?: string | null
+          patient_id: string
+          psychologist_id?: string | null
+          start_date?: string
+          status?: string
+          title: string
+          treatment_advice?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          end_date?: string | null
+          id?: string
+          kindcheck_data?: Json | null
+          notes?: string | null
+          patient_id?: string
+          psychologist_id?: string | null
+          start_date?: string
+          status?: string
+          title?: string
+          treatment_advice?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intakes_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intakes_psychologist_id_fkey"
+            columns: ["psychologist_id"]
             isOneToOne: false
             referencedRelation: "practitioners"
             referencedColumns: ["id"]
@@ -476,6 +637,87 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      examinations: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          document_url: string | null
+          examination_date: string
+          examination_type:
+            | "bloedonderzoek"
+            | "neuropsychologisch"
+            | "psychodiagnostiek"
+            | "iq_test"
+            | "persoonlijkheid"
+            | "medisch"
+            | "overig"
+          findings: string
+          id: string
+          intake_id: string
+          notes: string | null
+          performed_by: string | null
+          reason: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          document_url?: string | null
+          examination_date?: string
+          examination_type:
+            | "bloedonderzoek"
+            | "neuropsychologisch"
+            | "psychodiagnostiek"
+            | "iq_test"
+            | "persoonlijkheid"
+            | "medisch"
+            | "overig"
+          findings: string
+          id?: string
+          intake_id: string
+          notes?: string | null
+          performed_by?: string | null
+          reason?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          document_url?: string | null
+          examination_date?: string
+          examination_type?:
+            | "bloedonderzoek"
+            | "neuropsychologisch"
+            | "psychodiagnostiek"
+            | "iq_test"
+            | "persoonlijkheid"
+            | "medisch"
+            | "overig"
+          findings?: string
+          id?: string
+          intake_id?: string
+          notes?: string | null
+          performed_by?: string | null
+          reason?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "examinations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "examinations_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
             referencedColumns: ["id"]
           },
         ]
@@ -676,6 +918,7 @@ export type Database = {
           id: string
           identifier_bsn: string | null
           identifier_client_number: string | null
+          is_john_doe: boolean | null
           insurance_company: string | null
           insurance_number: string | null
           name_family: string
@@ -684,6 +927,7 @@ export type Database = {
           name_use: string | null
           telecom_email: string | null
           telecom_phone: string | null
+          status: Database["public"]["Enums"]["episode_status"]
           updated_at: string | null
         }
         Insert: {
@@ -703,6 +947,7 @@ export type Database = {
           id?: string
           identifier_bsn?: string | null
           identifier_client_number?: string | null
+          is_john_doe?: boolean | null
           insurance_company?: string | null
           insurance_number?: string | null
           name_family: string
@@ -711,6 +956,7 @@ export type Database = {
           name_use?: string | null
           telecom_email?: string | null
           telecom_phone?: string | null
+          status?: Database["public"]["Enums"]["episode_status"]
           updated_at?: string | null
         }
         Update: {
@@ -730,6 +976,7 @@ export type Database = {
           id?: string
           identifier_bsn?: string | null
           identifier_client_number?: string | null
+          is_john_doe?: boolean | null
           insurance_company?: string | null
           insurance_number?: string | null
           name_family?: string
@@ -738,6 +985,7 @@ export type Database = {
           name_use?: string | null
           telecom_email?: string | null
           telecom_phone?: string | null
+          status?: Database["public"]["Enums"]["episode_status"]
           updated_at?: string | null
         }
         Relationships: []
@@ -793,6 +1041,84 @@ export type Database = {
         }
         Relationships: []
       }
+      risk_assessments: {
+        Row: {
+          assessment_date: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          intake_id: string
+          measures: string | null
+          notes: string | null
+          rationale: string
+          risk_level: "laag" | "gemiddeld" | "hoog" | "zeer_hoog"
+          risk_type:
+            | "suicidaliteit"
+            | "agressie"
+            | "zelfverwaarlozing"
+            | "middelenmisbruik"
+            | "verward_gedrag"
+            | "overig"
+          updated_at: string | null
+          evaluation_date: string | null
+        }
+        Insert: {
+          assessment_date?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          intake_id: string
+          measures?: string | null
+          notes?: string | null
+          rationale: string
+          risk_level?: "laag" | "gemiddeld" | "hoog" | "zeer_hoog"
+          risk_type:
+            | "suicidaliteit"
+            | "agressie"
+            | "zelfverwaarlozing"
+            | "middelenmisbruik"
+            | "verward_gedrag"
+            | "overig"
+          updated_at?: string | null
+          evaluation_date?: string | null
+        }
+        Update: {
+          assessment_date?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          intake_id?: string
+          measures?: string | null
+          notes?: string | null
+          rationale?: string
+          risk_level?: "laag" | "gemiddeld" | "hoog" | "zeer_hoog"
+          risk_type?:
+            | "suicidaliteit"
+            | "agressie"
+            | "zelfverwaarlozing"
+            | "middelenmisbruik"
+            | "verward_gedrag"
+            | "overig"
+          updated_at?: string | null
+          evaluation_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_assessments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risk_assessments_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       problem_profiles: {
         Row: {
           category: string
@@ -837,6 +1163,156 @@ export type Database = {
             columns: ["source_note_id"]
             isOneToOne: false
             referencedRelation: "intake_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screening_activities: {
+        Row: {
+          activity_text: string
+          created_at: string | null
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          screening_id: string
+        }
+        Insert: {
+          activity_text: string
+          created_at?: string | null
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          screening_id: string
+        }
+        Update: {
+          activity_text?: string
+          created_at?: string | null
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          screening_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screening_activities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "screening_activities_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screening_documents: {
+        Row: {
+          document_type: string | null
+          file_name: string
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          screening_id: string
+          uploaded_at: string | null
+          uploaded_by: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          document_type?: string | null
+          file_name: string
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          screening_id: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          document_type?: string | null
+          file_name?: string
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          screening_id?: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screening_documents_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "screenings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "screening_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screenings: {
+        Row: {
+          created_at: string | null
+          decision: "geschikt" | "niet_geschikt" | null
+          decision_by: string | null
+          decision_date: string | null
+          decision_department: string | null
+          decision_notes: string | null
+          id: string
+          patient_id: string
+          request_for_help: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          decision?: "geschikt" | "niet_geschikt" | null
+          decision_by?: string | null
+          decision_date?: string | null
+          decision_department?: string | null
+          decision_notes?: string | null
+          id?: string
+          patient_id: string
+          request_for_help?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          decision?: "geschikt" | "niet_geschikt" | null
+          decision_by?: string | null
+          decision_date?: string | null
+          decision_department?: string | null
+          decision_notes?: string | null
+          id?: string
+          patient_id?: string
+          request_for_help?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screenings_decision_by_fkey"
+            columns: ["decision_by"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "screenings_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
@@ -887,7 +1363,23 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      active_intakes_overview: {
+        Row: {
+          birth_date: string | null
+          contact_count: number | null
+          department: string | null
+          diagnosis_count: number | null
+          end_date: string | null
+          id: string | null
+          name_family: string | null
+          name_given: string[] | null
+          psychologist_name: string | null
+          start_date: string | null
+          status: string | null
+          title: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_demo_access_level: {
@@ -929,6 +1421,7 @@ export type Database = {
         | "cancelled"
         | "entered-in-error"
         | "unknown"
+      episode_status: "planned" | "active" | "finished" | "cancelled"
       gender_type: "male" | "female" | "other" | "unknown"
       observation_status:
         | "registered"
@@ -1101,6 +1594,7 @@ export const Constants = {
         "entered-in-error",
         "unknown",
       ],
+      episode_status: ["planned", "active", "finished", "cancelled"],
       gender_type: ["male", "female", "other", "unknown"],
       observation_status: [
         "registered",
