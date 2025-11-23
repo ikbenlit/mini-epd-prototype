@@ -1,30 +1,69 @@
 import type { Metadata } from "next";
-import { Crimson_Text, Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-// Serif font voor long-form content (manifesto)
-const crimsonText = Crimson_Text({
+// Serif font voor long-form content (manifesto) - lokaal geladen om build zonder netwerk te laten slagen
+const crimsonText = localFont({
   variable: "--font-serif",
-  subsets: ["latin"],
-  weight: ["400", "600"],
   display: "swap",
-  preload: true,
+  src: [
+    {
+      path: "../docs/fonts/Lora-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../docs/fonts/Lora-Italic.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../docs/fonts/Lora-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+  ],
 });
 
 // Sans-serif font voor UI, nav, metadata
-const inter = Inter({
+const inter = localFont({
   variable: "--font-sans",
-  subsets: ["latin"],
   display: "swap",
-  preload: true,
+  src: [
+    {
+      path: "../docs/fonts/source-sans-3-v18-latin-regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../docs/fonts/source-sans-3-v18-latin-600.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../docs/fonts/source-sans-3-v18-latin-600italic.woff2",
+      weight: "600",
+      style: "italic",
+    },
+  ],
 });
 
 // Mono font voor tech details, numbers
-const jetBrainsMono = JetBrains_Mono({
+const jetBrainsMono = localFont({
   variable: "--font-mono",
-  subsets: ["latin"],
   display: "swap",
-  preload: true,
+  src: [
+    {
+      path: "../docs/fonts/source-code-pro-v30-latin-regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../docs/fonts/source-code-pro-v30-latin-600.woff2",
+      weight: "600",
+      style: "normal",
+    },
+  ],
 });
 
 export const metadata: Metadata = {
