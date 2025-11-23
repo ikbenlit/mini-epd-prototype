@@ -10,3 +10,18 @@
 - Intake-tabs (contact, kindcheck, risico, anamnese, onderzoeken/ROM, diagnose, behandeladvies) compleet met Supabase CRUD
 - Status dropdowns gecorrigeerd (bezig/afgerond) en dokument flows afgerond
 - Supabase migratiestappen wachten nog op einde maintenance (fase 0 runbook ligt klaar)
+
+## 2025-11-23 — Universele Rapportage backend + modal (Colin)
+- API: `/api/reports` (GET/POST) + `/api/reports/[reportId]` (GET/PATCH/DELETE) + `/api/reports/classify` staan, met Zod-validatie en soft delete
+- Supabase: `reports` tabel + migratie + RLS policies uitgerold, types toegevoegd in `lib/supabase/database.types.ts`
+- Server actions: `app/epd/patients/[id]/rapportage/actions.ts` + gedeelde `lib/server/api-client.ts` houden fetch logic DRY
+- UI: shadcn-dialog gebaseerd Rapportage Modal met textarea, speech recorder, AI-analyse en save flow (E2.S1)
+
+## 2025-11-23 — ClientSidebar duplicate cleanup (Colin)
+- **Bug fix**: Dubbele sidebar (EPDSidebar + ClientSidebar) in patient detail routes verwijderd
+- ClientSidebar (`app/epd/patients/[id]/components/client-sidebar.tsx`) blijkt 100% duplicate van EPDSidebar Level 2 navigatie
+- EPDSidebar is al context-aware: detecteert patient routes en switcht automatisch tussen Level 1 (behandelaar) en Level 2 (patient) navigatie
+- Verwijderd: ClientSidebar component (117 regels) + EPDLayoutClient wrapper (conditionele sidebar hiding)
+- Vereenvoudigd: patient detail layout gebruikt nu alleen PatientLayoutClient zonder eigen sidebar rendering
+- Resultaat: Eén sidebar component die automatisch switcht, -117 regels duplicate code, DRY principle hersteld
+

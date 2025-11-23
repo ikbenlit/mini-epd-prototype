@@ -20,7 +20,7 @@ export default async function EPDLayout({ children }: EPDLayoutProps) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar - Fixed 240px width on desktop */}
+      {/* Sidebar - Context-aware (switches between Level 1 and Level 2) */}
       <EPDSidebar
         userEmail={user?.email}
         userName={user?.user_metadata?.full_name}
@@ -33,9 +33,7 @@ export default async function EPDLayout({ children }: EPDLayoutProps) {
 
         {/* Page Content - Scrollable */}
         <main className="flex-1 overflow-auto bg-white">
-          <div className="p-8">
-            {children}
-          </div>
+          {children}
         </main>
       </div>
     </div>
