@@ -72,7 +72,7 @@ export function MinimalNav({ content }: MinimalNavProps) {
         {/* Logo */}
         <Link 
           href="/"
-          className={`font-black text-xl uppercase font-sans transition-colors hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:rounded ${logoClasses}`}
+          className={`font-black text-xl uppercase font-sans tracking-tight leading-none transition-colors hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:rounded ${logoClasses}`}
           aria-label="AI Speedrun Home"
           onClick={() => setIsMenuOpen(false)}
         >
@@ -144,4 +144,3 @@ export function MinimalNav({ content }: MinimalNavProps) {
     </nav>
   )
 }
-
