@@ -25,3 +25,11 @@
 - Vereenvoudigd: patient detail layout gebruikt nu alleen PatientLayoutClient zonder eigen sidebar rendering
 - Resultaat: Eén sidebar component die automatisch switcht, -117 regels duplicate code, DRY principle hersteld
 
+## 2025-11-23 — EPDHeader patient selector cleanup (Colin)
+- **Bug fix**: Dubbele patient naam in UI (EPDHeader top bar + ClientHeader) verwijderd
+- Design conflict ontstaan tijdens parallel development: EPDHeader (Epic 1) en ClientHeader (Epic 2) toonden beide patient naam
+- EPDHeader's patient selector (center section met naam, ID, geboortedatum) was redundant na toevoegen ClientHeader
+- Verwijderd: Patient fetch logic (useState, useEffect), patient selector UI, onnodige imports uit EPDHeader
+- Component ownership verduidelijkt: EPDHeader = algemene navigatie (logo, search), ClientHeader = patient context (naam, status, acties)
+- Resultaat: EPDHeader vereenvoudigd van 91 naar 34 regels (-57 regels), duidelijke separation of concerns
+
