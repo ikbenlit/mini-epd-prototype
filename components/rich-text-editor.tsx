@@ -40,7 +40,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     if (!editor) return;
     const html = value || '';
     if (html !== editor.getHTML()) {
-      editor.commands.setContent(html, false);
+      editor.commands.setContent(html);
     }
   }, [value, editor]);
 

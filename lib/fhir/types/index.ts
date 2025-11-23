@@ -78,6 +78,12 @@ export interface FHIRPatient {
   meta?: FHIRMeta;
   implicitRules?: string;
   language?: string;
+  extension?: Array<{
+    url: string;
+    valueBoolean?: boolean;
+    valueCode?: string;
+    valueString?: string;
+  }>;
 
   // Patient fields
   identifier?: FHIRIdentifier[];

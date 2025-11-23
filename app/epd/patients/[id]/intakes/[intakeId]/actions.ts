@@ -67,7 +67,7 @@ export async function createContactMoment(input: ContactPayload) {
     intake_id: input.intakeId,
     class_code: input.location || 'AMB',
     class_display: input.location || 'Onbekend',
-    status: 'finished',
+    status: 'completed',
     type_code: input.type,
     type_display: input.type,
     period_start: startIso,
@@ -330,7 +330,7 @@ export async function createDiagnosis(payload: DiagnosisPayload) {
     code_code: payload.code,
     code_display: payload.description,
     code_system: 'DSM-5',
-    clinical_status: payload.status || 'active',
+    clinical_status: 'active',
     severity_display: payload.severity || null,
     note: payload.notes,
     recorded_date: new Date().toISOString(),
@@ -366,7 +366,7 @@ export async function getTreatmentAdvice(intakeId: string) {
     console.error('getTreatmentAdvice error', error);
     throw new Error('Kon behandeladvies niet ophalen');
   }
-  return data?.treatment_advice || {};
+  return (data?.treatment_advice as Record<string, any>) || {};
 }
 
 export interface TreatmentAdvicePayload {

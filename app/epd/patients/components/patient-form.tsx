@@ -38,8 +38,8 @@ export function PatientForm({ patient }: PatientFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isJohnDoe, setIsJohnDoe] = useState(
-    patient?.extension?.find(
-      (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/john-doe'
+    (patient as any)?.extension?.find(
+      (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/john-doe'
     )?.valueBoolean || false
   );
 
@@ -52,8 +52,8 @@ export function PatientForm({ patient }: PatientFormProps) {
   const existingAddress = patient?.address?.[0];
 
   // Extract insurance data from extension
-  const insuranceExtension = patient?.extension?.find(
-    (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/insurance'
+  const insuranceExtension = (patient as any)?.extension?.find(
+    (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/insurance'
   );
   let existingInsurance: { company?: string; number?: string } = {};
   if (insuranceExtension?.valueString) {
@@ -65,8 +65,8 @@ export function PatientForm({ patient }: PatientFormProps) {
   }
 
   // Extract GP (huisarts) data from extension
-  const gpExtension = patient?.extension?.find(
-    (ext) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/general-practitioner'
+  const gpExtension = (patient as any)?.extension?.find(
+    (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/general-practitioner'
   );
   let existingGP: { name?: string; agb?: string } = {};
   if (gpExtension?.valueString) {
@@ -102,7 +102,7 @@ export function PatientForm({ patient }: PatientFormProps) {
       }
 
       // Build FHIR Patient resource
-      const fhirPatient: FHIRPatient = {
+      const fhirPatient: any = {
         resourceType: 'Patient',
         identifier: bsnValue
           ? [

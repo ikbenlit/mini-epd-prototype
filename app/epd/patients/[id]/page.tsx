@@ -13,6 +13,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { getIntakesByPatientId } from './intakes/actions';
+import type { Intake } from '@/lib/types/intake';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
@@ -24,7 +25,7 @@ export default async function PatientDashboardPage({
   const { id } = await params;
   
   // Fetch recent intakes (optional)
-  let recentIntakes = [];
+  let recentIntakes: Intake[] = [];
   try {
     const intakes = await getIntakesByPatientId(id);
     recentIntakes = intakes.slice(0, 3); // Get up to 3 most recent

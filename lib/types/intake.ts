@@ -28,7 +28,7 @@ export const CreateIntakeSchema = z.object({
   patient_id: z.string().uuid('Patient ID moet een geldige UUID zijn'),
   title: z.string().min(1, 'Titel is verplicht'),
   department: z.enum(INTAKE_DEPARTMENTS, {
-    errorMap: () => ({ message: 'Afdeling moet Volwassenen, Jeugd of Ouderen zijn' }),
+    message: 'Afdeling moet Volwassenen, Jeugd of Ouderen zijn',
   }),
   start_date: z.string().min(1, 'Startdatum is verplicht'),
   psychologist_id: z.string().uuid().optional(),

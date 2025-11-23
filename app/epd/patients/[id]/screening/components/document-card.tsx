@@ -160,7 +160,7 @@ export function DocumentCard({ patientId, screeningId, documents }: DocumentCard
                 <div>
                   <p className="text-sm font-medium text-slate-900">{doc.file_name}</p>
                   <p className="text-xs text-slate-500">
-                    {doc.document_type} • {(doc.file_size / 1024).toFixed(1)} KB •{' '}
+                    {doc.document_type} • {doc.file_size ? `${(doc.file_size / 1024).toFixed(1)} KB` : 'Onbekend'} •{' '}
                     {doc.uploaded_by_name || 'Onbekend'}
                   </p>
                 </div>
