@@ -24,9 +24,11 @@ interface ReportCardProps {
   report: Report;
   onDelete?: () => Promise<void> | void;
   isDeleting?: boolean;
+  onSelect?: () => void;
+  isSelected?: boolean;
 }
 
-export function ReportCard({ report, onDelete, isDeleting }: ReportCardProps) {
+export function ReportCard({ report, onDelete, isDeleting, onSelect, isSelected }: ReportCardProps) {
   const meta = TYPE_META[report.type as keyof typeof TYPE_META] ?? TYPE_META.vrije_notitie;
   const Icon = meta.icon;
   const createdAt = report.created_at ? new Date(report.created_at) : null;
@@ -35,7 +37,22 @@ export function ReportCard({ report, onDelete, isDeleting }: ReportCardProps) {
     : null;
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article
+      className={cn(
+        'rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-200 hover:shadow-md',
+        onSelect && 'cursor-pointer',
+        isSelected && 'border-teal-400 ring-2 ring-teal-100'
+      )}
+      onClick={() => onSelect?.()}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect?.();
+        }
+      }}
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <div

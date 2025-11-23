@@ -53,7 +53,8 @@ Tijdsduur: <30 seconden
 - **React:** 18.3.1 (Server Components waar mogelijk)
 - **TypeScript:** 5.x (strict mode)
 - **UI Components:** shadcn/ui (Radix UI) 🆕 *Te installeren*
-  - Dialog component voor rapportage modal
+  - Dialog component (generiek, andere flows)
+  - Tabs/Drawer componenten voor split view
   - Toast component voor feedback
   - Dropdown voor type selectie
 - **Rich Text:** TipTap Editor ✅ *Al in gebruik* (behandeladvies module)
@@ -152,7 +153,7 @@ Tijdsduur: <30 seconden
 
 **KISS (Keep It Simple, Stupid)**
 - ✅ Start met 2 rapportage types (niet 7)
-- ✅ Simple modal (geen complexe wizard)
+- ✅ Split view zonder meerstaps wizard
 - ✅ Soft delete (geen hard delete + archivering)
 - ✅ Fallback to manual input (geen complexe AI retry logic)
 
@@ -173,11 +174,13 @@ Tijdsduur: <30 seconden
 **Code Organization:**
 ```
 /app/epd/patients/[id]/
+  ├── layout.tsx                # Sidebar + header + composer anchor
   ├── rapportage/
-  │   ├── page.tsx              # Timeline view
+  │   ├── page.tsx              # Split-view workspace (server)
   │   ├── actions.ts            # Server actions
   │   └── components/
-  │       ├── rapportage-modal.tsx
+  │       ├── rapportage-workspace.tsx
+  │       ├── report-composer.tsx
   │       ├── report-timeline.tsx
   │       └── report-card.tsx
 /app/api/
@@ -239,6 +242,20 @@ try {
 - ✅ Migration file comments (rollback SQL)
 
 ---
+
+
+### 2.4 Split View MVP (FO Samenvatting)
+
+Het aanvullende [FO Split View MVP](./fo-rapportage-split-view-mvp.md) vertaalt zich naar de volgende functionele randvoorwaarden:
+
+1. **Header navigatie** – "Nieuwe rapportage" navigeert of scrollt altijd naar `#rapportage-composer`; composer-element is focusbaar (`tabIndex=-1`).
+2. **Dual-pane workspace** – timeline/filter + KPI's links, composer rechts; create/delete synchroniseert beide kolommen realtime.
+3. **Filters** – huidige MVP bevat tekstzoeker en typefilter; backlog: auteur/datumfilters, AI-chips en reset.
+4. **Composer** – textarea, spraak, AI-classificatie en referentiekaart gebaseerd op geselecteerde timeline-entry; sticky CTA en (toekomst) autosave/draft.
+5. **Timeline** – selecteerbare kaarten met keyboard support en delete; inline expand en virtualization volgen in backlog.
+6. **Mobiele drawer** – responsive tabs/drawer zodat timeline ↔ composer ook mobiel werkt (nog te bouwen).
+
+Deze richtlijnen vervangen de oude modal-flow en vormen de basis voor de resterende stories binnen Epic 2/E3.
 
 ## 3. Epics & Stories Overzicht
 
@@ -457,183 +474,138 @@ CREATE POLICY reports_select_policy ON reports
 
 ### Epic 2 — UI Components
 
-**Epic Doel:** Gebruiksvriendelijke interface met modal, timeline en integratie in patient layout.
+**Epic Doel:** Gebruiksvriendelijke split-view interface met timeline, filters, composer en responsive gedrag.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points | Geschatte Tijd |
 |----------|--------------|---------------------|--------|------------------|--------------|----------------|
-| **E2.S1** | Rapportage Modal component | Modal opent/sluit, text area (20-5000 chars validation), speech recorder integrated, AI classification display, manual type dropdown, save button, loading states | ✅ | E0.S1, E0.S2, E1.S3 | 5 | 1.5 uur |
-| **E2.S2** | Timeline view component | Chronological list of reports, report cards with preview, pagination (50 items), empty state message, loading skeleton | ✅ | E1.S1, E1.S4 | 3 | 1 uur |
-| **E2.S3** | Report Card component | Shows type icon, timestamp, content preview (120 chars), author name, delete button, hover states | ✅ | E2.S2 | 2 | 30 min |
-| **E2.S4** | "Nieuwe Rapportage" button in layout | Button in patient header/sidebar, onClick opens modal, disabled when no patient context, visible on all patient pages | ✅ | E2.S1 | 2 | 30 min |
-| **E2.S5** | Toast notifications | Success toast on save, error toast on failures, custom styling (teal theme), auto-dismiss after 3 sec | ✅ | E0.S2 | 1 | 30 min |
+| **E2.S1** | Rapportage workspace (split view) | Timeline en composer staan gelijktijdig op de pagina, header-knop scrollt naar `#rapportage-composer`, geselecteerde entry toont referentiekaart | ✅ | E1.S1, E1.S4 | 5 | 1.5 uur |
+| **E2.S2** | Filterbare timeline component | Zoek/typefilter, selecteerbare kaarten met keyboard support, delete, lege staat | ✅ | E2.S1 | 3 | 1 uur |
+| **E2.S3** | Report composer component | Textarea (20-5000 chars), speech recorder, AI-classificatie, referentie invoegen, sticky CTA + toasts | ✅ | E2.S1 | 3 | 1.5 uur |
+| **E2.S4** | Responsive mobiele drawer | Tabs/drawer UX waarmee timeline ↔ composer gewisseld kan worden op <1024px, behoudt draft state | ✅ | E2.S1 | 3 | 1.5 uur |
+| **E2.S5** | Autosave + advanced filters | Drafts (localStorage/Supabase), auteurs- en datumfilters, AI-chips en load-more timeline voor >50 items | ✅ | E2.S2, E2.S3 | 5 | 2 uur |
 
 **Technical Notes:**
 
-**E2.S1 - Rapportage Modal:**
+**E2.S1 - Rapportage Workspace:**
 ```typescript
-// app/epd/patients/[id]/rapportage/components/rapportage-modal.tsx
-'use client';
-
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
-import { SpeechRecorder } from '@/components/speech-recorder';
-import { RichTextEditor } from '@/components/rich-text-editor';
-import { useState } from 'react';
-
-interface RapportageModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  patientId: string;
-  patientName: string;
-}
-
-export function RapportageModal({
-  isOpen,
-  onClose,
-  patientId,
-  patientName,
-}: RapportageModalProps) {
-  const [content, setContent] = useState('');
-  const [classification, setClassification] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const handleAnalyze = async () => {
-    setIsAnalyzing(true);
-    const response = await fetch('/api/reports/classify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    const result = await response.json();
-    setClassification(result);
-    setIsAnalyzing(false);
-  };
-
-  const handleSave = async () => {
-    // Call server action or API
-    // Show toast
-    // Close modal
-  };
+// app/epd/patients/[id]/rapportage/components/rapportage-workspace.tsx
+export function RapportageWorkspace({ patientId, patientName, initialReports }) {
+  const [reports, setReports] = useState(initialReports);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          🎤 Nieuwe rapportage voor {patientName}
-        </DialogHeader>
-
-        {/* Text area */}
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Beschrijf wat je wilt vastleggen..."
-          className="min-h-[160px]"
+    <div className="flex flex-col gap-6 lg:flex-row">
+      <aside className="lg:w-2/5">
+        <FilterPanel ... />
+        <ReportTimeline
+          reports={filteredReports}
+          patientId={patientId}
+          selectedReportId={selectedReportId}
+          onSelect={(report) => setSelectedReportId(report.id)}
+          onDeleteSuccess={(id) => setReports((prev) => prev.filter((r) => r.id !== id))}
         />
-
-        {/* Speech recorder */}
-        <SpeechRecorder
-          onTranscript={(transcript) => setContent(content + ' ' + transcript)}
-        />
-
-        {/* Character counter */}
-        <p className="text-sm text-slate-500">
-          {content.length} / 5000 karakters
-        </p>
-
-        {/* AI Classification */}
-        {classification && (
-          <div>
-            <p>✓ AI detecteert: {classification.type}</p>
-            <select>
-              <option value="behandeladvies">Behandeladvies</option>
-              <option value="vrije_notitie">Vrije notitie</option>
-            </select>
-          </div>
-        )}
-
-        {/* Buttons */}
-        <div className="flex gap-2">
-          <button onClick={onClose}>Annuleren</button>
-          <button
-            onClick={handleAnalyze}
-            disabled={content.length < 20 || isAnalyzing}
-          >
-            {isAnalyzing ? 'Analyseren...' : 'Analyseer met AI'}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={!classification}
-          >
-            Opslaan
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-```
-
-**E2.S2 - Timeline View:**
-```typescript
-// app/epd/patients/[id]/rapportage/page.tsx
-import { getReports } from './actions';
-import { ReportTimeline } from './components/report-timeline';
-
-export default async function RapportagePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id: patientId } = await params;
-  const reports = await getReports(patientId);
-
-  return (
-    <div>
-      <h1>Tijdlijn</h1>
-      <ReportTimeline reports={reports} patientId={patientId} />
-    </div>
-  );
-}
-```
-
-**E2.S4 - Button Integration:**
-```typescript
-// app/epd/patients/[id]/layout.tsx
-'use client';
-
-import { useState } from 'react';
-import { RapportageModal } from './rapportage/components/rapportage-modal';
-
-export default function PatientLayout({ children, params }) {
-  const [modalOpen, setModalOpen] = useState(false);
-
-  return (
-    <div>
-      {/* Patient header */}
-      <header>
-        <button onClick={() => setModalOpen(true)}>
-          🎤 Nieuwe Rapportage
-        </button>
-      </header>
-
-      {children}
-
-      <RapportageModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        patientId={params.id}
+      </aside>
+      <ReportComposer
+        patientId={patientId}
+        patientName={patientName}
+        selectedReport={reports.find((r) => r.id === selectedReportId) ?? null}
+        onReportCreated={(report) => setReports((prev) => [report, ...prev])}
       />
     </div>
   );
 }
 ```
 
-**Testing E2:**
-- [ ] Modal opent bij klik op button
-- [ ] Text area accepteert input (20-5000 chars)
-- [ ] Speech recorder werkt (transcriptie verschijnt in text area)
-- [ ] AI classificatie toont resultaat
-- [ ] Timeline toont alle rapportages chronologisch
-- [ ] Delete button werkt (soft delete)
+**E2.S3 - Report Composer:**
+```typescript
+export function ReportComposer({ patientId, patientName, selectedReport, onReportCreated }) {
+  const [content, setContent] = useState('');
+  const [classification, setClassification] = useState<ClassificationResult | null>(null);
+  const draftStorageKey = `rapportage-draft-${patientId}`;
+
+  async function analyzeWithAI() { /* POST /api/reports/classify */ }
+
+  async function saveReport() {
+    const created = await createReport(patientId, {
+      type: selectedType,
+      content,
+      ai_confidence: classification?.confidence,
+      ai_reasoning: classification?.reasoning,
+    });
+    toast({ title: 'Rapportage opgeslagen', description: `${patientName} heeft nu een nieuwe notitie...` });
+    onReportCreated?.(created);
+    setContent('');
+    localStorage.removeItem(draftStorageKey);
+  }
+
+  return (
+    <section id="rapportage-composer" tabIndex={-1}>
+      <textarea ... />
+      <SpeechRecorder ... />
+      <ReferenceCard selectedReport={selectedReport} />
+      <AutosaveHint lastSaved={lastAutosave} />
+      <footer>
+        <Button onClick={analyzeWithAI}>Analyseer met AI</Button>
+        <Button onClick={saveReport}>Opslaan</Button>
+      </footer>
+    </section>
+  );
+}
+```
+
+**E2.S4 - Mobiele Drawer/Tabs:**
+```tsx
+const isMobile = useMediaQuery('(max-width: 1023px)');
+const [activeTab, setActiveTab] = useState<'timeline' | 'composer'>('timeline');
+
+return (
+  {isMobile && (
+    <div className="flex rounded-full border ...">
+      <button onClick={() => setActiveTab('timeline')}>Timeline</button>
+      <button onClick={() => setActiveTab('composer')}>Nieuwe rapportage</button>
+    </div>
+  )}
+
+  <div className="flex flex-col gap-6 lg:flex-row">
+    {(!isMobile || activeTab === 'timeline') && <TimelinePane ... />}
+    {(!isMobile || activeTab === 'composer') && <ReportComposer ... />}
+  </div>
+)
+```
+
+**E2.S5 - Filters & Autosave:**
+```tsx
+const [authorFilter, setAuthorFilter] = useState<'all' | string>('all');
+const [dateFrom, setDateFrom] = useState('');
+const [aiFilter, setAiFilter] = useState<'all' | 'ai' | 'manual'>('all');
+
+const filteredReports = reports.filter((report) => {
+  const matchesAuthor = authorFilter === 'all' || report.created_by === authorFilter;
+  const matchesAI = aiFilter === 'all' || (aiFilter === 'ai'
+    ? report.ai_confidence !== null
+    : report.ai_confidence === null);
+  const createdAt = report.created_at ? new Date(report.created_at) : null;
+  const matchesFrom = !dateFrom || (createdAt && createdAt >= new Date(dateFrom));
+  const matchesTo = !dateTo || (createdAt && createdAt <= new Date(`${dateTo}T23:59:59`));
+  return matchesAuthor && matchesAI && matchesFrom && matchesTo;
+});
+
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    localStorage.setItem(draftStorageKey, JSON.stringify({ content, type: selectedType, updatedAt: new Date().toISOString() }));
+    setLastAutosave(new Date());
+  }, 800);
+  return () => clearTimeout(timeout);
+}, [content, selectedType, draftStorageKey]);
+```
+
+- [ ] Headerknop scrollt naar composer binnen rapportagepagina en navigeert vanuit andere tabs.
+- [ ] Timeline toont bestaande rapportages, filters werken (tekst, type, auteur, datum, AI-chips) en selectie highlight.
+- [ ] Delete verwijdert item, toasts tonen feedback, KPI's updaten, "Meer rapportages laden" werkt.
+- [ ] Composer accepteert tekst (20-5000 chars), speechinput vult textarea, AI-classificatie vult type.
+- [ ] Autosave-indicator toont laatste timestamp; draft wordt hersteld na reload, verwijderd na succesvolle save.
+- [ ] "Voeg referentie toe" plaatst quote block met meta en linkt naar geselecteerde entry.
+- [ ] Mobiele layout toont tabs/drawer (timeline ↔ composer) en behoudt draft/selection state.
 
 ---
 
@@ -643,47 +615,45 @@ export default function PatientLayout({ children, params }) {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points | Geschatte Tijd |
 |----------|--------------|---------------------|--------|------------------|--------------|----------------|
-| **E3.S1** | Wire modal to API routes | Save button calls `/api/reports`, timeline refreshes na save, toast notification shown, modal closes on success | ⏳ | E2.S1, E2.S2, E1.S1 | 3 | 45 min |
-| **E3.S2** | Test voice → classify → save flow | Complete flow: speak → transcript → analyze → AI classification → save → timeline update, works without errors | ⏳ | E3.S1 | 3 | 45 min |
-| **E3.S3** | Test manual text input flow | Type text → analyze → override AI → save → timeline update, character validation works, error messages shown | ⏳ | E3.S1 | 2 | 30 min |
-| **E3.S4** | Error handling & loading states | Deepgram timeout → fallback to manual input, Claude failure → fallback classification, network errors → user-friendly messages, loading spinners on all async operations | ⏳ | E3.S2, E3.S3 | 3 | 45 min |
+| **E3.S1** | Wire composer workspace to API routes | Save button calls `/api/reports`, workspace reset + KPI/timeline refresh, toast shown, composer focus behouden | ✅ | E2.S1, E2.S2, E1.S1 | 3 | 45 min |
+| **E3.S2** | Test voice → classify → save flow | Complete flow: speak → transcript → analyze → AI classification → save → timeline update, works without errors | ✅ | E3.S1 | 3 | 45 min |
+| **E3.S3** | Test manual text input flow | Type text → analyze → override AI → save → timeline update, character validation works, error messages shown | ✅ | E3.S1 | 2 | 30 min |
+| **E3.S4** | Error handling & loading states | Deepgram timeout → fallback naar tekst, Claude failure → default type, netwerkfouten → toasts en retry hints, loading states op alle async stappen | ✅ | E3.S2, E3.S3 | 3 | 45 min |
 
 **Technical Notes:**
 
 **E3.S1 - API Integration:**
 ```typescript
-// In RapportageModal component
-const handleSave = async () => {
-  setSaving(true);
+// In ReportComposer component
+async function saveReport() {
+  setIsSaving(true);
 
   try {
-    const response = await fetch('/api/reports', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        patient_id: patientId,
-        type: selectedType || classification.type,
-        content,
-        ai_confidence: classification.confidence,
-        ai_reasoning: classification.reasoning,
-      }),
+    const created = await createReport(patientId, {
+      type: selectedType,
+      content,
+      ai_confidence: classification?.confidence,
+      ai_reasoning: classification?.reasoning,
     });
 
-    if (!response.ok) {
-      throw new Error('Opslaan mislukt');
-    }
+    toast({
+      title: 'Rapportage opgeslagen',
+      description: `${patientName} heeft nu een nieuwe notitie in de tijdlijn.`,
+    });
 
-    toast.success('Rapportage opgeslagen');
-    onClose();
-
-    // Refresh timeline (revalidatePath called server-side)
+    onReportCreated?.(created); // update timeline + KPI's client-side
+    setContent('');
     router.refresh();
   } catch (error) {
-    toast.error('Opslaan mislukt. Probeer opnieuw.');
+    toast({
+      variant: 'destructive',
+      title: 'Opslaan mislukt',
+      description: error instanceof Error ? error.message : 'Probeer opnieuw',
+    });
   } finally {
-    setSaving(false);
+    setIsSaving(false);
   }
-};
+}
 ```
 
 **E3.S4 - Error Handling:**
@@ -738,7 +708,7 @@ try {
   - [ ] Timeline toont nieuwe rapportage bovenaan
 
 - [ ] **Happy Flow (Manual Text):**
-  - [ ] Open modal
+  - [ ] Scroll/focus naar composer via headerknop
   - [ ] Typ behandeladvies tekst (>20 chars)
   - [ ] Klik "Analyseer"
   - [ ] AI classificeert correct als "behandeladvies"
@@ -759,7 +729,7 @@ try {
   - [ ] Claude timeout → Default to vrije_notitie
 
 - [ ] **Performance:**
-  - [ ] Modal open < 100ms
+  - [ ] Composer render/focus < 100ms
   - [ ] AI classification < 3 sec (p95)
   - [ ] Timeline render < 200ms (10 items)
 
@@ -801,7 +771,7 @@ try {
 
 | Metric | Target | Measurement Tool |
 |--------|--------|------------------|
-| Modal open | < 100 ms | Chrome DevTools |
+| Composer render | < 100 ms | Chrome DevTools |
 | GET /api/reports | < 500 ms (p95) | Network tab |
 | POST /api/reports | < 800 ms (p95) | Network tab |
 | Deepgram transcribe | < 2 sec (p95) | Network tab |
@@ -847,14 +817,14 @@ try {
 | Timestamp | Visual | Voiceover |
 |-----------|--------|-----------|
 | **0-5 sec** | Client dossier open, 47 formulieren in sidebar (fade effect) | "Traditionele EPD's hebben 47 formulieren." |
-| **6-10 sec** | Klik op "🎤 Nieuwe Rapportage" button, modal opent smooth | "Wij hebben 1 knop." |
+| **6-10 sec** | Klik op "🎤 Nieuwe Rapportage" button, pagina scrollt naar composer in split view | "Wij hebben 1 knop." |
 | **11-18 sec** | Typ snel: "Op basis van intakegesprek advies ik CGT traject...", klik "Analyseer" | "Je typt wat je denkt." |
 | **19-23 sec** | AI classificatie verschijnt: "✓ Behandeladvies (92%)", klik "Opslaan" | "AI begrijpt wat het is." |
 | **24-28 sec** | Timeline view update, rapportage verschijnt bovenaan | "En zet het automatisch op de juiste plek." |
 | **29-30 sec** | Fade to logo + text: "AI Speedrun EPD - 25 seconden. Klaar." | "25 seconden. Klaar." |
 
 **Belangrijke Visuele Elementen:**
-- ✅ Smooth animaties (modal open/close)
+- ✅ Smooth scroll/composer focus animaties
 - ✅ Duidelijke button clicks (cursor highlight)
 - ✅ AI classificatie badge (92% confidence)
 - ✅ Real-time timeline update
@@ -915,9 +885,9 @@ try {
    - Mitigatie: Disable RLS during testing, enable pre-deploy
    - Contingency: Emergency disable RLS (temporary), fix policies
 
-3. ❌ **Shadcn components conflicteren met bestaande UI**
-   - Mitigatie: Test Dialog component isolated first
-   - Contingency: Build custom modal (vanilla React)
+3. ❌ **Split-view components conflicteren met bestaande UI**
+   - Mitigatie: Test timeline/composer layout isolated first
+   - Contingency: Schakel tijdelijk terug naar eenvoudige composer (full-width)
 
 **High-Impact Risks (kunnen demo verpesten):**
 1. ⚠️ **Live demo: Internet uitval**
@@ -1013,6 +983,8 @@ try {
 **Core Specifications:**
 - **[FO v1.0](./fo-universele-rapportage-v1.md)** — Functioneel Ontwerp (935 regels)
   - User stories, UI wireframes, flows, acceptatiecriteria
+- **[FO Split View MVP](./fo-rapportage-split-view-mvp.md)** — Functionele uitwerking split timeline/composer
+  - User stories voor dual-pane UX, filters, mobiel drawer, referentiegedrag
 - **[TO v1.0](./to-universele-rapportage-v1.md)** — Technisch Ontwerp
   - Architectuur, API specs, database schema, security
 - **[Bouwplan v1.0](./bouwplan-universele-rapportage-v1.md)** — Dit document
@@ -1145,7 +1117,7 @@ ANTHROPIC_API_KEY=sk-ant-...         # Uncomment this
 **Als achterstand:**
 - Prioriteer E3.S2 (voice flow) - Core demo scenario
 - Skip E2.S5 (toast) - Nice to have
-- Simplify E2.S1 (modal) - Basic versie voldoet
+- Simplify E2.S1 (split view) - Basic versie voldoet
 
 ### Daily Standup (Solo Developer)
 
