@@ -14,7 +14,7 @@ async function ensureBucket() {
     if (createError && !createError.message.includes('already exists')) {
       throw createError;
     }
-  } else if (error && !error.message.includes('not found')) {
+  } else if (error) {
     throw error;
   }
 }

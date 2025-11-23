@@ -1,4 +1,4 @@
-import { getIntakeById } from '../../actions';
+import { getIntakeById } from '../actions';
 import { IntakeHeader } from './components/intake-header';
 import { IntakeTabs } from './components/intake-tabs';
 import { notFound } from 'next/navigation';

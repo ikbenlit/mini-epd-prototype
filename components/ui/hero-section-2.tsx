@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react';
+import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
 
@@ -105,7 +106,14 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 <motion.header className="mb-12" variants={itemVariants}>
                     {logo && (
                         <div className="flex items-center">
-                            <img src={logo.url} alt={logo.alt} className="mr-3 h-8" />
+                            <Image
+                              src={logo.url}
+                              alt={logo.alt}
+                              width={120}
+                              height={32}
+                              className="mr-3 h-8 w-auto"
+                              unoptimized
+                            />
                             <div>
                                 {logo.text && <p className="text-lg font-bold text-foreground">{logo.text}</p>}
                                 {slogan && <p className="text-xs tracking-wider text-muted-foreground">{slogan}</p>}

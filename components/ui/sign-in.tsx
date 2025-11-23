@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 const AnimatedSignIn: React.FC = () => {
@@ -66,12 +67,15 @@ const AnimatedSignIn: React.FC = () => {
             <div className="hidden md:block w-full md:w-3/5 bg-gray-100 p-6 animate-fade-in">
               <div className="grid grid-cols-2 grid-rows-3 gap-4 h-full overflow-hidden">
                 {/* Top left - Person working */}
-                <div className="overflow-hidden rounded-xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" 
-                    alt="Person working" 
-                    className="w-full h-full object-cover"
+                <div className="relative overflow-hidden rounded-xl aspect-[4/3]">
+                  <Image
+                    src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
+                    alt="Person working"
+                    fill
+                    className="object-cover"
                     style={{ opacity: 0.9 }}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
                   />
                 </div>
                 
@@ -92,22 +96,26 @@ const AnimatedSignIn: React.FC = () => {
                 </div>
                 
                 {/* Middle left - Person at computer */}
-                <div className="overflow-hidden rounded-xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" 
-                    alt="Person at computer" 
-                    className="w-full h-full object-cover"
+                <div className="relative overflow-hidden rounded-xl aspect-[4/3]">
+                  <Image
+                    src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+                    alt="Person at computer"
+                    fill
+                    className="object-cover"
                     style={{ opacity: 0.9 }}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
                 
                 {/* Middle right - Office space */}
-                <div className="overflow-hidden rounded-xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
-                    alt="Office space" 
-                    className="w-full h-full object-cover"
-                    style={{ opacity: 0.9 }}
+                <div className="relative overflow-hidden rounded-xl aspect-[4/3]">
+                  <Image
+                    src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81"
+                    alt="Modern office"
+                    fill
+                    className="object-cover"
+                    style={{ opacity: 0.95 }}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
                 
@@ -128,12 +136,14 @@ const AnimatedSignIn: React.FC = () => {
                 </div>
                 
                 {/* Bottom right - Library */}
-                <div className="overflow-hidden rounded-xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1498050108023-c5249f4df085" 
-                    alt="Desk setup" 
-                    className="w-full h-full object-cover"
+                <div className="relative overflow-hidden rounded-xl aspect-[4/3]">
+                  <Image
+                    src="https://images.unsplash.com/photo-1498050108023-c5249f4df085"
+                    alt="Team collaboration"
+                    fill
+                    className="object-cover"
                     style={{ opacity: 0.9 }}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
               </div>

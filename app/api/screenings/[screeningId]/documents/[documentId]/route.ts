@@ -38,13 +38,15 @@ export async function DELETE(
       return NextResponse.json({ error: 'Document niet gevonden' }, { status: 404 });
     }
 
-    const { error: deleteError } = await supabaseAdmin.storage
-      .from(BUCKET)
-      .remove([document.file_path]);
+    if (document.file_path) {
+      const { error: deleteError } = await supabaseAdmin.storage
+        .from(BUCKET)
+        .remove([document.file_path]);
 
-    if (deleteError) {
-      console.error('Storage delete error:', deleteError);
-      // Don't stop here; attempt DB delete even if storage failed
+      if (deleteError) {
+        console.error('Storage delete error:', deleteError);
+        // Don't stop here; attempt DB delete even if storage failed
+      }
     }
 
     const { error: dbError } = await supabase

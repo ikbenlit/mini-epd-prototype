@@ -102,7 +102,7 @@ export async function PUT(
       return NextResponse.json(
         {
           error: 'Validatiefout',
-          details: result.error.errors.map(e => ({
+          details: result.error.issues.map(e => ({
             field: e.path.join('.'),
             message: e.message,
           })),

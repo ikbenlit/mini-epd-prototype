@@ -13,9 +13,7 @@ import { z } from 'zod';
 const CreateIntakeSchema = z.object({
   patient_id: z.string().uuid('Patient ID moet een geldige UUID zijn'),
   title: z.string().min(1, 'Titel is verplicht'),
-  department: z.enum(['Volwassenen', 'Jeugd', 'Ouderen'], {
-    errorMap: () => ({ message: 'Afdeling moet Volwassenen, Jeugd of Ouderen zijn' }),
-  }),
+  department: z.enum(['Volwassenen', 'Jeugd', 'Ouderen']),
   start_date: z.string().min(1, 'Startdatum is verplicht'),
   psychologist_id: z.string().uuid().optional(),
   notes: z.string().optional(),
@@ -96,7 +94,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Validatiefout',
-          details: result.error.errors.map(e => ({
+          details: result.error.issues.map(e => ({
             field: e.path.join('.'),
             message: e.message,
           })),
