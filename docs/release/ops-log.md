@@ -33,3 +33,13 @@
 - Component ownership verduidelijkt: EPDHeader = algemene navigatie (logo, search), ClientHeader = patient context (naam, status, acties)
 - Resultaat: EPDHeader vereenvoudigd van 91 naar 34 regels (-57 regels), duidelijke separation of concerns
 
+## 2025-11-23 — Reports created_by foreign key fix (Colin)
+- **Bug fix**: Foreign key constraint violation bij opslaan rapportages
+- Probleem: `reports.created_by` had FK constraint naar `practitioners.id`, maar code sloeg `auth.uid()` op
+- Root cause: Practitioners tabel heeft `user_id` kolom, maar alle demo records hebben `user_id: null` (geen link naar auth users)
+- Error: `insert or update on table "reports" violates foreign key constraint "reports_created_by_fkey"`
+- Oplossing (prototype): Foreign key constraints verwijderd voor `created_by` en `updated_by` kolommen
+- Migratie: `20251123_fix_reports_created_by_constraint.sql` toegepast via Supabase MCP
+- Resultaat: Rapportages kunnen nu opgeslagen worden met auth user ID zonder FK constraint
+- **Note voor productie**: In productie zou je practitioners.user_id vullen en FK constraints herstellen voor data integriteit
+
