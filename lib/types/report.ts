@@ -10,9 +10,7 @@ export type ReportType = (typeof REPORT_TYPES)[number];
 
 export const CreateReportSchema = z.object({
   patient_id: z.string().uuid('Patient ID moet een geldige UUID zijn'),
-  type: z.enum(REPORT_TYPES, {
-    errorMap: () => ({ message: 'Type moet behandeladvies of vrije_notitie zijn' }),
-  }),
+  type: z.enum(REPORT_TYPES),
   content: z
     .string()
     .min(20, 'Rapportage moet minimaal 20 karakters bevatten')

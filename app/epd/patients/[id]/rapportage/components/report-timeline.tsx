@@ -63,7 +63,7 @@ export function ReportTimeline({
         </div>
         <p className="text-base font-semibold text-slate-900">Nog geen rapportages</p>
         <p className="mt-1 text-sm text-slate-500">
-          Klik op "Nieuwe rapportage" in de header om de eerste rapportage vast te leggen.
+          Klik op &ldquo;Nieuwe rapportage&rdquo; in de header om de eerste rapportage vast te leggen.
         </p>
       </div>
     );

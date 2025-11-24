@@ -9,7 +9,7 @@ export function useMediaQuery(query: string) {
     if (typeof window === 'undefined') return;
     const mediaQuery = window.matchMedia(query);
     const handleChange = (event: MediaQueryListEvent | MediaQueryList) => {
-      setMatches('matches' in event ? event.matches : event.matches);
+      setMatches(event.matches);
     };
 
     setMatches(mediaQuery.matches);

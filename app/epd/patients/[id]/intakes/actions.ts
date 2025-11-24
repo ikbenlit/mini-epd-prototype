@@ -9,7 +9,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { authFetch, getBaseUrl } from '@/lib/server/api-client';
+import { authFetch, getBaseUrl, getCookieHeader } from '@/lib/server/api-client';
 import type {
   Intake,
   CreateIntakeInput,
