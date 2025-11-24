@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Loader2, Mic, Square } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-interface SpeechRecorderProps {
+export interface SpeechRecorderProps {
   onTranscript: (text: string) => void;
+  disabled?: boolean;
+  className?: string;
 }
 
-export function SpeechRecorder({ onTranscript }: SpeechRecorderProps) {
+export function SpeechRecorder({ onTranscript, disabled = false, className }: SpeechRecorderProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -64,6 +67,8 @@ export function SpeechRecorder({ onTranscript }: SpeechRecorderProps) {
   }, [onTranscript]);
 
   const startRecording = async () => {
+    if (disabled || isUploading) return;
+
     try {
       setError(null);
       setPermissionDenied(false);
@@ -97,7 +102,7 @@ export function SpeechRecorder({ onTranscript }: SpeechRecorderProps) {
   const isBusy = isRecording || isUploading;
 
   return (
-    <div className="rounded-lg border border-slate-200 p-4 bg-white space-y-2">
+    <div className={cn('rounded-lg border border-slate-200 p-4 bg-white space-y-2', className)}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-slate-900">Spraak-naar-tekst</p>
@@ -108,10 +113,18 @@ export function SpeechRecorder({ onTranscript }: SpeechRecorderProps) {
         <button
           type="button"
           onClick={isRecording ? stopRecording : startRecording}
-          disabled={isUploading}
+          disabled={isUploading || disabled}
           className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
         >
-          {isRecording ? <><Square className="h-3 w-3 text-red-600" /> Stop</> : <><Mic className="h-3 w-3 text-teal-600" /> Opnemen</>}
+          {isRecording ? (
+            <>
+              <Square className="h-3 w-3 text-red-600" /> Stop
+            </>
+          ) : (
+            <>
+              <Mic className="h-3 w-3 text-teal-600" /> Opnemen
+            </>
+          )}
         </button>
       </div>
       {isUploading && (
@@ -119,12 +132,8 @@ export function SpeechRecorder({ onTranscript }: SpeechRecorderProps) {
           <Loader2 className="h-3 w-3 animate-spin" /> Transcriptie bezig…
         </p>
       )}
-      {permissionDenied && (
-        <p className="text-xs text-red-600">Microfoontoegang nodig om op te nemen.</p>
-      )}
-      {error && !permissionDenied && (
-        <p className="text-xs text-red-600">{error}</p>
-      )}
+      {permissionDenied && <p className="text-xs text-red-600">Microfoontoegang nodig om op te nemen.</p>}
+      {error && !permissionDenied && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

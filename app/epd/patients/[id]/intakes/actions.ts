@@ -9,7 +9,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { headers, cookies } from 'next/headers';
+import { authFetch, getBaseUrl } from '@/lib/server/api-client';
 import type {
   Intake,
   CreateIntakeInput,
@@ -21,42 +21,6 @@ import type {
  * Get the base URL for API calls in server actions
  * Uses headers() to get the host from the request
  */
-function getBaseUrl(): string {
-  // Try environment variable first
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
-  }
-  
-  // Try to get from headers (works in server components/actions)
-  try {
-    const headersList = headers();
-    const host = headersList.get('host');
-    const protocol = headersList.get('x-forwarded-proto') || 'http';
-    if (host) {
-      return `${protocol}://${host}`;
-    }
-  } catch {
-    // Headers not available, fallback to localhost
-  }
-  
-  // Fallback to localhost
-  return 'http://localhost:3000';
-}
-
-/**
- * Get cookies as a string for fetch headers
- */
-async function getCookieHeader(): Promise<string> {
-  try {
-    const cookieStore = await cookies();
-    return cookieStore
-      .getAll()
-      .map((cookie) => `${cookie.name}=${cookie.value}`)
-      .join('; ');
-  } catch {
-    return '';
-  }
-}
 
 /**
  * Get all intakes for a specific patient
@@ -69,13 +33,8 @@ export async function getIntakesByPatientId(patientId: string): Promise<Intake[]
     const url = new URL('/api/intakes', baseUrl);
     url.searchParams.set('patientId', patientId);
     
-    const cookieHeader = await getCookieHeader();
-
-    const response = await fetch(url.toString(), {
+    const response = await authFetch(url.toString(), {
       cache: 'no-store',
-      headers: {
-        ...(cookieHeader && { Cookie: cookieHeader }),
-      },
     });
 
     if (!response.ok) {
@@ -112,13 +71,8 @@ export async function getIntakeById(intakeId: string): Promise<Intake | null> {
   try {
     const baseUrl = getBaseUrl();
     const url = `${baseUrl}/api/intakes/${intakeId}`;
-    const cookieHeader = await getCookieHeader();
-
-    const response = await fetch(url, {
+    const response = await authFetch(url, {
       cache: 'no-store',
-      headers: {
-        ...(cookieHeader && { Cookie: cookieHeader }),
-      },
     });
 
     if (response.status === 404) {
@@ -163,13 +117,10 @@ export async function createIntake(input: CreateIntakeInput): Promise<Intake> {
   try {
     const baseUrl = getBaseUrl();
     const url = `${baseUrl}/api/intakes`;
-    const cookieHeader = await getCookieHeader();
-
-    const response = await fetch(url, {
+    const response = await authFetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(cookieHeader && { Cookie: cookieHeader }),
       },
       body: JSON.stringify(input),
     });
@@ -230,13 +181,10 @@ export async function updateIntake(
   try {
     const baseUrl = getBaseUrl();
     const url = `${baseUrl}/api/intakes/${intakeId}`;
-    const cookieHeader = await getCookieHeader();
-
-    const response = await fetch(url, {
+    const response = await authFetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...(cookieHeader && { Cookie: cookieHeader }),
       },
       body: JSON.stringify(input),
     });
@@ -332,4 +280,3 @@ export async function deleteIntake(intakeId: string, patientId: string): Promise
     throw error instanceof Error ? error : new Error('Failed to delete intake');
   }
 }
-

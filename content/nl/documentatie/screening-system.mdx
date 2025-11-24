@@ -1,0 +1,203 @@
+---
+title: "Screening Systeem"
+category: "screening-system"
+group: "features"
+version: "1.0.0"
+releaseDate: "2025-11-23"
+status: "completed"
+description: "Screening proces voor nieuwe cliënten: hulpvraag, documenten en besluitvorming"
+---
+
+## Overzicht
+
+Het screening systeem is de eerste stap in het cliënttraject. Hier wordt de hulpvraag van een nieuwe cliënt beoordeeld en wordt bepaald of de cliënt geschikt is voor intake bij de instelling.
+
+**Kernfunctionaliteit:**
+- Hulpvraag vastleggen
+- Documenten uploaden (verwijsbrief, intake formulieren)
+- Screeningsbesluit nemen
+- Afdeling voor intake bepalen
+- Activiteitenlog bijhouden
+
+---
+
+## Screening Pagina
+
+De screening pagina bestaat uit vier hoofdonderdelen:
+
+### 1. Hulpvraag
+
+Hier legt u de zorgvraag van de cliënt vast.
+
+**Hoe te gebruiken:**
+1. Klik in het tekstveld "Hulpvraag"
+2. Beschrijf de hulpvraag van de cliënt in eigen woorden
+3. Neem belangrijke context en achtergrond op
+4. Klik op **"Opslaan"**
+
+**Tips:**
+- Wees specifiek over de aard van de hulpvraag
+- Vermeld urgentie indien van toepassing
+- Noteer bijzondere omstandigheden
+
+### 2. Screeningsbesluit
+
+Het screeningsbesluit is alleen zichtbaar voor psychologen en behandelaars.
+
+**Opties:**
+- **Geschikt voor intake**: Cliënt wordt doorgestuurd voor intake
+- **Niet geschikt / doorverwijzen**: Cliënt wordt niet aangenomen
+
+**Stappen voor "Geschikt voor intake":**
+1. Selecteer **"Geschikt voor intake"**
+2. Kies de **afdeling** waar de intake moet plaatsvinden:
+   - Volwassenen
+   - Jeugd (< 18 jaar)
+   - Forensisch
+   - Verslaving
+   - Ouderen (65+)
+   - FACT
+3. Voeg optioneel **notities** toe bij het besluit
+4. Klik op **"Opslaan besluit"**
+
+**Stappen voor "Niet geschikt":**
+1. Selecteer **"Niet geschikt / doorverwijzen"**
+2. Voeg **notities** toe met reden of alternatief
+3. Klik op **"Opslaan besluit"**
+
+**Waarschuwing:**
+Als er nog geen verwijsbrief is geüpload, wordt een waarschuwing getoond. Het is sterk aan te raden om een verwijsbrief toe te voegen voordat u een definitief besluit neemt.
+
+### 3. Documenten
+
+Upload en beheer documenten voor de screening.
+
+**Documenttypen:**
+- Verwijsbrief (vereist voor volledig dossier)
+- Intake formulier
+- Medische informatie
+- Andere relevante documenten
+
+**Document uploaden:**
+1. Klik op **"Document toevoegen"**
+2. Selecteer het **documenttype**
+3. Voeg optionele **notities** toe
+4. Upload het bestand
+5. Klik op **"Opslaan"**
+
+**Documenten bekijken:**
+- Klik op een document in de lijst om te openen
+- Zie documenttype, datum en notities
+- Download indien nodig
+
+**Documenten verwijderen:**
+- Klik op de verwijderknop bij het document
+- Bevestig de verwijdering
+
+### 4. Activiteitenlog
+
+De activiteitenlog toont automatisch alle acties die zijn uitgevoerd tijdens de screening.
+
+**Vastgelegde activiteiten:**
+- Hulpvraag toegevoegd/gewijzigd
+- Document geüpload
+- Screeningsbesluit genomen
+- Afdeling toegewezen
+
+**Informatie per activiteit:**
+- Type activiteit
+- Tijdstip
+- Details van de actie
+
+De activiteitenlog wordt automatisch bijgewerkt en hoeft niet handmatig te worden beheerd.
+
+---
+
+## Workflow
+
+### Standaard Screening Workflow
+
+1. **Cliënt aanmaken** in het systeem
+2. Naar **Screening** tabblad navigeren
+3. **Hulpvraag** vastleggen op basis van intake gesprek/formulier
+4. **Verwijsbrief** uploaden (indien beschikbaar)
+5. Eventueel aanvullende **documenten** uploaden
+6. **Screeningsbesluit** nemen:
+   - Beoordeel of cliënt geschikt is
+   - Selecteer afdeling bij goedkeuring
+   - Documenteer reden bij afwijzing
+7. Bij goedkeuring: **Intake aanmaken** (zie [Intake Systeem](/documentatie/intake-system))
+
+---
+
+## Toegangsrechten
+
+**Hulpvraag:**
+- Zichtbaar voor: Alle behandelaars
+- Bewerken: Alle behandelaars
+
+**Screeningsbesluit:**
+- Zichtbaar voor: Alleen psychologen en senior behandelaars
+- Bewerken: Alleen psychologen en senior behandelaars
+
+**Documenten:**
+- Zichtbaar voor: Alle behandelaars met toegang tot cliënt
+- Uploaden: Alle behandelaars
+- Verwijderen: Alleen uploader en senior behandelaars
+
+**Activiteitenlog:**
+- Zichtbaar voor: Alle behandelaars
+- Bewerken: Niet mogelijk (automatisch)
+
+---
+
+## Tips voor Gebruik
+
+**Goede praktijk:**
+- Upload altijd een verwijsbrief voordat u een screeningsbesluit neemt
+- Wees helder en beknopt in de hulpvraag omschrijving
+- Documenteer de reden bij afwijzing voor toekomstige referentie
+- Controleer de activiteitenlog voor volledigheid van het proces
+
+**Let op:**
+- Screeningsbesluiten zijn definitief en vormen basis voor vervolgtraject
+- Upload geen documenten met persoonlijke gegevens van derden
+- Alle acties worden automatisch gelogd in de activiteitenlog
+
+**Veelgemaakte fouten:**
+- Vergeten verwijsbrief te uploaden
+- Geen afdeling selecteren bij goedkeuring
+- Onvolledige hulpvraag beschrijving
+
+---
+
+## Na Screening
+
+### Bij goedkeuring (Geschikt voor intake):
+
+1. Screeningsbesluit is vastgelegd met toegewezen afdeling
+2. Ga naar **Intakes** tabblad
+3. Klik op **"Nieuwe Intake"**
+4. Selecteer de juiste afdeling (zoals bepaald bij screening)
+5. Volg de intake workflow (zie [Intake Systeem](/documentatie/intake-system))
+
+### Bij afwijzing (Niet geschikt):
+
+1. Screeningsbesluit is vastgelegd met reden
+2. Informeer cliënt over besluit en alternatieve zorgopties
+3. Dossier kan worden gearchiveerd
+4. Documentatie blijft beschikbaar voor eventuele vragen
+
+---
+
+## Gerelateerde Documentatie
+
+**Workflow:**
+- [Intake Systeem](/documentatie/intake-system) - Vervolg na goedkeuring
+- [Client Management](/documentatie/client-management) - Cliëntbeheer
+
+**Interface:**
+- [Interface Design System](/documentatie/interface-design) - UI/UX specificaties
+
+**Basis:**
+- [Authentication System](/documentatie/authentication) - Toegangsbeheer

@@ -85,19 +85,27 @@
       "status": "planned"
     },
     {
+      "slug": "screening-system",
+      "title": "Screening Systeem",
+      "group": "features",
+      "description": "Screening proces voor nieuwe cliënten met hulpvraag en besluitvorming",
+      "order": 6,
+      "status": "active"
+    },
+    {
       "slug": "intake-system",
       "title": "Intake Systeem",
       "group": "features",
-      "description": "Intake gesprekken en AI-analyse",
-      "order": 6,
-      "status": "planned"
+      "description": "Intake gesprekken en gestructureerde intake-workflow",
+      "order": 7,
+      "status": "active"
     },
     {
       "slug": "treatment-planning",
       "title": "Behandelplanning",
       "group": "features",
       "description": "SMART doelen en voortgang monitoring",
-      "order": 7,
+      "order": 8,
       "status": "planned"
     },
     {
@@ -105,14 +113,14 @@
       "title": "AI Integrations",
       "group": "features",
       "description": "AI-gestuurde workflows",
-      "order": 8
+      "order": 9
     },
     {
       "slug": "verpleegkundige-overdracht",
       "title": "Verpleegkundige Overdracht",
       "group": "features",
       "description": "Efficiënte overdracht voor GGZ verpleegkundigen met ROM-metingen",
-      "order": 9,
+      "order": 10,
       "status": "planned"
     },
     {
@@ -120,7 +128,7 @@
       "title": "Spraakgestuurd Rapporteren",
       "group": "features",
       "description": "AI-gedreven spraakopname voor dictaat en metingen extractie",
-      "order": 10,
+      "order": 11,
       "status": "planned"
     },
     {

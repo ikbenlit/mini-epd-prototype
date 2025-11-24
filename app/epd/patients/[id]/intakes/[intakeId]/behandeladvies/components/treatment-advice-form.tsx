@@ -5,7 +5,7 @@ import { saveTreatmentAdvice } from '../../actions';
 import { Loader2, Calendar, UserCircle, ClipboardList, Share2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { RichTextEditor } from '@/components/rich-text-editor';
-import { SpeechRecorder } from './speech-recorder';
+import { SpeechRecorder } from '@/components/speech-recorder';
 
 interface AdviceData {
   advice?: string;

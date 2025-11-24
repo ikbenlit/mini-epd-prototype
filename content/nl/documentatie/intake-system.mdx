@@ -3,63 +3,201 @@ title: "Intake Systeem"
 category: "intake-system"
 group: "features"
 version: "1.0.0"
-releaseDate: "TBD"
-status: "planned"
-description: "Intake gesprekken registreren, notities maken en AI-gestuurde analyse voor diagnose ondersteuning"
+releaseDate: "2025-11-23"
+status: "completed"
+description: "Intake gesprekken registreren, notities maken en gestructureerde intake-workflow voor GGZ-behandelaars"
 ---
 
-## Overview
+## Overzicht
 
-Het intake systeem vormt de basis voor cliëntbegeleiding in het Mini-ECD prototype. Behandelaars kunnen hier gesprekken documenteren en automatisch laten analyseren door AI.
+Het intake systeem biedt een complete workflow voor het uitvoeren en documenteren van intakes in de GGZ. Na een succesvolle screening wordt een intake aangemaakt waarbij alle aspecten van de hulpvraag systematisch worden gedocumenteerd.
 
 **Kernfunctionaliteit:**
-- Intake gesprekken registreren
-- Gestructureerde notities maken
-- AI-gestuurde samenvatting
-- Probleemprofiel analyse
-- Koppeling naar diagnose
+- Nieuwe intakes aanmaken per afdeling
+- Overzicht van alle intakes van een cliënt
+- Gestructureerde intake met meerdere onderdelen
+- Contactmomenten registreren
+- Anamnese vastleggen
+- Risicotaxatie uitvoeren
+- Diagnose stellen
+- Behandeladvies formuleren
 
 ---
 
-## Binnenkort beschikbaar
+## Intake Aanmaken
 
-Deze documentatie is nog in ontwikkeling. De volgende onderwerpen worden toegevoegd:
+### Nieuwe Intake Starten
 
-**Intake Formulier:**
-- Gespreksnotities editor
-- Gestructureerde vragen
-- Type intake (eerste gesprek, telefonisch, follow-up)
-- Tijdregistratie
+1. Open het cliëntdossier
+2. Navigeer naar het tabblad "Intakes"
+3. Klik op **"Nieuwe Intake"**
+4. Vul het formulier in:
+   - **Titel**: Korte omschrijving (bijv. "Eerste intake ambulant")
+   - **Afdeling**: Selecteer de behandelafdeling (Volwassenen, Jeugd, Forensisch, etc.)
+   - **Status**: Lopend / Afgerond / Geannuleerd
+   - **Startdatum**: Datum van eerste contact
+   - **Notities**: Extra context of bijzonderheden
 
-**AI Samenvatting:**
-- Automatische analyse van notities
-- Kernpunten extractie
-- Probleemcategorieën identificatie
-- Risico-inschatting
+5. Klik op **"Intake Aanmaken"**
 
-**Intake Overzicht:**
-- Chronologische geschiedenis
-- Detail weergave per intake
-- Slide-in panel interface
-- Bewerken en verwijderen
+De intake wordt aangemaakt en u wordt doorgeleid naar de intake detail pagina.
 
-**Probleemprofiel:**
-- DSM-light categorisatie
-- Ernst indicatie
-- Multi-problematiek detectie
-- Overgang naar diagnose
+---
+
+## Intake Overzicht
+
+Het intake overzicht toont alle intakes van een cliënt in chronologische volgorde.
+
+**Weergegeven informatie:**
+- Titel van de intake
+- Afdeling waar de intake plaatsvindt
+- Status (lopend, afgerond, geannuleerd)
+- Startdatum
+
+**Acties:**
+- Klik op een intake om de details te bekijken
+- Bekijk en bewerk alle onderdelen via de tabbladen
+
+---
+
+## Intake Onderdelen
+
+Elke intake bestaat uit meerdere onderdelen die via tabbladen toegankelijk zijn:
+
+### 1. Algemeen
+
+Toont de basisinformatie van de intake:
+- Titel, afdeling, status, startdatum
+- Algemene notities bij de intake
+
+### 2. Contactmomenten
+
+Registreer alle contactmomenten tijdens de intake:
+- **Datum en tijd** van het contact
+- **Type contact**: Gesprek, Telefonisch, E-mail, Overig
+- **Duur** in minuten
+- **Notities** over het contact
+
+**Handelingen:**
+- Voeg een nieuw contactmoment toe
+- Bekijk chronologisch overzicht
+- Verwijder contactmomenten indien nodig
+
+### 3. Kindcheck
+
+Specifiek voor jeugd-intakes: vastleggen van kindcheck informatie conform GGZ-richtlijnen.
+
+### 4. Risicotaxatie
+
+Beoordeel risico's zoals:
+- Suïcidaliteit
+- Agressie
+- Zelfverwaarlozing
+- Middelengebruik
+- Andere risicofactoren
+
+**Per risico vastleggen:**
+- **Datum** van de taxatie
+- **Risicotype**
+- **Ernst**: Laag, Matig, Hoog, Acuut
+- **Bevindingen**: Beschrijving van het risico
+- **Maatregelen**: Genomen acties
+
+### 5. Anamnese
+
+Systematisch verzamelen van voorgeschiedenis:
+
+**Types anamnese:**
+- Psychiatrische anamnese
+- Sociale anamnese
+- Medische anamnese
+- Familieanamnese
+- Ontwikkelingsanamnese
+- Overig
+
+**Per anamnese vastleggen:**
+- **Datum** van gesprek
+- **Type** anamnese
+- **Inhoud**: Bevindingen en observaties
+- **Notities**: Extra context
+
+### 6. Onderzoeken
+
+Registreer alle uitgevoerde onderzoeken:
+- Psychologisch onderzoek
+- Neurologisch onderzoek
+- Laboratoriumonderzoek
+- Beeldvorming
+- Overig
+
+**Per onderzoek:**
+- **Datum**
+- **Type onderzoek**
+- **Uitslag**: Bevindingen
+- **Interpretatie**: Conclusies
+
+### 7. ROM (Routine Outcome Monitoring)
+
+Vastleggen van ROM-metingen voor behandelevaluatie.
+
+### 8. Diagnose
+
+Stel diagnoses volgens DSM-5 classificatie:
+- **Datum** van diagnose
+- **Type**: Hoofddiagnose / Nevendiagnose
+- **DSM-code** en omschrijving
+- **Toelichting**: Onderbouwing van de diagnose
+
+### 9. Behandeladvies
+
+Formuleer het behandeladvies op basis van de intake:
+- **Advies**: Welke behandeling wordt geadviseerd
+- **Doelen**: Behandeldoelen
+- **Afspraken**: Vervolgstappen
+
+---
+
+## Workflow
+
+### Typische Intake Workflow
+
+1. **Intake starten** na screening besluit
+2. **Contactmomenten** plannen en vastleggen
+3. **Kindcheck** uitvoeren (indien van toepassing)
+4. **Risicotaxatie** uitvoeren
+5. **Anamnese** afnemen (meerdere types)
+6. **Onderzoeken** aanvragen en resultaten vastleggen
+7. **ROM-metingen** uitvoeren
+8. **Diagnose** stellen
+9. **Behandeladvies** formuleren
+10. Intake afronden (status wijzigen naar "Afgerond")
+
+---
+
+## Tips voor Gebruik
+
+**Goede praktijk:**
+- Vul onderdelen meteen na het gesprek in voor beste nauwkeurigheid
+- Gebruik de notitievelden voor context die niet in standaardvelden past
+- Documenteer alle contactmomenten voor volledig overzicht
+- Voer risicotaxatie regelmatig uit bij wijzigende situaties
+- Gebruik duidelijke datums om chronologie te behouden
+
+**Let op:**
+- Alle gegevens worden automatisch opgeslagen
+- Verwijderde items kunnen niet worden hersteld
+- Zorg voor complete documentatie voordat u de intake afrondt
 
 ---
 
 ## Gerelateerde Documentatie
 
-**Interface:**
-- [Interface Design System](/documentatie/interface-design) - UI/UX specificaties voor intake schermen
+**Workflow:**
+- [Screening Systeem](/documentatie/screening-system) - Voorafgaand aan intake
 
-**Features:**
-- Client Management (binnenkort)
-- Behandelplanning (binnenkort)
-- AI Integrations (binnenkort)
+**Interface:**
+- [Interface Design System](/documentatie/interface-design) - UI/UX specificaties
 
 **Basis:**
 - [Authentication System](/documentatie/authentication) - Toegangsbeheer
+- [Client Management](/documentatie/client-management) - Cliëntbeheer
