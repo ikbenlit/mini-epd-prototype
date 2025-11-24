@@ -7,7 +7,7 @@
 
 import type { ReactNode } from 'react';
 import { EPDSidebar } from './components/epd-sidebar';
-import { EPDHeader } from './components/epd-header';
+import { EPDLayoutClient } from './components/epd-layout-client';
 import { getUser } from '@/lib/auth/server';
 
 interface EPDLayoutProps {
@@ -26,16 +26,10 @@ export default async function EPDLayout({ children }: EPDLayoutProps) {
         userName={user?.user_metadata?.full_name}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header - Fixed 60px height */}
-        <EPDHeader />
-
-        {/* Page Content - Scrollable */}
-        <main className="flex-1 overflow-auto bg-white">
-          {children}
-        </main>
-      </div>
+      {/* Main Content Area with PatientProvider */}
+      <EPDLayoutClient>
+        {children}
+      </EPDLayoutClient>
     </div>
   );
 }
