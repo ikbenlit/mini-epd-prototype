@@ -55,6 +55,34 @@ export async function createReport(
   return response.json();
 }
 
+export async function updateReport(
+  patientId: string,
+  reportId: string,
+  input: { content: string }
+): Promise<Report> {
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}/api/reports/${reportId}`;
+
+  const response = await authFetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      redirect('/login');
+    }
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || 'Bijwerken mislukt');
+  }
+
+  revalidatePath(`/epd/patients/${patientId}/rapportage`);
+  return response.json();
+}
+
 export async function deleteReport(patientId: string, reportId: string) {
   const baseUrl = getBaseUrl();
   const url = `${baseUrl}/api/reports/${reportId}`;

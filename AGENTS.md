@@ -1,39 +1,23 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `app/`: Next.js app router pages, routes, and layout shell; start edits in `app/page.tsx`.
-- `components/`: Shared UI building blocks (React + Tailwind variants) used across routes.
-- `lib/`: Utilities and integrations (e.g., Supabase client/types in `lib/supabase/`).
-- `content/`, `docs/`: Markdown/docs assets; update here before hardcoding copies in `app/`.
-- `public/`: Static assets served at `/`; keep optimized exports here.
-- `scripts/`: Maintenance helpers (e.g., `scripts/test-contrast.ts`).
-- `supabase/`: Database config and migrations (`supabase/migrations/*.sql`).
+Next.js App Router pages and layouts live in `app/`; start UI work in `app/page.tsx`. Reusable presentation pieces sit in `components/`, while `lib/` holds utilities plus Supabase clients under `lib/supabase/`. Content-first assets live in `content/` and `docs/`; prefer editing Markdown there before copying into React components. Static files (images, fonts, icons) belong in `public/`. Database migrations are versioned under `supabase/migrations/*.sql`, and helper scripts reside in `scripts/`.
 
 ## Build, Test, and Development Commands
-- `pnpm dev` (or `npm run dev`): Start local server at `http://localhost:3000` with hot reload.
-- `pnpm build`: Production bundle; fails on type errors for app and server components.
-- `pnpm start`: Run the built app locally.
-- `pnpm lint`: Run ESLint with Next.js rules over `app/`, `components/`, `lib/`.
-- `pnpm types:generate`: Regenerate Supabase TS types into `lib/supabase/types.ts` (requires project access).
+- `pnpm dev`: launch the local dev server at `http://localhost:3000` with hot reload.
+- `pnpm build`: produce a production bundle; fails on type or server-component errors.
+- `pnpm start`: run the already built app locally for smoke checks.
+- `pnpm lint`: execute ESLint with the Next.js preset across `app/`, `components/`, and `lib/`.
+- `pnpm types:generate`: refresh Supabase typings into `lib/supabase/types.ts` once schema changes land.
 
 ## Coding Style & Naming Conventions
-- Language: TypeScript + React Server/Client Components; follow Next.js app router patterns.
-- Formatting: 2-space indentation; prefer single quotes where lint allows; keep imports sorted logically.
-- Styling: Tailwind-first; compose variants via `class-variance-authority` and `tailwind-merge`.
-- Naming: PascalCase for components, camelCase for helpers, `useX` for hooks, `types.ts` for shared types.
-- Keep client components marked with `"use client"` when needed; avoid client code in server contexts.
+Use TypeScript with 2-space indentation and prefer single quotes where lint allows. Rely on Tailwind classes for styling and compose variants via `class-variance-authority` plus `tailwind-merge`. Keep server components default; add `"use client"` only when interactivity requires it. Components are PascalCase, helpers camelCase, hooks prefixed with `use`, and shared type files named `types.ts`. Keep imports grouped logically and remove unused exports before committing.
 
 ## Testing Guidelines
-- No dedicated automated test harness yet; rely on `pnpm lint` and manual flows in the browser.
-- For data paths, validate Supabase connections with `lib/supabase/test-connection.ts` or local SQL migrations.
-- Add route- or component-level checks (e.g., contrast checks via `scripts/test-contrast.ts`) before shipping UI tweaks.
+There is no full suite yet, so lean on `pnpm lint` plus manual QA in the browser. Validate Supabase connectivity using `lib/supabase/test-connection.ts` whenever credentials or policies change. For UI contrast checks or theming tweaks, run `scripts/test-contrast.ts`. Document manual steps taken when validating PRs, especially for auth or data flows.
 
 ## Commit & Pull Request Guidelines
-- Git history mixes short feature phrases and imperative summaries; keep new commits concise and action-led (e.g., `feat: add login hero` or `fix: align tab spacing`).
-- Prefer scoped, single-purpose commits; include why when the change is non-obvious.
-- PRs: describe user-facing impact, screenshots for UI changes, reproduction steps for bugs, and link issues/tasks when available.
-- Note any Supabase schema changes and the migration file touched; mention if `types:generate` was rerun.
+Commit subjects are short, action-led (e.g., `feat: add login hero`, `fix: align tab spacing`). Keep each commit scoped to a single concern and mention why when behavior is non-obvious. PRs should describe the user-facing impact, include reproduction steps for bug fixes, and attach screenshots for UI changes. Note any Supabase migration touched and whether `pnpm types:generate` was executed.
 
 ## Security & Configuration Tips
-- Environment: keep secrets in `.env.local`; never commit them. Required keys follow Next.js/Supabase conventions (`NEXT_PUBLIC_` for client-safe values).
-- When testing auth/DB flows, ensure Supabase policies (`supabase/migrations/*_policies.sql`) are applied and reviewed.
+Store secrets only in `.env.local`, following Next.js conventions (`NEXT_PUBLIC_` for safe client variables). When altering Supabase tables or policies, apply updates via `supabase/migrations/` and review Row Level Security before pushing. Delete hard-coded credentials from code and logs before submitting changes.

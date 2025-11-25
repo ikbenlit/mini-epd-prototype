@@ -1,5 +1,5 @@
 import { getReports } from './actions';
-import { RapportageWorkspace } from './components/rapportage-workspace';
+import { RapportageWorkspaceV2 } from './components/rapportage-workspace-v2';
 import { getPatient } from '../../actions';
 
 export default async function RapportagePage({
@@ -12,7 +12,7 @@ export default async function RapportagePage({
   const patientName = formatPatientName(patient);
 
   return (
-    <RapportageWorkspace
+    <RapportageWorkspaceV2
       patientId={id}
       patientName={patientName}
       initialReports={reports}
