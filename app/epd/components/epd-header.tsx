@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useMemo, useCallback, memo } from 'react';
 import { Search, MoreVertical, Mic } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { usePatientContext } from './patient-context';
@@ -37,12 +37,71 @@ function StatusBadge({ status }: { status?: string }) {
   );
 }
 
-export function EPDHeader({ className = "" }: EPDHeaderProps) {
+export const EPDHeader = memo(function EPDHeader({ className = "" }: EPDHeaderProps) {
   const { patient } = usePatientContext();
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleNewReportClick = () => {
+  // Memoize patient display data to prevent recalculation on every render
+  const patientDisplay = useMemo(() => {
+    if (!patient) return null;
+
+    // Extract patient data
+    const name = patient.name?.[0];
+    const fullName = name
+      ? [
+          ...(name.prefix || []),
+          ...(name.given || []),
+          name.family,
+        ]
+          .filter(Boolean)
+          .join(' ')
+      : '';
+
+    // Extract status from extension
+    const statusExtension = (patient as any)?.extension?.find(
+      (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/episode-status'
+    );
+    const status = statusExtension?.valueCode;
+
+    // Extract birth date
+    const birthDate = patient.birthDate
+      ? new Date(patient.birthDate).toLocaleDateString('nl-NL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
+      : null;
+
+    // Extract BSN from identifiers
+    const bsnIdentifier = patient.identifier?.find(
+      (id: any) => id.system === 'http://fhir.nl/fhir/NamingSystem/bsn' ||
+                   id.system?.includes('bsn') ||
+                   id.type?.coding?.[0]?.code === 'BSN'
+    );
+    const bsn = bsnIdentifier?.value;
+
+    // Extract last modified
+    const lastModified = patient.meta?.lastUpdated
+      ? new Date(patient.meta.lastUpdated).toLocaleString('nl-NL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : null;
+
+    // Check if John Doe
+    const isJohnDoe = (patient as any)?.extension?.find(
+      (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/john-doe'
+    )?.valueBoolean;
+
+    return { fullName, status, birthDate, bsn, lastModified, isJohnDoe };
+  }, [patient]);
+
+  // Stabilize event handler with useCallback
+  const handleNewReportClick = useCallback(() => {
     if (!patient?.id) return;
     const rapportagePath = `/epd/patients/${patient.id}/rapportage`;
     const onRapportagePage = pathname?.startsWith(rapportagePath);
@@ -58,58 +117,10 @@ export function EPDHeader({ className = "" }: EPDHeaderProps) {
     }
 
     router.push(`${rapportagePath}#rapportage-composer`);
-  };
+  }, [patient?.id, pathname, router]);
 
-  // Extract patient data
-  const name = patient?.name?.[0];
-  const fullName = name
-    ? [
-        ...(name.prefix || []),
-        ...(name.given || []),
-        name.family,
-      ]
-        .filter(Boolean)
-        .join(' ')
-    : '';
-
-  // Extract status from extension
-  const statusExtension = (patient as any)?.extension?.find(
-    (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/episode-status'
-  );
-  const status = statusExtension?.valueCode;
-
-  // Extract birth date
-  const birthDate = patient?.birthDate
-    ? new Date(patient.birthDate).toLocaleDateString('nl-NL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })
-    : null;
-
-  // Extract BSN from identifiers
-  const bsnIdentifier = patient?.identifier?.find(
-    (id: any) => id.system === 'http://fhir.nl/fhir/NamingSystem/bsn' ||
-                 id.system?.includes('bsn') ||
-                 id.type?.coding?.[0]?.code === 'BSN'
-  );
-  const bsn = bsnIdentifier?.value;
-
-  // Extract last modified
-  const lastModified = patient?.meta?.lastUpdated
-    ? new Date(patient.meta.lastUpdated).toLocaleString('nl-NL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
-
-  // Check if John Doe
-  const isJohnDoe = (patient as any)?.extension?.find(
-    (ext: any) => ext.url === 'http://mini-epd.local/fhir/StructureDefinition/john-doe'
-  )?.valueBoolean;
+  // Destructure memoized values for cleaner JSX
+  const { fullName, status, birthDate, bsn, lastModified, isJohnDoe } = patientDisplay || {};
 
   return (
     <header className={`h-[60px] bg-white border-b border-slate-200 flex items-center px-6 ${className}`}>
@@ -179,4 +190,4 @@ export function EPDHeader({ className = "" }: EPDHeaderProps) {
       </div>
     </header>
   );
-}
+});

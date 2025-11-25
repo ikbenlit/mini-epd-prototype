@@ -29,10 +29,15 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
 // Hook to inject patient data into context from nested layouts
 export function useSetPatient(patient: FHIRPatient | null) {
-  const { setPatient } = usePatientContext();
+  const { patient: currentPatient, setPatient } = usePatientContext();
 
   useEffect(() => {
-    setPatient(patient);
-    return () => setPatient(null); // Cleanup when unmounting
-  }, [patient, setPatient]);
+    // Only update if patient ID changed - prevents flashing during navigation
+    if (patient?.id !== currentPatient?.id) {
+      setPatient(patient);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally only depend on ID, not full object
+  }, [patient?.id, currentPatient?.id, setPatient]);
+
+  // No cleanup - keep patient in context during navigation to prevent flashing
 }

@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import {
   Users,
   Settings,
@@ -53,22 +54,119 @@ const level2NavigationItems: NavigationItem[] = [
   { id: "rapportage", name: "Rapportage", icon: FileBarChart, href: "/rapportage" },
 ];
 
+// Memoized sidebar item component to prevent unnecessary re-renders
+interface SidebarItemProps {
+  item: NavigationItem;
+  isActive: boolean;
+  isCollapsed: boolean;
+  onClick: () => void;
+}
+
+const SidebarItem = memo(function SidebarItem({ item, isActive, isCollapsed, onClick }: SidebarItemProps) {
+  const Icon = item.icon;
+
+  return (
+    <li>
+      <Link
+        href={item.href}
+        onClick={onClick}
+        className={cn(
+          "w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group",
+          isActive
+            ? "bg-slate-100 text-slate-900"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+          isCollapsed && "justify-center px-2"
+        )}
+        title={isCollapsed ? item.name : undefined}
+      >
+        <div className="flex items-center justify-center min-w-[20px]">
+          <Icon
+            className={cn(
+              "h-5 w-5 flex-shrink-0",
+              isActive
+                ? "text-slate-700"
+                : "text-slate-500 group-hover:text-slate-700"
+            )}
+          />
+        </div>
+
+        {!isCollapsed && (
+          <div className="flex items-center justify-between w-full">
+            <span className={cn("text-sm", isActive ? "font-medium" : "font-normal")}>
+              {item.name}
+            </span>
+            {item.badge && (
+              <span className={cn(
+                "px-2 py-0.5 text-xs font-medium rounded-full",
+                isActive
+                  ? "bg-slate-200 text-slate-700"
+                  : "bg-slate-100 text-slate-600"
+              )}>
+                {item.badge}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Tooltip for collapsed state */}
+        {isCollapsed && (
+          <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+            {item.name}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
+          </div>
+        )}
+      </Link>
+    </li>
+  );
+}, (prev, next) => {
+  // Custom comparison - only re-render if these props change
+  return prev.item.href === next.item.href &&
+         prev.isActive === next.isActive &&
+         prev.isCollapsed === next.isCollapsed;
+});
+
 export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Context detection: Level 2 if URL contains /patients/[id]
-  const isPatientContext = pathname.match(/\/epd\/patients\/[^\/]+/);
+  const isPatientContext = pathname?.match(/\/epd\/patients\/[^\/]+/);
   const patientId = isPatientContext ? pathname.split('/')[3] : null;
 
-  // Determine which navigation items to show
-  const navigationItems = isPatientContext
-    ? level2NavigationItems.map(item => ({
+  // Memoize navigation items to prevent recreation on every render
+  const navigationItems = useMemo(() => {
+    if (isPatientContext) {
+      return level2NavigationItems.map(item => ({
         ...item,
         href: `/epd/patients/${patientId}${item.href}`
-      }))
-    : level1NavigationItems;
+      }));
+    }
+    return level1NavigationItems;
+  }, [isPatientContext, patientId]);
+
+  // Stabilize event handlers with useCallback
+  const toggleSidebar = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
+
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed(prev => !prev);
+  }, []);
+
+  const handleItemClick = useCallback(() => {
+    if (window.innerWidth < 768) {
+      setIsOpen(false);
+    }
+  }, []);
+
+  // Memoize isActive check function
+  const getIsActive = useCallback((item: NavigationItem): boolean => {
+    if (item.id === 'dashboard') {
+      return pathname === item.href;
+    }
+    return pathname === item.href || Boolean(item.href && pathname?.startsWith(item.href + '/'));
+  }, [pathname]);
 
   // Auto-open sidebar on desktop
   useEffect(() => {
@@ -84,15 +182,6 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const toggleSidebar = () => setIsOpen(!isOpen);
-  const toggleCollapse = () => setIsCollapsed(!isCollapsed);
-
-  const handleItemClick = () => {
-    if (window.innerWidth < 768) {
-      setIsOpen(false);
-    }
-  };
 
   // Get user initials
   const userInitials = userName
@@ -182,71 +271,15 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
           )}
 
           <ul className="space-y-1">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              // For Dashboard (empty suffix), only match exact path
-              // For others, match exact or any sub-route
-              const isActive = item.id === 'dashboard'
-                ? pathname === item.href
-                : pathname === item.href || (item.href && pathname.startsWith(item.href + '/'));
-
-              return (
-                <li key={item.id}>
-                  <Link
-                    href={item.href}
-                    onClick={handleItemClick}
-                    className={`
-                      w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group
-                      ${isActive
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                      }
-                      ${isCollapsed ? "justify-center px-2" : ""}
-                    `}
-                    title={isCollapsed ? item.name : undefined}
-                  >
-                    <div className="flex items-center justify-center min-w-[20px]">
-                      <Icon
-                        className={`
-                          h-5 w-5 flex-shrink-0
-                          ${isActive
-                            ? "text-slate-700"
-                            : "text-slate-500 group-hover:text-slate-700"
-                          }
-                        `}
-                      />
-                    </div>
-
-                    {!isCollapsed && (
-                      <div className="flex items-center justify-between w-full">
-                        <span className={`text-sm ${isActive ? "font-medium" : "font-normal"}`}>
-                          {item.name}
-                        </span>
-                        {item.badge && (
-                          <span className={`
-                            px-2 py-0.5 text-xs font-medium rounded-full
-                            ${isActive
-                              ? "bg-slate-200 text-slate-700"
-                              : "bg-slate-100 text-slate-600"
-                            }
-                          `}>
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Tooltip for collapsed state */}
-                    {isCollapsed && (
-                      <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-                        {item.name}
-                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
-                      </div>
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
+            {navigationItems.map((item) => (
+              <SidebarItem
+                key={item.id}
+                item={item}
+                isActive={getIsActive(item)}
+                isCollapsed={isCollapsed}
+                onClick={handleItemClick}
+              />
+            ))}
           </ul>
         </nav>
 

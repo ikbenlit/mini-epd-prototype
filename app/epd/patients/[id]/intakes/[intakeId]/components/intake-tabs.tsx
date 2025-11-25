@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useCallback, memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -9,11 +10,48 @@ interface IntakeTabsProps {
     intakeId: string;
 }
 
+interface Tab {
+    name: string;
+    href: string;
+    exact?: boolean;
+}
+
+// Memoized tab item component to prevent unnecessary re-renders
+interface TabItemProps {
+    tab: Tab;
+    isActive: boolean;
+}
+
+const TabItem = memo(function TabItem({ tab, isActive }: TabItemProps) {
+    return (
+        <Link
+            href={tab.href}
+            className={cn(
+                'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors',
+                isActive
+                    ? 'border-teal-500 text-teal-600'
+                    : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+            )}
+        >
+            {tab.name}
+        </Link>
+    );
+}, (prev, next) => {
+    // Only re-render if href or active state changes
+    return prev.tab.href === next.tab.href && prev.isActive === next.isActive;
+});
+
 export function IntakeTabs({ patientId, intakeId }: IntakeTabsProps) {
     const pathname = usePathname();
-    const baseUrl = `/epd/patients/${patientId}/intakes/${intakeId}`;
 
-    const tabs = [
+    // Memoize base URL to prevent recalculation
+    const baseUrl = useMemo(
+        () => `/epd/patients/${patientId}/intakes/${intakeId}`,
+        [patientId, intakeId]
+    );
+
+    // Memoize tabs array to prevent recreation on every render
+    const tabs = useMemo<Tab[]>(() => [
         { name: 'Algemeen', href: baseUrl, exact: true },
         { name: 'Contactmomenten', href: `${baseUrl}/contacts` },
         { name: 'Kindcheck', href: `${baseUrl}/kindcheck` },
@@ -23,31 +61,26 @@ export function IntakeTabs({ patientId, intakeId }: IntakeTabsProps) {
         { name: 'ROM', href: `${baseUrl}/rom` },
         { name: 'Diagnose', href: `${baseUrl}/diagnosis` },
         { name: 'Behandeladvies', href: `${baseUrl}/behandeladvies` },
-    ];
+    ], [baseUrl]);
+
+    // Memoize isActive check function
+    const getIsActive = useCallback((tab: Tab) => {
+        if (tab.exact) {
+            return pathname === tab.href;
+        }
+        return pathname?.startsWith(tab.href);
+    }, [pathname]);
 
     return (
         <div className="border-b border-slate-200 bg-white px-6">
             <nav className="-mb-px flex space-x-6 overflow-x-auto">
-                {tabs.map((tab) => {
-                    const isActive = tab.exact
-                        ? pathname === tab.href
-                        : pathname.startsWith(tab.href);
-
-                    return (
-                        <Link
-                            key={tab.name}
-                            href={tab.href}
-                            className={cn(
-                                'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors',
-                                isActive
-                                    ? 'border-teal-500 text-teal-600'
-                                    : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
-                            )}
-                        >
-                            {tab.name}
-                        </Link>
-                    );
-                })}
+                {tabs.map((tab) => (
+                    <TabItem
+                        key={tab.name}
+                        tab={tab}
+                        isActive={getIsActive(tab)}
+                    />
+                ))}
             </nav>
         </div>
     );
