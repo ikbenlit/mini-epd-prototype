@@ -82,7 +82,7 @@
       "group": "features",
       "description": "CRUD operations voor cliënten",
       "order": 5,
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "slug": "screening-system",
@@ -124,11 +124,19 @@
       "status": "planned"
     },
     {
+      "slug": "spraakgestuurde-verslaglegging",
+      "title": "Spraakgestuurde Verslaglegging",
+      "group": "features",
+      "description": "Real-time spraakherkenning voor rapportages via Deepgram",
+      "order": 11,
+      "status": "completed"
+    },
+    {
       "slug": "voice-controlled-reporting",
-      "title": "Spraakgestuurd Rapporteren",
+      "title": "Spraakgestuurd Rapporteren (v2)",
       "group": "features",
       "description": "AI-gedreven spraakopname voor dictaat en metingen extractie",
-      "order": 11,
+      "order": 12,
       "status": "planned"
     },
     {

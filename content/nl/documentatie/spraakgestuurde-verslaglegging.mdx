@@ -1,0 +1,152 @@
+---
+title: "Spraakgestuurde Verslaglegging"
+category: "spraakgestuurde-verslaglegging"
+group: "features"
+version: "1.0.0"
+releaseDate: "2024-11-25"
+status: "completed"
+description: "Dicteer rapportages direct in het EPD met real-time spraakherkenning via Deepgram Nova-2"
+---
+
+## Overview
+
+Met de nieuwe spraakgestuurde verslaglegging kunnen behandelaren rapportages dicteren in plaats van typen. Het systeem transcribeert spraak naar tekst in real-time, waardoor u efficiënter kunt werken en meer tijd overhoudt voor de cliënt.
+
+**Kernvoordelen:**
+- Sneller rapporteren (dicteren vs. typen)
+- Hands-free invoer tijdens of direct na het consult
+- Nederlandse spraakherkenning van hoge kwaliteit
+- Visuele feedback tijdens opname
+
+---
+
+## Hoe te gebruiken
+
+### Stap 1: Open de Rapportage
+
+Navigeer naar een cliëntdossier en klik op **Rapportage** in het menu. U ziet de rapportage-editor met een groene microfoonknop in de werkbalk.
+
+### Stap 2: Start de opname
+
+Klik op de **groene microfoonknop** om de spraakopname te starten.
+
+**Wat u ziet:**
+- De knop wordt oranje met een waveform animatie
+- Een klein vierkant (stop-icoon) verschijnt
+- De browser vraagt eenmalig om microfoontoegang
+
+### Stap 3: Dicteer uw rapportage
+
+Spreek duidelijk en in een normaal tempo. Terwijl u spreekt:
+
+- **Live preview**: Onder de editor verschijnt een oranje balk met de tekst die wordt herkend
+- **Automatische interpunctie**: Punten en komma's worden automatisch toegevoegd
+- **Pauzes worden herkend**: Na een korte stilte wordt de zin als definitief opgeslagen
+
+**Tips voor optimale herkenning:**
+- Spreek in een rustige omgeving
+- Houd de microfoon op normale afstand
+- Dicteer natuurlijk, alsof u tegen een collega spreekt
+- Vermeld bij voorkeur de cliëntnaam aan het begin
+
+### Stap 4: Stop de opname
+
+Klik op het **oranje stop-icoon** om de opname te beëindigen. De getranscribeerde tekst blijft in de editor staan en kan handmatig worden aangepast.
+
+### Stap 5: Bewerk en sla op
+
+- Controleer de getranscribeerde tekst
+- Pas eventuele fouten aan
+- Klik op **Analyseer met AI** voor automatische categorisatie
+- Klik op **Opslaan** om de rapportage vast te leggen
+
+---
+
+## Functionaliteit
+
+### Real-time Transcriptie
+
+De spraak wordt direct naar tekst omgezet terwijl u spreekt. Er is geen wachttijd na de opname - de tekst is meteen beschikbaar.
+
+**Technische specificaties:**
+- Model: Deepgram Nova-2 (geoptimaliseerd voor Nederlands)
+- Latentie: < 300ms
+- Nauwkeurigheid: > 95% voor duidelijke spraak
+
+### Visuele Waveform
+
+Tijdens de opname toont de microfoonknop een mini-waveform met 5 balkjes die meebewegen met uw stem. Dit geeft visuele bevestiging dat de microfoon actief luistert.
+
+### Interim Preview
+
+De oranje preview-balk toont wat het systeem denkt te horen voordat de zin definitief is. Dit verdwijnt automatisch wanneer de tekst wordt bevestigd en in de editor verschijnt.
+
+### Automatische Conceptopslag
+
+Uw rapportage wordt automatisch lokaal opgeslagen terwijl u werkt. Bij een onderbroken sessie (browsercrash, per ongeluk sluiten) kunt u verder waar u gebleven was.
+
+---
+
+## Veelgestelde vragen
+
+### Welke browser ondersteunt spraakopname?
+
+Spraakopname werkt in alle moderne browsers:
+- Chrome (aanbevolen)
+- Firefox
+- Safari
+- Edge
+
+Op oudere browsers of zonder microfoon wordt de knop grijs weergegeven.
+
+### Moet ik iets installeren?
+
+Nee, de spraakherkenning werkt volledig in de browser. Bij eerste gebruik vraagt de browser eenmalig om toegang tot uw microfoon.
+
+### Hoe zit het met privacy?
+
+- Audio wordt versleuteld verzonden naar Deepgram voor transcriptie
+- Audio wordt **niet** opgeslagen na transcriptie
+- Alleen de getranscribeerde tekst wordt bewaard in het EPD
+- Deepgram is AVG-compliant
+
+### Wat als de herkenning fouten maakt?
+
+De tekst in de editor is volledig bewerkbaar. Corrigeer eventuele fouten handmatig voordat u opslaat. Voor medische termen of eigennamen kan handmatige correctie nodig zijn.
+
+### Hoeveel mag ik dicteren?
+
+Er geldt een limiet van 5 opnamesessies per uur per gebruiker. Dit is ruim voldoende voor normale rapportage. Bij het bereiken van de limiet verschijnt een melding.
+
+---
+
+## Bekende beperkingen
+
+- **Achtergrondgeluid**: Veel omgevingsgeluid kan de herkenning verstoren
+- **Meerdere sprekers**: Het systeem is geoptimaliseerd voor één spreker
+- **Medische termen**: Sommige specialistische termen worden mogelijk niet correct herkend
+- **Dialect**: Standaard Nederlands wordt het beste herkend
+
+---
+
+## Keyboard shortcuts
+
+| Actie | Shortcut |
+|-------|----------|
+| Focus naar editor | Tab naar rapportage sectie |
+| Start/stop opname | Klik microfoonknop |
+| Analyseer met AI | Alt + A |
+| Opslaan | Alt + S |
+
+---
+
+## Gerelateerde documentatie
+
+- [Interface Design System](/documentatie/interface-design) - UI patterns en componenten
+- [Authentication System](/documentatie/authentication) - Inloggen en toegangsbeheer
+
+---
+
+## Feedback
+
+Ervaart u problemen met de spraakherkenning of heeft u suggesties? Neem contact op met de beheerder of meld het via de feedbackknop in de applicatie.

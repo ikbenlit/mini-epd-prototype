@@ -47,13 +47,22 @@ export async function getAllReleases(): Promise<ReleaseNote[]> {
       }
     })
 
-  // Sort by group order and then by category
+  // Sort by group order, then by status (completed first), then alphabetically
   return releases.sort((a, b) => {
     const groupOrder = { foundation: 1, features: 2, infrastructure: 3, bugs: 4 }
-    const aOrder = groupOrder[a.frontmatter.group]
-    const bOrder = groupOrder[b.frontmatter.group]
+    const statusOrder = { completed: 1, in_progress: 2, planned: 3 }
 
-    if (aOrder !== bOrder) return aOrder - bOrder
+    // 1. Sort by group
+    const aGroupOrder = groupOrder[a.frontmatter.group]
+    const bGroupOrder = groupOrder[b.frontmatter.group]
+    if (aGroupOrder !== bGroupOrder) return aGroupOrder - bGroupOrder
+
+    // 2. Sort by status (completed first, then in_progress, then planned)
+    const aStatusOrder = statusOrder[a.frontmatter.status] ?? 4
+    const bStatusOrder = statusOrder[b.frontmatter.status] ?? 4
+    if (aStatusOrder !== bStatusOrder) return aStatusOrder - bStatusOrder
+
+    // 3. Sort alphabetically within same status
     return a.frontmatter.category.localeCompare(b.frontmatter.category)
   })
 }
