@@ -144,6 +144,8 @@ export function RapportageWorkspaceV2({
         <ReportComposer
           patientId={patientId}
           patientName={patientName}
+          selectedType={selectedType}
+          onTypeChange={handleTypeSelect}
           selectedReport={selectedReport}
           onReportCreated={handleReportCreated}
           initialContent={duplicateContent}

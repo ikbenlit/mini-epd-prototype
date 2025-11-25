@@ -1,18 +1,35 @@
 'use client';
 
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { Mic, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import type { ClassificationResult, Report } from '@/lib/types/report';
+import type { ClassificationResult, Report, ReportType } from '@/lib/types/report';
 import { createReport } from '../actions';
 import { cn } from '@/lib/utils';
+import type { Editor } from '@/components/rich-text-editor';
+
+// Dynamic imports
+const RichTextEditor = dynamic(
+  () => import('@/components/rich-text-editor').then((m) => m.RichTextEditor),
+  { ssr: false, loading: () => <EditorSkeleton /> }
+);
 
 const SpeechRecorderStreaming = dynamic(
   () => import('@/components/speech-recorder-streaming').then((m) => m.SpeechRecorderStreaming),
   { ssr: false, loading: () => <RecorderSkeleton /> }
 );
+
+function EditorSkeleton() {
+  return (
+    <div className="rounded-lg border border-slate-200 animate-pulse">
+      <div className="h-10 bg-slate-100 border-b border-slate-200" />
+      <div className="h-40 bg-white" />
+    </div>
+  );
+}
 
 function RecorderSkeleton() {
   return (
@@ -23,9 +40,17 @@ function RecorderSkeleton() {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface ReportComposerProps {
   patientId: string;
   patientName: string;
+  /** Het geselecteerde report type (van parent) */
+  selectedType: ReportType;
+  /** Callback om type te wijzigen */
+  onTypeChange?: (type: ReportType) => void;
   selectedReport?: Report | null;
   onReportCreated?: (report: Report) => void;
   /** Initial content voor de editor (bijv. van duplicate) */
@@ -34,64 +59,52 @@ interface ReportComposerProps {
   onInitialContentConsumed?: () => void;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function ReportComposer({
   patientId,
   patientName,
+  selectedType,
+  onTypeChange,
   selectedReport,
   onReportCreated,
   initialContent,
   onInitialContentConsumed,
 }: ReportComposerProps) {
   const router = useRouter();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [editorRef, setEditorRef] = useState<Editor | null>(null);
   const [content, setContent] = useState('');
   const [classification, setClassification] = useState<ClassificationResult | null>(null);
-  const [selectedType, setSelectedType] = useState<'behandeladvies' | 'vrije_notitie'>('vrije_notitie');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastAutosave, setLastAutosave] = useState<Date | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [interimText, setInterimText] = useState('');
+  const [showRecorder, setShowRecorder] = useState(false);
   const draftStorageKey = useMemo(() => `rapportage-draft-${patientId}`, [patientId]);
+
+  // Calculate plain text length from HTML content
+  const textContent = useMemo(() => {
+    if (typeof document === 'undefined') return '';
+    const div = document.createElement('div');
+    div.innerHTML = content;
+    return div.textContent || div.innerText || '';
+  }, [content]);
+
+  const characterCount = textContent.length;
+  const contentInvalid = characterCount < 20 || characterCount > 5000;
 
   // Handle initialContent (e.g., from duplicate)
   useEffect(() => {
     if (initialContent) {
       setContent(initialContent);
       onInitialContentConsumed?.();
-      // Focus en scroll naar einde
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-          textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-        }
-      }, 100);
     }
   }, [initialContent, onInitialContentConsumed]);
 
-  // Cursor naar einde verplaatsen bij start opname
-  const handleRecordingStart = useCallback(() => {
-    setIsStreaming(true);
-    if (textareaRef.current) {
-      const textarea = textareaRef.current;
-      textarea.focus();
-      // Verplaats cursor naar het einde
-      const length = textarea.value.length;
-      textarea.setSelectionRange(length, length);
-      // Scroll naar beneden
-      textarea.scrollTop = textarea.scrollHeight;
-    }
-  }, []);
-
-  const handleRecordingStop = useCallback(() => {
-    setIsStreaming(false);
-    setInterimText('');
-  }, []);
-
-  const characterCount = content.length;
-  const contentInvalid = characterCount < 20 || characterCount > 5000;
-
+  // Load draft from localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const stored = window.localStorage.getItem(draftStorageKey);
@@ -99,14 +112,14 @@ export function ReportComposer({
       try {
         const draft = JSON.parse(stored) as {
           content?: string;
-          type?: 'behandeladvies' | 'vrije_notitie';
+          type?: ReportType;
           updatedAt?: string;
         };
         if (draft.content) {
           setContent(draft.content);
         }
-        if (draft.type) {
-          setSelectedType(draft.type);
+        if (draft.type && onTypeChange) {
+          onTypeChange(draft.type);
         }
         if (draft.updatedAt) {
           setLastAutosave(new Date(draft.updatedAt));
@@ -116,8 +129,9 @@ export function ReportComposer({
         window.localStorage.removeItem(draftStorageKey);
       }
     }
-  }, [draftStorageKey]);
+  }, [draftStorageKey, onTypeChange]);
 
+  // Autosave draft
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!content && selectedType === 'vrije_notitie') {
@@ -139,6 +153,30 @@ export function ReportComposer({
     return () => window.clearTimeout(timeout);
   }, [content, selectedType, draftStorageKey]);
 
+  // Recording handlers
+  const handleRecordingStart = useCallback(() => {
+    setIsStreaming(true);
+    if (editorRef) {
+      editorRef.chain().focus().run();
+    }
+  }, [editorRef]);
+
+  const handleRecordingStop = useCallback(() => {
+    setIsStreaming(false);
+  }, []);
+
+  const handleTranscript = useCallback((text: string) => {
+    setContent((prev) => {
+      // If editor has content, append with space
+      const plainPrev = prev.replace(/<[^>]*>/g, '').trim();
+      if (plainPrev) {
+        return `${prev}<p>${text}</p>`;
+      }
+      return `<p>${text}</p>`;
+    });
+  }, []);
+
+  // Reference snippet for context
   const referenceSnippet = useMemo(() => {
     if (!selectedReport) return null;
     const createdAt = selectedReport.created_at ? new Date(selectedReport.created_at) : null;
@@ -161,10 +199,8 @@ export function ReportComposer({
     try {
       const response = await fetch('/api/reports/classify', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: textContent }),
       });
 
       if (!response.ok) {
@@ -173,11 +209,10 @@ export function ReportComposer({
 
       const result: ClassificationResult = await response.json();
       setClassification(result);
-      setSelectedType(result.type);
+      onTypeChange?.(result.type);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'AI-analyse mislukt';
       setClassification(null);
-      setSelectedType('vrije_notitie');
       setError(message);
       toast({ variant: 'destructive', title: 'AI-analyse mislukt', description: message });
     } finally {
@@ -191,7 +226,7 @@ export function ReportComposer({
     try {
       const created = await createReport(patientId, {
         type: selectedType,
-        content,
+        content: textContent, // Save plain text for now
         ai_confidence: classification?.confidence,
         ai_reasoning: classification?.reasoning,
       });
@@ -202,7 +237,6 @@ export function ReportComposer({
       onReportCreated?.(created);
       setContent('');
       setClassification(null);
-      setSelectedType('vrije_notitie');
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(draftStorageKey);
       }
@@ -219,19 +253,33 @@ export function ReportComposer({
 
   const insertReference = () => {
     if (!selectedReport || !referenceSnippet) return;
-    const prefix = content ? `${content.trim()}\n\n` : '';
-    const block = `> ${referenceSnippet.preview}\n(${referenceSnippet.type} • ${referenceSnippet.meta})`;
-    setContent(`${prefix}${block}\n\n`);
+    const block = `<blockquote>${referenceSnippet.preview}</blockquote><p><em>(${referenceSnippet.type} • ${referenceSnippet.meta})</em></p>`;
+    setContent((prev) => (prev ? `${prev}${block}` : block));
   };
 
-  return (
-    <section
-      id="rapportage-composer"
-      tabIndex={-1}
-      className="focus:outline-none"
+  // Mic button for toolbar
+  const MicToolbarButton = (
+    <button
+      type="button"
+      onClick={() => setShowRecorder((prev) => !prev)}
+      className={cn(
+        'inline-flex h-7 items-center gap-1 px-2 rounded-md text-xs font-medium transition-colors',
+        showRecorder || isStreaming
+          ? 'bg-emerald-100 text-emerald-700'
+          : 'text-slate-600 hover:bg-white hover:text-slate-900'
+      )}
+      title="Spraakopname"
     >
+      <Mic className={cn('h-4 w-4', isStreaming && 'text-emerald-600 animate-pulse')} />
+      {isStreaming && <span className="text-emerald-600">●</span>}
+    </button>
+  );
+
+  return (
+    <section id="rapportage-composer" tabIndex={-1} className="focus:outline-none space-y-4">
+      {/* Reference snippet */}
       {referenceSnippet && (
-        <div className="mb-4 rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
             <span className="font-semibold text-slate-700">Geselecteerde rapportage</span>
             <span>{referenceSnippet.meta}</span>
@@ -239,88 +287,58 @@ export function ReportComposer({
           <p className="mt-2 text-sm text-slate-700">{referenceSnippet.preview}</p>
           <div className="mt-3 flex items-center justify-between">
             <span className="text-xs uppercase tracking-wide text-slate-400">{referenceSnippet.type}</span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={insertReference}
-              disabled={isSaving}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={insertReference} disabled={isSaving}>
               Voeg referentie toe
             </Button>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-4">
-        <div>
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Beschrijf wat je wilt vastleggen..."
-            className={cn(
-              'w-full min-h-[200px] rounded-xl border bg-white p-4 text-sm text-slate-900 shadow-inner focus:outline-none transition-all duration-200',
-              isStreaming
-                ? 'border-emerald-500 border-2 shadow-emerald-500/20 shadow-md'
-                : 'border-slate-200 focus:border-teal-500'
-            )}
-          />
-          {/* Interim tekst preview tijdens streaming */}
-          {interimText && (
-            <div className="mt-1 text-sm text-slate-500 italic px-1">
-              {interimText}
-            </div>
-          )}
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
-            <span>{characterCount} / 5000 karakters</span>
-            {contentInvalid && <span>Minimaal 20 karakters</span>}
-          </div>
-        </div>
+      {/* Editor */}
+      <RichTextEditor
+        value={content}
+        onChange={setContent}
+        placeholder="Begin met typen of gebruik spraakopname..."
+        toolbarExtra={MicToolbarButton}
+        onEditorReady={setEditorRef}
+        isStreaming={isStreaming}
+        minHeight="180px"
+      />
 
-        <SpeechRecorderStreaming
-          disabled={isSaving || isAnalyzing}
-          onTranscript={(text) =>
-            setContent((prev) => (prev ? `${prev} ${text}` : text))
-          }
-          onInterimTranscript={setInterimText}
-          onRecordingStart={handleRecordingStart}
-          onRecordingStop={handleRecordingStop}
-          telemetryContext={{
-            context: 'report_composer',
-            patientId,
-          }}
-        />
-
-        <div className="rounded-xl border border-slate-200 p-4 text-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-slate-900">Rapportagetype</p>
-              <p className="text-xs text-slate-500">Stel handmatig in of gebruik het AI-voorstel.</p>
-            </div>
-            <span className="text-xs text-slate-500">
-              {classification
-                ? `AI: ${classification.type} (${Math.round(classification.confidence * 100)}%)`
-                : 'Nog geen AI-analyse'}
-            </span>
-          </div>
-          {classification?.reasoning && (
-            <p className="mt-2 text-xs text-slate-500">{classification.reasoning}</p>
-          )}
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value as 'behandeladvies' | 'vrije_notitie')}
-            className="mt-3 w-full rounded-md border border-slate-200 bg-white p-2 text-sm"
-          >
-            <option value="behandeladvies">Behandeladvies</option>
-            <option value="vrije_notitie">Vrije notitie</option>
-          </select>
-        </div>
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
+      {/* Character count */}
+      <div className="flex justify-between text-xs text-slate-500 -mt-2">
+        <span>{characterCount} / 5000 karakters</span>
+        {characterCount > 0 && characterCount < 20 && <span className="text-amber-600">Minimaal 20 karakters</span>}
       </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+      {/* Speech recorder (collapsible) */}
+      {showRecorder && (
+        <div className="animate-in slide-in-from-top-2 duration-200">
+          <SpeechRecorderStreaming
+            disabled={isSaving || isAnalyzing}
+            onTranscript={handleTranscript}
+            onRecordingStart={handleRecordingStart}
+            onRecordingStop={handleRecordingStop}
+            telemetryContext={{ context: 'report_composer', patientId }}
+          />
+        </div>
+      )}
+
+      {/* AI Classification result (inline) */}
+      {classification && (
+        <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2">
+          <Sparkles className="h-4 w-4 text-amber-500" />
+          <span>
+            AI suggereert: <strong>{classification.type === 'behandeladvies' ? 'Behandeladvies' : 'Vrije notitie'}</strong>
+            <span className="text-slate-400 ml-1">({Math.round(classification.confidence * 100)}% zeker)</span>
+          </span>
+        </div>
+      )}
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      {/* Footer */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
         <p className="text-xs text-slate-500">
           {isSaving
             ? 'Opslaan bezig…'
@@ -338,13 +356,10 @@ export function ReportComposer({
             onClick={analyzeWithAI}
             disabled={contentInvalid || isAnalyzing || isSaving}
           >
+            <Sparkles className="h-4 w-4 mr-1" />
             {isAnalyzing ? 'Analyseren…' : 'Analyseer met AI'}
           </Button>
-          <Button
-            type="button"
-            onClick={saveReport}
-            disabled={contentInvalid || isSaving}
-          >
+          <Button type="button" onClick={saveReport} disabled={contentInvalid || isSaving}>
             {isSaving ? 'Opslaan…' : 'Opslaan'}
           </Button>
         </div>

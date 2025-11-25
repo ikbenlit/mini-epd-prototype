@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { EditorContent, useEditor } from '@tiptap/react';
+import { useEffect, type ReactNode } from 'react';
+import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Bold, Italic, List, ListOrdered, Quote } from 'lucide-react';
@@ -11,9 +11,25 @@ interface RichTextEditorProps {
   value?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
+  /** Extra content voor in de toolbar (bijv. mic button) */
+  toolbarExtra?: ReactNode;
+  /** Callback met editor instance voor externe controle */
+  onEditorReady?: (editor: Editor) => void;
+  /** Highlight border tijdens streaming */
+  isStreaming?: boolean;
+  /** Min height voor editor */
+  minHeight?: string;
 }
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({
+  value,
+  onChange,
+  placeholder,
+  toolbarExtra,
+  onEditorReady,
+  isStreaming = false,
+  minHeight = '160px',
+}: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -26,12 +42,12 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     content: value || '',
     editorProps: {
       attributes: {
-        class:
-          'prose prose-sm max-w-none focus:outline-none min-h-[160px] px-3 py-2 text-slate-800 bg-white',
+        class: `prose prose-sm max-w-none focus:outline-none px-3 py-2 text-slate-800 bg-white`,
+        style: `min-height: ${minHeight}`,
       },
     },
-    onUpdate({ editor }) {
-      onChange?.(editor.getHTML());
+    onUpdate({ editor: e }) {
+      onChange?.(e.getHTML());
     },
     immediatelyRender: false,
   });
@@ -44,6 +60,13 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     }
   }, [value, editor]);
 
+  // Notify parent when editor is ready
+  useEffect(() => {
+    if (editor && onEditorReady) {
+      onEditorReady(editor);
+    }
+  }, [editor, onEditorReady]);
+
   if (!editor) {
     return <div className="rounded-lg border border-slate-200 h-32 animate-pulse bg-slate-50" />;
   }
@@ -54,60 +77,77 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   };
 
   return (
-    <div className="rounded-lg border border-slate-200 overflow-hidden">
-      <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-2 py-1.5">
-        <button
-          type="button"
-          onClick={() => toggle(() => editor.chain().focus().toggleBold().run())}
-          className={cn(
-            'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
-            editor.isActive('bold') && 'bg-white text-slate-900'
-          )}
-        >
-          <Bold className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => toggle(() => editor.chain().focus().toggleItalic().run())}
-          className={cn(
-            'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
-            editor.isActive('italic') && 'bg-white text-slate-900'
-          )}
-        >
-          <Italic className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => toggle(() => editor.chain().focus().toggleBulletList().run())}
-          className={cn(
-            'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
-            editor.isActive('bulletList') && 'bg-white text-slate-900'
-          )}
-        >
-          <List className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => toggle(() => editor.chain().focus().toggleOrderedList().run())}
-          className={cn(
-            'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
-            editor.isActive('orderedList') && 'bg-white text-slate-900'
-          )}
-        >
-          <ListOrdered className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => toggle(() => editor.chain().focus().toggleBlockquote().run())}
-          className={cn(
-            'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
-            editor.isActive('blockquote') && 'bg-white text-slate-900'
-          )}
-        >
-          <Quote className="h-4 w-4" />
-        </button>
+    <div className={cn(
+      'rounded-lg border overflow-hidden transition-all duration-200',
+      isStreaming
+        ? 'border-emerald-500 border-2 shadow-emerald-500/20 shadow-md'
+        : 'border-slate-200'
+    )}>
+      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => toggle(() => editor.chain().focus().toggleBold().run())}
+            className={cn(
+              'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
+              editor.isActive('bold') && 'bg-white text-slate-900'
+            )}
+          >
+            <Bold className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggle(() => editor.chain().focus().toggleItalic().run())}
+            className={cn(
+              'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
+              editor.isActive('italic') && 'bg-white text-slate-900'
+            )}
+          >
+            <Italic className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggle(() => editor.chain().focus().toggleBulletList().run())}
+            className={cn(
+              'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
+              editor.isActive('bulletList') && 'bg-white text-slate-900'
+            )}
+          >
+            <List className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggle(() => editor.chain().focus().toggleOrderedList().run())}
+            className={cn(
+              'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
+              editor.isActive('orderedList') && 'bg-white text-slate-900'
+            )}
+          >
+            <ListOrdered className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggle(() => editor.chain().focus().toggleBlockquote().run())}
+            className={cn(
+              'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-white',
+              editor.isActive('blockquote') && 'bg-white text-slate-900'
+            )}
+          >
+            <Quote className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Extra toolbar content (e.g., mic button) */}
+        {toolbarExtra && (
+          <div className="flex items-center gap-1">
+            {toolbarExtra}
+          </div>
+        )}
       </div>
       <EditorContent editor={editor} />
     </div>
   );
 }
+
+// Export Editor type for external use
+export type { Editor } from '@tiptap/react';

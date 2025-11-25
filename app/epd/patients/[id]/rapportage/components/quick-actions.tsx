@@ -52,8 +52,6 @@ export function QuickActions({
 
   return (
     <div className={cn('flex flex-wrap items-center gap-2', className)}>
-      <span className="text-sm text-slate-500 mr-1">Nieuwe rapportage:</span>
-      
       {QUICK_ACTIONS.map((action) => {
         const Icon = action.icon
         const isActive = selectedType === action.type
