@@ -5,12 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "check:bundle": "node scripts/check-bundle-size.js",
     "start": "next start",
     "lint": "eslint",
     "types:generate": "npx supabase gen types typescript --project-id dqugbrpwtisgyxscpefg > lib/supabase/types.ts",
     "setup:auth-hook": "tsx scripts/setup-auth-hook.ts"
   },
   "dependencies": {
+    "@deepgram/sdk": "^4.11.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -36,6 +38,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hook-form": "^7.66.1",
+    "react-resizable-panels": "^3.0.6",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.181.1",

@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       ai_events: {
@@ -1103,6 +1078,78 @@ export type Database = {
           },
         ]
       }
+      reports: {
+        Row: {
+          ai_confidence: number | null
+          ai_reasoning: string | null
+          audio_duration_seconds: number | null
+          audio_url: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          parent_report_id: string | null
+          patient_id: string
+          structured_data: Json | null
+          type: string
+          updated_at: string | null
+          updated_by: string | null
+          version: string | null
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_reasoning?: string | null
+          audio_duration_seconds?: number | null
+          audio_url?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          parent_report_id?: string | null
+          patient_id: string
+          structured_data?: Json | null
+          type: string
+          updated_at?: string | null
+          updated_by?: string | null
+          version?: string | null
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_reasoning?: string | null
+          audio_duration_seconds?: number | null
+          audio_url?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          parent_report_id?: string | null
+          patient_id?: string
+          structured_data?: Json | null
+          type?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_parent_report_id_fkey"
+            columns: ["parent_report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       risk_assessments: {
         Row: {
           assessment_date: string
@@ -1320,6 +1367,42 @@ export type Database = {
           },
         ]
       }
+      speech_usage_events: {
+        Row: {
+          action: string
+          context: string
+          created_at: string
+          id: string
+          intake_id: string | null
+          metadata: Json
+          patient_id: string | null
+          report_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          context: string
+          created_at?: string
+          id?: string
+          intake_id?: string | null
+          metadata?: Json
+          patient_id?: string | null
+          report_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          context?: string
+          created_at?: string
+          id?: string
+          intake_id?: string | null
+          metadata?: Json
+          patient_id?: string | null
+          report_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       treatment_plans: {
         Row: {
           client_id: string
@@ -1360,92 +1443,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      reports: {
-        Row: {
-          ai_confidence: number | null
-          ai_reasoning: string | null
-          audio_duration_seconds: number | null
-          audio_url: string | null
-          content: string
-          created_at: string
-          created_by: string | null
-          deleted_at: string | null
-          id: string
-          parent_report_id: string | null
-          patient_id: string
-          structured_data: Json
-          type: string
-          updated_at: string | null
-          updated_by: string | null
-          version: string | null
-        }
-        Insert: {
-          ai_confidence?: number | null
-          ai_reasoning?: string | null
-          audio_duration_seconds?: number | null
-          audio_url?: string | null
-          content: string
-          created_at?: string
-          created_by?: string | null
-          deleted_at?: string | null
-          id?: string
-          parent_report_id?: string | null
-          patient_id: string
-          structured_data?: Json
-          type: string
-          updated_at?: string | null
-          updated_by?: string | null
-          version?: string | null
-        }
-        Update: {
-          ai_confidence?: number | null
-          ai_reasoning?: string | null
-          audio_duration_seconds?: number | null
-          audio_url?: string | null
-          content?: string
-          created_at?: string
-          created_by?: string | null
-          deleted_at?: string | null
-          id?: string
-          parent_report_id?: string | null
-          patient_id?: string
-          structured_data?: Json
-          type?: string
-          updated_at?: string | null
-          updated_by?: string | null
-          version?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reports_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "practitioners"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_parent_report_id_fkey"
-            columns: ["parent_report_id"]
-            isOneToOne: false
-            referencedRelation: "reports"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "practitioners"
             referencedColumns: ["id"]
           },
         ]
@@ -1646,9 +1643,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       careplan_status: [

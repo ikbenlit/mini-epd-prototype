@@ -1,18 +1,37 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { SpeechRecorder } from '@/components/speech-recorder';
 import { toast } from '@/hooks/use-toast';
 import type { ClassificationResult, Report } from '@/lib/types/report';
 import { createReport } from '../actions';
+import { cn } from '@/lib/utils';
+
+const SpeechRecorderStreaming = dynamic(
+  () => import('@/components/speech-recorder-streaming').then((m) => m.SpeechRecorderStreaming),
+  { ssr: false, loading: () => <RecorderSkeleton /> }
+);
+
+function RecorderSkeleton() {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 animate-pulse">
+      <div className="h-4 w-1/2 rounded bg-slate-100 mb-2" />
+      <div className="h-10 rounded bg-slate-100" />
+    </div>
+  );
+}
 
 interface ReportComposerProps {
   patientId: string;
   patientName: string;
   selectedReport?: Report | null;
   onReportCreated?: (report: Report) => void;
+  /** Initial content voor de editor (bijv. van duplicate) */
+  initialContent?: string | null;
+  /** Callback wanneer initialContent is verwerkt */
+  onInitialContentConsumed?: () => void;
 }
 
 export function ReportComposer({
@@ -20,8 +39,11 @@ export function ReportComposer({
   patientName,
   selectedReport,
   onReportCreated,
+  initialContent,
+  onInitialContentConsumed,
 }: ReportComposerProps) {
   const router = useRouter();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [content, setContent] = useState('');
   const [classification, setClassification] = useState<ClassificationResult | null>(null);
   const [selectedType, setSelectedType] = useState<'behandeladvies' | 'vrije_notitie'>('vrije_notitie');
@@ -29,7 +51,43 @@ export function ReportComposer({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastAutosave, setLastAutosave] = useState<Date | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [interimText, setInterimText] = useState('');
   const draftStorageKey = useMemo(() => `rapportage-draft-${patientId}`, [patientId]);
+
+  // Handle initialContent (e.g., from duplicate)
+  useEffect(() => {
+    if (initialContent) {
+      setContent(initialContent);
+      onInitialContentConsumed?.();
+      // Focus en scroll naar einde
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+        }
+      }, 100);
+    }
+  }, [initialContent, onInitialContentConsumed]);
+
+  // Cursor naar einde verplaatsen bij start opname
+  const handleRecordingStart = useCallback(() => {
+    setIsStreaming(true);
+    if (textareaRef.current) {
+      const textarea = textareaRef.current;
+      textarea.focus();
+      // Verplaats cursor naar het einde
+      const length = textarea.value.length;
+      textarea.setSelectionRange(length, length);
+      // Scroll naar beneden
+      textarea.scrollTop = textarea.scrollHeight;
+    }
+  }, []);
+
+  const handleRecordingStop = useCallback(() => {
+    setIsStreaming(false);
+    setInterimText('');
+  }, []);
 
   const characterCount = content.length;
   const contentInvalid = characterCount < 20 || characterCount > 5000;
@@ -170,16 +228,8 @@ export function ReportComposer({
     <section
       id="rapportage-composer"
       tabIndex={-1}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm focus:outline-none"
+      className="focus:outline-none"
     >
-      <div className="mb-4">
-        <p className="text-sm uppercase tracking-wide text-slate-500">Nieuwe rapportage</p>
-        <h2 className="text-xl font-semibold text-slate-900">Voor {patientName}</h2>
-        <p className="text-sm text-slate-500">
-          Schrijf vanuit tekst of spraak en gebruik AI voor typebepaling.
-        </p>
-      </div>
-
       {referenceSnippet && (
         <div className="mb-4 rounded-xl border border-slate-100 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
@@ -205,22 +255,41 @@ export function ReportComposer({
       <div className="flex flex-col gap-4">
         <div>
           <textarea
+            ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Beschrijf wat je wilt vastleggen..."
-            className="w-full min-h-[200px] rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-900 shadow-inner focus:border-teal-500 focus:outline-none"
+            className={cn(
+              'w-full min-h-[200px] rounded-xl border bg-white p-4 text-sm text-slate-900 shadow-inner focus:outline-none transition-all duration-200',
+              isStreaming
+                ? 'border-emerald-500 border-2 shadow-emerald-500/20 shadow-md'
+                : 'border-slate-200 focus:border-teal-500'
+            )}
           />
-          <div className="flex justify-between text-xs text-slate-500">
+          {/* Interim tekst preview tijdens streaming */}
+          {interimText && (
+            <div className="mt-1 text-sm text-slate-500 italic px-1">
+              {interimText}
+            </div>
+          )}
+          <div className="flex justify-between text-xs text-slate-500 mt-1">
             <span>{characterCount} / 5000 karakters</span>
             {contentInvalid && <span>Minimaal 20 karakters</span>}
           </div>
         </div>
 
-        <SpeechRecorder
+        <SpeechRecorderStreaming
           disabled={isSaving || isAnalyzing}
           onTranscript={(text) =>
-            setContent((prev) => (prev ? `${prev}\n${text}` : text))
+            setContent((prev) => (prev ? `${prev} ${text}` : text))
           }
+          onInterimTranscript={setInterimText}
+          onRecordingStart={handleRecordingStart}
+          onRecordingStop={handleRecordingStop}
+          telemetryContext={{
+            context: 'report_composer',
+            patientId,
+          }}
         />
 
         <div className="rounded-xl border border-slate-200 p-4 text-sm">

@@ -1,11 +1,38 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useCallback } from 'react';
 import { saveTreatmentAdvice } from '../../actions';
 import { Loader2, Calendar, UserCircle, ClipboardList, Share2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
-import { RichTextEditor } from '@/components/rich-text-editor';
-import { SpeechRecorder } from '@/components/speech-recorder';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(
+  () => import('@/components/rich-text-editor').then((m) => m.RichTextEditor),
+  { ssr: false, loading: () => <EditorSkeleton /> }
+);
+
+const SpeechRecorderStreaming = dynamic(
+  () => import('@/components/speech-recorder-streaming').then((m) => m.SpeechRecorderStreaming),
+  { ssr: false, loading: () => <RecorderSkeleton /> }
+);
+
+function EditorSkeleton() {
+  return (
+    <div className="space-y-2">
+      <div className="h-8 w-3/4 rounded bg-slate-100 animate-pulse" />
+      <div className="rounded-lg border border-slate-200 h-32 animate-pulse bg-slate-50" />
+    </div>
+  );
+}
+
+function RecorderSkeleton() {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 animate-pulse">
+      <div className="h-4 w-1/2 rounded bg-slate-100 mb-2" />
+      <div className="h-10 rounded bg-slate-100" />
+    </div>
+  );
+}
 
 interface AdviceData {
   advice?: string;
@@ -52,8 +79,10 @@ export function TreatmentAdviceForm({ patientId, intakeId, initialData, initialD
   const [finalize, setFinalize] = useState(Boolean(initialData.outcome));
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [interimText, setInterimText] = useState('');
 
-  const appendTranscript = (text: string) => {
+  const appendTranscript = useCallback((text: string) => {
     if (!text) return;
     const sanitized = text
       .split('\n')
@@ -67,7 +96,16 @@ export function TreatmentAdviceForm({ patientId, intakeId, initialData, initialD
       )
       .join('');
     setForm((prev) => ({ ...prev, advice: `${prev.advice || ''}${sanitized}` }));
-  };
+  }, []);
+
+  const handleRecordingStart = useCallback(() => {
+    setIsStreaming(true);
+  }, []);
+
+  const handleRecordingStop = useCallback(() => {
+    setIsStreaming(false);
+    setInterimText('');
+  }, []);
 
   const handleSubmit = () => {
     if (!form.advice) {
@@ -217,7 +255,22 @@ export function TreatmentAdviceForm({ patientId, intakeId, initialData, initialD
       </div>
 
       <div className="space-y-3">
-        <SpeechRecorder onTranscript={appendTranscript} />
+        <SpeechRecorderStreaming
+          onTranscript={appendTranscript}
+          onInterimTranscript={setInterimText}
+          onRecordingStart={handleRecordingStart}
+          onRecordingStop={handleRecordingStop}
+          telemetryContext={{
+            context: 'treatment_advice',
+            patientId,
+            intakeId,
+          }}
+        />
+        {interimText && (
+          <div className="text-sm text-slate-500 italic bg-slate-50 p-2 rounded border border-slate-200">
+            {interimText}
+          </div>
+        )}
         <RichTextEditor
           value={form.advice}
           onChange={(html) => setForm((prev) => ({ ...prev, advice: html }))}

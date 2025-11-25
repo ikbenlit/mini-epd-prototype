@@ -1,6 +1,25 @@
-import { NewIntakeForm } from '../components/new-intake-form';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+
+const NewIntakeForm = dynamic(
+    () => import('../components/new-intake-form').then((m) => m.NewIntakeForm),
+    { ssr: false, loading: () => <FormSkeleton /> }
+);
+
+function FormSkeleton() {
+    return (
+        <div className="space-y-4 animate-pulse">
+            <div className="h-5 w-1/3 rounded bg-slate-200" />
+            <div className="h-10 rounded bg-slate-100" />
+            <div className="h-5 w-1/4 rounded bg-slate-200" />
+            <div className="h-10 rounded bg-slate-100" />
+            <div className="h-5 w-1/4 rounded bg-slate-200" />
+            <div className="h-10 rounded bg-slate-100" />
+            <div className="h-10 rounded bg-slate-200" />
+        </div>
+    );
+}
 
 interface NewIntakePageProps {
     params: Promise<{ id: string }>;
@@ -31,4 +50,3 @@ export default async function NewIntakePage({ params }: NewIntakePageProps) {
         </div>
     );
 }
-

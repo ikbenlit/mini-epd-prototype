@@ -43,6 +43,11 @@ const nextConfig = {
         },
       };
     }
+
+    // Avoid serializing very large strings into webpack's filesystem cache during production builds
+    if (!dev) {
+      config.cache = { type: 'memory' };
+    }
     return config;
   },
 };
