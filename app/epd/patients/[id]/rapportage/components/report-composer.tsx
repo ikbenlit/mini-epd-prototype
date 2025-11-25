@@ -3,13 +3,13 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { Mic, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import type { ClassificationResult, Report, ReportType } from '@/lib/types/report';
 import { createReport } from '../actions';
-import { cn } from '@/lib/utils';
 import type { Editor } from '@/components/rich-text-editor';
+import { ToolbarMicButton } from './toolbar-mic-button';
 
 // Dynamic imports
 const RichTextEditor = dynamic(
@@ -17,25 +17,11 @@ const RichTextEditor = dynamic(
   { ssr: false, loading: () => <EditorSkeleton /> }
 );
 
-const SpeechRecorderStreaming = dynamic(
-  () => import('@/components/speech-recorder-streaming').then((m) => m.SpeechRecorderStreaming),
-  { ssr: false, loading: () => <RecorderSkeleton /> }
-);
-
 function EditorSkeleton() {
   return (
     <div className="rounded-lg border border-slate-200 animate-pulse">
       <div className="h-10 bg-slate-100 border-b border-slate-200" />
       <div className="h-40 bg-white" />
-    </div>
-  );
-}
-
-function RecorderSkeleton() {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 animate-pulse">
-      <div className="h-4 w-1/2 rounded bg-slate-100 mb-2" />
-      <div className="h-10 rounded bg-slate-100" />
     </div>
   );
 }
@@ -81,8 +67,8 @@ export function ReportComposer({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastAutosave, setLastAutosave] = useState<Date | null>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [showRecorder, setShowRecorder] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [interimText, setInterimText] = useState('');
   const draftStorageKey = useMemo(() => `rapportage-draft-${patientId}`, [patientId]);
 
   // Calculate plain text length from HTML content
@@ -155,14 +141,16 @@ export function ReportComposer({
 
   // Recording handlers
   const handleRecordingStart = useCallback(() => {
-    setIsStreaming(true);
+    setIsRecording(true);
+    setInterimText('');
     if (editorRef) {
       editorRef.chain().focus().run();
     }
   }, [editorRef]);
 
   const handleRecordingStop = useCallback(() => {
-    setIsStreaming(false);
+    setIsRecording(false);
+    setInterimText('');
   }, []);
 
   const handleTranscript = useCallback((text: string) => {
@@ -174,6 +162,10 @@ export function ReportComposer({
       }
       return `<p>${text}</p>`;
     });
+  }, []);
+
+  const handleInterimTranscript = useCallback((text: string) => {
+    setInterimText(text);
   }, []);
 
   // Reference snippet for context
@@ -257,22 +249,16 @@ export function ReportComposer({
     setContent((prev) => (prev ? `${prev}${block}` : block));
   };
 
-  // Mic button for toolbar
+  // Mic button for toolbar - directly starts/stops recording
   const MicToolbarButton = (
-    <button
-      type="button"
-      onClick={() => setShowRecorder((prev) => !prev)}
-      className={cn(
-        'inline-flex h-7 items-center gap-1 px-2 rounded-md text-xs font-medium transition-colors',
-        showRecorder || isStreaming
-          ? 'bg-emerald-100 text-emerald-700'
-          : 'text-slate-600 hover:bg-white hover:text-slate-900'
-      )}
-      title="Spraakopname"
-    >
-      <Mic className={cn('h-4 w-4', isStreaming && 'text-emerald-600 animate-pulse')} />
-      {isStreaming && <span className="text-emerald-600">●</span>}
-    </button>
+    <ToolbarMicButton
+      onTranscript={handleTranscript}
+      onInterimTranscript={handleInterimTranscript}
+      onRecordingStart={handleRecordingStart}
+      onRecordingStop={handleRecordingStop}
+      disabled={isSaving || isAnalyzing}
+      patientId={patientId}
+    />
   );
 
   return (
@@ -301,28 +287,22 @@ export function ReportComposer({
         placeholder="Begin met typen of gebruik spraakopname..."
         toolbarExtra={MicToolbarButton}
         onEditorReady={setEditorRef}
-        isStreaming={isStreaming}
+        isStreaming={isRecording}
         minHeight="180px"
       />
+
+      {/* Interim transcript preview during recording */}
+      {interimText && (
+        <div className="text-sm text-slate-500 italic bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 -mt-2 animate-pulse">
+          {interimText}
+        </div>
+      )}
 
       {/* Character count */}
       <div className="flex justify-between text-xs text-slate-500 -mt-2">
         <span>{characterCount} / 5000 karakters</span>
         {characterCount > 0 && characterCount < 20 && <span className="text-amber-600">Minimaal 20 karakters</span>}
       </div>
-
-      {/* Speech recorder (collapsible) */}
-      {showRecorder && (
-        <div className="animate-in slide-in-from-top-2 duration-200">
-          <SpeechRecorderStreaming
-            disabled={isSaving || isAnalyzing}
-            onTranscript={handleTranscript}
-            onRecordingStart={handleRecordingStart}
-            onRecordingStop={handleRecordingStop}
-            telemetryContext={{ context: 'report_composer', patientId }}
-          />
-        </div>
-      )}
 
       {/* AI Classification result (inline) */}
       {classification && (

@@ -78,12 +78,12 @@ export interface UseDeepgramStreamingReturn {
 
 function checkBrowserSupport(): boolean {
   if (typeof window === 'undefined') return false
-  
+
   const hasMediaDevices = !!(navigator.mediaDevices?.getUserMedia)
   const hasMediaRecorder = typeof MediaRecorder !== 'undefined'
   const hasAudioContext = typeof AudioContext !== 'undefined' || typeof (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext !== 'undefined'
   const hasWebSocket = typeof WebSocket !== 'undefined'
-  
+
   return hasMediaDevices && hasMediaRecorder && hasAudioContext && hasWebSocket
 }
 
@@ -152,10 +152,13 @@ export function useDeepgramStreaming({
 
   // Fetch token van onze proxy endpoint
   const fetchToken = useCallback(async (): Promise<string> => {
+    console.log('[Deepgram] Fetching token from /api/deepgram/token...')
     const response = await fetch('/api/deepgram/token', { method: 'POST' })
+    console.log('[Deepgram] Token response status:', response.status)
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}))
+      console.error('[Deepgram] Token fetch failed:', response.status, data)
       if (response.status === 429) {
         throw new Error('Rate limit bereikt. Probeer over een uur opnieuw.')
       }
@@ -166,18 +169,26 @@ export function useDeepgramStreaming({
     }
 
     const data = await response.json()
+    console.log('[Deepgram] Token received, expiresIn:', data.expiresIn)
     return data.token
   }, [])
 
   // Setup WebSocket verbinding met Deepgram
   const connect = useCallback(async () => {
+    console.log('[Deepgram] connect() called')
     try {
       updateStatus('connecting')
       setError(null)
 
       const token = await fetchToken()
-      const deepgram = createClient(token)
 
+      // IMPORTANT: Use accessToken option for JWT tokens from grantToken()
+      // This uses Bearer scheme authentication instead of Token scheme
+      // See: https://github.com/deepgram/deepgram-js-sdk
+      console.log('[Deepgram] Creating Deepgram client with accessToken...')
+      const deepgram = createClient({ accessToken: token })
+
+      console.log('[Deepgram] Creating live connection with options:', { model, language, endpointingMs })
       const connection = deepgram.listen.live({
         model,
         language,
@@ -187,9 +198,11 @@ export function useDeepgramStreaming({
         punctuate: true,
         utterances: true,
       })
+      console.log('[Deepgram] Live connection created, setting up event handlers...')
 
       // Event handlers
       connection.on(LiveTranscriptionEvents.Open, () => {
+        console.log('[Deepgram] WebSocket OPEN')
         updateStatus('connected')
         reconnectAttemptsRef.current = 0
         setError(null)
@@ -226,7 +239,7 @@ export function useDeepgramStreaming({
       )
 
       connection.on(LiveTranscriptionEvents.Error, (err: Error) => {
-        console.error('Deepgram WebSocket error:', err)
+        console.error('[Deepgram] WebSocket ERROR:', err)
         setError(err.message || 'WebSocket fout')
         updateStatus('error')
         onErrorRef.current?.(err)
@@ -238,6 +251,7 @@ export function useDeepgramStreaming({
       })
 
       connection.on(LiveTranscriptionEvents.Close, () => {
+        console.log('[Deepgram] WebSocket CLOSE')
         if (shouldReconnectRef.current && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
           handleReconnect()
         } else {
@@ -246,8 +260,9 @@ export function useDeepgramStreaming({
       })
 
       liveClientRef.current = connection
+      console.log('[Deepgram] Connection setup complete')
     } catch (err) {
-      console.error('Connection error:', err)
+      console.error('[Deepgram] Connection error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Verbindingsfout'
       setError(errorMessage)
       updateStatus('error')
@@ -281,10 +296,14 @@ export function useDeepgramStreaming({
 
   // Setup audio stream en analyser
   const setupAudio = useCallback(async () => {
+    console.log('[Deepgram] setupAudio() called')
+    console.log('[Deepgram] Requesting microphone access...')
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    console.log('[Deepgram] Microphone access granted')
     mediaStreamRef.current = stream
 
     // Setup Web Audio API voor waveform
+    console.log('[Deepgram] Setting up AudioContext...')
     const audioContext = new AudioContext()
     const source = audioContext.createMediaStreamSource(stream)
     const analyser = audioContext.createAnalyser()
@@ -300,6 +319,7 @@ export function useDeepgramStreaming({
       : MediaRecorder.isTypeSupported('audio/mp4')
         ? 'audio/mp4'
         : undefined // Browser default
+    console.log('[Deepgram] Using mimeType:', mimeType || 'browser default')
 
     // Setup MediaRecorder voor streaming naar Deepgram
     const mediaRecorder = mimeType
@@ -312,26 +332,32 @@ export function useDeepgramStreaming({
       }
     }
 
+    console.log('[Deepgram] Starting MediaRecorder with interval:', AUDIO_CHUNK_INTERVAL_MS)
     mediaRecorder.start(AUDIO_CHUNK_INTERVAL_MS)
     mediaRecorderRef.current = mediaRecorder
+    console.log('[Deepgram] Audio setup complete')
   }, [])
 
   // Start opname
   const startRecording = useCallback(async () => {
+    console.log('[Deepgram] startRecording() called')
     try {
       setError(null)
       shouldReconnectRef.current = true
 
       // Eerst WebSocket verbinding opzetten
+      console.log('[Deepgram] Step 1: Connecting to Deepgram...')
       await connect()
 
       // Dan audio stream starten
+      console.log('[Deepgram] Step 2: Setting up audio...')
       await setupAudio()
 
+      console.log('[Deepgram] Recording started successfully')
       setIsRecording(true)
       setIsPaused(false)
     } catch (err) {
-      console.error('Start recording error:', err)
+      console.error('[Deepgram] startRecording error:', err)
       const errorMessage =
         err instanceof Error ? err.message : 'Kon opname niet starten'
 

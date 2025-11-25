@@ -80,7 +80,7 @@ export function RichTextEditor({
     <div className={cn(
       'rounded-lg border overflow-hidden transition-all duration-200',
       isStreaming
-        ? 'border-emerald-500 border-2 shadow-emerald-500/20 shadow-md'
+        ? 'border-orange-500 border-2 shadow-orange-500/20 shadow-md'
         : 'border-slate-200'
     )}>
       <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-2 py-1.5">

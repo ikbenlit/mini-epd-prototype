@@ -127,8 +127,9 @@ const SidebarItem = memo(function SidebarItem({ item, isActive, isCollapsed, onC
 
 export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarProps) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Context detection: Level 2 if URL contains /patients/[id]
   const isPatientContext = pathname?.match(/\/epd\/patients\/[^\/]+/);
@@ -145,20 +146,19 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
     return level1NavigationItems;
   }, [isPatientContext, patientId]);
 
-  // Stabilize event handlers with useCallback
-  const toggleSidebar = useCallback(() => {
-    setIsOpen(prev => !prev);
-  }, []);
-
   const toggleCollapse = useCallback(() => {
     setIsCollapsed(prev => !prev);
   }, []);
 
+  const toggleSidebar = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
+
   const handleItemClick = useCallback(() => {
-    if (window.innerWidth < 768) {
+    if (isMobile) {
       setIsOpen(false);
     }
-  }, []);
+  }, [isMobile]);
 
   // Memoize isActive check function
   const getIsActive = useCallback((item: NavigationItem): boolean => {
@@ -168,13 +168,14 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
     return pathname === item.href || Boolean(item.href && pathname?.startsWith(item.href + '/'));
   }, [pathname]);
 
-  // Auto-open sidebar on desktop
+  // Track mobile state and auto-collapse on mobile
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsOpen(true);
-      } else {
-        setIsOpen(false);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Auto-collapse on mobile, remember preference on desktop
+      if (mobile) {
+        setIsCollapsed(true);
       }
     };
 
@@ -182,6 +183,9 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Effective collapsed state: always collapsed on mobile
+  const effectiveCollapsed = isMobile || isCollapsed;
 
   // Get user initials
   const userInitials = userName
