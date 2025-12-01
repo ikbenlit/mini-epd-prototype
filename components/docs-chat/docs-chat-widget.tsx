@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 
 import { ChatInput } from './chat-input'
 import { ChatMessages } from './chat-messages'
+import { ChatSuggestions } from './chat-suggestions'
 import { useDocsChat } from './use-docs-chat'
 
 /**
@@ -104,6 +105,14 @@ export function DocsChatWidget() {
 
         {/* Messages */}
         <ChatMessages messages={messages} isStreaming={isStreaming} />
+
+        {/* Suggestions - show only when just welcome message */}
+        {messages.length === 1 && messages[0].id === 'welcome' && (
+          <ChatSuggestions
+            onSelect={sendMessage}
+            disabled={isLoading || isStreaming}
+          />
+        )}
 
         {/* Input */}
         <ChatInput

@@ -44,7 +44,7 @@ const WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
   content:
-    'Hallo! Ik ben je EPD assistent voor het Mini-EPD. Stel me een vraag over het systeem, bijvoorbeeld:\n\n• Hoe maak ik een intake aan?\n• Hoe werkt de spraakherkenning?\n• Waar vind ik het behandelplan?',
+    'Hallo! Ik ben je EPD assistent. Stel me een vraag over het systeem of kies een onderwerp hieronder.',
 }
 
 /**
