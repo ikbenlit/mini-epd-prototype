@@ -132,6 +132,14 @@
       "status": "completed"
     },
     {
+      "slug": "ai-documentatie-assistent",
+      "title": "AI Documentatie Assistent",
+      "group": "features",
+      "description": "Chat widget voor hulp bij het gebruik van het EPD",
+      "order": 13,
+      "status": "completed"
+    },
+    {
       "slug": "voice-controlled-reporting",
       "title": "Spraakgestuurd Rapporteren (v2)",
       "group": "features",

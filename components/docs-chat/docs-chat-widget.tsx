@@ -65,7 +65,7 @@ export function DocsChatWidget() {
             </div>
             <div>
               <h2 className="font-semibold text-slate-900 text-sm">
-                Documentatie Assistent
+                EPD Assistent
               </h2>
               <p className="text-xs text-slate-500">
                 Stel vragen over het EPD

@@ -6,7 +6,7 @@ import { detectCategories } from '@/lib/docs/category-detector'
 import { loadKnowledgeSections } from '@/lib/docs/knowledge-loader'
 import { buildSystemPrompt } from '@/lib/docs/prompt-builder'
 
-const DOCS_ASSISTANT_MODEL = process.env.DOCS_ASSISTANT_MODEL ?? 'claude-3-5-sonnet-20240620'
+const DOCS_ASSISTANT_MODEL = process.env.DOCS_ASSISTANT_MODEL ?? 'claude-sonnet-4-20250514'
 const MAX_HISTORY_MESSAGES = 10
 const MAX_USER_MESSAGE_LENGTH = 2000
 
