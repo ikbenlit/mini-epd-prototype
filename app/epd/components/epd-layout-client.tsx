@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { EPDHeader } from './epd-header';
 import { PatientProvider } from './patient-context';
+import { DocsChatWidget } from '@/components/docs-chat';
 
 interface EPDLayoutClientProps {
   children: ReactNode;
@@ -19,6 +20,9 @@ export function EPDLayoutClient({ children }: EPDLayoutClientProps) {
         <main className="flex-1 overflow-auto bg-white">
           {children}
         </main>
+
+        {/* AI Documentation Assistant */}
+        <DocsChatWidget />
       </div>
     </PatientProvider>
   );

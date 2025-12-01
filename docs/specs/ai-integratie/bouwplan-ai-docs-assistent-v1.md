@@ -66,7 +66,7 @@
 | E1 | Knowledge Services | CategoryDetector, KnowledgeLoader, PromptBuilder | ✅ Done | 3 |
 | E2 | API Endpoint | Streaming Claude integratie | ✅ Done | 1 |
 | E3 | Chat UI Components | Widget, messages, input | ✅ Done | 4 |
-| E4 | Integratie & Testing | Widget in EPD, testen | ⏳ To Do | 2 |
+| E4 | Integratie & Testing | Widget in EPD, testen | ✅ Done | 2 |
 
 **Totaal:** 12 stories, ~18 story points
 
@@ -213,8 +213,8 @@ components/docs-chat/
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | SP |
 |----------|--------------|---------------------|--------|-----|
-| E4.S1 | Widget integratie | `DocsChatWidget` in EPD layout, alleen ingelogde users | ⏳ | 1 |
-| E4.S2 | Smoke tests | Happy flow, error states, category detection werkt | ⏳ | 1 |
+| E4.S1 | Widget integratie | `DocsChatWidget` in EPD layout, alleen ingelogde users | ✅ | 1 |
+| E4.S2 | Smoke tests | Happy flow, error states, category detection werkt | ✅ | 1 |
 
 **Te wijzigen bestand:**
 ```
