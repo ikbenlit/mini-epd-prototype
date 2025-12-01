@@ -10,6 +10,40 @@ const DOCS_ASSISTANT_MODEL = process.env.DOCS_ASSISTANT_MODEL ?? 'claude-sonnet-
 const MAX_HISTORY_MESSAGES = 10
 const MAX_USER_MESSAGE_LENGTH = 2000
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10 // max requests per window
+
+// In-memory rate limit store (resets on server restart)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+
+function checkRateLimit(userId: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now()
+  const record = rateLimitStore.get(userId)
+
+  // Clean up expired entries periodically
+  if (rateLimitStore.size > 1000) {
+    for (const [key, value] of rateLimitStore.entries()) {
+      if (value.resetTime < now) {
+        rateLimitStore.delete(key)
+      }
+    }
+  }
+
+  if (!record || record.resetTime < now) {
+    // New window
+    rateLimitStore.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS })
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS }
+  }
+
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0, resetIn: record.resetTime - now }
+  }
+
+  record.count++
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count, resetIn: record.resetTime - now }
+}
+
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string().min(1).max(4000),
@@ -27,6 +61,26 @@ export async function POST(request: NextRequest) {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Niet geauthenticeerd' }, { status: 401 })
+    }
+
+    // Check rate limit
+    const rateLimit = checkRateLimit(session.user.id)
+    if (!rateLimit.allowed) {
+      const resetInSeconds = Math.ceil(rateLimit.resetIn / 1000)
+      return NextResponse.json(
+        {
+          error: `Te veel verzoeken. Probeer het over ${resetInSeconds} seconden opnieuw.`,
+          resetIn: resetInSeconds
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(Math.ceil(Date.now() / 1000) + resetInSeconds),
+            'Retry-After': String(resetInSeconds),
+          }
+        }
+      )
     }
 
     const json = await request.json()

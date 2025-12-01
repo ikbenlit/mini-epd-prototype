@@ -19,6 +19,8 @@ interface UseDocsChatState {
   isLoading: boolean
   isStreaming: boolean
   error: string | null
+  isRateLimited: boolean
+  rateLimitResetTime: number | null // timestamp when rate limit resets
 }
 
 /**
@@ -28,6 +30,7 @@ interface UseDocsChatReturn extends UseDocsChatState {
   sendMessage: (content: string) => Promise<void>
   clearMessages: () => void
   clearError: () => void
+  clearRateLimit: () => void
 }
 
 /**
@@ -66,6 +69,8 @@ export function useDocsChat(): UseDocsChatReturn {
     isLoading: false,
     isStreaming: false,
     error: null,
+    isRateLimited: false,
+    rateLimitResetTime: null,
   })
 
   const sendMessage = useCallback(async (content: string) => {
@@ -111,6 +116,20 @@ export function useDocsChat(): UseDocsChatReturn {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
+
+        // Handle rate limit specifically
+        if (response.status === 429) {
+          const resetIn = errorData.resetIn ?? 60 // default 60 seconds
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            isRateLimited: true,
+            rateLimitResetTime: Date.now() + (resetIn * 1000),
+            messages: prev.messages.filter((m) => m.id !== assistantMessage.id),
+          }))
+          return
+        }
+
         throw new Error(errorData.error || `Fout: ${response.status}`)
       }
 
@@ -192,6 +211,8 @@ export function useDocsChat(): UseDocsChatReturn {
       isLoading: false,
       isStreaming: false,
       error: null,
+      isRateLimited: false,
+      rateLimitResetTime: null,
     })
   }, [])
 
@@ -199,10 +220,15 @@ export function useDocsChat(): UseDocsChatReturn {
     setState((prev) => ({ ...prev, error: null }))
   }, [])
 
+  const clearRateLimit = useCallback(() => {
+    setState((prev) => ({ ...prev, isRateLimited: false, rateLimitResetTime: null }))
+  }, [])
+
   return {
     ...state,
     sendMessage,
     clearMessages,
     clearError,
+    clearRateLimit,
   }
 }

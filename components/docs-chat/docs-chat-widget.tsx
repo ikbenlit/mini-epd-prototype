@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { ChatInput } from './chat-input'
 import { ChatMessages } from './chat-messages'
 import { ChatSuggestions } from './chat-suggestions'
+import { RateLimitMessage } from './rate-limit-message'
 import { useDocsChat } from './use-docs-chat'
 
 /**
@@ -19,7 +20,7 @@ import { useDocsChat } from './use-docs-chat'
  */
 export function DocsChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, isLoading, isStreaming, error, sendMessage, clearError } = useDocsChat()
+  const { messages, isLoading, isStreaming, error, isRateLimited, rateLimitResetTime, sendMessage, clearError, clearRateLimit } = useDocsChat()
 
   return (
     <>
@@ -106,8 +107,16 @@ export function DocsChatWidget() {
         {/* Messages */}
         <ChatMessages messages={messages} isStreaming={isStreaming} />
 
-        {/* Suggestions - show only when just welcome message */}
-        {messages.length === 1 && messages[0].id === 'welcome' && (
+        {/* Rate limit message */}
+        {isRateLimited && (
+          <RateLimitMessage
+            resetTime={rateLimitResetTime}
+            onReset={clearRateLimit}
+          />
+        )}
+
+        {/* Suggestions - show only when just welcome message and not rate limited */}
+        {!isRateLimited && messages.length === 1 && messages[0].id === 'welcome' && (
           <ChatSuggestions
             onSelect={sendMessage}
             disabled={isLoading || isStreaming}
@@ -117,7 +126,7 @@ export function DocsChatWidget() {
         {/* Input */}
         <ChatInput
           onSend={sendMessage}
-          disabled={isLoading || isStreaming}
+          disabled={isLoading || isStreaming || isRateLimited}
         />
       </div>
     </>
