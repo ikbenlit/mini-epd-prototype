@@ -711,6 +711,57 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          budget: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          ip_address: unknown
+          message: string
+          name: string
+          notes: string | null
+          project_type: string
+          referrer: string | null
+          source: string | null
+          status: string
+          user_agent: string | null
+        }
+        Insert: {
+          budget?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          ip_address?: unknown
+          message: string
+          name: string
+          notes?: string | null
+          project_type: string
+          referrer?: string | null
+          source?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Update: {
+          budget?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: unknown
+          message?: string
+          name?: string
+          notes?: string | null
+          project_type?: string
+          referrer?: string | null
+          source?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       observations: {
         Row: {
           body_site: string | null
@@ -1088,7 +1139,9 @@ export type Database = {
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          encounter_id: string | null
           id: string
+          intake_id: string | null
           parent_report_id: string | null
           patient_id: string
           structured_data: Json | null
@@ -1106,7 +1159,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          encounter_id?: string | null
           id?: string
+          intake_id?: string | null
           parent_report_id?: string | null
           patient_id: string
           structured_data?: Json | null
@@ -1124,7 +1179,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          encounter_id?: string | null
           id?: string
+          intake_id?: string | null
           parent_report_id?: string | null
           patient_id?: string
           structured_data?: Json | null
@@ -1134,6 +1191,27 @@ export type Database = {
           version?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reports_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "active_intakes_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reports_parent_report_id_fkey"
             columns: ["parent_report_id"]
@@ -1366,42 +1444,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      speech_usage_events: {
-        Row: {
-          action: string
-          context: string
-          created_at: string
-          id: string
-          intake_id: string | null
-          metadata: Json
-          patient_id: string | null
-          report_id: string | null
-          user_id: string
-        }
-        Insert: {
-          action: string
-          context: string
-          created_at?: string
-          id?: string
-          intake_id?: string | null
-          metadata?: Json
-          patient_id?: string | null
-          report_id?: string | null
-          user_id: string
-        }
-        Update: {
-          action?: string
-          context?: string
-          created_at?: string
-          id?: string
-          intake_id?: string | null
-          metadata?: Json
-          patient_id?: string | null
-          report_id?: string | null
-          user_id?: string
-        }
-        Relationships: []
       }
       treatment_plans: {
         Row: {
