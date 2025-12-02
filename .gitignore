@@ -45,4 +45,8 @@ next-env.d.ts
 .claude
 .mcp.json
 
+# documentation
 /archive/*
+/docs/archive/*
+/docs/specs/archive/*
+/docs/reports/archive/*

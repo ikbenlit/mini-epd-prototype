@@ -1,15 +1,28 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, X } from 'lucide-react'
+import { Sparkles, X, FileText } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { usePatientContext } from '@/app/epd/components/patient-context'
 
 import { ChatInput } from './chat-input'
 import { ChatMessages } from './chat-messages'
 import { ChatSuggestions } from './chat-suggestions'
 import { RateLimitMessage } from './rate-limit-message'
 import { useDocsChat } from './use-docs-chat'
+
+/**
+ * Helper to format patient name from FHIR structure
+ */
+function formatPatientName(patient: { name?: Array<{ given?: string[]; family?: string; prefix?: string[] }> } | null): string | undefined {
+  if (!patient?.name?.[0]) return undefined
+  const name = patient.name[0]
+  const given = name.given?.join(' ') || ''
+  const prefix = name.prefix?.join(' ') || ''
+  const family = name.family || ''
+  return `${given} ${prefix ? prefix + ' ' : ''}${family}`.trim() || undefined
+}
 
 /**
  * Floating chat widget for documentation assistant
@@ -20,7 +33,27 @@ import { useDocsChat } from './use-docs-chat'
  */
 export function DocsChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, isLoading, isStreaming, error, isRateLimited, rateLimitResetTime, sendMessage, clearError, clearRateLimit } = useDocsChat()
+
+  // Get patient context for client-aware chat
+  const { patient } = usePatientContext()
+  const patientName = formatPatientName(patient)
+
+  const {
+    messages,
+    isLoading,
+    isStreaming,
+    error,
+    isRateLimited,
+    rateLimitResetTime,
+    sendMessage,
+    clearError,
+    clearRateLimit,
+    hasClientContext,
+    clientName,
+  } = useDocsChat({
+    clientId: patient?.id,
+    clientName: patientName,
+  })
 
   return (
     <>
@@ -70,7 +103,7 @@ export function DocsChatWidget() {
                 EPD Assistent
               </h2>
               <p className="text-xs text-slate-500">
-                Stel vragen over het EPD
+                {hasClientContext ? 'Stel vragen over de client of het EPD' : 'Stel vragen over het EPD'}
               </p>
             </div>
           </div>
@@ -89,6 +122,16 @@ export function DocsChatWidget() {
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Client indicator - shown when in patient dossier */}
+        {hasClientContext && clientName && (
+          <div className="px-4 py-2 bg-blue-50 border-b border-blue-100 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-blue-600" />
+            <span className="text-sm text-blue-700">
+              Dossier: <span className="font-medium">{clientName}</span>
+            </span>
+          </div>
+        )}
 
         {/* Error banner */}
         {error && (
@@ -120,6 +163,7 @@ export function DocsChatWidget() {
           <ChatSuggestions
             onSelect={sendMessage}
             disabled={isLoading || isStreaming}
+            mode={hasClientContext ? 'client' : 'documentation'}
           />
         )}
 

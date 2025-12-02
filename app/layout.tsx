@@ -119,6 +119,34 @@ export const metadata: Metadata = {
   },
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'AI Speedrun',
+      url: siteUrl,
+      description: 'AI-powered EPD development experiment - bouw een EPD in 4 weken voor €200',
+      founder: {
+        '@type': 'Person',
+        name: 'Colin van der Heijden',
+        url: 'https://ikbenlit.nl',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: 'AI Speedrun',
+      publisher: { '@id': `${siteUrl}/#organization` },
+      inLanguage: 'nl-NL',
+    },
+  ],
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -126,6 +154,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nl">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${crimsonText.variable} ${inter.variable} ${jetBrainsMono.variable} antialiased`}
       >

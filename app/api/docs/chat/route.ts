@@ -5,6 +5,9 @@ import { getSession } from '@/lib/auth/server'
 import { detectCategories } from '@/lib/docs/category-detector'
 import { loadKnowledgeSections } from '@/lib/docs/knowledge-loader'
 import { buildSystemPrompt } from '@/lib/docs/prompt-builder'
+import { detectQuestionType } from '@/lib/docs/question-type-detector'
+import { loadClientContext } from '@/lib/docs/client-context-loader'
+import { buildClientPrompt, buildClientErrorPrompt } from '@/lib/docs/client-prompt-builder'
 
 const DOCS_ASSISTANT_MODEL = process.env.DOCS_ASSISTANT_MODEL ?? 'claude-sonnet-4-20250514'
 const MAX_HISTORY_MESSAGES = 10
@@ -52,6 +55,7 @@ const ChatMessageSchema = z.object({
 const RequestSchema = z.object({
   messages: z.array(ChatMessageSchema).optional(),
   userMessage: z.string().min(1).max(MAX_USER_MESSAGE_LENGTH),
+  clientId: z.string().uuid().optional(), // UUID van actieve patiënt
 })
 
 type ChatMessage = z.infer<typeof ChatMessageSchema>
@@ -114,9 +118,28 @@ export async function POST(request: NextRequest) {
 
     const conversation: ChatMessage[] = [...history, { role: 'user', content: rawUserMessage }]
 
-    const categories = detectCategories(rawUserMessage)
-    const knowledgeSections = await loadKnowledgeSections(categories)
-    const systemPrompt = buildSystemPrompt(knowledgeSections)
+    // Detect question type and build appropriate prompt
+    const clientId = parsed.data.clientId
+    const questionType = detectQuestionType(rawUserMessage, !!clientId)
+
+    let systemPrompt: string
+
+    if (questionType === 'client' && clientId) {
+      // Client-specific question: load client context
+      const clientContext = await loadClientContext(clientId)
+
+      if (clientContext) {
+        systemPrompt = buildClientPrompt(clientContext)
+      } else {
+        // Client not found or error loading
+        systemPrompt = buildClientErrorPrompt()
+      }
+    } else {
+      // Documentation question: use existing knowledge base flow
+      const categories = detectCategories(rawUserMessage)
+      const knowledgeSections = await loadKnowledgeSections(categories)
+      systemPrompt = buildSystemPrompt(knowledgeSections)
+    }
 
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {

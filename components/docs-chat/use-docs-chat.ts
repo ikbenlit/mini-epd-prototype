@@ -24,6 +24,14 @@ interface UseDocsChatState {
 }
 
 /**
+ * Hook options
+ */
+interface UseDocsChatOptions {
+  clientId?: string // UUID van actieve patiënt
+  clientName?: string // Naam van actieve patiënt (voor display)
+}
+
+/**
  * Hook return type
  */
 interface UseDocsChatReturn extends UseDocsChatState {
@@ -31,6 +39,8 @@ interface UseDocsChatReturn extends UseDocsChatState {
   clearMessages: () => void
   clearError: () => void
   clearRateLimit: () => void
+  hasClientContext: boolean
+  clientName: string | null
 }
 
 /**
@@ -58,12 +68,20 @@ const WELCOME_MESSAGE: ChatMessage = {
  * - Streaming responses from Claude API
  * - Loading and error states
  * - Welcome message on init
+ * - Client-aware: sends clientId for patient-specific questions
  *
  * @example
+ * // Documentation-only mode
  * const { messages, isLoading, sendMessage } = useDocsChat()
- * await sendMessage("Hoe maak ik een intake aan?")
+ *
+ * // Client-aware mode
+ * const { messages, sendMessage, hasClientContext } = useDocsChat({
+ *   clientId: patient?.id,
+ *   clientName: "Jan de Vries"
+ * })
  */
-export function useDocsChat(): UseDocsChatReturn {
+export function useDocsChat(options?: UseDocsChatOptions): UseDocsChatReturn {
+  const { clientId, clientName } = options ?? {}
   const [state, setState] = useState<UseDocsChatState>({
     messages: [WELCOME_MESSAGE],
     isLoading: false,
@@ -111,6 +129,7 @@ export function useDocsChat(): UseDocsChatReturn {
         body: JSON.stringify({
           messages: history,
           userMessage: trimmedContent,
+          clientId, // Include clientId if available for patient-specific questions
         }),
       })
 
@@ -203,7 +222,7 @@ export function useDocsChat(): UseDocsChatReturn {
         ),
       }))
     }
-  }, [state.messages])
+  }, [state.messages, clientId])
 
   const clearMessages = useCallback(() => {
     setState({
@@ -230,5 +249,7 @@ export function useDocsChat(): UseDocsChatReturn {
     clearMessages,
     clearError,
     clearRateLimit,
+    hasClientContext: !!clientId,
+    clientName: clientName ?? null,
   }
 }

@@ -12,7 +12,10 @@ interface SuggestionCategory {
   questions: string[]
 }
 
-const SUGGESTION_CATEGORIES: SuggestionCategory[] = [
+/**
+ * Documentation suggestions - shown when not in a patient dossier
+ */
+const DOC_SUGGESTION_CATEGORIES: SuggestionCategory[] = [
   {
     id: 'clienten',
     label: 'Cliënten & Dossiers',
@@ -45,18 +48,62 @@ const SUGGESTION_CATEGORIES: SuggestionCategory[] = [
   },
 ]
 
+/**
+ * Client suggestions - shown when in a patient dossier
+ */
+const CLIENT_SUGGESTION_CATEGORIES: SuggestionCategory[] = [
+  {
+    id: 'rapportages',
+    label: 'Rapportages',
+    icon: '📝',
+    questions: [
+      'Geef een samenvatting van de rapportages',
+      'Wat is er de laatste tijd genoteerd?',
+      'Zijn er behandeladviezen?',
+    ],
+  },
+  {
+    id: 'intake',
+    label: 'Intake & Behandeling',
+    icon: '🏥',
+    questions: [
+      'Wat is het behandeladvies?',
+      'Op welke afdeling loopt de intake?',
+      'Is de intake afgerond?',
+    ],
+  },
+  {
+    id: 'screening',
+    label: 'Screening',
+    icon: '📋',
+    questions: [
+      'Wat was de hulpvraag?',
+      'Wat is de screeningbeslissing?',
+      'Is de cliënt geschikt bevonden?',
+    ],
+  },
+]
+
 interface ChatSuggestionsProps {
   onSelect: (question: string) => void
   disabled?: boolean
+  mode?: 'client' | 'documentation'
 }
 
 /**
  * Two-step suggestion selector:
  * 1. Show categories
  * 2. After selecting category, show questions
+ *
+ * Supports two modes:
+ * - 'documentation': Questions about how to use the EPD system
+ * - 'client': Questions about the active patient (rapportages, intake, screening)
  */
-export function ChatSuggestions({ onSelect, disabled = false }: ChatSuggestionsProps) {
+export function ChatSuggestions({ onSelect, disabled = false, mode = 'documentation' }: ChatSuggestionsProps) {
   const [selectedCategory, setSelectedCategory] = useState<SuggestionCategory | null>(null)
+
+  // Select the appropriate categories based on mode
+  const categories = mode === 'client' ? CLIENT_SUGGESTION_CATEGORIES : DOC_SUGGESTION_CATEGORIES
 
   const handleQuestionSelect = (question: string) => {
     onSelect(question)
@@ -106,9 +153,11 @@ export function ChatSuggestions({ onSelect, disabled = false }: ChatSuggestionsP
   // Show category selection
   return (
     <div className="px-4 pb-3">
-      <p className="text-xs text-slate-500 mb-2">Kies een onderwerp:</p>
+      <p className="text-xs text-slate-500 mb-2">
+        {mode === 'client' ? 'Vragen over deze cliënt:' : 'Kies een onderwerp:'}
+      </p>
       <div className="flex flex-col gap-1.5">
-        {SUGGESTION_CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <button
             key={category.id}
             type="button"

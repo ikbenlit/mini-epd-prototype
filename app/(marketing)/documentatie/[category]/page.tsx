@@ -41,6 +41,72 @@ export async function generateMetadata({ params }: ReleasePageProps) {
   }
 }
 
+function ArticleJsonLd({
+  title,
+  description,
+  releaseDate,
+  slug,
+}: {
+  title: string
+  description: string
+  releaseDate: string
+  slug: string
+}) {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        '@id': `${siteUrl}/documentatie/${slug}#article`,
+        headline: title,
+        description: description,
+        datePublished: releaseDate,
+        dateModified: releaseDate,
+        author: {
+          '@type': 'Person',
+          name: 'Colin van der Heijden',
+          url: 'https://ikbenlit.nl',
+        },
+        publisher: { '@id': `${siteUrl}/#organization` },
+        mainEntityOfPage: `${siteUrl}/documentatie/${slug}`,
+        inLanguage: 'nl-NL',
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${siteUrl}/documentatie/${slug}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: siteUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Documentatie',
+            item: `${siteUrl}/documentatie`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: title,
+          },
+        ],
+      },
+    ],
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
+}
+
 export default async function ReleasePage({ params }: ReleasePageProps) {
   const { category } = await params
   const release = await getRelease(category)
@@ -53,6 +119,12 @@ export default async function ReleasePage({ params }: ReleasePageProps) {
 
   return (
     <div className="min-h-screen bg-white pb-16">
+      <ArticleJsonLd
+        title={frontmatter.title}
+        description={frontmatter.description}
+        releaseDate={frontmatter.releaseDate}
+        slug={category}
+      />
       <article className="max-w-4xl mx-auto px-4 md:px-8 pt-20 md:pt-20">
         {/* Header */}
         <header className="mb-8 pb-8 border-b border-slate-200">
