@@ -43,6 +43,8 @@ interface ReportComposerProps {
   initialContent?: string | null;
   /** Callback wanneer initialContent is verwerkt */
   onInitialContentConsumed?: () => void;
+  /** Linked encounter ID for linking report to appointment */
+  linkedEncounterId?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,6 +60,7 @@ export function ReportComposer({
   onReportCreated,
   initialContent,
   onInitialContentConsumed,
+  linkedEncounterId,
 }: ReportComposerProps) {
   const router = useRouter();
   const [editorRef, setEditorRef] = useState<Editor | null>(null);
@@ -221,6 +224,7 @@ export function ReportComposer({
         content: textContent, // Save plain text for now
         ai_confidence: classification?.confidence,
         ai_reasoning: classification?.reasoning,
+        encounter_id: linkedEncounterId,
       });
       toast({
         title: 'Rapportage opgeslagen',

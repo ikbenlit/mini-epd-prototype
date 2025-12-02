@@ -17,6 +17,8 @@ export const CreateReportSchema = z.object({
     .max(5000, 'Rapportage mag maximaal 5000 karakters bevatten'),
   ai_confidence: z.number().min(0).max(1).optional(),
   ai_reasoning: z.string().optional(),
+  encounter_id: z.string().uuid().optional(),
+  intake_id: z.string().uuid().optional(),
 });
 
 export type CreateReportInput = z.infer<typeof CreateReportSchema>;

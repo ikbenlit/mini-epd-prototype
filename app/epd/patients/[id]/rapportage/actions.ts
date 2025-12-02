@@ -58,7 +58,7 @@ export async function createReport(
 export async function updateReport(
   patientId: string,
   reportId: string,
-  input: { content: string }
+  input: { content?: string; encounter_id?: string | null }
 ): Promise<Report> {
   const baseUrl = getBaseUrl();
   const url = `${baseUrl}/api/reports/${reportId}`;

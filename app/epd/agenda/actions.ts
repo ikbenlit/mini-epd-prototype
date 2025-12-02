@@ -70,7 +70,7 @@ export async function getEncounters({
     } | null;
 
     const patientName = patient
-      ? `${patient.name_given?.[0] || ''} ${patient.name_family}`.trim()
+      ? `${patient.name_given?.[0] || ''} ${patient.name_family || ''}`.trim() || 'Onbekende patiënt'
       : 'Onbekende patiënt';
 
     const typeCode = encounter.type_code as AppointmentTypeCode;
@@ -94,7 +94,7 @@ export async function getEncounters({
 
 interface CreateEncounterParams {
   patientId: string;
-  practitionerId: string;
+  practitionerId?: string;
   periodStart: string;
   periodEnd?: string;
   typeCode: string;
@@ -111,7 +111,7 @@ export async function createEncounter(params: CreateEncounterParams) {
     .from('encounters')
     .insert({
       patient_id: params.patientId,
-      practitioner_id: params.practitionerId,
+      practitioner_id: params.practitionerId || null,
       period_start: params.periodStart,
       period_end: params.periodEnd,
       type_code: params.typeCode,
@@ -137,18 +137,26 @@ export async function updateEncounter(
   encounterId: string,
   updates: {
     periodStart?: string;
-    periodEnd?: string;
+    periodEnd?: string | null;
     status?: string;
     notes?: string;
+    typeCode?: string;
+    typeDisplay?: string;
+    classCode?: string;
+    classDisplay?: string;
   }
 ) {
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
   if (updates.periodStart) updateData.period_start = updates.periodStart;
-  if (updates.periodEnd) updateData.period_end = updates.periodEnd;
+  if (updates.periodEnd !== undefined) updateData.period_end = updates.periodEnd;
   if (updates.status) updateData.status = updates.status;
   if (updates.notes !== undefined) updateData.notes = updates.notes;
+  if (updates.typeCode) updateData.type_code = updates.typeCode;
+  if (updates.typeDisplay) updateData.type_display = updates.typeDisplay;
+  if (updates.classCode) updateData.class_code = updates.classCode;
+  if (updates.classDisplay) updateData.class_display = updates.classDisplay;
 
   const { data, error } = await supabase
     .from('encounters')
@@ -179,4 +187,67 @@ export async function rescheduleEncounter(
     periodStart: newStart,
     periodEnd: newEnd || undefined,
   });
+}
+
+/**
+ * Get encounters for a specific patient (for linking reports to appointments)
+ */
+export async function getPatientEncounters(patientId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('encounters')
+    .select('id, period_start, period_end, type_code, type_display, status, notes')
+    .eq('patient_id', patientId)
+    .neq('status', 'cancelled')
+    .order('period_start', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('Error fetching patient encounters:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get reports linked to a specific encounter
+ */
+export async function getEncounterReports(encounterId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('reports')
+    .select('id, type, content, created_at')
+    .eq('encounter_id', encounterId)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching encounter reports:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get a single encounter by ID (for navigation from report to appointment)
+ */
+export async function getEncounterById(encounterId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('encounters')
+    .select('id, period_start, period_end, type_code, type_display, status')
+    .eq('id', encounterId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching encounter:', error);
+    return null;
+  }
+
+  return data;
 }

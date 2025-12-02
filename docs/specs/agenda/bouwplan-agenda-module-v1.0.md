@@ -66,9 +66,9 @@
 |---------|-------|------|--------|---------|
 | E0 | Database & Types | Schema uitbreiden, types genereren | ✅ Done | 3 |
 | E1 | Calendar Views | Dag/week/werkdagen weergaven | ✅ Done | 4 |
-| E2 | Afspraak CRUD | Maken, bewerken, annuleren | ⏳ To Do | 5 |
-| E3 | Patiënt Integratie | Selectie, zoeken, quick-create | ⏳ To Do | 3 |
-| E4 | EPD Koppeling | Verslag ↔ Afspraak bidirectioneel | ⏳ To Do | 4 |
+| E2 | Afspraak CRUD | Maken, bewerken, annuleren | ✅ Done | 5 |
+| E3 | Patiënt Integratie | Selectie, zoeken, quick-create | ✅ Done | 3 |
+| E4 | EPD Koppeling | Verslag ↔ Afspraak bidirectioneel | ✅ Done | 4 |
 | E5 | Polish & Testing | UX verfijning, edge cases | ⏳ To Do | 3 |
 
 ---
@@ -209,10 +209,10 @@ interface PatientSelectorProps {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E4.S1 | Verslag maken vanuit afspraak | Button op appointment → report composer met encounter_id | ⏳ | E2.S5 | 3 |
-| E4.S2 | Afspraak koppelen vanuit verslag | In rapportage: link naar bestaande/nieuwe afspraak | ⏳ | E4.S1 | 3 |
-| E4.S3 | Gekoppelde items tonen | In afspraak details: linked reports zichtbaar | ⏳ | E4.S2 | 2 |
-| E4.S4 | Navigatie tussen afspraak ↔ verslag | Click-through links beide kanten | ⏳ | E4.S3 | 2 |
+| E4.S1 | Verslag maken vanuit afspraak | Button op appointment → report composer met encounter_id | ✅ | E2.S5 | 3 |
+| E4.S2 | Afspraak koppelen vanuit verslag | In rapportage: link naar bestaande/nieuwe afspraak | ✅ | E4.S1 | 3 |
+| E4.S3 | Gekoppelde items tonen | In afspraak details: linked reports zichtbaar | ✅ | E4.S2 | 2 |
+| E4.S4 | Navigatie tussen afspraak ↔ verslag | Click-through links beide kanten | ✅ | E4.S3 | 2 |
 
 **Integration Points:**
 

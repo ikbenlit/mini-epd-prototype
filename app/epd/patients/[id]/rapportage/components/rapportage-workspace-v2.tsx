@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Report } from '@/lib/types/report'
 import { ReportComposer } from './report-composer'
@@ -33,6 +33,7 @@ interface RapportageWorkspaceV2Props {
   patientId: string
   patientName: string
   initialReports: Report[]
+  linkedEncounterId?: string
 }
 
 type PanelsModule = typeof import('react-resizable-panels')
@@ -45,6 +46,7 @@ export function RapportageWorkspaceV2({
   patientId,
   patientName,
   initialReports,
+  linkedEncounterId,
 }: RapportageWorkspaceV2Props) {
   const [reports, setReports] = useState(initialReports)
   const [selectedType, setSelectedType] = useState<ReportType>('vrije_notitie')
@@ -137,6 +139,13 @@ export function RapportageWorkspaceV2({
           )}
         </div>
 
+        {linkedEncounterId && (
+          <div className="mb-3 p-2 bg-teal-50 border border-teal-200 rounded-lg flex items-center gap-2 text-sm text-teal-700">
+            <Calendar className="h-4 w-4" />
+            <span>Dit verslag wordt gekoppeld aan de afspraak</span>
+          </div>
+        )}
+
         <QuickActions onSelectType={handleTypeSelect} selectedType={selectedType} />
       </div>
 
@@ -150,6 +159,7 @@ export function RapportageWorkspaceV2({
           onReportCreated={handleReportCreated}
           initialContent={duplicateContent}
           onInitialContentConsumed={() => setDuplicateContent(null)}
+          linkedEncounterId={linkedEncounterId}
         />
       </div>
     </div>

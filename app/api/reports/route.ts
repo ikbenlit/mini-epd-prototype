@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { patient_id, type, content, ai_confidence, ai_reasoning } = result.data;
+    const { patient_id, type, content, ai_confidence, ai_reasoning, encounter_id, intake_id } = result.data;
     const { data, error } = await supabase
       .from('reports')
       .insert({
@@ -90,6 +90,8 @@ export async function POST(request: NextRequest) {
         content,
         ai_confidence,
         ai_reasoning,
+        encounter_id,
+        intake_id,
         created_by: authData.user.id,
       })
       .select('*')

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { X, Pencil, Copy, Trash2, Save, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { X, Pencil, Copy, Trash2, Save, Loader2, Calendar, ExternalLink } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { nl } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
@@ -9,6 +10,17 @@ import type { Report } from '@/lib/types/report'
 import { SpeechRecorderStreaming } from '@/components/speech-recorder-streaming'
 import { toast } from '@/hooks/use-toast'
 import { updateReport, deleteReport } from '../actions'
+import { EncounterSelector } from './encounter-selector'
+import { getEncounterById } from '@/app/epd/agenda/actions'
+
+interface LinkedEncounter {
+  id: string
+  period_start: string
+  period_end: string | null
+  type_code: string
+  type_display: string
+  status: string
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -179,12 +191,15 @@ export function ReportViewEditModal({
   const [mode, setMode] = useState<ModalMode>('read')
   const [content, setContent] = useState('')
   const [originalContent, setOriginalContent] = useState('')
+  const [encounterId, setEncounterId] = useState<string | null>(null)
+  const [originalEncounterId, setOriginalEncounterId] = useState<string | null>(null)
+  const [linkedEncounter, setLinkedEncounter] = useState<LinkedEncounter | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
-  
+
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Sync content met report
@@ -192,9 +207,22 @@ export function ReportViewEditModal({
     if (report) {
       setContent(report.content)
       setOriginalContent(report.content)
+      setEncounterId(report.encounter_id || null)
+      setOriginalEncounterId(report.encounter_id || null)
       setMode('read')
     }
   }, [report])
+
+  // Fetch linked encounter details for navigation
+  useEffect(() => {
+    if (encounterId) {
+      getEncounterById(encounterId).then((encounter) => {
+        setLinkedEncounter(encounter)
+      })
+    } else {
+      setLinkedEncounter(null)
+    }
+  }, [encounterId])
 
   // Reset bij sluiten
   useEffect(() => {
@@ -206,7 +234,7 @@ export function ReportViewEditModal({
   }, [isOpen])
 
   // Check for unsaved changes
-  const hasUnsavedChanges = content !== originalContent
+  const hasUnsavedChanges = content !== originalContent || encounterId !== originalEncounterId
 
   // Keyboard handler (Escape)
   // Handlers
@@ -254,8 +282,12 @@ export function ReportViewEditModal({
 
     setIsSaving(true)
     try {
-      const updated = await updateReport(patientId, report.id, { content })
+      const updated = await updateReport(patientId, report.id, {
+        content,
+        encounter_id: encounterId,
+      })
       setOriginalContent(content)
+      setOriginalEncounterId(encounterId)
       onReportUpdated?.(updated)
       toast({
         title: 'Wijzigingen opgeslagen',
@@ -271,7 +303,7 @@ export function ReportViewEditModal({
     } finally {
       setIsSaving(false)
     }
-  }, [report, patientId, content, onReportUpdated])
+  }, [report, patientId, content, encounterId, onReportUpdated])
 
   const handleSaveAndClose = useCallback(async () => {
     await handleSave()
@@ -281,9 +313,10 @@ export function ReportViewEditModal({
 
   const handleDiscardAndClose = useCallback(() => {
     setContent(originalContent)
+    setEncounterId(originalEncounterId)
     setShowUnsavedDialog(false)
     onClose()
-  }, [originalContent, onClose])
+  }, [originalContent, originalEncounterId, onClose])
 
   const handleDelete = useCallback(async () => {
     if (!report) return
@@ -496,6 +529,58 @@ export function ReportViewEditModal({
                     : 'border-slate-200 focus:border-emerald-300'
                 )}
                 placeholder="Bewerk de rapportage of dicteer met spraak..."
+              />
+            )}
+          </div>
+
+          {/* Encounter linking */}
+          <div className="px-6 pb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-4 w-4 text-slate-500" />
+              <span className="text-sm font-medium text-slate-700">Gekoppelde afspraak</span>
+            </div>
+
+            {mode === 'read' && linkedEncounter ? (
+              // Read mode with linked encounter - show clickable card
+              <Link
+                href={`/epd/agenda?date=${format(new Date(linkedEncounter.period_start), 'yyyy-MM-dd')}&encounterId=${linkedEncounter.id}`}
+                className="block p-3 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition-colors group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-teal-700">
+                    {linkedEncounter.type_display || linkedEncounter.type_code}
+                  </span>
+                  <ExternalLink className="h-4 w-4 text-teal-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="text-xs text-teal-600 mt-0.5">
+                  {format(new Date(linkedEncounter.period_start), "EEEE d MMMM yyyy 'om' HH:mm", { locale: nl })}
+                </div>
+                <div className="text-xs text-teal-500 mt-1 flex items-center gap-1">
+                  <span className={cn(
+                    'px-1.5 py-0.5 rounded text-xs',
+                    linkedEncounter.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                    linkedEncounter.status === 'planned' ? 'bg-blue-100 text-blue-700' :
+                    'bg-slate-100 text-slate-600'
+                  )}>
+                    {linkedEncounter.status === 'completed' ? 'Afgerond' :
+                     linkedEncounter.status === 'planned' ? 'Gepland' :
+                     linkedEncounter.status}
+                  </span>
+                  <span className="text-teal-400">•</span>
+                  <span>Klik om naar agenda te gaan</span>
+                </div>
+              </Link>
+            ) : mode === 'read' ? (
+              // Read mode without linked encounter
+              <div className="text-sm text-slate-400 py-2 italic">
+                Geen afspraak gekoppeld. Bewerk om een afspraak te koppelen.
+              </div>
+            ) : (
+              // Edit mode - show selector
+              <EncounterSelector
+                patientId={patientId}
+                value={encounterId}
+                onChange={setEncounterId}
               />
             )}
           </div>

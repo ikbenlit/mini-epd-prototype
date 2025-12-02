@@ -6,27 +6,58 @@
  * Client-side wrapper managing calendar state, view switching, and interactions.
  */
 
-import { useState, useCallback, useRef, useEffect, useTransition } from 'react';
+import { useState, useCallback, useRef, useTransition, useEffect } from 'react';
 import { startOfWeek, endOfWeek, addDays, format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 
 import { AgendaCalendar } from './agenda-calendar';
 import { AgendaToolbar } from './agenda-toolbar';
+import { AppointmentModal } from './appointment-modal';
+import { RescheduleDialog } from './reschedule-dialog';
 import { getEncounters, rescheduleEncounter } from '../actions';
 import type { CalendarEvent, CalendarView } from '../types';
+
+interface PendingReschedule {
+  event: CalendarEvent;
+  newStart: Date;
+  newEnd: Date | null;
+}
 
 interface AgendaViewProps {
   initialEvents: CalendarEvent[];
   initialDate?: Date;
+  highlightEncounterId?: string;
 }
 
-export function AgendaView({ initialEvents, initialDate }: AgendaViewProps) {
+export function AgendaView({ initialEvents, initialDate, highlightEncounterId }: AgendaViewProps) {
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
   const [currentView, setCurrentView] = useState<CalendarView>('timeGridWeek');
   const [isPending, startTransition] = useTransition();
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalInitialDate, setModalInitialDate] = useState<Date | undefined>();
+  const [modalInitialStartTime, setModalInitialStartTime] = useState<string | undefined>();
+  const [modalInitialEndTime, setModalInitialEndTime] = useState<string | undefined>();
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | undefined>();
+
+  // Reschedule dialog state
+  const [pendingReschedule, setPendingReschedule] = useState<PendingReschedule | null>(null);
+  const [isRescheduling, setIsRescheduling] = useState(false);
+
   const calendarRef = useRef<{ getApi: () => { prev: () => void; next: () => void; today: () => void; changeView: (view: string) => void; getDate: () => Date } } | null>(null);
+
+  // Auto-open appointment modal when navigating from a report
+  useEffect(() => {
+    if (highlightEncounterId && initialEvents.length > 0) {
+      const eventToOpen = initialEvents.find((e) => e.id === highlightEncounterId);
+      if (eventToOpen) {
+        setEditingEvent(eventToOpen);
+        setIsModalOpen(true);
+      }
+    }
+  }, [highlightEncounterId, initialEvents]);
 
   // Fetch events when date range changes
   const fetchEvents = useCallback(async (start: Date, end: Date) => {
@@ -75,42 +106,52 @@ export function AgendaView({ initialEvents, initialDate }: AgendaViewProps) {
     fetchEvents(start, end);
   }, [fetchEvents]);
 
-  // Handle event click
+  // Handle event click - open edit modal
   const handleEventClick = useCallback((event: CalendarEvent) => {
-    // TODO: Open appointment details modal
-    toast({
-      title: `Afspraak: ${event.title}`,
-      description: event.extendedProps.encounter.type_display,
-    });
+    setEditingEvent(event);
+    setIsModalOpen(true);
   }, []);
 
   // Handle date selection (for creating new appointment)
   const handleDateSelect = useCallback((start: Date, end: Date) => {
-    // TODO: Open new appointment modal with pre-filled dates
-    toast({
-      title: 'Nieuwe afspraak',
-      description: `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
-    });
+    setEditingEvent(undefined);
+    setModalInitialDate(start);
+    setModalInitialStartTime(format(start, 'HH:mm'));
+    setModalInitialEndTime(format(end, 'HH:mm'));
+    setIsModalOpen(true);
   }, []);
 
-  // Handle event drag-and-drop
-  const handleEventDrop = useCallback(async (
+  // Handle event drag-and-drop - show confirmation dialog
+  const handleEventDrop = useCallback((
     eventId: string,
     newStart: Date,
     newEnd: Date | null
   ) => {
+    const event = events.find((e) => e.id === eventId);
+    if (event) {
+      setPendingReschedule({ event, newStart, newEnd });
+    }
+  }, [events]);
+
+  // Confirm reschedule
+  const confirmReschedule = useCallback(async () => {
+    if (!pendingReschedule) return;
+
+    setIsRescheduling(true);
+    const { event, newStart, newEnd } = pendingReschedule;
+
     const result = await rescheduleEncounter(
-      eventId,
+      event.id,
       newStart.toISOString(),
       newEnd?.toISOString() || null
     );
 
     if (result.success) {
       toast({ title: 'Afspraak verzet' });
-      // Update local state optimistically
+      // Update local state
       setEvents((prev) =>
         prev.map((e) =>
-          e.id === eventId
+          e.id === event.id
             ? { ...e, start: newStart, end: newEnd || undefined }
             : e
         )
@@ -126,13 +167,39 @@ export function AgendaView({ initialEvents, initialDate }: AgendaViewProps) {
       const end = endOfWeek(currentDate, { weekStartsOn: 1 });
       fetchEvents(start, end);
     }
+
+    setIsRescheduling(false);
+    setPendingReschedule(null);
+  }, [pendingReschedule, currentDate, fetchEvents]);
+
+  // Cancel reschedule - revert the visual change
+  const cancelReschedule = useCallback(() => {
+    // Refresh events to revert the visual drag
+    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const end = endOfWeek(currentDate, { weekStartsOn: 1 });
+    fetchEvents(start, end);
+    setPendingReschedule(null);
   }, [currentDate, fetchEvents]);
 
   // Handle new appointment button
   const handleNewAppointment = useCallback(() => {
-    // TODO: Open new appointment modal
-    toast({ title: 'Nieuwe afspraak modal (nog te implementeren)' });
-  }, []);
+    setEditingEvent(undefined);
+    setModalInitialDate(currentDate);
+    setModalInitialStartTime('09:00');
+    setModalInitialEndTime('10:00');
+    setIsModalOpen(true);
+  }, [currentDate]);
+
+  // Handle modal success (refresh events)
+  const handleModalSuccess = useCallback(() => {
+    const start = currentView === 'timeGridDay'
+      ? currentDate
+      : startOfWeek(currentDate, { weekStartsOn: 1 });
+    const end = currentView === 'timeGridDay'
+      ? addDays(currentDate, 1)
+      : endOfWeek(currentDate, { weekStartsOn: 1 });
+    fetchEvents(start, end);
+  }, [currentDate, currentView, fetchEvents]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
@@ -159,6 +226,35 @@ export function AgendaView({ initialEvents, initialDate }: AgendaViewProps) {
           onDateChange={handleDateChange}
         />
       </div>
+
+      {/* Appointment Modal */}
+      <AppointmentModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        initialDate={modalInitialDate}
+        initialStartTime={modalInitialStartTime}
+        initialEndTime={modalInitialEndTime}
+        editingEvent={editingEvent}
+        onSuccess={handleModalSuccess}
+      />
+
+      {/* Reschedule Confirmation Dialog */}
+      {pendingReschedule && (
+        <RescheduleDialog
+          open={!!pendingReschedule}
+          onOpenChange={(open) => {
+            if (!open) cancelReschedule();
+          }}
+          patientName={pendingReschedule.event.title}
+          appointmentType={pendingReschedule.event.extendedProps.encounter.type_display}
+          oldStart={new Date(pendingReschedule.event.start)}
+          oldEnd={pendingReschedule.event.end ? new Date(pendingReschedule.event.end) : null}
+          newStart={pendingReschedule.newStart}
+          newEnd={pendingReschedule.newEnd}
+          onConfirm={confirmReschedule}
+          isLoading={isRescheduling}
+        />
+      )}
     </div>
   );
 }

@@ -26,18 +26,42 @@ export async function GET(request: NextRequest) {
     // Build query
     let query = supabaseAdmin.from('patients').select('*');
 
-    // Search by name (family or given)
+    // General search (searches name, BSN, and client number)
+    const q = searchParams.get('q');
+    if (q) {
+      // Check if input looks like a number (BSN or client number)
+      const isNumeric = /^\d+$/.test(q.trim());
+      if (isNumeric) {
+        // Search BSN and client number
+        query = query.or(
+          `identifier_bsn.ilike.%${q}%,identifier_client_number.ilike.%${q}%`
+        );
+      } else {
+        // Search name fields
+        query = query.or(
+          `name_family.ilike.%${q}%,name_given.cs.{${q}}`
+        );
+      }
+    }
+
+    // Search by name (family or given) - legacy support
     const name = searchParams.get('name');
-    if (name) {
+    if (name && !q) {
       query = query.or(
         `name_family.ilike.%${name}%,name_given.cs.{${name}}`
       );
     }
 
-    // Search by identifier (BSN)
+    // Search by identifier (BSN) - legacy support
     const identifier = searchParams.get('identifier');
-    if (identifier) {
+    if (identifier && !q) {
       query = query.eq('identifier_bsn', identifier);
+    }
+
+    // Search by client number
+    const clientNumber = searchParams.get('clientNumber');
+    if (clientNumber && !q) {
+      query = query.ilike('identifier_client_number', `%${clientNumber}%`);
     }
 
     // Search by birth date
@@ -54,6 +78,15 @@ export async function GET(request: NextRequest) {
 
     // Order by updated_at descending (newest first)
     query = query.order('updated_at', { ascending: false });
+
+    // Limit results (_count parameter)
+    const count = searchParams.get('_count');
+    if (count) {
+      const limit = parseInt(count, 10);
+      if (!isNaN(limit) && limit > 0) {
+        query = query.limit(limit);
+      }
+    }
 
     // Execute query
     const { data: patients, error } = await query;

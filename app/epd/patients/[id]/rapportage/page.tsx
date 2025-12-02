@@ -4,10 +4,13 @@ import { getPatient } from '../../actions';
 
 export default async function RapportagePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ encounterId?: string }>;
 }) {
   const { id } = await params;
+  const { encounterId } = await searchParams;
   const [reports, patient] = await Promise.all([getReports(id), getPatient(id)]);
   const patientName = formatPatientName(patient);
 
@@ -16,6 +19,7 @@ export default async function RapportagePage({
       patientId={id}
       patientName={patientName}
       initialReports={reports}
+      linkedEncounterId={encounterId}
     />
   );
 }
