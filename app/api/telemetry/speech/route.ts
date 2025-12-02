@@ -33,6 +33,7 @@ export async function POST(request: Request) {
 
     const { action, context, patientId, intakeId, reportId, metadata } = payload.data
 
+    // @ts-expect-error speech_usage_events table not in generated types yet
     const { error } = await supabase.from('speech_usage_events').insert({
       action,
       context,

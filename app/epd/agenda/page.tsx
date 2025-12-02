@@ -2,26 +2,29 @@
  * Behandelaar Agenda - Level 1
  *
  * Kalender view met alle afspraken van de behandelaar.
+ * Supports day, week, and workweek views.
  */
 
-export default function AgendaPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">
-        Agenda
-      </h1>
+import { startOfWeek, endOfWeek } from 'date-fns';
+import { AgendaView } from './components/agenda-view';
+import { getEncounters } from './actions';
 
-      <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-12 text-center">
-        <p className="text-slate-600 text-lg mb-2">
-          Behandelaar Agenda
-        </p>
-        <p className="text-slate-500 text-sm">
-          Kalender view met alle afspraken (alle cliënten)
-        </p>
-        <p className="text-xs text-slate-400 mt-4">
-          Placeholder - Not designed yet
-        </p>
-      </div>
-    </div>
+export default async function AgendaPage() {
+  // Get initial date range (current week)
+  const now = new Date();
+  const start = startOfWeek(now, { weekStartsOn: 1 });
+  const end = endOfWeek(now, { weekStartsOn: 1 });
+
+  // Fetch initial events
+  const initialEvents = await getEncounters({
+    startDate: start.toISOString(),
+    endDate: end.toISOString(),
+  });
+
+  return (
+    <AgendaView
+      initialEvents={initialEvents}
+      initialDate={now}
+    />
   );
 }

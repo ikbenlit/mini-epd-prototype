@@ -64,8 +64,8 @@
 
 | Epic ID | Titel | Doel | Status | Stories |
 |---------|-------|------|--------|---------|
-| E0 | Database & Types | Schema uitbreiden, types genereren | ⏳ To Do | 3 |
-| E1 | Calendar Views | Dag/week/werkdagen weergaven | ⏳ To Do | 4 |
+| E0 | Database & Types | Schema uitbreiden, types genereren | ✅ Done | 3 |
+| E1 | Calendar Views | Dag/week/werkdagen weergaven | ✅ Done | 4 |
 | E2 | Afspraak CRUD | Maken, bewerken, annuleren | ⏳ To Do | 5 |
 | E3 | Patiënt Integratie | Selectie, zoeken, quick-create | ⏳ To Do | 3 |
 | E4 | EPD Koppeling | Verslag ↔ Afspraak bidirectioneel | ⏳ To Do | 4 |
@@ -81,9 +81,9 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E0.S1 | Migration: encounter_id toevoegen aan reports | `encounter_id` en `intake_id` kolommen bestaan, foreign keys werken | ⏳ | — | 2 |
-| E0.S2 | Index toevoegen voor performance | `idx_reports_encounter`, `idx_encounters_period` indices bestaan | ⏳ | E0.S1 | 1 |
-| E0.S3 | TypeScript types regenereren | `database.types.ts` bevat nieuwe kolommen | ⏳ | E0.S2 | 1 |
+| E0.S1 | Migration: encounter_id toevoegen aan reports | `encounter_id` en `intake_id` kolommen bestaan, foreign keys werken | ✅ | — | 2 |
+| E0.S2 | Index toevoegen voor performance | `idx_reports_encounter`, `idx_encounters_period` indices bestaan | ✅ | E0.S1 | 1 |
+| E0.S3 | TypeScript types regenereren | `database.types.ts` bevat nieuwe kolommen | ✅ | E0.S2 | 1 |
 
 **Technical Notes:**
 ```sql
@@ -107,10 +107,10 @@ CREATE INDEX idx_encounters_practitioner ON encounters(practitioner_id);
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E1.S1 | FullCalendar installatie & setup | Library geïnstalleerd, basis component rendert | ⏳ | E0.S3 | 2 |
-| E1.S2 | Dag view implementeren | Uurblokken 08:00-18:00, afspraken zichtbaar | ⏳ | E1.S1 | 3 |
-| E1.S3 | Week view implementeren | 7-dagen grid, drag-resize werkt | ⏳ | E1.S2 | 3 |
-| E1.S4 | Werkdagen view (ma-vr) | Filter voor weekend, business hours highlight | ⏳ | E1.S3 | 2 |
+| E1.S1 | FullCalendar installatie & setup | Library geïnstalleerd, basis component rendert | ✅ | E0.S3 | 2 |
+| E1.S2 | Dag view implementeren | Uurblokken 08:00-18:00, afspraken zichtbaar | ✅ | E1.S1 | 3 |
+| E1.S3 | Week view implementeren | 7-dagen grid, drag-resize werkt | ✅ | E1.S2 | 3 |
+| E1.S4 | Werkdagen view (ma-vr) | Filter voor weekend, business hours highlight | ✅ | E1.S3 | 2 |
 
 **Technical Notes:**
 ```bash
