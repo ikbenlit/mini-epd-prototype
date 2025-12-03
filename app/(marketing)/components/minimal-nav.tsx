@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 import type { NavigationContent } from '@/content/schemas/manifesto'
 
@@ -51,8 +52,8 @@ export function MinimalNav({ content }: MinimalNavProps) {
     : 'bg-slate-900/80 backdrop-blur-sm md:bg-white/80 md:backdrop-blur-sm'
 
   const logoClasses = isScrolled
-    ? 'text-slate-900'
-    : 'text-white md:mix-blend-difference md:text-white'
+    ? 'text-teal-600'
+    : 'text-white md:text-teal-600'
 
   const linkClasses = isScrolled
     ? 'text-slate-900 hover:text-slate-700'
@@ -70,13 +71,20 @@ export function MinimalNav({ content }: MinimalNavProps) {
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center h-16">
         {/* Logo */}
-        <Link 
+        <Link
           href="/"
-          className={`font-black text-xl uppercase font-sans tracking-tight leading-none transition-colors hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:rounded ${logoClasses}`}
+          className={`flex items-center gap-2 font-black text-xl uppercase font-sans tracking-tight leading-none transition-colors hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:rounded ${logoClasses}`}
           aria-label="AI Speedrun Home"
           onClick={() => setIsMenuOpen(false)}
         >
           {content.logo}
+          <Image
+            src="/images/aispeedrun-logo.webp"
+            alt=""
+            width={40}
+            height={40}
+            className="rounded-md"
+          />
         </Link>
 
         {/* Desktop Navigation Links */}

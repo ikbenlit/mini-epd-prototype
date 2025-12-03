@@ -93,6 +93,12 @@ export const metadata: Metadata = {
   authors: [{ name: 'Colin van der Heijden', url: 'https://ikbenlit.nl' }],
   creator: 'Colin van der Heijden',
   publisher: 'AI Speedrun',
+  icons: {
+    icon: [
+      { url: '/images/aispeedrun-logo.webp', type: 'image/webp' },
+    ],
+    apple: '/images/aispeedrun-logo.webp',
+  },
   formatDetection: {
     email: false,
     address: false,
