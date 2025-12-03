@@ -58,8 +58,8 @@ interface AppointmentModalProps {
   onSuccess?: () => void;
 }
 
-const inputClassName = "w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm";
-const selectClassName = "w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm bg-white";
+const inputClassName = "w-full min-w-0 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm box-border";
+const selectClassName = "w-full min-w-0 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm bg-white box-border";
 const labelClassName = "block text-sm font-medium text-slate-700 mb-1";
 
 export function AppointmentModal({
@@ -416,7 +416,7 @@ export function AppointmentModal({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2 overflow-hidden">
           {/* Patient Search */}
           <div className="relative">
             <label className={labelClassName}>
@@ -562,8 +562,8 @@ export function AppointmentModal({
           )}
 
           {/* Date and Time */}
-          <div className="grid grid-cols-3 gap-3">
-            <div>
+          <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-end">
+            <div className="min-w-0">
               <label className={labelClassName}>
                 <Calendar className="h-4 w-4 inline mr-1" />
                 Datum *
@@ -576,7 +576,7 @@ export function AppointmentModal({
                 required
               />
             </div>
-            <div>
+            <div className="w-24">
               <label className={labelClassName}>
                 <Clock className="h-4 w-4 inline mr-1" />
                 Van *
@@ -589,7 +589,7 @@ export function AppointmentModal({
                 required
               />
             </div>
-            <div>
+            <div className="w-24">
               <label className={labelClassName}>
                 <Clock className="h-4 w-4 inline mr-1" />
                 Tot
@@ -605,7 +605,7 @@ export function AppointmentModal({
 
           {/* Type and Location */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className={labelClassName}>Type afspraak *</label>
               <select
                 value={typeCode}
@@ -620,7 +620,7 @@ export function AppointmentModal({
                 ))}
               </select>
             </div>
-            <div>
+            <div className="min-w-0">
               <label className={labelClassName}>
                 <MapPin className="h-4 w-4 inline mr-1" />
                 Locatie
