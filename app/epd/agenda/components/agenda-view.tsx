@@ -14,6 +14,7 @@ import { AgendaCalendar } from './agenda-calendar';
 import { AgendaToolbar } from './agenda-toolbar';
 import { AppointmentModal } from './appointment-modal';
 import { RescheduleDialog } from './reschedule-dialog';
+import { MiniCalendar } from './mini-calendar';
 import { getEncounters, rescheduleEncounter } from '../actions';
 import type { CalendarEvent, CalendarView } from '../types';
 
@@ -190,6 +191,21 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
     setIsModalOpen(true);
   }, [currentDate]);
 
+  // Handle mini calendar date selection
+  const handleMiniCalendarDateSelect = useCallback((date: Date) => {
+    setCurrentDate(date);
+
+    // Calculate date range based on current view
+    const start = currentView === 'timeGridDay'
+      ? date
+      : startOfWeek(date, { weekStartsOn: 1 });
+    const end = currentView === 'timeGridDay'
+      ? addDays(date, 1)
+      : endOfWeek(date, { weekStartsOn: 1 });
+
+    fetchEvents(start, end);
+  }, [currentView, fetchEvents]);
+
   // Handle modal success (refresh events)
   const handleModalSuccess = useCallback(() => {
     const start = currentView === 'timeGridDay'
@@ -211,20 +227,32 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
         onNewAppointment={handleNewAppointment}
       />
 
-      <div className="flex-1 bg-white rounded-lg border border-slate-200 overflow-hidden">
-        {isPending && (
-          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-          </div>
-        )}
-        <AgendaCalendar
-          events={events}
-          initialView={currentView}
-          onEventClick={handleEventClick}
-          onDateSelect={handleDateSelect}
-          onEventDrop={handleEventDrop}
-          onDateChange={handleDateChange}
-        />
+      <div className="flex flex-1 gap-4 min-h-0">
+        {/* Mini calendar sidebar */}
+        <div className="w-64 flex-shrink-0">
+          <MiniCalendar
+            selectedDate={currentDate}
+            onDateSelect={handleMiniCalendarDateSelect}
+          />
+        </div>
+
+        {/* Main calendar */}
+        <div className="flex-1 bg-white rounded-lg border border-slate-200 overflow-hidden relative">
+          {isPending && (
+            <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+          )}
+          <AgendaCalendar
+            events={events}
+            initialView={currentView}
+            currentView={currentView}
+            onEventClick={handleEventClick}
+            onDateSelect={handleDateSelect}
+            onEventDrop={handleEventDrop}
+            onDateChange={handleDateChange}
+          />
+        </div>
       </div>
 
       {/* Appointment Modal */}

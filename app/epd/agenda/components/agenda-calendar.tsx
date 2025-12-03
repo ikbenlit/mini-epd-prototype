@@ -6,7 +6,7 @@
  * FullCalendar wrapper with day/week/workweek views.
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -19,6 +19,7 @@ import type { CalendarEvent, CalendarView } from '../types';
 interface AgendaCalendarProps {
   events: CalendarEvent[];
   initialView?: CalendarView;
+  currentView?: CalendarView;
   onEventClick?: (event: CalendarEvent) => void;
   onDateSelect?: (start: Date, end: Date) => void;
   onEventDrop?: (eventId: string, newStart: Date, newEnd: Date | null) => void;
@@ -29,6 +30,7 @@ interface AgendaCalendarProps {
 export function AgendaCalendar({
   events,
   initialView = 'timeGridWeek',
+  currentView,
   onEventClick,
   onDateSelect,
   onEventDrop,
@@ -36,6 +38,22 @@ export function AgendaCalendar({
   calendarRef: externalRef,
 }: AgendaCalendarProps) {
   const internalRef = useRef<FullCalendar>(null);
+  const isChangingViewRef = useRef(false);
+
+  // Sync view when currentView prop changes
+  useEffect(() => {
+    if (currentView && internalRef.current) {
+      const api = internalRef.current.getApi();
+      if (api.view.type !== currentView) {
+        isChangingViewRef.current = true;
+        api.changeView(currentView);
+        // Reset flag after a short delay to allow the view change to complete
+        setTimeout(() => {
+          isChangingViewRef.current = false;
+        }, 100);
+      }
+    }
+  }, [currentView]);
 
   const handleEventClick = useCallback((info: EventClickArg) => {
     if (onEventClick) {
@@ -70,6 +88,10 @@ export function AgendaCalendar({
   }, [onEventDrop]);
 
   const handleDatesSet = useCallback((dateInfo: { start: Date; end: Date }) => {
+    // Skip if we're in the middle of a programmatic view change
+    if (isChangingViewRef.current) {
+      return;
+    }
     if (onDateChange) {
       onDateChange(dateInfo.start, dateInfo.end);
     }
