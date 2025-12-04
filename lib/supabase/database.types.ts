@@ -655,6 +655,7 @@ export type Database = {
           end_date: string | null
           id: string
           kindcheck_data: Json | null
+          life_domains: Json | null
           notes: string | null
           patient_id: string
           psychologist_id: string | null
@@ -670,6 +671,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           kindcheck_data?: Json | null
+          life_domains?: Json | null
           notes?: string | null
           patient_id: string
           psychologist_id?: string | null
@@ -685,6 +687,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           kindcheck_data?: Json | null
+          life_domains?: Json | null
           notes?: string | null
           patient_id?: string
           psychologist_id?: string | null

@@ -156,6 +156,7 @@ export const loadData = async () => {
 | E4 | Testing & Deploy | QA, demo prep en deployment | ⏳ To Do | 3 | |
 
 **Belangrijk:** Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
+**Belangrijk:** Het installeren van dependencies en libraries, of het uitvoeren van migraties van tabellen, moet altijd eerst aan Colin worden gemeld of gevraagd. Colin kan deze zelf eventueel uitvoeren.
 
 ---
 
@@ -174,6 +175,7 @@ export const loadData = async () => {
 | E0.S4 | Environment variables | `.env.local` + Vercel vars geconfigureerd | ⏳ | E0.S3 | 1 |
 
 **Technical Notes:**
+- ⚠️ **Belangrijk:** Dependencies installeren moet eerst aan Colin worden gemeld of gevraagd. Colin kan deze zelf eventueel uitvoeren.
 - Gebruik `pnpm` voor snellere installs
 - `.env.example` committen voor team onboarding
 
@@ -189,6 +191,7 @@ export const loadData = async () => {
 | E1.S3 | Demo-data seeden | 3+ testcliënten met complete intake data | ⏳ | E1.S1 | 2 |
 
 **Technical Notes:**
+- ⚠️ **Belangrijk:** Migraties van tabellen moeten eerst aan Colin worden gemeld of gevraagd. Colin kan deze zelf eventueel uitvoeren.
 - Collections: `clients`, `intakes`, `plans`, `ai_events`
 - Demo user heeft `all access` voor development
 - Seed script: `npm run seed`

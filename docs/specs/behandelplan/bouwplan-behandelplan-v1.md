@@ -107,9 +107,9 @@ Deze module is onderdeel van de AI Speedrun LinkedIn Serie. Het prototype demons
 
 | Epic ID | Titel | Doel | Status | Stories | Geschat |
 |---------|-------|------|--------|---------|---------|
-| E0 | Foundation | Types, database schema | ⏳ To Do | 3 | 2-3 uur |
-| E1 | Leefgebieden | Intake formulier + score weergave | ⏳ To Do | 3 | 3-4 uur |
-| E2 | AI Generatie | Claude API endpoint + prompts | ⏳ To Do | 3 | 3-4 uur |
+| E0 | Foundation | Types, database schema | ✅ Done | 3 | 2-3 uur |
+| E1 | Leefgebieden | Intake formulier + score weergave | ✅ Done | 3 | 3-4 uur |
+| E2 | AI Generatie | Claude API endpoint + prompts | ✅ Done | 3 | 3-4 uur |
 | E3 | Behandelplan UI | Pagina + componenten | ⏳ To Do | 5 | 6-8 uur |
 | E4 | Stretch | Micro-regeneratie, radar chart | ⏳ Optioneel | 3 | 3-5 uur |
 
@@ -126,9 +126,9 @@ Deze module is onderdeel van de AI Speedrun LinkedIn Serie. Het prototype demons
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E0.S1 | Leefgebieden types maken | `lib/types/leefgebieden.ts` met LifeDomain, LifeDomainScore types | ⏳ | — | 1 |
-| E0.S2 | Behandelplan types maken | `lib/types/behandelplan.ts` met SmartGoal, Intervention, GeneratedPlan types + Zod schemas | ⏳ | E0.S1 | 2 |
-| E0.S3 | Database migratie | `care_plans` uitgebreid met version, behandelstructuur, evaluatiemomenten; `intakes` met life_domains | ⏳ | E0.S2 | 2 |
+| E0.S1 | Leefgebieden types maken | `lib/types/leefgebieden.ts` met LifeDomain, LifeDomainScore types | ✅ | — | 1 |
+| E0.S2 | Behandelplan types maken | `lib/types/behandelplan.ts` met SmartGoal, Intervention, GeneratedPlan types + Zod schemas | ✅ | E0.S1 | 2 |
+| E0.S3 | Database migratie | `care_plans` uitgebreid met version, behandelstructuur, evaluatiemomenten; `intakes` met life_domains | ✅ | E0.S2 | 2 |
 
 **Technical Notes:**
 ```typescript
@@ -146,10 +146,10 @@ export interface LifeDomainScore {
 ```
 
 **Deliverables:**
-- [ ] `lib/types/leefgebieden.ts`
-- [ ] `lib/types/behandelplan.ts`
-- [ ] Database migratie via Supabase MCP (cloud-only, geen lokale instantie)
-- [ ] Gegenereerde database types via `mcp__supabase__generate_typescript_types`
+- [x] `lib/types/leefgebieden.ts`
+- [x] `lib/types/behandelplan.ts`
+- [x] Database migratie via Supabase MCP (cloud-only, geen lokale instantie)
+- [x] Gegenereerde database types via `mcp__supabase__generate_typescript_types`
 
 ---
 
@@ -159,9 +159,9 @@ export interface LifeDomainScore {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E1.S1 | Leefgebieden formulier | 7 sliders (1-5), toelichting velden, prioriteit dropdowns | ⏳ | E0.S3 | 3 |
-| E1.S2 | Leefgebieden scores weergave | 7 progress bars met kleuren, baseline vs current indicator | ⏳ | E0.S1 | 2 |
-| E1.S3 | Leefgebieden badge component | Gekleurde tag per domein met emoji | ⏳ | E0.S1 | 1 |
+| E1.S1 | Leefgebieden formulier | 7 sliders (1-5), toelichting velden, prioriteit dropdowns | ✅ | E0.S3 | 3 |
+| E1.S2 | Leefgebieden scores weergave | 7 progress bars met kleuren, baseline vs current indicator | ✅ | E0.S1 | 2 |
+| E1.S3 | Leefgebieden badge component | Gekleurde tag per domein met emoji | ✅ | E0.S1 | 1 |
 
 **Technical Notes:**
 ```typescript
@@ -178,9 +178,10 @@ const DOMAIN_COLORS = {
 ```
 
 **Deliverables:**
-- [ ] `components/behandelplan/leefgebieden-form.tsx`
-- [ ] `components/behandelplan/leefgebieden-scores.tsx`
-- [ ] `components/behandelplan/leefgebieden-badge.tsx`
+- [x] `components/behandelplan/leefgebieden-form.tsx`
+- [x] `components/behandelplan/leefgebieden-scores.tsx`
+- [x] `components/behandelplan/leefgebieden-badge.tsx`
+- [x] `components/behandelplan/index.ts` (exports)
 
 ---
 
@@ -190,9 +191,9 @@ const DOMAIN_COLORS = {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E2.S1 | Prompt engineering | System prompt + user prompt templates, evidence-based mapping | ⏳ | E0.S2 | 2 |
-| E2.S2 | Generate endpoint | `POST /api/behandelplan/generate` retourneert JSON, < 8 sec response | ⏳ | E2.S1 | 3 |
-| E2.S3 | AI event logging | Calls loggen naar `ai_events` tabel | ⏳ | E2.S2 | 1 |
+| E2.S1 | Prompt engineering | System prompt + user prompt templates, evidence-based mapping | ✅ | E0.S2 | 2 |
+| E2.S2 | Generate endpoint | `POST /api/behandelplan/generate` retourneert JSON, < 8 sec response | ✅ | E2.S1 | 3 |
+| E2.S3 | AI event logging | Calls loggen naar `ai_events` tabel | ✅ | E2.S2 | 1 |
 
 **Technical Notes:**
 ```typescript
@@ -211,9 +212,9 @@ const settings = {
 ```
 
 **Deliverables:**
-- [ ] `lib/ai/behandelplan-prompt.ts`
-- [ ] `lib/ai/intervention-mapping.ts`
-- [ ] `app/api/behandelplan/generate/route.ts`
+- [x] `lib/ai/behandelplan-prompt.ts`
+- [x] `lib/ai/intervention-mapping.ts`
+- [x] `app/api/behandelplan/generate/route.ts`
 
 ---
 
@@ -436,3 +437,4 @@ Optioneel (indien tijd):
 | Versie | Datum | Auteur | Wijziging |
 |--------|-------|--------|-----------|
 | v1.0 | 03-12-2024 | Colin Lit | Initiële versie |
+| v1.1 | 04-12-2024 | Colin Lit | Epic 0, 1, 2 afgerond - status bijgewerkt |
