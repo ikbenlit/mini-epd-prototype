@@ -3,7 +3,7 @@
 **Projectnaam:** _[vul in]_  
 **Versie:** _v1.0_  
 **Datum:** _[dd-mm-jjjj]_  
-**Auteur:** _[naam]_  
+**Auteur:** Colin Lit  
 
 ---
 

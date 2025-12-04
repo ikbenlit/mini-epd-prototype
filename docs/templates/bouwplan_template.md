@@ -9,7 +9,7 @@ Afhankelijk van de **complexiteit van je software** bepaal je zelf hoe gedetaill
 **Projectnaam:** _[vul in]_  
 **Versie:** _v1.0_  
 **Datum:** _[dd-mm-jjjj]_  
-**Auteur:** _[naam]_  
+**Auteur:** _[Colin Lit]_  
 
 ---
 
@@ -154,6 +154,8 @@ export const loadData = async () => {
 | E2 | UI & Layout | Interface, navigatie, componenten | ⏳ To Do | 3 | Wireframes gereed |
 | E3 | AI-integratie | AI endpoints en prompt engineering | ⏳ To Do | 3 | Test met Gemini model |
 | E4 | Testing & Deploy | QA, demo prep en deployment | ⏳ To Do | 3 | |
+
+**Belangrijk:** Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
 
 ---
 

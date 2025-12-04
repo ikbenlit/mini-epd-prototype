@@ -3,7 +3,7 @@
 **Projectnaam:** Mini-ECD Prototype - AI Speedrun  
 **Versie:** v2.0 (volgens template, incl. Leefgebieden)  
 **Datum:** 2 december 2024  
-**Auteur:** Colin van Zeeland
+**Auteur:** Colin Lit
 
 **Changelog:**
 - v2.0: Herstructurering volgens PRD template, duidelijke MVP/post-MVP scheiding, expliciete UX sectie
