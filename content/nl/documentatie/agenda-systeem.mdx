@@ -1,0 +1,234 @@
+---
+title: "Agenda Systeem"
+category: "agenda"
+group: "features"
+version: "1.0.0"
+releaseDate: "2025-12-05"
+status: "completed"
+description: "Behandelaar agenda met kalenderweergave, afspraken plannen, drag-and-drop en directe koppeling naar verslaglegging"
+---
+
+## Overzicht
+
+De agenda module is het kloppend hart van het EPD. Hier beheer je alle afspraken met cliënten, plan je nieuwe sessies en start je direct met verslaglegging na een behandeling.
+
+**Kernfunctionaliteit:**
+- Kalenderweergave in dag-, week- of werkdagen-view
+- Nieuwe afspraken plannen met cliënt zoeken
+- Afspraken bewerken en verzetten via drag-and-drop
+- Afspraken annuleren
+- Conflictdetectie bij dubbele boekingen
+- Directe koppeling naar verslaglegging
+
+---
+
+## Agenda Openen
+
+Navigeer via de zijbalk naar **Agenda** om je persoonlijke agenda te openen. De agenda toont standaard de huidige week met al je geplande afspraken.
+
+---
+
+## Kalenderweergave
+
+### Views
+
+De agenda biedt drie weergaves:
+
+| View | Beschrijving |
+|------|--------------|
+| **Dag** | Enkele dag met uren van 08:00-18:00 |
+| **Week** | Maandag t/m zondag, 7 kolommen |
+| **Werkdagen** | Maandag t/m vrijdag, 5 kolommen |
+
+Wissel tussen views via de knoppen in de toolbar.
+
+### Navigatie
+
+- **Pijltjes** (◀ ▶): Ga naar vorige/volgende dag of week
+- **Vandaag**: Spring direct naar de huidige datum
+- **Mini-kalender**: Klik op een datum in de zijbalk voor snelle navigatie
+
+### Visuele Elementen
+
+- **Rode lijn**: Huidige tijd indicator
+- **Gekleurde blokken**: Afspraken met kleurcodering per type
+- **Vandaag highlight**: De huidige dag heeft een licht gekleurde achtergrond
+- **Verslag-icoon**: Afspraken met een gekoppeld verslag tonen een document-icoon
+
+---
+
+## Afspraaktypen
+
+Elk afspraaktype heeft een eigen kleur en standaardduur:
+
+| Type | Kleur | Standaard duur |
+|------|-------|----------------|
+| **Intakegesprek** | Blauw | 60 minuten |
+| **Behandelsessie** | Groen | 45 minuten |
+| **Vervolggesprek** | Paars | 30 minuten |
+| **Telefonisch contact** | Geel | 30 minuten |
+| **Huisbezoek** | Oranje | 60 minuten |
+| **Online consult** | Indigo | 45 minuten |
+| **Crisiscontact** | Rood | 30 minuten |
+| **Overig** | Grijs | 30 minuten |
+
+---
+
+## Nieuwe Afspraak Plannen
+
+### Via Tijdslot Klikken
+
+1. **Klik op een leeg tijdslot** in de kalender
+2. Het afspraak formulier opent met datum en tijd vooringevuld
+3. **Zoek de cliënt** via het zoekveld:
+   - Typ minimaal 2 karakters
+   - Zoek op naam, BSN of geboortedatum
+   - Selecteer de juiste cliënt uit de resultaten
+4. **Selecteer het type** afspraak (intake, behandeling, etc.)
+5. **Pas de duur aan** indien nodig (wordt automatisch ingevuld op basis van type)
+6. Optioneel: voeg **notities** toe
+7. Klik op **Opslaan**
+
+### Via de Toolbar
+
+1. Klik op **"+ Nieuwe afspraak"** in de toolbar
+2. Selecteer datum en tijd handmatig
+3. Volg verder dezelfde stappen als hierboven
+
+### Slimme Defaults
+
+Het systeem helpt je met intelligente voorinvullingen:
+
+- **Type suggestie**: Nieuwe cliënt → Intake, Na intake → Behandeling, Na 3+ behandelingen → Follow-up
+- **Duur**: Automatisch gebaseerd op afspraaktype
+- **Recente cliënten**: Bij een leeg zoekveld verschijnen je laatst bezochte cliënten
+
+---
+
+## Afspraak Bewerken
+
+### Details Bekijken
+
+Klik op een afspraak in de kalender om de details te zien:
+
+- Cliëntgegevens
+- Datum en tijd
+- Type afspraak
+- Eventuele notities
+- Beschikbare acties
+
+### Wijzigen
+
+1. Klik op de afspraak
+2. Klik op **Bewerken**
+3. Pas de gewenste velden aan
+4. Klik op **Opslaan**
+
+### Verzetten via Drag-and-Drop
+
+1. Klik en houd de afspraak vast
+2. Sleep naar het nieuwe tijdslot
+3. Bevestig de wijziging in het dialoogvenster
+4. De afspraak wordt automatisch bijgewerkt
+
+---
+
+## Afspraak Annuleren
+
+1. Klik op de afspraak
+2. Klik op **Annuleren** (rode tekst onderaan)
+3. Bevestig de annulering
+
+Geannuleerde afspraken blijven geregistreerd in het systeem maar worden niet meer getoond in de agenda.
+
+---
+
+## Conflictdetectie
+
+Bij het plannen van een afspraak controleert het systeem automatisch op overlappende afspraken.
+
+**Bij een conflict:**
+1. Je ziet een waarschuwing met de details van de bestaande afspraak
+2. Je kunt kiezen:
+   - **Wijzigen**: Terug naar het formulier om een andere tijd te kiezen
+   - **Toch inplannen**: De afspraak wordt alsnog aangemaakt
+
+Het systeem blokkeert nooit een boeking - soms zijn dubbele boekingen bewust (bijv. korte telefoontjes tussendoor).
+
+---
+
+## Verslaglegging Starten
+
+De agenda integreert naadloos met de verslaglegging module:
+
+### Na een Afspraak
+
+1. Klik op de afspraak in de agenda
+2. Klik op **"Maak verslag"**
+3. Je wordt doorgeleid naar de rapportage module met:
+   - Cliënt automatisch ingevuld
+   - Afspraak gekoppeld
+   - Type verslag voorgeselecteerd
+4. Start met dicteren of typ je verslag
+5. Laat eventueel AI het verslag genereren
+
+### Verslag Indicator
+
+Afspraken met een gekoppeld verslag tonen een document-icoon. Klik hierop om direct naar het verslag te gaan.
+
+---
+
+## Keyboard Shortcuts
+
+Voor snelle navigatie zijn de volgende sneltoetsen beschikbaar:
+
+| Toets | Actie |
+|-------|-------|
+| `N` | Nieuwe afspraak |
+| `T` | Ga naar vandaag |
+| `←` / `→` | Vorige/volgende periode |
+| `1` / `2` / `3` | Dag / Week / Werkdagen view |
+| `Esc` | Sluit modal of popup |
+
+---
+
+## Tips voor Gebruik
+
+**Efficiënt plannen:**
+- Gebruik de mini-kalender voor snelle navigatie naar specifieke weken
+- Dubbelklik op een tijdslot om direct het formulier te openen
+- Recente cliënten verschijnen automatisch bij een lege zoekopdracht
+
+**Na een sessie:**
+- Maak direct een verslag via de afspraak detail popup
+- De koppeling tussen afspraak en verslag zorgt voor een compleet dossier
+
+**Overzicht behouden:**
+- Gebruik de kleurcodering om snel onderscheid te maken tussen afspraaktypen
+- De werkdagen-view is ideaal voor een focus op de werkweek
+
+---
+
+## Locatie Types
+
+Afspraken kunnen op verschillende locaties plaatsvinden:
+
+| Code | Beschrijving |
+|------|--------------|
+| **AMB** | Praktijk (ambulant) |
+| **VR** | Online / Virtueel |
+| **HH** | Thuis (huisbezoek) |
+
+---
+
+## Gerelateerde Documentatie
+
+**Workflow:**
+- [Intake Systeem](/documentatie/intake-system) - Intake afspraken
+- [Spraakgestuurde Verslaglegging](/documentatie/spraakgestuurde-verslaglegging) - Verslagen dicteren
+
+**Cliëntbeheer:**
+- [Client Management](/documentatie/client-management) - Cliëntdossiers
+
+**Interface:**
+- [Interface Design System](/documentatie/interface-design) - UI/UX specificaties

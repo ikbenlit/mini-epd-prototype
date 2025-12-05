@@ -349,7 +349,7 @@ export function canPublish(plan: GeneratedPlan): { valid: boolean; errors: strin
 }
 
 /**
- * Status label voor UI
+ * Status label voor UI (oude Nederlandse keys - deprecated)
  */
 export const PLAN_STATUS_LABELS: Record<PlanStatus, { label: string; color: string }> = {
   concept: { label: 'Concept', color: '#60a5fa' },      // blauw
@@ -357,6 +357,22 @@ export const PLAN_STATUS_LABELS: Record<PlanStatus, { label: string; color: stri
   in_evaluatie: { label: 'In evaluatie', color: '#f59e0b' }, // oranje
   afgerond: { label: 'Afgerond', color: '#6b7280' },    // grijs
   gearchiveerd: { label: 'Gearchiveerd', color: '#9ca3af' }, // lichtgrijs
+};
+
+/**
+ * FHIR status naar Nederlandse UI labels
+ * Database gebruikt FHIR statussen, UI toont Nederlands
+ */
+export type FhirCarePlanStatus = 'draft' | 'active' | 'on-hold' | 'completed' | 'revoked' | 'entered-in-error' | 'unknown';
+
+export const FHIR_STATUS_LABELS: Record<FhirCarePlanStatus, { label: string; color: string }> = {
+  draft: { label: 'Concept', color: '#60a5fa' },           // blauw
+  active: { label: 'Actueel', color: '#10b981' },          // groen
+  'on-hold': { label: 'Gepauzeerd', color: '#f59e0b' },    // oranje
+  completed: { label: 'Definitief', color: '#6b7280' },    // grijs
+  revoked: { label: 'Archief', color: '#9ca3af' },         // lichtgrijs
+  'entered-in-error': { label: 'Verwijderd', color: '#ef4444' }, // rood
+  unknown: { label: 'Onbekend', color: '#9ca3af' },        // lichtgrijs
 };
 
 /**

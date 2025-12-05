@@ -101,11 +101,19 @@
       "status": "active"
     },
     {
+      "slug": "agenda",
+      "title": "Agenda Systeem",
+      "group": "features",
+      "description": "Behandelaar agenda met kalender, afspraken en verslaglegging integratie",
+      "order": 8,
+      "status": "completed"
+    },
+    {
       "slug": "treatment-planning",
       "title": "Behandelplanning",
       "group": "features",
       "description": "SMART doelen en voortgang monitoring",
-      "order": 8,
+      "order": 9,
       "status": "planned"
     },
     {

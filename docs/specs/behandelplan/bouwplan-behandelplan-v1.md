@@ -110,7 +110,7 @@ Deze module is onderdeel van de AI Speedrun LinkedIn Serie. Het prototype demons
 | E0 | Foundation | Types, database schema | ✅ Done | 3 | 2-3 uur |
 | E1 | Leefgebieden | Intake formulier + score weergave | ✅ Done | 3 | 3-4 uur |
 | E2 | AI Generatie | Claude API endpoint + prompts | ✅ Done | 3 | 3-4 uur |
-| E3 | Behandelplan UI | Pagina + componenten | ⏳ To Do | 5 | 6-8 uur |
+| E3 | Behandelplan UI | Pagina + componenten | ✅ Done | 5 | 6-8 uur |
 | E4 | Stretch | Micro-regeneratie, radar chart | ⏳ Optioneel | 3 | 3-5 uur |
 
 **Totaal MVP (E0-E3):** 14-19 uur
@@ -224,11 +224,11 @@ const settings = {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E3.S1 | Behandelplan pagina | Placeholder vervangen, data loading, status weergave | ⏳ | E2.S2 | 2 |
-| E3.S2 | Generate button + flow | Button triggert AI, loading state, resultaat weergave | ⏳ | E3.S1 | 2 |
-| E3.S3 | SMART doelen sectie | Goal cards met progress, status, leefgebied badge | ⏳ | E3.S1, E1.S3 | 3 |
-| E3.S4 | Interventies sectie | Intervention cards met gekoppelde doelen | ⏳ | E3.S3 | 2 |
-| E3.S5 | Server actions | Create, update, delete, publish behandelplan | ⏳ | E3.S1 | 2 |
+| E3.S1 | Behandelplan pagina | Placeholder vervangen, data loading, status weergave | ✅ | E2.S2 | 2 |
+| E3.S2 | Generate button + flow | Button triggert AI, loading state, resultaat weergave | ✅ | E3.S1 | 2 |
+| E3.S3 | SMART doelen sectie | Goal cards met progress, status, leefgebied badge | ✅ | E3.S1, E1.S3 | 3 |
+| E3.S4 | Interventies sectie | Intervention cards met gekoppelde doelen | ✅ | E3.S3 | 2 |
+| E3.S5 | Server actions | Create, update, delete, publish behandelplan | ✅ | E3.S1 | 2 |
 
 **Technical Notes:**
 ```
@@ -244,13 +244,10 @@ const settings = {
 ```
 
 **Deliverables:**
-- [ ] `app/epd/patients/[id]/behandelplan/page.tsx` (vervangen)
-- [ ] `app/epd/patients/[id]/behandelplan/actions.ts`
-- [ ] `components/behandelplan/behandelplan-view.tsx`
-- [ ] `components/behandelplan/generate-button.tsx`
-- [ ] `components/behandelplan/goals-section.tsx`
-- [ ] `components/behandelplan/goal-card.tsx`
-- [ ] `components/behandelplan/interventions-section.tsx`
+- [x] `app/epd/patients/[id]/behandelplan/page.tsx` (vervangen)
+- [x] `app/epd/patients/[id]/behandelplan/page-client.tsx` (nieuw - client wrapper)
+- [x] `app/epd/patients/[id]/behandelplan/actions.ts`
+- [x] `components/behandelplan/behandelplan-view.tsx` (bevat generate button, goals section, interventions inline)
 
 ---
 
@@ -438,3 +435,4 @@ Optioneel (indien tijd):
 |--------|-------|--------|-----------|
 | v1.0 | 03-12-2024 | Colin Lit | Initiële versie |
 | v1.1 | 04-12-2024 | Colin Lit | Epic 0, 1, 2 afgerond - status bijgewerkt |
+| v1.2 | 04-12-2024 | Colin Lit | Epic 3 afgerond - MVP compleet |
