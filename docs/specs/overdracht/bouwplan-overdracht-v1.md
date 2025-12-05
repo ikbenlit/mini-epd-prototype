@@ -1,7 +1,7 @@
 # Mission Control - Bouwplan Overdracht Dashboard
 
 **Projectnaam:** Verpleegkundige Overdracht Dashboard
-**Versie:** v1.2
+**Versie:** v1.3 (Afgerond)
 **Datum:** 06-12-2024
 **Auteur:** Colin Lit
 
@@ -70,9 +70,9 @@
 | E1 | API Nursing Logs | CRUD endpoints voor dagnotities | ✅ Done | 2 | Laag |
 | E2 | API Overdracht | Endpoints voor overdracht data + AI | ✅ Done | 3 | Middel |
 | E3 | Dagregistratie UI | Quick entry module | ✅ Done | 3 | Middel |
-| E4 | Overdracht Overzicht | Patiënten grid | ⏳ To Do | 2 | Middel |
-| E5 | Overdracht Detail | Info blokken + AI samenvatting | ⏳ To Do | 4 | Middel |
-| E6 | Integratie & Polish | Sidebar, navigatie, testing | ⏳ To Do | 3 | Laag |
+| E4 | Overdracht Overzicht | Patiënten grid | ✅ Done | 2 | Middel |
+| E5 | Overdracht Detail | Info blokken + AI samenvatting | ✅ Done | 4 | Middel |
+| E6 | Integratie & Polish | Sidebar, navigatie, testing | ✅ Done | 3 | Laag |
 
 **Totaal:** 19 stories
 
@@ -147,8 +147,8 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E4.S1 | Overdracht overzicht page | Route `/epd/overdracht/`, grid van PatientCards, filter tabs | ⏳ | E2.S1 | 5 |
-| E4.S2 | PatientCard component | Naam, leeftijd, alert badge (rood=hoog risico), doorklik | ⏳ | E4.S1 | 3 |
+| E4.S1 | Overdracht overzicht page | Route `/epd/overdracht/`, grid van PatientCards, filter tabs | ✅ | E2.S1 | 5 |
+| E4.S2 | PatientCard component | Naam, leeftijd, alert badge (rood=hoog risico), doorklik | ✅ | E4.S1 | 3 |
 
 **Technical Notes:**
 - Filter tabs: "Alle patiënten", "Met alerts"
@@ -162,10 +162,10 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E5.S1 | Overdracht detail page | Route `/epd/overdracht/[patientId]`, patient header, 2-kolom layout | ⏳ | E2.S2 | 3 |
-| E5.S2 | Info blokken: Vitals + Reports | VitalsBlock (metingen vandaag), ReportsBlock (24u) | ⏳ | E5.S1 | 5 |
-| E5.S3 | Info blokken: Logs + Risks | NursingLogsBlock (gemarkeerd), RisksBlock (actief) | ⏳ | E5.S2 | 5 |
-| E5.S4 | AI Samenvatting blok | AIButton "Genereer samenvatting", loading state, output met bronnen | ⏳ | E2.S3, E5.S3 | 5 |
+| E5.S1 | Overdracht detail page | Route `/epd/overdracht/[patientId]`, patient header, 2-kolom layout | ✅ | E2.S2 | 3 |
+| E5.S2 | Info blokken: Vitals + Reports | VitalsBlock (metingen vandaag), ReportsBlock (24u) | ✅ | E5.S1 | 5 |
+| E5.S3 | Info blokken: Logs + Risks | NursingLogsBlock (gemarkeerd), RisksBlock (actief) | ✅ | E5.S2 | 5 |
+| E5.S4 | AI Samenvatting blok | AIButton "Genereer samenvatting", loading state, output met bronnen | ✅ | E2.S3, E5.S3 | 5 |
 
 **Technical Notes:**
 - Linker kolom: Vitals, Reports, Logs, Risks (scrollable)
@@ -180,9 +180,9 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E6.S1 | Sidebar uitbreiden | "Overdracht" link in EPD sidebar met alert badge | ⏳ | E4.S1 | 1 |
-| E6.S2 | Navigatie links | Link van dagregistratie naar overdracht en vice versa | ⏳ | E5.S3 | 2 |
-| E6.S3 | Smoke testing | Alle flows werken, geen console errors, performance OK | ⏳ | E6.S2 | 3 |
+| E6.S1 | Sidebar uitbreiden | "Overdracht" link in EPD sidebar met alert badge | ✅ | E4.S1 | 1 |
+| E6.S2 | Navigatie links | Link van dagregistratie naar overdracht en vice versa | ✅ | E5.S3 | 2 |
+| E6.S3 | Smoke testing | Alle flows werken, geen console errors, performance OK | ✅ | E6.S2 | 3 |
 
 **Technical Notes:**
 - Sidebar icon: ClipboardList (lucide)
@@ -314,3 +314,4 @@
 | v1.0 | 05-12-2024 | Colin | Initieel bouwplan gebaseerd op PRD, FO en TO |
 | v1.1 | 06-12-2024 | Claude | E0 + E1 afgerond: database setup + API nursing logs |
 | v1.2 | 06-12-2024 | Claude | E2 + E3 afgerond: API overdracht + dagregistratie UI |
+| v1.3 | 06-12-2024 | Claude | E4 + E5 + E6 afgerond: Overdracht UI compleet, alle 19 stories done |

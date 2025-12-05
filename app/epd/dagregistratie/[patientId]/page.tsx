@@ -6,7 +6,7 @@
 import { createClient } from '@/lib/auth/server';
 import { notFound } from 'next/navigation';
 import { LogList } from './components/log-list';
-import { ArrowLeft, ClipboardList } from 'lucide-react';
+import { ArrowLeft, ClipboardList, FileText } from 'lucide-react';
 import Link from 'next/link';
 import type { NursingLog } from '@/lib/types/nursing-log';
 
@@ -95,13 +95,20 @@ export default async function DagregistratiePage({ params }: PageProps) {
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
             <Link
               href={`/epd/patients/${patientId}`}
               className="flex items-center gap-2 text-sm text-slate-600 hover:text-teal-600 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Terug naar patiënt
+            </Link>
+            <Link
+              href={`/epd/overdracht/${patientId}`}
+              className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-700 font-medium transition-colors"
+            >
+              <FileText className="h-4 w-4" />
+              Naar overdracht
             </Link>
           </div>
 

@@ -39,6 +39,7 @@ interface EPDSidebarProps {
 const level1NavigationItems: NavigationItem[] = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/epd/dashboard" },
   { id: "clients", name: "Cliënten", icon: Users, href: "/epd/patients" },
+  { id: "overdracht", name: "Overdracht", icon: ClipboardList, href: "/epd/overdracht" },
   { id: "agenda", name: "Agenda", icon: FileText, href: "/epd/agenda" },
   { id: "reports", name: "Rapportage", icon: Settings, href: "/epd/reports" },
 ];
