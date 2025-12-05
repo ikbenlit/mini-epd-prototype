@@ -129,6 +129,7 @@ export type Database = {
           based_on_examinations: string[] | null
           based_on_intake_id: string | null
           based_on_risk_assessments: string[] | null
+          behandelstructuur: Json | null
           care_team_ids: string[] | null
           category_code: string | null
           category_display: string | null
@@ -137,6 +138,7 @@ export type Database = {
           created_date: string | null
           description: string | null
           encounter_id: string | null
+          evaluatiemomenten: Json | null
           goals: Json | null
           id: string
           identifier: string | null
@@ -145,9 +147,13 @@ export type Database = {
           patient_id: string
           period_end: string | null
           period_start: string | null
+          published_at: string | null
+          sessie_planning: Json | null
           status: Database["public"]["Enums"]["careplan_status"]
           title: string
           updated_at: string | null
+          veiligheidsplan: Json | null
+          version: number | null
         }
         Insert: {
           activities?: Json | null
@@ -157,6 +163,7 @@ export type Database = {
           based_on_examinations?: string[] | null
           based_on_intake_id?: string | null
           based_on_risk_assessments?: string[] | null
+          behandelstructuur?: Json | null
           care_team_ids?: string[] | null
           category_code?: string | null
           category_display?: string | null
@@ -165,6 +172,7 @@ export type Database = {
           created_date?: string | null
           description?: string | null
           encounter_id?: string | null
+          evaluatiemomenten?: Json | null
           goals?: Json | null
           id?: string
           identifier?: string | null
@@ -173,9 +181,13 @@ export type Database = {
           patient_id: string
           period_end?: string | null
           period_start?: string | null
+          published_at?: string | null
+          sessie_planning?: Json | null
           status?: Database["public"]["Enums"]["careplan_status"]
           title: string
           updated_at?: string | null
+          veiligheidsplan?: Json | null
+          version?: number | null
         }
         Update: {
           activities?: Json | null
@@ -185,6 +197,7 @@ export type Database = {
           based_on_examinations?: string[] | null
           based_on_intake_id?: string | null
           based_on_risk_assessments?: string[] | null
+          behandelstructuur?: Json | null
           care_team_ids?: string[] | null
           category_code?: string | null
           category_display?: string | null
@@ -193,6 +206,7 @@ export type Database = {
           created_date?: string | null
           description?: string | null
           encounter_id?: string | null
+          evaluatiemomenten?: Json | null
           goals?: Json | null
           id?: string
           identifier?: string | null
@@ -201,9 +215,13 @@ export type Database = {
           patient_id?: string
           period_end?: string | null
           period_start?: string | null
+          published_at?: string | null
+          sessie_planning?: Json | null
           status?: Database["public"]["Enums"]["careplan_status"]
           title?: string
           updated_at?: string | null
+          veiligheidsplan?: Json | null
+          version?: number | null
         }
         Relationships: [
           {
@@ -764,6 +782,53 @@ export type Database = {
           user_agent?: string | null
         }
         Relationships: []
+      }
+      nursing_logs: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          include_in_handover: boolean
+          patient_id: string
+          shift_date: string
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          include_in_handover?: boolean
+          patient_id: string
+          shift_date: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          include_in_handover?: boolean
+          patient_id?: string
+          shift_date?: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nursing_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       observations: {
         Row: {
