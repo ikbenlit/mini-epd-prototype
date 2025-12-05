@@ -1,8 +1,8 @@
 # Mission Control - Bouwplan Overdracht Dashboard
 
 **Projectnaam:** Verpleegkundige Overdracht Dashboard
-**Versie:** v1.0
-**Datum:** 05-12-2024
+**Versie:** v1.2
+**Datum:** 06-12-2024
 **Auteur:** Colin Lit
 
 ---
@@ -66,10 +66,10 @@
 
 | Epic ID | Titel | Doel | Status | Stories | Complexiteit |
 |---------|-------|------|--------|---------|--------------|
-| E0 | Database Setup | nursing_logs tabel + RLS | ⏳ To Do | 2 | Laag |
-| E1 | API Nursing Logs | CRUD endpoints voor dagnotities | ⏳ To Do | 2 | Laag |
-| E2 | API Overdracht | Endpoints voor overdracht data + AI | ⏳ To Do | 3 | Middel |
-| E3 | Dagregistratie UI | Quick entry module | ⏳ To Do | 3 | Middel |
+| E0 | Database Setup | nursing_logs tabel + RLS | ✅ Done | 2 | Laag |
+| E1 | API Nursing Logs | CRUD endpoints voor dagnotities | ✅ Done | 2 | Laag |
+| E2 | API Overdracht | Endpoints voor overdracht data + AI | ✅ Done | 3 | Middel |
+| E3 | Dagregistratie UI | Quick entry module | ✅ Done | 3 | Middel |
 | E4 | Overdracht Overzicht | Patiënten grid | ⏳ To Do | 2 | Middel |
 | E5 | Overdracht Detail | Info blokken + AI samenvatting | ⏳ To Do | 4 | Middel |
 | E6 | Integratie & Polish | Sidebar, navigatie, testing | ⏳ To Do | 3 | Laag |
@@ -85,8 +85,8 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E0.S1 | nursing_logs tabel aanmaken | Tabel bestaat met alle kolommen uit TO, indexes aanwezig | ⏳ | - | 2 |
-| E0.S2 | RLS policies implementeren | SELECT/INSERT/UPDATE/DELETE policies actief, alleen eigen logs muteerbaar | ⏳ | E0.S1 | 2 |
+| E0.S1 | nursing_logs tabel aanmaken | Tabel bestaat met alle kolommen uit TO, indexes aanwezig | ✅ | - | 2 |
+| E0.S2 | RLS policies implementeren | SELECT/INSERT/UPDATE/DELETE policies actief, alleen eigen logs muteerbaar | ✅ | E0.S1 | 2 |
 
 **Technical Notes:**
 - Migratie via `npx supabase migration new create_nursing_logs`
@@ -100,8 +100,8 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E1.S1 | GET/POST /api/nursing-logs | Ophalen per patient+date, aanmaken met Zod validatie | ⏳ | E0.S2 | 3 |
-| E1.S2 | PATCH/DELETE /api/nursing-logs/[id] | Update eigen logs, soft delete | ⏳ | E1.S1 | 2 |
+| E1.S1 | GET/POST /api/nursing-logs | Ophalen per patient+date, aanmaken met Zod validatie | ✅ | E0.S2 | 3 |
+| E1.S2 | PATCH/DELETE /api/nursing-logs/[id] | Update eigen logs, hard delete | ✅ | E1.S1 | 2 |
 
 **Technical Notes:**
 - Pattern volgen van `app/api/reports/route.ts`
@@ -115,9 +115,9 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E2.S1 | GET /api/overdracht/patients | Retourneert patiënten met encounters vandaag + alert counts | ⏳ | E0.S2 | 3 |
-| E2.S2 | GET /api/overdracht/[patientId] | Retourneert patient + vitals + reports + logs + risks + conditions | ⏳ | E1.S1 | 5 |
-| E2.S3 | POST /api/overdracht/generate | AI samenvatting met bronverwijzingen, logging naar ai_events | ⏳ | E2.S2 | 5 |
+| E2.S1 | GET /api/overdracht/patients | Retourneert patiënten met encounters vandaag + alert counts | ✅ | E0.S2 | 3 |
+| E2.S2 | GET /api/overdracht/[patientId] | Retourneert patient + vitals + reports + logs + risks + conditions | ✅ | E1.S1 | 5 |
+| E2.S3 | POST /api/overdracht/generate | AI samenvatting met bronverwijzingen, logging naar ai_events | ✅ | E2.S2 | 5 |
 
 **Technical Notes:**
 - E2.S2: Parallel queries via Promise.all()
@@ -131,9 +131,9 @@
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E3.S1 | Dagregistratie page | Route `/epd/dagregistratie/[patientId]`, lijst van notities vandaag | ⏳ | E1.S2 | 3 |
-| E3.S2 | Quick entry form | Categorie dropdown, tijd, tekst (max 500), overdracht checkbox | ⏳ | E3.S1 | 5 |
-| E3.S3 | Edit/Delete functionality | Inline edit, confirm delete dialog | ⏳ | E3.S2 | 3 |
+| E3.S1 | Dagregistratie page | Route `/epd/dagregistratie/[patientId]`, lijst van notities vandaag | ✅ | E1.S2 | 3 |
+| E3.S2 | Quick entry form | Categorie dropdown, tijd, tekst (max 500), overdracht checkbox | ✅ | E3.S1 | 5 |
+| E3.S3 | Edit/Delete functionality | Inline edit, confirm delete dialog | ✅ | E3.S2 | 3 |
 
 **Technical Notes:**
 - Icons per categorie: Pill (medicatie), Utensils (adl), User (gedrag), AlertTriangle (incident), FileText (observatie)
@@ -312,3 +312,5 @@
 | Versie | Datum | Auteur | Wijziging |
 |--------|-------|--------|-----------|
 | v1.0 | 05-12-2024 | Colin | Initieel bouwplan gebaseerd op PRD, FO en TO |
+| v1.1 | 06-12-2024 | Claude | E0 + E1 afgerond: database setup + API nursing logs |
+| v1.2 | 06-12-2024 | Claude | E2 + E3 afgerond: API overdracht + dagregistratie UI |
