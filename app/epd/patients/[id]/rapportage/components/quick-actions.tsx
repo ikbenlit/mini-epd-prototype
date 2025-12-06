@@ -1,19 +1,22 @@
 'use client'
 
-import { FileText, ClipboardList } from 'lucide-react'
+import { FileText, ClipboardList, Activity, AlertTriangle, Pill, TrendingUp, Phone, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { ReportType } from '@/lib/types/report'
+
+// Re-export for backwards compatibility
+export type { ReportType } from '@/lib/types/report'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
-
-export type ReportType = 'vrije_notitie' | 'behandeladvies'
 
 interface QuickAction {
   id: string
   label: string
   icon: typeof FileText
   type: ReportType
+  color?: string
 }
 
 export interface QuickActionsProps {
@@ -32,8 +35,14 @@ export interface QuickActionsProps {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { id: 'vrije-notitie', label: '+ Vrije notitie', icon: FileText, type: 'vrije_notitie' },
-  { id: 'behandeladvies', label: '+ Behandeladvies', icon: ClipboardList, type: 'behandeladvies' },
+  { id: 'voortgang', label: 'Voortgang', icon: TrendingUp, type: 'voortgang', color: 'emerald' },
+  { id: 'observatie', label: 'Observatie', icon: Activity, type: 'observatie', color: 'blue' },
+  { id: 'medicatie', label: 'Medicatie', icon: Pill, type: 'medicatie', color: 'purple' },
+  { id: 'incident', label: 'Incident', icon: AlertTriangle, type: 'incident', color: 'red' },
+  { id: 'contact', label: 'Contact', icon: Phone, type: 'contact', color: 'amber' },
+  { id: 'crisis', label: 'Crisis', icon: Zap, type: 'crisis', color: 'red' },
+  { id: 'vrije-notitie', label: 'Vrije notitie', icon: FileText, type: 'vrije_notitie', color: 'slate' },
+  { id: 'behandeladvies', label: 'Behandeladvies', icon: ClipboardList, type: 'behandeladvies', color: 'indigo' },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────

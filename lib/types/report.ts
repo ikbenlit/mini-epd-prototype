@@ -5,7 +5,17 @@ export type Report = Database['public']['Tables']['reports']['Row'];
 export type ReportInsert = Database['public']['Tables']['reports']['Insert'];
 export type ReportUpdate = Database['public']['Tables']['reports']['Update'];
 
-export const REPORT_TYPES = ['behandeladvies', 'vrije_notitie'] as const;
+export const REPORT_TYPES = [
+  'voortgang',
+  'observatie',
+  'incident',
+  'medicatie',
+  'contact',
+  'crisis',
+  'intake',
+  'behandeladvies',
+  'vrije_notitie',
+] as const;
 export type ReportType = (typeof REPORT_TYPES)[number];
 
 export const CreateReportSchema = z.object({

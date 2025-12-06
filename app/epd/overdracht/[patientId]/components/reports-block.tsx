@@ -15,9 +15,12 @@ function getReportTypeLabel(type: string): string {
     voortgang: 'Voortgang',
     observatie: 'Observatie',
     incident: 'Incident',
-    overdracht: 'Overdracht',
+    medicatie: 'Medicatie',
     contact: 'Contact',
-    algemeen: 'Algemeen',
+    crisis: 'Crisis',
+    intake: 'Intake',
+    behandeladvies: 'Behandeladvies',
+    vrije_notitie: 'Vrije notitie',
   };
   return types[type] || type;
 }
@@ -25,15 +28,21 @@ function getReportTypeLabel(type: string): string {
 function getReportTypeStyle(type: string): { bg: string; text: string } {
   switch (type) {
     case 'incident':
+    case 'crisis':
       return { bg: 'bg-red-100', text: 'text-red-700' };
     case 'observatie':
       return { bg: 'bg-blue-100', text: 'text-blue-700' };
     case 'voortgang':
       return { bg: 'bg-green-100', text: 'text-green-700' };
-    case 'overdracht':
+    case 'medicatie':
       return { bg: 'bg-purple-100', text: 'text-purple-700' };
     case 'contact':
       return { bg: 'bg-amber-100', text: 'text-amber-700' };
+    case 'intake':
+      return { bg: 'bg-teal-100', text: 'text-teal-700' };
+    case 'behandeladvies':
+      return { bg: 'bg-indigo-100', text: 'text-indigo-700' };
+    case 'vrije_notitie':
     default:
       return { bg: 'bg-slate-100', text: 'text-slate-700' };
   }
@@ -65,7 +74,7 @@ function truncateContent(content: string, maxLength: number = 150): string {
 }
 
 export function ReportsBlock({ reports }: ReportsBlockProps) {
-  const incidentCount = reports.filter(r => r.type === 'incident').length;
+  const incidentCount = reports.filter(r => r.type === 'incident' || r.type === 'crisis').length;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">

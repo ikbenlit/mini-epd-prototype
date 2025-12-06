@@ -49,7 +49,7 @@ export function RapportageWorkspaceV2({
   linkedEncounterId,
 }: RapportageWorkspaceV2Props) {
   const [reports, setReports] = useState(initialReports)
-  const [selectedType, setSelectedType] = useState<ReportType>('vrije_notitie')
+  const [selectedType, setSelectedType] = useState<ReportType>('voortgang')
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [duplicateContent, setDuplicateContent] = useState<string | null>(null)

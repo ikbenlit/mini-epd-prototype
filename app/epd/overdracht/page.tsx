@@ -16,13 +16,14 @@ async function getOverdrachtPatients(date?: string): Promise<{
   const supabase = await createClient();
   const targetDate = date || new Date().toISOString().split('T')[0];
 
-  // Get start and end of day for date filtering
+  // Get start and end of day for date filtering (last 24 hours for reports)
   const dayStart = `${targetDate}T00:00:00.000Z`;
   const dayEnd = `${targetDate}T23:59:59.999Z`;
+  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  // 1. Get patients with encounters today
-  const { data: encounterData, error: encounterError } = await supabase
-    .from('encounters')
+  // 1. Get patients with reports in the last 24 hours
+  const { data: reportsData, error: reportsError } = await supabase
+    .from('reports')
     .select(`
       patient_id,
       patients!inner (
@@ -33,12 +34,10 @@ async function getOverdrachtPatients(date?: string): Promise<{
         gender
       )
     `)
-    .gte('period_start', dayStart)
-    .lte('period_start', dayEnd)
-    .in('status', ['planned', 'in-progress', 'completed']);
+    .gte('created_at', last24h);
 
-  if (encounterError) {
-    console.error('Error fetching encounters:', encounterError);
+  if (reportsError) {
+    console.error('Error fetching reports:', reportsError);
     return { patients: [], total: 0, date: targetDate };
   }
 
@@ -51,8 +50,8 @@ async function getOverdrachtPatients(date?: string): Promise<{
     gender: string;
   }>();
 
-  for (const encounter of encounterData || []) {
-    const patient = encounter.patients as unknown as {
+  for (const report of reportsData || []) {
+    const patient = report.patients as unknown as {
       id: string;
       name_given: string[];
       name_family: string;
