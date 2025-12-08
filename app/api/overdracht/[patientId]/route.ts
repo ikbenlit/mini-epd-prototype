@@ -8,7 +8,7 @@ import type {
   RiskAssessment,
   Condition,
 } from '@/lib/types/overdracht';
-import type { NursingLog } from '@/lib/types/nursing-log';
+import { VERPLEEG_REPORT_TYPES } from '@/lib/types/report';
 
 interface RouteParams {
   params: Promise<{ patientId: string }>;
@@ -37,7 +37,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       patientResult,
       vitalsResult,
       reportsResult,
-      logsResult,
       risksResult,
       conditionsResult,
     ] = await Promise.all([
@@ -57,31 +56,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         .gte('effective_datetime', todayStart)
         .order('effective_datetime', { ascending: false }),
 
-      // 3. Reports last 24h
+      // 3. Reports last 24h - includes verpleegkundig (was nursing_logs) plus observatie, incident, etc
       supabase
         .from('reports')
-        .select('id, type, content, created_at, created_by')
+        .select('id, type, content, created_at, created_by, structured_data, include_in_handover, shift_date')
         .eq('patient_id', patientId)
+        .in('type', [...VERPLEEG_REPORT_TYPES])
         .gte('created_at', last24h)
         .is('deleted_at', null)
         .order('created_at', { ascending: false }),
 
-      // 4. Nursing logs today (all, not just marked)
-      supabase
-        .from('nursing_logs')
-        .select('*')
-        .eq('patient_id', patientId)
-        .eq('shift_date', today)
-        .order('timestamp', { ascending: false }),
-
-      // 5. Risks via intakes
+      // 4. Risks via intakes
       supabase
         .from('risk_assessments')
         .select('id, risk_type, risk_level, rationale, created_at, intakes!inner(patient_id)')
         .eq('intakes.patient_id', patientId)
         .in('risk_level', ['laag', 'gemiddeld', 'hoog', 'zeer_hoog']),
 
-      // 6. Active conditions
+      // 5. Active conditions
       supabase
         .from('conditions')
         .select('id, code_display, clinical_status, onset_datetime')
@@ -104,9 +96,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (reportsResult.error) {
       console.error('Error fetching reports:', reportsResult.error);
     }
-    if (logsResult.error) {
-      console.error('Error fetching nursing logs:', logsResult.error);
-    }
     if (risksResult.error) {
       console.error('Error fetching risks:', risksResult.error);
     }
@@ -124,17 +113,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       effective_datetime: v.effective_datetime,
     }));
 
-    // Map reports
+    // Map reports (now includes verpleegkundig type)
     const reports: Report[] = (reportsResult.data || []).map((r) => ({
       id: r.id,
       type: r.type,
       content: r.content,
       created_at: r.created_at,
       created_by: r.created_by,
+      structured_data: r.structured_data,
+      include_in_handover: r.include_in_handover,
+      shift_date: r.shift_date,
     }));
-
-    // Nursing logs (already typed correctly from database)
-    const nursingLogs: NursingLog[] = logsResult.data || [];
 
     // Map risks (remove the intakes join data)
     const risks: RiskAssessment[] = (risksResult.data || []).map((r) => ({
@@ -165,7 +154,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
       vitals,
       reports,
-      nursingLogs,
       risks,
       conditions,
     };

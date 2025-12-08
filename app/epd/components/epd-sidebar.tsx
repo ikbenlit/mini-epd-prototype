@@ -11,6 +11,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   FileText,
   HelpCircle,
   LayoutDashboard,
@@ -18,8 +19,15 @@ import {
   ClipboardList,
   Stethoscope,
   Calendar,
-  FileBarChart
+  FileBarChart,
+  PenLine
 } from 'lucide-react';
+
+interface SubNavigationItem {
+  id: string;
+  name: string;
+  href: string;
+}
 
 interface NavigationItem {
   id: string;
@@ -27,6 +35,7 @@ interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
   href: string;
   badge?: string;
+  subItems?: SubNavigationItem[];
 }
 
 interface EPDSidebarProps {
@@ -39,7 +48,16 @@ interface EPDSidebarProps {
 const level1NavigationItems: NavigationItem[] = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/epd/dashboard" },
   { id: "clients", name: "Cliënten", icon: Users, href: "/epd/patients" },
-  { id: "overdracht", name: "Overdracht", icon: ClipboardList, href: "/epd/overdracht" },
+  {
+    id: "verpleegrapportage",
+    name: "Verpleegrapportage",
+    icon: ClipboardList,
+    href: "/epd/verpleegrapportage",
+    subItems: [
+      { id: "rapportage", name: "Rapportage", href: "/epd/verpleegrapportage" },
+      { id: "overdracht", name: "Overdracht", href: "/epd/verpleegrapportage/overdracht" },
+    ]
+  },
   { id: "agenda", name: "Agenda", icon: FileText, href: "/epd/agenda" },
   { id: "reports", name: "Rapportage", icon: Settings, href: "/epd/reports" },
 ];
@@ -126,6 +144,148 @@ const SidebarItem = memo(function SidebarItem({ item, isActive, isCollapsed, onC
          prev.isCollapsed === next.isCollapsed;
 });
 
+// Sidebar item with expandable submenu
+interface SidebarItemWithSubmenuProps {
+  item: NavigationItem;
+  isActive: boolean;
+  isCollapsed: boolean;
+  onClick: () => void;
+  pathname: string | null;
+}
+
+const SidebarItemWithSubmenu = memo(function SidebarItemWithSubmenu({
+  item,
+  isActive,
+  isCollapsed,
+  onClick,
+  pathname
+}: SidebarItemWithSubmenuProps) {
+  const Icon = item.icon;
+
+  // Check if any subitem is active
+  const isSubItemActive = item.subItems?.some(sub => pathname === sub.href) || false;
+  const isParentOrChildActive = isActive || isSubItemActive;
+
+  // Auto-expand when a child is active
+  const [isExpanded, setIsExpanded] = useState(isSubItemActive);
+
+  // Update expanded state when route changes
+  useEffect(() => {
+    if (isSubItemActive) {
+      setIsExpanded(true);
+    }
+  }, [isSubItemActive]);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isCollapsed) {
+      setIsExpanded(prev => !prev);
+    }
+  };
+
+  return (
+    <li>
+      {/* Main menu item */}
+      <button
+        onClick={handleToggle}
+        className={cn(
+          "w-full flex items-center px-3 py-2.5 rounded-md text-left transition-all duration-200 group",
+          isParentOrChildActive
+            ? "bg-slate-100 text-slate-900"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+          isCollapsed && "justify-center px-2"
+        )}
+        title={isCollapsed ? item.name : undefined}
+      >
+        <div className="flex items-center justify-center min-w-[20px]">
+          <Icon
+            className={cn(
+              "h-5 w-5 flex-shrink-0",
+              isParentOrChildActive
+                ? "text-slate-700"
+                : "text-slate-500 group-hover:text-slate-700"
+            )}
+          />
+        </div>
+
+        {!isCollapsed && (
+          <div className="flex items-center justify-between w-full ml-2.5">
+            <span className={cn("text-sm", isParentOrChildActive ? "font-medium" : "font-normal")}>
+              {item.name}
+            </span>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-slate-400 transition-transform duration-200",
+                isExpanded && "rotate-180"
+              )}
+            />
+          </div>
+        )}
+
+        {/* Tooltip for collapsed state */}
+        {isCollapsed && (
+          <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+            {item.name}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
+          </div>
+        )}
+      </button>
+
+      {/* Submenu items */}
+      {!isCollapsed && isExpanded && item.subItems && (
+        <ul className="mt-1 ml-7 space-y-0.5">
+          {item.subItems.map((subItem) => {
+            const isSubActive = pathname === subItem.href;
+            return (
+              <li key={subItem.id}>
+                <Link
+                  href={subItem.href}
+                  onClick={onClick}
+                  className={cn(
+                    "block px-3 py-2 rounded-md text-sm transition-colors duration-200",
+                    isSubActive
+                      ? "bg-teal-50 text-teal-700 font-medium"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  )}
+                >
+                  {subItem.name}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {/* Collapsed state: show submenu on hover */}
+      {isCollapsed && item.subItems && (
+        <div className="absolute left-full ml-2 py-2 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[160px]">
+          <div className="px-3 py-1.5 text-xs font-medium text-slate-500 border-b border-slate-100 mb-1">
+            {item.name}
+          </div>
+          {item.subItems.map((subItem) => {
+            const isSubActive = pathname === subItem.href;
+            return (
+              <Link
+                key={subItem.id}
+                href={subItem.href}
+                onClick={onClick}
+                className={cn(
+                  "block px-3 py-2 text-sm transition-colors duration-200",
+                  isSubActive
+                    ? "bg-teal-50 text-teal-700 font-medium"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                )}
+              >
+                {subItem.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </li>
+  );
+});
+
 export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -165,6 +325,12 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
   const getIsActive = useCallback((item: NavigationItem): boolean => {
     if (item.id === 'dashboard') {
       return pathname === item.href;
+    }
+    // For items with subItems, check if current path matches any subItem
+    if (item.subItems) {
+      return item.subItems.some(sub =>
+        pathname === sub.href || Boolean(pathname?.startsWith(sub.href + '/'))
+      );
     }
     return pathname === item.href || Boolean(item.href && pathname?.startsWith(item.href + '/'));
   }, [pathname]);
@@ -277,13 +443,24 @@ export function EPDSidebar({ className = "", userEmail, userName }: EPDSidebarPr
 
           <ul className="space-y-1">
             {navigationItems.map((item) => (
-              <SidebarItem
-                key={item.id}
-                item={item}
-                isActive={getIsActive(item)}
-                isCollapsed={isCollapsed}
-                onClick={handleItemClick}
-              />
+              item.subItems ? (
+                <SidebarItemWithSubmenu
+                  key={item.id}
+                  item={item}
+                  isActive={getIsActive(item)}
+                  isCollapsed={effectiveCollapsed}
+                  onClick={handleItemClick}
+                  pathname={pathname}
+                />
+              ) : (
+                <SidebarItem
+                  key={item.id}
+                  item={item}
+                  isActive={getIsActive(item)}
+                  isCollapsed={effectiveCollapsed}
+                  onClick={handleItemClick}
+                />
+              )
             ))}
           </ul>
         </nav>

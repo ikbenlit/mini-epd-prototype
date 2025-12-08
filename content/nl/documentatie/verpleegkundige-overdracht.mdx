@@ -1,108 +1,231 @@
 ---
-title: "Verpleegkundige Overdracht"
+title: "Verpleegkundige Rapportage & Overdracht"
 category: "verpleegkundige-overdracht"
 group: "features"
 version: "1.0.0"
-releaseDate: "TBD"
-status: "planned"
-description: "Efficiënte overdracht workflow voor GGZ professionals met 6+ overdrachten per dag, geïntegreerd met ROM-metingen en observaties"
+releaseDate: "2025-12-08"
+status: "completed"
+description: "Centrale module voor verpleegkundige notities, overdracht en AI-gestuurde samenvattingen"
 ---
 
-## Overview
+## Overzicht
 
-GGZ professionals in klinische settings moeten meerdere keren per dag cliënt overdrachten doen aan psychiaters, psychologen en collega's van de volgende dienst. Dit systeem helpt om dat efficiënter te maken.
-
-**LinkedIn Feedback:**
-> "Kun je iets slims bouwen voor een verpleegkundige die 6 overdrachten heeft per dag aan artsen aan de volgende dienst en ondertussen ook allerlei metingen doet en moet opslaan?"
+De Verpleegkundige Rapportage & Overdracht module biedt een complete workflow voor het vastleggen van verpleegkundige notities en het voorbereiden van overdrachten aan de volgende dienst. De module bestaat uit twee hoofdschermen: **Rapportage** voor het invoeren van notities en **Overdracht** voor het overzicht met AI-samenvatting.
 
 ---
 
-## Kernfunctionaliteit
+## Navigatie
 
-**Overdracht Workflow:**
-- SBAR templates aangepast voor GGZ (Situation, Background, Assessment, Recommendation)
-- Dienst schema met 6+ overdrachten per dag (nacht→dag, visite, avond→nacht)
-- Automatisch ophalen van laatste observaties en ROM-scores
-- Risico markers (Stabiel, Observatie, Verhoogd risico, Crisis)
+Via het menu **Verpleegrapportage** met submenu:
+- **Rapportage** - Invoerscherm voor verpleegkundige notities (standaard landing page)
+- **Overdracht** - Overzicht van alle patiënten met rapportages en AI-samenvatting
 
-**Observaties & Metingen:**
-- Psychische observaties (stemming, angst, suïcidaliteit, agressie)
-- ROM-metingen (PHQ-9, GAD-7, HONOS)
-- Gedragsobservaties (slaap, eetpatroon, zelfzorg)
-- Medicatie compliance en bijwerkingen
-- Trend visualisatie over tijd
-
-**Multi-Cliënt Overzicht:**
-- Dashboard met alle cliënten en hun risico niveau
-- Quick actions voor urgente situaties
-- Template library (nieuwe opname, crisis, proefverlof, ontslag)
+**Routes:**
+- `/epd/verpleegrapportage` → Rapportage (invoer)
+- `/epd/verpleegrapportage/overdracht` → Overdracht (overzicht + AI)
 
 ---
 
-## Voordelen
+## Rapportage Module
 
-**Tijdsbesparing:**
-- Van 10 minuten → 5 minuten per overdracht
-- Automatische data aggregatie (geen handmatig opzoeken)
-- Templates elimineren herhaling
+### Doel
+Centrale werkplek voor het vastleggen van korte verpleegkundige notities tijdens de ronde.
 
-**Kwaliteit & Veiligheid:**
-- Gestructureerde methode voorkomt vergeten details
-- Continuïteit tussen diensten (cruciaal bij risico's)
-- Trend visualisatie helpt vroeg signaleren
-- Audit trail voor verantwoording
+### Layout
+Master-detail layout met:
+- **Links:** Ronde overzicht met alle patiënten
+- **Rechts:** Invoerformulier en tijdlijn voor geselecteerde patiënt
 
-**Stress Reductie:**
-- Duidelijk overzicht welke cliënten verhoogd risico hebben
-- Prioritering automatisch (crisis eerst, daarna routine)
-- Minder mental load bij grote caseload (12+ cliënten)
+### Patiëntenlijst (Ronde Overzicht)
+
+Per patiënt wordt getoond:
+- Naam
+- **Alert badge** (rood) - Aantal hoge risico's met tooltip "X hoog risico's"
+- **Overdracht badge** (groen vinkje) - Aantal notities voor overdracht met tooltip "X voor overdracht"
+
+Bij selectie krijgt de patiënt een teal achtergrond.
+
+### Invoerformulier
+
+**Risico Alert:** Bij patiënten met hoge risico's verschijnt een rode waarschuwingsbanner bovenaan.
+
+**Categorie Selectie:** Gekleurde pills voor 5 categorieën:
+| Categorie | Kleur | Icoon |
+|-----------|-------|-------|
+| Medicatie | Blauw | Pill |
+| ADL/verzorging | Groen | Utensils |
+| Gedragsobservatie | Paars | User |
+| Incident | Rood | AlertTriangle |
+| Algemene observatie | Grijs | FileText |
+
+**Tekstveld:**
+- Auto-resize: groeit mee met de tekst (min 56px, max 200px)
+- Maximum 500 karakters met teller
+- Placeholder past zich aan per categorie
+
+**Overdracht Toggle:** Groen "Overdracht" label om notitie te markeren voor overdracht.
+
+**Verzendknop:** Teal knop met pijl-icoon, disabled wanneer leeg.
+
+### Notities Tijdlijn
+
+Toont alle notities van vandaag, gegroepeerd per dagdeel:
+
+| Dagdeel | Tijden | Icoon | Kleur |
+|---------|--------|-------|-------|
+| Nacht | 00:00-07:00 | Moon | Paars |
+| Ochtend | 07:00-12:00 | Sunrise | Amber |
+| Middag | 12:00-17:00 | Sun | Geel |
+| Avond | 17:00-24:00 | Sunset | Oranje |
+
+**Per notitie:**
+- Tijdstip
+- Categorie badge (gekleurd)
+- Overdracht toggle (groen vinkje, klikbaar)
+- Inhoud
+- Bewerken (potlood-icoon, verschijnt bij hover)
+- Verwijderen (prullenbak-icoon, met bevestiging)
+
+**Statistieken:** Boven de tijdlijn: totaal aantal notities en aantal voor overdracht.
+
+**Nachtdienst logica:** Notities vóór 07:00 worden toegewezen aan de vorige dag.
 
 ---
 
-## Voorbeeld Scenario
+## Overdracht Module
 
-**Dienst Overdracht (22:00 Avond → Nacht):**
+### Doel
+Overzicht van alle patiënten met hun rapportages en AI-gestuurde samenvatting voor overdracht.
 
-SPV loopt 12 cliënten door met nachtdienst:
-- Systeem toont per cliënt: laatste observaties, risico niveau, actiepunten
-- Verhoogd risico cliënten eerst (suïcidaliteit, agressie)
-- Automatisch voorgevulde SBAR met wijzigingen sinds vorige dienst
-- Quick export naar print of digitaal doorgeven
+### Layout
+Master-detail layout met:
+- **Links:** Patiëntenlijst met filters en periode selector
+- **Rechts:** Patiënt detail met rapportages tijdlijn en AI-samenvatting
 
-**Crisis Alert:**
-- Cliënt vertoont acute suïcidaliteit
-- SPV klikt "Crisis Alert" → haalt laatste scores op
-- Pre-filled urgent overdracht naar psychiater
-- Push notificatie + SMS naar dienstdoende arts
-- Observatie niveau automatisch verhoogd naar Q15min
+### Patiëntenlijst
+
+**Header:**
+- Titel "Patiënten" met totaal aantal
+- Periode selector: 24 uur (default), 3 dagen, 1 week, 2 weken
+- Filter tabs: "Alle" / "Met alerts"
+
+**Per patiënt:**
+- Avatar met initialen (rood bij hoog risico)
+- Naam, leeftijd, geslacht
+- Alert badges:
+  - Rood (AlertTriangle) - Hoge risico's
+  - Oranje (Activity) - Afwijkende vitale waarden
+  - Groen (CheckCircle2) - Voor overdracht
+
+Alle badges hebben tooltips met beschrijvende tekst.
+
+### Patiënt Detail
+
+**Header:**
+- Naam, leeftijd, geslacht
+- Quick badges (hoog risico, overdracht)
+- Link naar volledig dossier
+
+**Risico Block:** Prominent rood blok bij hoge risico's met:
+- Risico type (Valrisico, Decubitus, etc.)
+- Risico niveau (Zeer hoog, Hoog, Matig, Laag)
+- Rationale/toelichting
+
+**Incident Waarschuwing:** Oranje banner bij incidenten in de periode.
+
+**Rapportages Tijdlijn:**
+- Gegroepeerd per dag (Vandaag, Gisteren, datum)
+- Per dag gegroepeerd per dagdeel
+- Visuele tijdlijn met gekleurde nodes
+- Type badges (Voortgang, Observatie, etc.)
+- Categorie badges voor verpleegkundige notities
+- Overdracht indicator (groen vinkje)
+- Auteur en tijdstip
+
+### AI Samenvatting
+
+**Locatie:** Rechter kolom, sticky bij scrollen.
+
+**Header:**
+- Sparkles icoon (paars)
+- Titel "AI Samenvatting"
+- Geselecteerde periode label
+
+**Genereren:**
+- Knop "Genereer samenvatting"
+- Loading state met spinner
+- Typische duur: 3-5 seconden
+
+**Resultaat:**
+- **Samenvatting:** 1-2 zinnen met kernpunten
+- **Aandachtspunten:** Max 5 items met:
+  - Urgentie indicator (rode rand)
+  - Klikbare bronverwijzing
+  - Type bron en datum
+- **Actiepunten:** Max 3 items voor volgende dienst
+
+**Bronverwijzingen:**
+- Klikbaar: scrollt naar originele rapportage
+- Highlight effect: paarse ring rond bron (2 seconden)
+- Types: Verpleegkundig, Rapportage, Risicobeoordeling
+
+**Footer:**
+- Generatie tijdstip en duur
+- "Vernieuwen" knop
 
 ---
 
-## MVP Scope
+## Technische Details
 
-**Eerste versie:**
-- ✅ SBAR overdracht templates voor GGZ
-- ✅ Dienst schema en planning (6+ overdrachten)
-- ✅ Multi-cliënt dashboard met risico indicators
-- ✅ Handmatige input observaties en ROM-scores
-- ✅ Crisis alert functionaliteit
+### Data Model
 
-**Later toevoegen:**
-- 🔄 Voice-to-text input (hands-free tijdens observatie rondes)
-- 🔄 AI samenvatting en gedragspatroon detectie
-- 🔄 Mobile app voor on-the-go observaties
-- 🔄 Integratie met bestaande EPD systemen (Nedap, Ysis)
-- 🔄 ROM instrument koppeling (automatische import)
+**Reports tabel** met type `verpleegkundig`:
+- `content` - Notitie tekst (max 500 karakters)
+- `structured_data.category` - Categorie (medicatie, adl, gedrag, incident, observatie)
+- `include_in_handover` - Boolean voor overdracht
+- `shift_date` - Berekende datum (nachtdienst logica)
+
+### API Endpoints
+
+| Endpoint | Methode | Beschrijving |
+|----------|---------|--------------|
+| `/api/reports` | GET | Ophalen rapportages met filters |
+| `/api/reports` | POST | Nieuwe notitie aanmaken |
+| `/api/reports/[id]` | PATCH | Notitie bewerken |
+| `/api/reports/[id]` | DELETE | Notitie verwijderen (soft delete) |
+| `/api/verpleegrapportage/[patientId]` | GET | Patiënt detail met rapportages en risico's |
+| `/api/overdracht/patients` | GET | Patiënten overzicht met alerts |
+| `/api/overdracht/generate` | POST | AI samenvatting genereren |
+
+### Componenten
+
+**Rapportage:**
+- `RapportageWorkspace` - Hoofd container
+- `QuickEntryForm` - Invoerformulier met auto-resize
+- `TimelineItem` - Notitie in tijdlijn met edit/delete
+
+**Overdracht:**
+- `VerpleegrapportageClient` - Client wrapper met state
+- `PatientList` - Patiëntenlijst met filters
+- `PatientListRow` - Patiënt rij met badges
+- `PatientDetail` - Detail view
+- `ReportsBlock` - Rapportages tijdlijn
+- `AISummaryBlock` - AI samenvatting met bronverwijzingen
+
+---
+
+## Gebruikerstips
+
+1. **Markeer direct voor overdracht** - Scheelt tijd bij voorbereiding
+2. **Gebruik "Met alerts" filter** - Snel patiënten vinden die aandacht nodig hebben
+3. **Klik op bronverwijzingen** - Verifieer AI-informatie bij de bron
+4. **Pas periode aan** - 3 dagen of 1 week voor meer context bij complexe patiënten
+5. **Kies juiste categorie** - Helpt bij filteren en overzicht
 
 ---
 
 ## Gerelateerde Documentatie
 
-**Features:**
-- Client Management (binnenkort)
-- Intake Systeem (binnenkort)
+- [Spraakgestuurde Verslaglegging](/documentatie/spraakgestuurde-verslaglegging) - Voice input voor rapportages
+- [Client Management](/documentatie/client-management) - Patiëntbeheer
 - [Interface Design System](/documentatie/interface-design) - UI patterns
-
-**Basis:**
-- [Authentication System](/documentatie/authentication) - Toegangsbeheer
-- Database Schema (binnenkort)

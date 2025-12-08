@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { NursingLog } from './nursing-log';
+import type { Json } from '@/lib/supabase/database.types';
 
 // Patient overview for list view
 export interface PatientOverzicht {
@@ -34,7 +34,6 @@ export interface PatientDetail {
   };
   vitals: VitalSign[];
   reports: Report[];
-  nursingLogs: NursingLog[];
   risks: RiskAssessment[];
   conditions: Condition[];
 }
@@ -49,13 +48,16 @@ export interface VitalSign {
   effective_datetime: string;
 }
 
-// Report (rapportage)
+// Report (rapportage) - now includes verpleegkundig type (was nursing_logs)
 export interface Report {
   id: string;
   type: string;
   content: string;
   created_at: string;
   created_by: string | null;
+  structured_data?: Json | null; // Contains category for verpleegkundig
+  include_in_handover?: boolean | null;
+  shift_date?: string | null;
 }
 
 // Risk assessment
@@ -88,7 +90,7 @@ export interface Aandachtspunt {
   tekst: string;
   urgent: boolean;
   bron: {
-    type: 'observatie' | 'rapportage' | 'dagnotitie' | 'risico';
+    type: 'observatie' | 'rapportage' | 'verpleegkundig' | 'risico';
     id: string;
     datum: string;
     label: string;
@@ -98,6 +100,7 @@ export interface Aandachtspunt {
 // Zod schema for generate request
 export const GenerateOverdrachtSchema = z.object({
   patientId: z.string().uuid('Patient ID moet een geldige UUID zijn'),
+  period: z.enum(['1d', '3d', '7d', '14d']).optional().default('1d'),
 });
 
 export type GenerateOverdrachtInput = z.infer<typeof GenerateOverdrachtSchema>;

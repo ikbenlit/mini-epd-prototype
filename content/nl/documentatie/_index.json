@@ -125,11 +125,11 @@
     },
     {
       "slug": "verpleegkundige-overdracht",
-      "title": "Verpleegkundige Overdracht",
+      "title": "Verpleegkundige Rapportage & Overdracht",
       "group": "features",
-      "description": "Efficiënte overdracht voor GGZ verpleegkundigen met ROM-metingen",
+      "description": "Centrale module voor verpleegkundige notities, overdracht en AI-gestuurde samenvattingen",
       "order": 10,
-      "status": "planned"
+      "status": "completed"
     },
     {
       "slug": "spraakgestuurde-verslaglegging",

@@ -2,7 +2,35 @@
 const nextConfig = {
   // Performance optimizations
   compress: true, // Enable gzip compression
-  
+
+  // Redirects for renamed routes
+  async redirects() {
+    return [
+      // Overdracht → Verpleegrapportage
+      {
+        source: '/epd/overdracht',
+        destination: '/epd/verpleegrapportage',
+        permanent: true,
+      },
+      {
+        source: '/epd/overdracht/:patientId',
+        destination: '/epd/verpleegrapportage?patient=:patientId',
+        permanent: true,
+      },
+      // Dagregistratie → Zorgnotities
+      {
+        source: '/epd/dagregistratie',
+        destination: '/epd/verpleegrapportage/zorgnotities',
+        permanent: true,
+      },
+      {
+        source: '/epd/dagregistratie/:patientId',
+        destination: '/epd/verpleegrapportage/zorgnotities/:patientId',
+        permanent: true,
+      },
+    ];
+  },
+
   // Optimize images (if any are added later)
   images: {
     formats: ['image/avif', 'image/webp'],

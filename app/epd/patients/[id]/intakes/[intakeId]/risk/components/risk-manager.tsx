@@ -10,8 +10,21 @@ import { Loader2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
-const riskTypes = ['Suïcidaliteit', 'Agressie', 'Zelfverwaarlozing', 'Middelenmisbruik', 'Verward gedrag', 'Overig'];
-const riskLevels = ['laag', 'gemiddeld', 'hoog', 'zeer_hoog'];
+// Database values -> Display labels
+const riskTypeOptions = [
+  { value: 'suicidaliteit', label: 'Suïcidaliteit' },
+  { value: 'agressie', label: 'Agressie' },
+  { value: 'zelfverwaarlozing', label: 'Zelfverwaarlozing' },
+  { value: 'middelenmisbruik', label: 'Middelenmisbruik' },
+  { value: 'verward_gedrag', label: 'Verward gedrag' },
+  { value: 'overig', label: 'Overig' },
+];
+const riskLevelOptions = [
+  { value: 'laag', label: 'Laag' },
+  { value: 'gemiddeld', label: 'Gemiddeld' },
+  { value: 'hoog', label: 'Hoog' },
+  { value: 'zeer_hoog', label: 'Zeer hoog' },
+];
 
 interface RiskManagerProps {
   patientId: string;
@@ -22,8 +35,8 @@ interface RiskManagerProps {
 export function RiskManager({ patientId, intakeId, risks }: RiskManagerProps) {
   const [form, setForm] = useState({
     date: '',
-    type: riskTypes[0],
-    level: riskLevels[0],
+    type: riskTypeOptions[0].value,
+    level: riskLevelOptions[0].value,
     rationale: '',
     measures: '',
     evaluationDate: '',
@@ -78,13 +91,16 @@ export function RiskManager({ patientId, intakeId, risks }: RiskManagerProps) {
         {risks.length === 0 && (
           <p className="text-sm text-slate-500">Nog geen risicotaxaties vastgelegd.</p>
         )}
-        {risks.map((risk) => (
+        {risks.map((risk) => {
+          const typeLabel = riskTypeOptions.find((o) => o.value === risk.risk_type)?.label ?? risk.risk_type;
+          const levelLabel = riskLevelOptions.find((o) => o.value === risk.risk_level)?.label ?? risk.risk_level;
+          return (
           <div key={risk.id} className="rounded-lg border border-slate-200 p-3 space-y-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-slate-900">{risk.risk_type}</p>
+                <p className="font-medium text-slate-900">{typeLabel}</p>
                 <p className="text-xs text-slate-500">
-                  {format(new Date(risk.assessment_date), 'd MMM yyyy', { locale: nl })} • {risk.risk_level}
+                  {format(new Date(risk.assessment_date), 'd MMM yyyy', { locale: nl })} • {levelLabel}
                 </p>
               </div>
               <button
@@ -100,7 +116,7 @@ export function RiskManager({ patientId, intakeId, risks }: RiskManagerProps) {
             {risk.measures && <p className="text-xs text-slate-600">Maatregelen: {risk.measures}</p>}
             {risk.notes && <p className="text-xs text-slate-500">Notities: {risk.notes}</p>}
           </div>
-        ))}
+        )})}
       </div>
 
       <div className="rounded-lg border border-slate-200 p-4 space-y-3">
@@ -117,9 +133,9 @@ export function RiskManager({ patientId, intakeId, risks }: RiskManagerProps) {
             onChange={(e) => setForm((prev) => ({ ...prev, type: e.target.value }))}
             className="h-10 rounded-md border border-slate-300 px-3 text-sm"
           >
-            {riskTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
+            {riskTypeOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
               </option>
             ))}
           </select>
@@ -128,9 +144,9 @@ export function RiskManager({ patientId, intakeId, risks }: RiskManagerProps) {
             onChange={(e) => setForm((prev) => ({ ...prev, level: e.target.value }))}
             className="h-10 rounded-md border border-slate-300 px-3 text-sm"
           >
-            {riskLevels.map((level) => (
-              <option key={level} value={level}>
-                {level}
+            {riskLevelOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
               </option>
             ))}
           </select>

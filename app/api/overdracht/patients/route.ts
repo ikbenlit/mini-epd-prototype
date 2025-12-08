@@ -105,13 +105,15 @@ export async function GET(request: NextRequest) {
         .lte('effective_datetime', dayEnd)
         .in('interpretation_code', ['H', 'L', 'HH', 'LL']),
 
-      // Marked nursing logs for handover
+      // Marked reports (type=verpleegkundig) for handover
       supabase
-        .from('nursing_logs')
+        .from('reports')
         .select('id, patient_id')
         .in('patient_id', patientIds)
+        .eq('type', 'verpleegkundig')
         .eq('shift_date', targetDate)
-        .eq('include_in_handover', true),
+        .eq('include_in_handover', true)
+        .is('deleted_at', null),
     ]);
 
     // Count alerts per patient

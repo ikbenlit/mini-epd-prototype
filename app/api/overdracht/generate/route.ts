@@ -20,14 +20,14 @@ import {
   type AISamenvatting,
   type Aandachtspunt,
 } from '@/lib/types/overdracht';
-import type { NursingLog } from '@/lib/types/nursing-log';
+import { VERPLEEG_REPORT_TYPES } from '@/lib/types/report';
 
 // Zod schema for AI response validation
 const AandachtspuntSchema = z.object({
   tekst: z.string(),
   urgent: z.boolean(),
   bron: z.object({
-    type: z.enum(['observatie', 'rapportage', 'dagnotitie', 'risico']),
+    type: z.enum(['observatie', 'rapportage', 'verpleegkundig', 'risico']),
     id: z.string(),
     datum: z.string(),
     label: z.string(),
@@ -40,23 +40,33 @@ const AIResponseSchema = z.object({
   actiepunten: z.array(z.string()).max(3),
 });
 
+type PeriodValue = '1d' | '3d' | '7d' | '14d';
+
+/**
+ * Calculate start date based on period
+ */
+function getPeriodStartDate(period: PeriodValue): string {
+  const days = { '1d': 1, '3d': 3, '7d': 7, '14d': 14 }[period] || 1;
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - (days - 1));
+  return startDate.toISOString().split('T')[0] + 'T00:00:00.000Z';
+}
+
 /**
  * Load context from database
  */
 async function loadOverdrachtContext(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  patientId: string
+  patientId: string,
+  period: PeriodValue
 ): Promise<OverdrachtContext> {
-  const today = new Date().toISOString().split('T')[0];
-  const todayStart = `${today}T00:00:00.000Z`;
-  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const periodStart = getPeriodStartDate(period);
 
-  // Parallel queries
+  // Parallel queries - reports now includes verpleegkundig type
   const [
     patientResult,
     vitalsResult,
     reportsResult,
-    logsResult,
     risksResult,
     conditionsResult,
   ] = await Promise.all([
@@ -70,21 +80,17 @@ async function loadOverdrachtContext(
       .select('id, code_display, value_quantity_value, value_quantity_unit, interpretation_code, effective_datetime')
       .eq('patient_id', patientId)
       .eq('category', 'vital-signs')
-      .gte('effective_datetime', todayStart)
+      .gte('effective_datetime', periodStart)
       .order('effective_datetime', { ascending: false }),
+    // Reports now includes verpleegkundig type (was nursing_logs)
     supabase
       .from('reports')
-      .select('id, type, content, created_at, created_by')
+      .select('id, type, content, created_at, created_by, structured_data, include_in_handover, shift_date')
       .eq('patient_id', patientId)
-      .gte('created_at', last24h)
+      .in('type', [...VERPLEEG_REPORT_TYPES])
+      .gte('created_at', periodStart)
       .is('deleted_at', null)
       .order('created_at', { ascending: false }),
-    supabase
-      .from('nursing_logs')
-      .select('*')
-      .eq('patient_id', patientId)
-      .eq('shift_date', today)
-      .order('timestamp', { ascending: false }),
     supabase
       .from('risk_assessments')
       .select('id, risk_type, risk_level, rationale, created_at, intakes!inner(patient_id)')
@@ -131,8 +137,10 @@ async function loadOverdrachtContext(
       content: r.content,
       created_at: r.created_at,
       created_by: r.created_by,
+      structured_data: r.structured_data,
+      include_in_handover: r.include_in_handover,
+      shift_date: r.shift_date,
     })),
-    nursingLogs: (logsResult.data || []) as NursingLog[],
     risks: (risksResult.data || []).map((r) => ({
       id: r.id,
       risk_type: r.risk_type,
@@ -218,13 +226,17 @@ async function logAIEvent(
   durationMs: number
 ) {
   try {
+    // Count verpleegkundige reports separately
+    const verpleegkundigCount = context.reports.filter(r => r.type === 'verpleegkundig').length;
+    const otherReportsCount = context.reports.filter(r => r.type !== 'verpleegkundig').length;
+
     await supabase.from('ai_events').insert({
       kind: 'overdracht_generate',
       patient_id: patientId,
       input_data: {
         vitalCount: context.vitals.length,
-        reportCount: context.reports.length,
-        logCount: context.nursingLogs.length,
+        reportCount: otherReportsCount,
+        verpleegkundigCount,
         riskCount: context.risks.length,
         conditionCount: context.conditions.length,
       },
@@ -265,7 +277,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { patientId } = result.data;
+    const { patientId, period } = result.data;
     const supabase = await createClient();
 
     // Check auth
@@ -274,8 +286,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Niet geautoriseerd' }, { status: 401 });
     }
 
-    // Load context
-    const context = await loadOverdrachtContext(supabase, patientId);
+    // Load context with period filter
+    const context = await loadOverdrachtContext(supabase, patientId, period);
 
     // Call Claude API
     const aiResult = await callClaudeAPI(context);

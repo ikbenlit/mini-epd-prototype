@@ -3,23 +3,23 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from '@/components/ui/toaster';
 
-// Serif font voor long-form content (manifesto) - lokaal geladen om build zonder netwerk te laten slagen
-const crimsonText = localFont({
+// Serif font voor long-form content (manifesto)
+const loraFont = localFont({
   variable: "--font-serif",
   display: "swap",
   src: [
     {
-      path: "../docs/fonts/Lora-Regular.woff2",
+      path: "../public/fonts/Lora-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../docs/fonts/Lora-Italic.woff2",
+      path: "../public/fonts/Lora-Italic.woff2",
       weight: "400",
       style: "italic",
     },
     {
-      path: "../docs/fonts/Lora-SemiBold.woff2",
+      path: "../public/fonts/Lora-SemiBold.woff2",
       weight: "600",
       style: "normal",
     },
@@ -27,37 +27,37 @@ const crimsonText = localFont({
 });
 
 // Sans-serif font voor UI, nav, metadata
-const inter = localFont({
+const robotoFont = localFont({
   variable: "--font-sans",
   display: "swap",
   src: [
     {
-      path: "../docs/fonts/roboto-v47-latin-regular.woff2",
+      path: "../public/fonts/roboto-v47-latin-regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../docs/fonts/roboto-v47-latin-500.woff2",
+      path: "../public/fonts/roboto-v47-latin-500.woff2",
       weight: "500",
       style: "normal",
     },
     {
-      path: "../docs/fonts/roboto-v47-latin-600.woff2",
+      path: "../public/fonts/roboto-v47-latin-600.woff2",
       weight: "600",
       style: "normal",
     },
     {
-      path: "../docs/fonts/roboto-v47-latin-italic.woff2",
+      path: "../public/fonts/roboto-v47-latin-italic.woff2",
       weight: "400",
       style: "italic",
     },
     {
-      path: "../docs/fonts/roboto-v47-latin-500italic.woff2",
+      path: "../public/fonts/roboto-v47-latin-500italic.woff2",
       weight: "500",
       style: "italic",
     },
     {
-      path: "../docs/fonts/roboto-v47-latin-600italic.woff2",
+      path: "../public/fonts/roboto-v47-latin-600italic.woff2",
       weight: "600",
       style: "italic",
     },
@@ -65,17 +65,17 @@ const inter = localFont({
 });
 
 // Mono font voor tech details, numbers
-const jetBrainsMono = localFont({
+const sourceCodeProFont = localFont({
   variable: "--font-mono",
   display: "swap",
   src: [
     {
-      path: "../docs/fonts/source-code-pro-v30-latin-regular.woff2",
+      path: "../public/fonts/source-code-pro-v30-latin-regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../docs/fonts/source-code-pro-v30-latin-600.woff2",
+      path: "../public/fonts/source-code-pro-v30-latin-600.woff2",
       weight: "600",
       style: "normal",
     },
@@ -167,7 +167,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${crimsonText.variable} ${inter.variable} ${jetBrainsMono.variable} antialiased`}
+        className={`${loraFont.variable} ${robotoFont.variable} ${sourceCodeProFont.variable} antialiased`}
       >
         {children}
         <Toaster />

@@ -10,7 +10,7 @@ import type {
   RiskAssessment,
   Condition,
 } from '@/lib/types/overdracht';
-import type { NursingLog } from '@/lib/types/nursing-log';
+import { getVerpleegkundigCategory, CATEGORY_CONFIG } from '@/lib/types/report';
 
 export interface OverdrachtContext {
   patientId: string;
@@ -20,7 +20,6 @@ export interface OverdrachtContext {
   conditions: Condition[];
   vitals: VitalSign[];
   reports: Report[];
-  nursingLogs: NursingLog[];
   risks: RiskAssessment[];
 }
 
@@ -36,7 +35,7 @@ Je taak: Maak een beknopte, relevante overdracht voor de opvolgende dienst.
       "tekst": "Beschrijving van het aandachtspunt",
       "urgent": true/false,
       "bron": {
-        "type": "observatie|rapportage|dagnotitie|risico",
+        "type": "observatie|rapportage|verpleegkundig|risico",
         "id": "source-id",
         "datum": "DD-MM-YYYY HH:mm",
         "label": "Korte beschrijving bron"
@@ -63,8 +62,8 @@ Je taak: Maak een beknopte, relevante overdracht voor de opvolgende dienst.
 
 ## Bronverwijzing formaat
 - type "observatie" voor vitale functies (observations tabel)
-- type "rapportage" voor rapporten (reports tabel)
-- type "dagnotitie" voor nursing logs (nursing_logs tabel)
+- type "rapportage" voor rapporten (reports met type != verpleegkundig)
+- type "verpleegkundig" voor verpleegkundige notities (reports met type = verpleegkundig)
 - type "risico" voor risico assessments (risk_assessments tabel)
 
 Geef je antwoord als PURE JSON, zonder markdown code blocks.`;
@@ -149,10 +148,14 @@ export function buildOverdrachtUserPrompt(context: OverdrachtContext): string {
   }
   lines.push('');
 
-  // Reports
+  // Split reports into regular rapportages and verpleegkundige notities
+  const regularReports = context.reports.filter((r) => r.type !== 'verpleegkundig');
+  const verpleegkundigReports = context.reports.filter((r) => r.type === 'verpleegkundig');
+
+  // Regular reports
   lines.push('RAPPORTAGES (laatste 24u):');
-  if (context.reports.length > 0) {
-    for (const r of context.reports) {
+  if (regularReports.length > 0) {
+    for (const r of regularReports) {
       lines.push(
         `- [${formatDateTime(r.created_at)}] ${r.type}: "${truncate(r.content, 200)}" ` +
           `(source: reports/${r.id})`
@@ -163,18 +166,20 @@ export function buildOverdrachtUserPrompt(context: OverdrachtContext): string {
   }
   lines.push('');
 
-  // Nursing logs
-  lines.push('DAGREGISTRATIES (vandaag):');
-  if (context.nursingLogs.length > 0) {
-    for (const l of context.nursingLogs) {
-      const handoverMark = l.include_in_handover ? '[OVERDRACHT]' : '';
+  // Verpleegkundige notities (was nursing logs)
+  lines.push('VERPLEEGKUNDIGE NOTITIES (vandaag):');
+  if (verpleegkundigReports.length > 0) {
+    for (const r of verpleegkundigReports) {
+      const category = getVerpleegkundigCategory(r.structured_data);
+      const categoryLabel = category ? CATEGORY_CONFIG[category]?.label : 'Notitie';
+      const handoverMark = r.include_in_handover ? '[OVERDRACHT]' : '';
       lines.push(
-        `- [${formatDateTime(l.timestamp)}] [${l.category.toUpperCase()}] ${handoverMark} ${l.content} ` +
-          `(source: nursing_logs/${l.id})`
+        `- [${formatDateTime(r.created_at)}] [${categoryLabel.toUpperCase()}] ${handoverMark} ${r.content} ` +
+          `(source: reports/${r.id})`
       );
     }
   } else {
-    lines.push('- Geen dagregistraties vandaag');
+    lines.push('- Geen verpleegkundige notities vandaag');
   }
   lines.push('');
 

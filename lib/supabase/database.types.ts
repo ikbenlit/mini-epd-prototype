@@ -783,53 +783,6 @@ export type Database = {
         }
         Relationships: []
       }
-      nursing_logs: {
-        Row: {
-          category: string
-          content: string
-          created_at: string
-          created_by: string
-          id: string
-          include_in_handover: boolean
-          patient_id: string
-          shift_date: string
-          timestamp: string
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          content: string
-          created_at?: string
-          created_by: string
-          id?: string
-          include_in_handover?: boolean
-          patient_id: string
-          shift_date: string
-          timestamp?: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          content?: string
-          created_at?: string
-          created_by?: string
-          id?: string
-          include_in_handover?: boolean
-          patient_id?: string
-          shift_date?: string
-          timestamp?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "nursing_logs_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       observations: {
         Row: {
           body_site: string | null
@@ -1209,9 +1162,11 @@ export type Database = {
           deleted_at: string | null
           encounter_id: string | null
           id: string
+          include_in_handover: boolean | null
           intake_id: string | null
           parent_report_id: string | null
           patient_id: string
+          shift_date: string | null
           structured_data: Json | null
           type: string
           updated_at: string | null
@@ -1229,9 +1184,11 @@ export type Database = {
           deleted_at?: string | null
           encounter_id?: string | null
           id?: string
+          include_in_handover?: boolean | null
           intake_id?: string | null
           parent_report_id?: string | null
           patient_id: string
+          shift_date?: string | null
           structured_data?: Json | null
           type: string
           updated_at?: string | null
@@ -1249,9 +1206,11 @@ export type Database = {
           deleted_at?: string | null
           encounter_id?: string | null
           id?: string
+          include_in_handover?: boolean | null
           intake_id?: string | null
           parent_report_id?: string | null
           patient_id?: string
+          shift_date?: string | null
           structured_data?: Json | null
           type?: string
           updated_at?: string | null
