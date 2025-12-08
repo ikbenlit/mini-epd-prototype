@@ -24,9 +24,9 @@ export function PatientList({ patients, selectedPatientId, onSelectPatient }: Pa
   const [filter, setFilter] = useState<FilterType>('all');
 
   // Filter patients based on selected filter
-  // "Met alerts" = alleen echte alerts (hoge risico's + afwijkende vitals), niet overdracht notities
+  // "Met alerts" = alleen echte alerts (hoge risico's, incidenten, afwijkende vitals), niet overdracht notities
   const hasRealAlerts = (p: PatientOverzicht) =>
-    p.alerts.high_risk_count > 0 || p.alerts.abnormal_vitals_count > 0;
+    p.alerts.high_risk_count > 0 || p.alerts.incident_count > 0 || p.alerts.abnormal_vitals_count > 0;
 
   const filteredPatients = filter === 'alerts'
     ? patients.filter(hasRealAlerts)

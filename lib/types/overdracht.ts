@@ -12,6 +12,7 @@ export interface PatientOverzicht {
     high_risk_count: number;
     abnormal_vitals_count: number;
     marked_logs_count: number;
+    incident_count: number;
     total: number;
   };
 }

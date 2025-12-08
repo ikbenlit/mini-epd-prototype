@@ -87,6 +87,7 @@ export async function GET(request: NextRequest) {
       { data: risksData },
       { data: vitalsData },
       { data: logsData },
+      { data: incidentReportsData },
     ] = await Promise.all([
       // High risk assessments (via intakes)
       supabase
@@ -114,6 +115,15 @@ export async function GET(request: NextRequest) {
         .eq('shift_date', targetDate)
         .eq('include_in_handover', true)
         .is('deleted_at', null),
+
+      // Incident reports today (type='incident' OR verpleegkundig with category='incident')
+      supabase
+        .from('reports')
+        .select('id, patient_id, type, structured_data')
+        .in('patient_id', patientIds)
+        .gte('created_at', dayStart)
+        .lte('created_at', dayEnd)
+        .is('deleted_at', null),
     ]);
 
     // Count alerts per patient
@@ -121,6 +131,7 @@ export async function GET(request: NextRequest) {
       high_risk_count: number;
       abnormal_vitals_count: number;
       marked_logs_count: number;
+      incident_count: number;
     }>();
 
     // Initialize all patients with zero counts
@@ -129,6 +140,7 @@ export async function GET(request: NextRequest) {
         high_risk_count: 0,
         abnormal_vitals_count: 0,
         marked_logs_count: 0,
+        incident_count: 0,
       });
     }
 
@@ -157,6 +169,27 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Count incidents (type='incident' OR type='crisis' OR verpleegkundig with category='incident')
+    for (const report of incidentReportsData || []) {
+      if (!report.patient_id) continue;
+      const counts = alertCounts.get(report.patient_id);
+      if (!counts) continue;
+
+      // Direct incident/crisis type
+      if (report.type === 'incident' || report.type === 'crisis') {
+        counts.incident_count++;
+        continue;
+      }
+
+      // Verpleegkundig report with incident category
+      if (report.type === 'verpleegkundig' && report.structured_data) {
+        const data = report.structured_data as { category?: string };
+        if (data.category === 'incident') {
+          counts.incident_count++;
+        }
+      }
+    }
+
     // 3. Build response
     const patients: PatientOverzicht[] = Array.from(patientMap.values()).map(
       (patient) => {
@@ -164,6 +197,7 @@ export async function GET(request: NextRequest) {
           high_risk_count: 0,
           abnormal_vitals_count: 0,
           marked_logs_count: 0,
+          incident_count: 0,
         };
 
         return {
@@ -177,7 +211,8 @@ export async function GET(request: NextRequest) {
             total:
               alerts.high_risk_count +
               alerts.abnormal_vitals_count +
-              alerts.marked_logs_count,
+              alerts.marked_logs_count +
+              alerts.incident_count,
           },
         };
       }

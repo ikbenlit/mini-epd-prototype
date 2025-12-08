@@ -40,6 +40,7 @@ export function PatientListRow({ patient, isSelected, onClick }: PatientListRowP
   const hasHighRisk = patient.alerts.high_risk_count > 0;
   const hasAbnormalVitals = patient.alerts.abnormal_vitals_count > 0;
   const hasMarkedLogs = patient.alerts.marked_logs_count > 0;
+  const hasIncidents = patient.alerts.incident_count > 0;
 
   return (
     <button
@@ -88,9 +89,18 @@ export function PatientListRow({ patient, isSelected, onClick }: PatientListRowP
             {patient.alerts.high_risk_count}
           </span>
         )}
-        {hasAbnormalVitals && (
+        {hasIncidents && (
           <span
             className="flex items-center gap-0.5 px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium"
+            title={`${patient.alerts.incident_count} incident${patient.alerts.incident_count > 1 ? 'en' : ''}`}
+          >
+            <AlertTriangle className="h-3 w-3" />
+            {patient.alerts.incident_count}
+          </span>
+        )}
+        {hasAbnormalVitals && (
+          <span
+            className="flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium"
             title={`${patient.alerts.abnormal_vitals_count} afwijkende vitale waarde${patient.alerts.abnormal_vitals_count > 1 ? 'n' : ''}`}
           >
             <Activity className="h-3 w-3" />

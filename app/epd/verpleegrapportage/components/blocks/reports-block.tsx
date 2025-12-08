@@ -4,7 +4,10 @@
  * Gegroepeerd per dag met dagdeel headers
  */
 
-import { FileText, Clock, User, Pill, Utensils, AlertTriangle, CheckCircle2, Sun, Sunrise, Sunset, Moon } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { FileText, Clock, User, Pill, Utensils, AlertTriangle, CheckCircle2, Sun, Sunrise, Sunset, Moon, ChevronDown, ChevronUp } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import type { Report } from '@/lib/types/overdracht';
@@ -73,9 +76,52 @@ function getCategoryIcon(category: VerpleegkundigCategory | null) {
   }
 }
 
-function truncateContent(content: string, maxLength: number = 150): string {
-  if (content.length <= maxLength) return content;
-  return content.substring(0, maxLength).trim() + '...';
+// Check if content needs "Lees meer" (more than 5 lines or very long)
+const MAX_LINES = 5;
+const CHARS_PER_LINE_ESTIMATE = 80;
+
+function needsExpansion(content: string): boolean {
+  const lineCount = content.split('\n').length;
+  const estimatedLines = Math.ceil(content.length / CHARS_PER_LINE_ESTIMATE);
+  return lineCount > MAX_LINES || estimatedLines > MAX_LINES;
+}
+
+// Expandable content component
+function ExpandableContent({ content }: { content: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const showToggle = needsExpansion(content);
+
+  if (!showToggle) {
+    return (
+      <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+        {content}
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      <p className={`text-sm text-slate-700 leading-relaxed whitespace-pre-line ${!expanded ? 'line-clamp-5' : ''}`}>
+        {content}
+      </p>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 transition-colors"
+      >
+        {expanded ? (
+          <>
+            <ChevronUp className="h-3 w-3" />
+            Minder tonen
+          </>
+        ) : (
+          <>
+            <ChevronDown className="h-3 w-3" />
+            Lees meer
+          </>
+        )}
+      </button>
+    </div>
+  );
 }
 
 // Dagdeel helpers
@@ -157,7 +203,15 @@ function groupReportsByDayAndPart(reports: Report[]): GroupedReports[] {
 }
 
 export function ReportsBlock({ reports }: ReportsBlockProps) {
-  const incidentCount = reports.filter(r => r.type === 'incident' || r.type === 'crisis').length;
+  // Count incidents: type='incident' OR type='crisis' OR verpleegkundig with category='incident'
+  const incidentCount = reports.filter(r => {
+    if (r.type === 'incident' || r.type === 'crisis') return true;
+    if (r.type === 'verpleegkundig') {
+      const category = getVerpleegkundigCategory(r.structured_data);
+      return category === 'incident';
+    }
+    return false;
+  }).length;
   const handoverCount = reports.filter(r => r.include_in_handover).length;
   const groupedReports = groupReportsByDayAndPart(reports);
 
@@ -280,9 +334,7 @@ export function ReportsBlock({ reports }: ReportsBlockProps) {
                               </div>
 
                               {/* Report content */}
-                              <p className="text-sm text-slate-700 leading-relaxed">
-                                {truncateContent(report.content)}
-                              </p>
+                              <ExpandableContent content={report.content} />
 
                               {/* Author if available */}
                               {report.created_by && (
