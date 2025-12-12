@@ -384,3 +384,237 @@ export const GOAL_STATUS_LABELS: Record<GoalStatus, { label: string; color: stri
   gehaald: { label: 'Gehaald', color: '#10b981' },
   bijgesteld: { label: 'Bijgesteld', color: '#f59e0b' },
 };
+
+// =============================================================================
+// FLAT BEHANDELPLAN TYPES (Nieuwe platte structuur)
+// =============================================================================
+
+/**
+ * Embedded interventie binnen een behandeldoel
+ * Simpelere versie zonder linkedGoalIds (want embedded in doel)
+ */
+export interface EmbeddedInterventie {
+  id: string;
+  name: string;               // bijv. "CGT", "EMDR", "ACT"
+  description: string;        // Korte beschrijving van de aanpak
+}
+
+/**
+ * Behandeldoel met embedded interventies
+ * Kerntype voor de "platte" behandelplan structuur
+ */
+export interface Behandeldoel {
+  id: string;
+
+  // Doel informatie
+  title: string;              // Professionele formulering
+  clientVersion: string;      // B1-taal versie voor cliënt
+
+  // Classificatie
+  lifeDomain: LifeDomain;     // Gekoppeld leefgebied
+
+  // Embedded interventies (KERNVERANDERING - niet meer apart)
+  interventies: EmbeddedInterventie[];
+
+  // Timeline
+  startWeek: number;          // Start week (1-52)
+  endWeek: number;            // Eind week (1-52)
+
+  // Status & voortgang
+  status: GoalStatus;
+  progress: number;           // 0-100
+}
+
+// =============================================================================
+// FLAT BEHANDELPLAN ZOD SCHEMAS
+// =============================================================================
+
+export const EmbeddedInterventieSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1).max(100),
+  description: z.string().max(500),
+});
+
+export const BehandeldoelSchema = z.object({
+  id: z.string(),
+  title: z.string().min(5).max(200),
+  clientVersion: z.string().min(5).max(300),
+  lifeDomain: z.enum(LIFE_DOMAINS),
+  interventies: z.array(EmbeddedInterventieSchema),
+  startWeek: z.number().min(1).max(52),
+  endWeek: z.number().min(1).max(52),
+  status: z.enum(GOAL_STATUSES),
+  progress: z.number().min(0).max(100),
+});
+
+/**
+ * Schema voor AI-gegenereerd flat behandelplan
+ */
+export const GeneratedPlanFlatSchema = z.object({
+  behandelstructuur: BehandelstructuurSchema,
+  behandeldoelen: z.array(BehandeldoelSchema).min(1).max(6),
+  evaluatiemomenten: z.array(EvaluatiemomentSchema).min(1),
+  veiligheidsplan: VeiligheidsplanSchema.optional(),
+});
+
+export type GeneratedPlanFlat = z.infer<typeof GeneratedPlanFlatSchema>;
+
+// =============================================================================
+// TRANSFORMATIE FUNCTIES (Oude <-> Nieuwe structuur)
+// =============================================================================
+
+/**
+ * Transformeer oude structuur (goals + interventions apart) naar flat (behandeldoelen)
+ * Koppelt interventies aan doelen op basis van linkedGoalIds
+ */
+export function transformToFlat(
+  goals: SmartGoal[],
+  interventions: Intervention[]
+): Behandeldoel[] {
+  return goals.map((goal) => {
+    // Vind interventies die aan dit doel gekoppeld zijn
+    const linkedInterventions = interventions
+      .filter((int) => int.linkedGoalIds.includes(goal.id))
+      .map((int) => ({
+        id: int.id,
+        name: int.name,
+        description: int.description,
+      }));
+
+    return {
+      id: goal.id,
+      title: goal.title,
+      clientVersion: goal.clientVersion,
+      lifeDomain: goal.lifeDomain,
+      interventies: linkedInterventions,
+      startWeek: 1, // Default, kan later uit goal.timelineWeeks berekend worden
+      endWeek: goal.timelineWeeks,
+      status: goal.status,
+      progress: goal.progress,
+    };
+  });
+}
+
+/**
+ * Transformeer flat structuur terug naar oude structuur (voor backwards compatibility)
+ * Zet embedded interventies om naar aparte array met linkedGoalIds
+ */
+export function transformFromFlat(behandeldoelen: Behandeldoel[]): {
+  goals: SmartGoal[];
+  interventions: Intervention[];
+} {
+  const goals: SmartGoal[] = [];
+  const interventionMap = new Map<string, Intervention>();
+
+  for (const doel of behandeldoelen) {
+    // Maak SmartGoal van Behandeldoel
+    goals.push({
+      id: doel.id,
+      title: doel.title,
+      description: '', // Niet meer gebruikt in flat structuur
+      clientVersion: doel.clientVersion,
+      lifeDomain: doel.lifeDomain,
+      priority: 'middel', // Default
+      measurability: '', // Niet meer gebruikt in flat structuur
+      timelineWeeks: doel.endWeek,
+      status: doel.status,
+      progress: doel.progress,
+    });
+
+    // Verzamel interventies en koppel aan doel
+    for (const int of doel.interventies) {
+      const existing = interventionMap.get(int.id);
+      if (existing) {
+        // Interventie bestaat al, voeg dit doel toe aan linkedGoalIds
+        existing.linkedGoalIds.push(doel.id);
+      } else {
+        // Nieuwe interventie
+        interventionMap.set(int.id, {
+          id: int.id,
+          name: int.name,
+          description: int.description,
+          rationale: '', // Niet meer gebruikt in flat structuur
+          linkedGoalIds: [doel.id],
+        });
+      }
+    }
+  }
+
+  return {
+    goals,
+    interventions: Array.from(interventionMap.values()),
+  };
+}
+
+/**
+ * Maak een nieuw leeg behandeldoel
+ */
+export function createEmptyBehandeldoel(lifeDomain: LifeDomain = 'dlv'): Behandeldoel {
+  return {
+    id: generateId(),
+    title: '',
+    clientVersion: '',
+    lifeDomain,
+    interventies: [],
+    startWeek: 1,
+    endWeek: 8,
+    status: 'niet_gestart',
+    progress: 0,
+  };
+}
+
+/**
+ * Maak een nieuwe lege embedded interventie
+ */
+export function createEmptyEmbeddedInterventie(): EmbeddedInterventie {
+  return {
+    id: generateId(),
+    name: '',
+    description: '',
+  };
+}
+
+/**
+ * Bereken totale voortgang van behandeldoelen
+ */
+export function calculateBehandeldoelenProgress(doelen: Behandeldoel[]): number {
+  if (doelen.length === 0) return 0;
+  const sum = doelen.reduce((acc, doel) => acc + doel.progress, 0);
+  return Math.round(sum / doelen.length);
+}
+
+/**
+ * Check of flat plan klaar is voor publicatie
+ */
+export function canPublishFlat(
+  behandeldoelen: Behandeldoel[],
+  behandelstructuur: Behandelstructuur,
+  evaluatiemomenten: Evaluatiemoment[]
+): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (behandeldoelen.length === 0) {
+    errors.push('Minimaal 1 behandeldoel is vereist');
+  }
+
+  // Check of elk doel minimaal 1 interventie heeft
+  const doelenZonderInterventie = behandeldoelen.filter(
+    (d) => d.interventies.length === 0
+  );
+  if (doelenZonderInterventie.length > 0) {
+    errors.push('Elk behandeldoel moet minimaal 1 interventie hebben');
+  }
+
+  if (!behandelstructuur.duur || !behandelstructuur.frequentie) {
+    errors.push('Behandelstructuur moet compleet zijn');
+  }
+
+  if (evaluatiemomenten.length < 2) {
+    errors.push('Minimaal 2 evaluatiemomenten zijn vereist');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}

@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { BehandelplanView, BehandelplanList } from '@/components/behandelplan';
+import { BehandelplanFlat } from '@/components/behandelplan/flat';
 import {
   createCarePlan,
   updateCarePlanStatus,
@@ -14,10 +15,14 @@ import {
   addIntervention,
   updateIntervention,
   deleteIntervention,
+  saveBehandeldoel,
+  deleteBehandeldoel,
 } from './actions';
-import type { GeneratedPlan, SmartGoal, Intervention, Sessie, Evaluatiemoment, Veiligheidsplan, Behandelstructuur } from '@/lib/types/behandelplan';
+import type { GeneratedPlan, SmartGoal, Intervention, Sessie, Evaluatiemoment, Veiligheidsplan, Behandelstructuur, Behandeldoel } from '@/lib/types/behandelplan';
 import type { LifeDomainScore } from '@/lib/types/leefgebieden';
 import type { Json } from '@/lib/supabase/database.types';
+import { Button } from '@/components/ui/button';
+import { LayoutGrid, List } from 'lucide-react';
 
 // Database row types (what we get from Supabase)
 interface DbCarePlan {
@@ -123,6 +128,9 @@ export function BehandelplanPageClient({
   conditions,
 }: BehandelplanPageClientProps) {
   const router = useRouter();
+
+  // View mode toggle: 'flat' = nieuwe platte UI, 'detailed' = oude gedetailleerde UI
+  const [viewMode, setViewMode] = useState<'flat' | 'detailed'>('flat');
 
   // State voor alle plannen en selectie
   const [plans, setPlans] = useState<DbCarePlan[]>(initialPlans);
@@ -380,41 +388,131 @@ export function BehandelplanPageClient({
     [selectedPlan, patientId, router]
   );
 
+  // =============================================================================
+  // FLAT VIEW HANDLERS (Behandeldoel met embedded interventies)
+  // =============================================================================
+
+  const handleSaveBehandeldoel = useCallback(
+    async (doel: Behandeldoel) => {
+      if (!selectedPlan) return;
+
+      await saveBehandeldoel(selectedPlan.id, patientId, doel);
+
+      // Update local state - we need to update both goals and activities
+      // For now, just refresh the page to get fresh data
+      router.refresh();
+    },
+    [selectedPlan, patientId, router]
+  );
+
+  const handleDeleteBehandeldoel = useCallback(
+    async (doelId: string) => {
+      if (!selectedPlan) return;
+
+      await deleteBehandeldoel(selectedPlan.id, patientId, doelId);
+      router.refresh();
+    },
+    [selectedPlan, patientId, router]
+  );
+
+  // Get hulpvraag from first intake notes (first line/sentence)
+  const hulpvraag = useMemo(() => {
+    const firstIntake = intakes[0];
+    if (!firstIntake?.notes) return null;
+    // Get first sentence or first 150 chars
+    const notes = firstIntake.notes;
+    const firstSentence = notes.split(/[.!?]/)[0];
+    return firstSentence.length > 150 ? firstSentence.slice(0, 150) + '...' : firstSentence;
+  }, [intakes]);
+
+  // Get life domain scores from first intake
+  const lifeDomainScores = useMemo(() => {
+    const firstIntake = intakes[0];
+    return firstIntake?.life_domains as LifeDomainScore[] | null;
+  }, [intakes]);
+
   return (
     <div className="space-y-6">
-      {/* Plannen overzicht */}
-      <BehandelplanList
-        plans={plans.map(p => ({
-          id: p.id,
-          title: p.title,
-          status: p.status,
-          version: p.version,
-          created_at: p.created_at,
-          published_at: p.published_at,
-        }))}
-        selectedPlanId={showCreateView ? null : selectedPlanId}
-        onSelectPlan={handleSelectPlan}
-        onCreateNew={handleShowCreateView}
-        isCreating={isCreatingNew}
-      />
+      {/* Header met view toggle */}
+      <div className="flex items-center justify-between">
+        <BehandelplanList
+          plans={plans.map(p => ({
+            id: p.id,
+            title: p.title,
+            status: p.status,
+            version: p.version,
+            created_at: p.created_at,
+            published_at: p.published_at,
+          }))}
+          selectedPlanId={showCreateView ? null : selectedPlanId}
+          onSelectPlan={handleSelectPlan}
+          onCreateNew={handleShowCreateView}
+          isCreating={isCreatingNew}
+        />
 
-      {/* Geselecteerd plan of create view */}
-      <BehandelplanView
-        patientId={patientId}
-        carePlan={showCreateView ? null : selectedPlan}
-        intakes={mapIntakes(intakes)}
-        conditions={conditions}
-        onGenerate={handleGenerate}
-        onStatusChange={handleStatusChange}
-        onCreateManual={handleCreateManual}
-        onUpdateBehandelstructuur={handleUpdateBehandelstructuur}
-        onAddGoal={handleAddGoal}
-        onUpdateGoal={handleUpdateGoal}
-        onDeleteGoal={handleDeleteGoal}
-        onAddIntervention={handleAddIntervention}
-        onUpdateIntervention={handleUpdateIntervention}
-        onDeleteIntervention={handleDeleteIntervention}
-      />
+        {/* View mode toggle */}
+        <div className="flex items-center gap-1 border rounded-lg p-1 bg-slate-50">
+          <Button
+            variant={viewMode === 'flat' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('flat')}
+            className="h-8 px-3"
+          >
+            <LayoutGrid className="h-4 w-4 mr-1.5" />
+            Compact
+          </Button>
+          <Button
+            variant={viewMode === 'detailed' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('detailed')}
+            className="h-8 px-3"
+          >
+            <List className="h-4 w-4 mr-1.5" />
+            Uitgebreid
+          </Button>
+        </div>
+      </div>
+
+      {/* Geselecteerd plan - Flat view */}
+      {viewMode === 'flat' && (
+        <BehandelplanFlat
+          patientId={patientId}
+          carePlan={showCreateView ? null : selectedPlan}
+          condition={conditions[0] || null}
+          hulpvraag={hulpvraag}
+          lifeDomainScores={lifeDomainScores}
+          onGenerate={async () => {
+            const intakeId = intakes[0]?.id;
+            if (intakeId) await handleGenerate(intakeId);
+          }}
+          onCreateManual={async () => {
+            await handleCreateManual(intakes[0]?.id);
+          }}
+          onStatusChange={handleStatusChange}
+          onSaveBehandeldoel={handleSaveBehandeldoel}
+          onDeleteBehandeldoel={handleDeleteBehandeldoel}
+        />
+      )}
+
+      {/* Geselecteerd plan - Detailed view (oude UI) */}
+      {viewMode === 'detailed' && (
+        <BehandelplanView
+          patientId={patientId}
+          carePlan={showCreateView ? null : selectedPlan}
+          intakes={mapIntakes(intakes)}
+          conditions={conditions}
+          onGenerate={handleGenerate}
+          onStatusChange={handleStatusChange}
+          onCreateManual={handleCreateManual}
+          onUpdateBehandelstructuur={handleUpdateBehandelstructuur}
+          onAddGoal={handleAddGoal}
+          onUpdateGoal={handleUpdateGoal}
+          onDeleteGoal={handleDeleteGoal}
+          onAddIntervention={handleAddIntervention}
+          onUpdateIntervention={handleUpdateIntervention}
+          onDeleteIntervention={handleDeleteIntervention}
+        />
+      )}
     </div>
   );
 }

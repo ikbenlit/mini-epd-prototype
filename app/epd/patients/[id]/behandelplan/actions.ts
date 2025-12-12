@@ -2,7 +2,8 @@
 
 import { createClient } from '@/lib/auth/server';
 import { revalidatePath } from 'next/cache';
-import type { GeneratedPlan, SmartGoal, Intervention, Behandelstructuur } from '@/lib/types/behandelplan';
+import type { GeneratedPlan, SmartGoal, Intervention, Behandelstructuur, Behandeldoel } from '@/lib/types/behandelplan';
+import { transformFromFlat } from '@/lib/types/behandelplan';
 import type { LifeDomainScore } from '@/lib/types/leefgebieden';
 import type { Json } from '@/lib/supabase/database.types';
 
@@ -514,6 +515,135 @@ export async function deleteIntervention(
   if (error) {
     console.error('Error deleting intervention:', error);
     throw new Error('Kon interventie niet verwijderen');
+  }
+
+  revalidatePath(`/epd/patients/${patientId}/behandelplan`);
+}
+
+// =============================================================================
+// BEHANDELDOEL (FLAT STRUCTURE - doel met embedded interventies)
+// =============================================================================
+
+/**
+ * Save a behandeldoel (creates or updates)
+ * Transforms flat structure to goals + activities for backwards compatibility
+ */
+export async function saveBehandeldoel(
+  carePlanId: string,
+  patientId: string,
+  behandeldoel: Behandeldoel
+) {
+  const supabase = await createClient();
+
+  // Get current plan
+  const { data: plan } = await supabase
+    .from('care_plans')
+    .select('goals, activities')
+    .eq('id', carePlanId)
+    .single();
+
+  const currentGoals = (plan?.goals as unknown as SmartGoal[]) || [];
+  const currentActivities = (plan?.activities as unknown as Intervention[]) || [];
+
+  // Check if this is an update or a new goal
+  const existingGoalIndex = currentGoals.findIndex((g) => g.id === behandeldoel.id);
+
+  // Convert behandeldoel to SmartGoal
+  const smartGoal: SmartGoal = {
+    id: behandeldoel.id,
+    title: behandeldoel.title,
+    description: '', // Not used in flat structure
+    clientVersion: behandeldoel.clientVersion,
+    lifeDomain: behandeldoel.lifeDomain,
+    priority: 'middel', // Default
+    measurability: '', // Not used in flat structure
+    timelineWeeks: behandeldoel.endWeek,
+    status: behandeldoel.status,
+    progress: behandeldoel.progress,
+  };
+
+  // Update goals array
+  let updatedGoals: SmartGoal[];
+  if (existingGoalIndex >= 0) {
+    updatedGoals = currentGoals.map((g, i) =>
+      i === existingGoalIndex ? smartGoal : g
+    );
+  } else {
+    updatedGoals = [...currentGoals, smartGoal];
+  }
+
+  // Handle interventions: remove old ones for this goal and add new ones
+  const otherActivities = currentActivities.filter(
+    (a) => !a.linkedGoalIds.includes(behandeldoel.id)
+  );
+
+  const newActivities: Intervention[] = behandeldoel.interventies.map((int) => ({
+    id: int.id,
+    name: int.name,
+    description: int.description,
+    rationale: '', // Not used in flat structure
+    linkedGoalIds: [behandeldoel.id],
+  }));
+
+  const updatedActivities = [...otherActivities, ...newActivities];
+
+  // Save to database
+  const { error } = await supabase
+    .from('care_plans')
+    .update({
+      goals: updatedGoals as unknown as Json,
+      activities: updatedActivities as unknown as Json,
+    })
+    .eq('id', carePlanId);
+
+  if (error) {
+    console.error('Error saving behandeldoel:', error);
+    throw new Error('Kon behandeldoel niet opslaan');
+  }
+
+  revalidatePath(`/epd/patients/${patientId}/behandelplan`);
+}
+
+/**
+ * Delete a behandeldoel and its linked interventions
+ */
+export async function deleteBehandeldoel(
+  carePlanId: string,
+  patientId: string,
+  doelId: string
+) {
+  const supabase = await createClient();
+
+  // Get current plan
+  const { data: plan } = await supabase
+    .from('care_plans')
+    .select('goals, activities')
+    .eq('id', carePlanId)
+    .single();
+
+  const currentGoals = (plan?.goals as unknown as SmartGoal[]) || [];
+  const currentActivities = (plan?.activities as unknown as Intervention[]) || [];
+
+  // Remove the goal
+  const updatedGoals = currentGoals.filter((g) => g.id !== doelId);
+
+  // Remove interventions linked to this goal
+  const updatedActivities = currentActivities.filter(
+    (a) => !a.linkedGoalIds.includes(doelId)
+  );
+
+  // Save to database
+  const { error } = await supabase
+    .from('care_plans')
+    .update({
+      goals: updatedGoals as unknown as Json,
+      activities: updatedActivities as unknown as Json,
+    })
+    .eq('id', carePlanId);
+
+  if (error) {
+    console.error('Error deleting behandeldoel:', error);
+    throw new Error('Kon behandeldoel niet verwijderen');
   }
 
   revalidatePath(`/epd/patients/${patientId}/behandelplan`);

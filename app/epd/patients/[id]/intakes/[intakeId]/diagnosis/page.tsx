@@ -14,7 +14,7 @@ export default async function IntakeDiagnosisPage({
       <div>
         <h2 className="text-lg font-semibold text-slate-900">Diagnoses</h2>
         <p className="text-sm text-slate-600">
-          Registreer DSM-5 diagnoses gekoppeld aan deze intake.
+          Registreer diagnoses met ICD-10 classificatie gekoppeld aan deze intake.
         </p>
       </div>
       <DiagnosisManager patientId={id} intakeId={intakeId} diagnoses={diagnoses} />

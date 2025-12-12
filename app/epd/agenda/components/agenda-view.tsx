@@ -6,7 +6,7 @@
  * Client-side wrapper managing calendar state, view switching, and interactions.
  */
 
-import { useState, useCallback, useRef, useTransition, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useTransition, useEffect } from 'react';
 import { startOfWeek, endOfWeek, addDays, format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 

@@ -312,14 +312,17 @@ export async function getDiagnoses(intakeId: string) {
   return data || [];
 }
 
+type ClinicalStatus = 'active' | 'recurrence' | 'relapse' | 'inactive' | 'remission' | 'resolved';
+
 export interface DiagnosisPayload {
   patientId: string;
   intakeId: string;
   code: string;
   description: string;
   severity?: string;
-  status?: string;
+  status?: ClinicalStatus;
   notes?: string;
+  diagnosisType?: 'primary' | 'secondary';
 }
 
 export async function createDiagnosis(payload: DiagnosisPayload) {
@@ -329,18 +332,90 @@ export async function createDiagnosis(payload: DiagnosisPayload) {
     encounter_id: payload.intakeId,
     code_code: payload.code,
     code_display: payload.description,
-    code_system: 'DSM-5',
-    clinical_status: 'active',
+    code_system: 'ICD-10',
+    clinical_status: payload.status || 'active',
     severity_display: payload.severity || null,
+    category: payload.diagnosisType === 'primary' ? 'primary-diagnosis' : 'encounter-diagnosis',
     note: payload.notes,
     recorded_date: new Date().toISOString(),
   });
   if (error) {
     console.error('createDiagnosis error', error);
-    throw new Error(error.message);
+    throw new Error('Diagnose opslaan mislukt');
   }
   revalidatePath(buildPath(payload.patientId, payload.intakeId, 'diagnosis'));
   revalidatePath(buildPath(payload.patientId, payload.intakeId));
+}
+
+export interface DiagnosisUpdatePayload {
+  code?: string;
+  description?: string;
+  severity?: string;
+  status?: string;
+  notes?: string;
+  diagnosisType?: 'primary' | 'secondary';
+}
+
+export async function updateDiagnosis(
+  diagnosisId: string,
+  payload: DiagnosisUpdatePayload
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await getSupabase();
+
+  // Haal eerst de diagnosis op om patientId en intakeId te krijgen voor revalidatie
+  const { data: diagnosis, error: fetchError } = await supabase
+    .from('conditions')
+    .select('patient_id, encounter_id')
+    .eq('id', diagnosisId)
+    .single();
+
+  if (fetchError || !diagnosis) {
+    console.error('updateDiagnosis fetch error', fetchError);
+    return { success: false, error: 'Diagnose niet gevonden' };
+  }
+
+  const updateData: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (payload.code !== undefined) {
+    updateData.code_code = payload.code;
+  }
+  if (payload.description !== undefined) {
+    updateData.code_display = payload.description;
+  }
+  if (payload.status !== undefined) {
+    updateData.clinical_status = payload.status;
+  }
+  if (payload.severity !== undefined) {
+    updateData.severity_display = payload.severity;
+  }
+  if (payload.notes !== undefined) {
+    updateData.note = payload.notes;
+  }
+  if (payload.diagnosisType !== undefined) {
+    updateData.category = payload.diagnosisType === 'primary' ? 'primary-diagnosis' : 'encounter-diagnosis';
+  }
+
+  const { error } = await supabase
+    .from('conditions')
+    .update(updateData)
+    .eq('id', diagnosisId);
+
+  if (error) {
+    console.error('updateDiagnosis error', error);
+    return { success: false, error: 'Diagnose bijwerken mislukt' };
+  }
+
+  // Revalidate paths met correcte patientId en intakeId
+  const patientId = diagnosis.patient_id;
+  const intakeId = diagnosis.encounter_id;
+  if (patientId && intakeId) {
+    revalidatePath(buildPath(patientId, intakeId, 'diagnosis'));
+    revalidatePath(buildPath(patientId, intakeId));
+  }
+
+  return { success: true };
 }
 
 export async function deleteDiagnosis(patientId: string, intakeId: string, diagnosisId: string) {
@@ -348,7 +423,7 @@ export async function deleteDiagnosis(patientId: string, intakeId: string, diagn
   const { error } = await supabase.from('conditions').delete().eq('id', diagnosisId);
   if (error) {
     console.error('deleteDiagnosis error', error);
-    throw new Error(error.message);
+    throw new Error('Diagnose verwijderen mislukt');
   }
   revalidatePath(buildPath(patientId, intakeId, 'diagnosis'));
   revalidatePath(buildPath(patientId, intakeId));

@@ -86,7 +86,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'),
   title: {
     default: 'AI Speedrun - Software on Demand',
-    template: '%s | AI Speedrun',
   },
   description: 'Jensen Huang: "AI is going to eat software". Een experiment: bouw een EPD in 4 weken voor €200.',
   keywords: ['AI', 'Software on Demand', 'EPD', 'Development', 'Build in Public'],

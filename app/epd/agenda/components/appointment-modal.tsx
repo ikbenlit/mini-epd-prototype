@@ -6,11 +6,14 @@
  * Modal for creating and editing appointments (encounters).
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { Calendar, Clock, User, MapPin, FileText, Search, X, Trash2, PenLine } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, FileText, Search, X, Trash2, PenLine, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { QuickActions } from '@/app/epd/patients/[id]/rapportage/components/quick-actions';
+import { RichTextEditor } from '@/components/rich-text-editor';
+import type { ReportType } from '@/lib/types/report';
 
 import {
   Dialog,
@@ -24,6 +27,7 @@ import { toast } from '@/hooks/use-toast';
 
 import { createEncounter, updateEncounter, cancelEncounter, getEncounterReports } from '../actions';
 import { CancelDialog } from './cancel-dialog';
+import { PatientContextCard } from './patient-context-card';
 import {
   APPOINTMENT_TYPES,
   LOCATION_CLASSES,
@@ -58,8 +62,8 @@ interface AppointmentModalProps {
   onSuccess?: () => void;
 }
 
-const inputClassName = "w-full min-w-0 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm box-border";
-const selectClassName = "w-full min-w-0 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm bg-white box-border";
+const inputClassName = "w-full min-w-0 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:ring-offset-0 focus:border-transparent text-sm box-border";
+const selectClassName = "w-full min-w-0 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:ring-offset-0 focus:border-transparent text-sm bg-white box-border";
 const labelClassName = "block text-sm font-medium text-slate-700 mb-1";
 
 export function AppointmentModal({
@@ -89,6 +93,17 @@ export function AppointmentModal({
   // Linked reports state
   const [linkedReports, setLinkedReports] = useState<LinkedReport[]>([]);
   const [isLoadingReports, setIsLoadingReports] = useState(false);
+
+  // Report composer state
+  const [showReportComposer, setShowReportComposer] = useState(false);
+  const [selectedReportType, setSelectedReportType] = useState<ReportType>('vrije_notitie');
+  const [reportContent, setReportContent] = useState('');
+  const [isSavingReport, setIsSavingReport] = useState(false);
+  
+  // Report edit state
+  const [editingReport, setEditingReport] = useState<LinkedReport | null>(null);
+  const [editReportContent, setEditReportContent] = useState('');
+  const [isUpdatingReport, setIsUpdatingReport] = useState(false);
 
   // Form state
   const [date, setDate] = useState<string>(
@@ -153,6 +168,11 @@ export function AppointmentModal({
       setTypeCode('behandeling');
       setClassCode('AMB');
       setLinkedReports([]);
+      setShowReportComposer(false);
+      setReportContent('');
+      setSelectedReportType('vrije_notitie');
+      setEditingReport(null);
+      setEditReportContent('');
     }
   }, [open, initialDate, initialStartTime, initialEndTime, editingEvent]);
 
@@ -298,16 +318,16 @@ export function AppointmentModal({
           periodStart,
           periodEnd,
           typeCode,
-          typeDisplay: APPOINTMENT_TYPES[typeCode],
+          typeDisplay: APPOINTMENT_TYPES[typeCode as AppointmentTypeCode],
           classCode,
-          classDisplay: LOCATION_CLASSES[classCode],
+          classDisplay: LOCATION_CLASSES[classCode as LocationClassCode],
           notes: notes || '',
         });
 
         if (result.success) {
           toast({
             title: 'Afspraak bijgewerkt',
-            description: `${APPOINTMENT_TYPES[typeCode]} is aangepast.`,
+            description: `${APPOINTMENT_TYPES[typeCode as AppointmentTypeCode]} is aangepast.`,
           });
           onOpenChange(false);
           onSuccess?.();
@@ -326,16 +346,16 @@ export function AppointmentModal({
           periodStart,
           periodEnd: periodEnd || undefined,
           typeCode,
-          typeDisplay: APPOINTMENT_TYPES[typeCode],
+          typeDisplay: APPOINTMENT_TYPES[typeCode as AppointmentTypeCode],
           classCode,
-          classDisplay: LOCATION_CLASSES[classCode],
+          classDisplay: LOCATION_CLASSES[classCode as LocationClassCode],
           notes: notes || undefined,
         });
 
         if (result.success) {
           toast({
             title: 'Afspraak aangemaakt',
-            description: `${APPOINTMENT_TYPES[typeCode]} met ${selectedPatient!.name_given?.[0] || ''} ${selectedPatient!.name_family || ''}`.trim(),
+            description: `${APPOINTMENT_TYPES[typeCode as AppointmentTypeCode]} met ${selectedPatient!.name_given?.[0] || ''} ${selectedPatient!.name_family || ''}`.trim(),
           });
           onOpenChange(false);
           onSuccess?.();
@@ -392,6 +412,61 @@ export function AppointmentModal({
     }
   };
 
+  // Handle save report
+  const handleSaveReport = async () => {
+    if (!editingEvent?.extendedProps.patient || !editingEvent.id) return;
+    
+    const textContent = reportContent.replace(/<[^>]*>/g, '').trim();
+    if (textContent.length < 20) {
+      toast({
+        variant: 'destructive',
+        title: 'Verslag te kort',
+        description: 'Een verslag moet minimaal 20 karakters bevatten.',
+      });
+      return;
+    }
+    
+    if (textContent.length > 5000) {
+      toast({
+        variant: 'destructive',
+        title: 'Verslag te lang',
+        description: 'Een verslag mag maximaal 5000 karakters bevatten.',
+      });
+      return;
+    }
+    
+    setIsSavingReport(true);
+    try {
+      await handleCreateReport(
+        editingEvent.extendedProps.patient.id,
+        selectedReportType,
+        textContent,
+        editingEvent.id
+      );
+      
+      toast({
+        title: 'Verslag opgeslagen',
+        description: 'Het verslag is gekoppeld aan deze afspraak.',
+      });
+      
+      // Reset composer
+      setReportContent('');
+      setShowReportComposer(false);
+      
+      // Refresh linked reports
+      const reports = await getEncounterReports(editingEvent.id);
+      setLinkedReports(reports);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Opslaan mislukt',
+        description: error instanceof Error ? error.message : 'Probeer het opnieuw.',
+      });
+    } finally {
+      setIsSavingReport(false);
+    }
+  };
+
   const formatPatientName = (patient: Patient) => {
     const name = `${patient.name_given?.[0] || ''} ${patient.name_family || ''}`.trim();
     const birthDate = patient.birth_date
@@ -406,17 +481,118 @@ export function AppointmentModal({
     return { name, birthDate, identifier };
   };
 
+  // Client-side createReport function
+  const handleCreateReport = async (patientId: string, type: ReportType, content: string, encounterId: string) => {
+    const response = await fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patient_id: patientId,
+        type,
+        content,
+        encounter_id: encounterId,
+      }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Opslaan mislukt');
+    }
+    
+    return response.json();
+  };
+
+  // Client-side updateReport function
+  const handleUpdateReport = async (reportId: string, content: string) => {
+    const response = await fetch(`/api/reports/${reportId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content,
+      }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Bijwerken mislukt');
+    }
+    
+    return response.json();
+  };
+
+  // Handle edit report
+  const handleEditReport = (report: LinkedReport) => {
+    setEditingReport(report);
+    setEditReportContent(report.content);
+    setShowReportComposer(false); // Close composer if open
+  };
+
+  // Handle save edited report
+  const handleSaveEditedReport = async () => {
+    if (!editingReport || !editingEvent?.id) return;
+    
+    const textContent = editReportContent.replace(/<[^>]*>/g, '').trim();
+    if (textContent.length < 20) {
+      toast({
+        variant: 'destructive',
+        title: 'Verslag te kort',
+        description: 'Een verslag moet minimaal 20 karakters bevatten.',
+      });
+      return;
+    }
+    
+    if (textContent.length > 5000) {
+      toast({
+        variant: 'destructive',
+        title: 'Verslag te lang',
+        description: 'Een verslag mag maximaal 5000 karakters bevatten.',
+      });
+      return;
+    }
+    
+    setIsUpdatingReport(true);
+    try {
+      await handleUpdateReport(editingReport.id, textContent);
+      
+      toast({
+        title: 'Verslag bijgewerkt',
+        description: 'Het verslag is succesvol bijgewerkt.',
+      });
+      
+      // Reset edit state
+      setEditingReport(null);
+      setEditReportContent('');
+      
+      // Refresh linked reports
+      const reports = await getEncounterReports(editingEvent.id);
+      setLinkedReports(reports);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Bijwerken mislukt',
+        description: error instanceof Error ? error.message : 'Probeer het opnieuw.',
+      });
+    } finally {
+      setIsUpdatingReport(false);
+    }
+  };
+
+  const wrappedOnOpenChange = React.useCallback((newOpen: boolean) => {
+    onOpenChange(newOpen);
+  }, [onOpenChange]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={wrappedOnOpenChange}>
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] !grid !grid-rows-[auto_1fr_auto] !gap-0 p-0 overflow-hidden">
+        <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-teal-600" />
             {editingEvent ? 'Afspraak bewerken' : 'Nieuwe Afspraak'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2 overflow-hidden">
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto space-y-4 px-6 min-h-0">
           {/* Patient Search */}
           <div className="relative">
             <label className={labelClassName}>
@@ -428,7 +604,7 @@ export function AppointmentModal({
               <input
                 type="text"
                 value={patientSearch}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setPatientSearch(e.target.value);
                   if (selectedPatient) {
                     setSelectedPatient(null);
@@ -459,8 +635,8 @@ export function AppointmentModal({
 
             {/* Patient Dropdown */}
             {showPatientDropdown && patients.length > 0 && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-auto">
-                {patients.map((patient) => {
+              <div className="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-auto">
+                {patients.map((patient: Patient) => {
                   const { name, birthDate, identifier } = formatPatientName(patient);
                   return (
                     <button
@@ -483,24 +659,24 @@ export function AppointmentModal({
             )}
 
             {isSearching && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center text-sm text-slate-500">
+              <div className="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center text-sm text-slate-500">
                 Zoeken...
               </div>
             )}
 
             {showPatientDropdown && patients.length === 0 && patientSearch.length >= 2 && !isSearching && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center text-sm text-slate-500">
+              <div className="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center text-sm text-slate-500">
                 Geen patiënten gevonden
               </div>
             )}
 
             {/* Recent Patients Dropdown - shown when focused but no search query */}
             {isInputFocused && !selectedPatient && patientSearch.length < 2 && recentPatients.length > 0 && !isEditMode && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-auto">
+              <div className="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-auto">
                 <div className="px-3 py-2 border-b border-slate-100 text-xs font-medium text-slate-500 uppercase tracking-wide">
                   Recente patiënten
                 </div>
-                {recentPatients.map((patient) => {
+                {recentPatients.map((patient: Patient) => {
                   const { name, birthDate, identifier } = formatPatientName(patient);
                   return (
                     <button
@@ -527,9 +703,18 @@ export function AppointmentModal({
           {selectedPatient && (
             <div className="mt-2 p-3 bg-teal-50 rounded-lg border border-teal-100">
               <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-medium text-slate-900">
-                    {selectedPatient.name_given?.[0]} {selectedPatient.name_family}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium text-slate-900">
+                      {selectedPatient.name_given?.[0]} {selectedPatient.name_family}
+                    </div>
+                    <Link
+                      href={`/epd/patients/${selectedPatient.id}`}
+                      className="text-teal-600 hover:text-teal-700 transition-colors"
+                      title="Open patiëntendossier"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Link>
                   </div>
                   <div className="text-sm text-slate-600 mt-0.5">
                     Geb. {selectedPatient.birth_date
@@ -558,6 +743,8 @@ export function AppointmentModal({
                   <X className="h-4 w-4" />
                 </button>
               </div>
+              {/* Patient Medical Context */}
+              <PatientContextCard patientId={selectedPatient.id} />
             </div>
           )}
 
@@ -571,7 +758,7 @@ export function AppointmentModal({
               <input
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)}
                 className={inputClassName}
                 required
               />
@@ -584,7 +771,7 @@ export function AppointmentModal({
               <input
                 type="time"
                 value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartTime(e.target.value)}
                 className={inputClassName}
                 required
               />
@@ -597,7 +784,7 @@ export function AppointmentModal({
               <input
                 type="time"
                 value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndTime(e.target.value)}
                 className={inputClassName}
               />
             </div>
@@ -609,7 +796,7 @@ export function AppointmentModal({
               <label className={labelClassName}>Type afspraak *</label>
               <select
                 value={typeCode}
-                onChange={(e) => setTypeCode(e.target.value as AppointmentTypeCode)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTypeCode(e.target.value as AppointmentTypeCode)}
                 className={selectClassName}
                 required
               >
@@ -627,7 +814,7 @@ export function AppointmentModal({
               </label>
               <select
                 value={classCode}
-                onChange={(e) => setClassCode(e.target.value as LocationClassCode)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setClassCode(e.target.value as LocationClassCode)}
                 className={selectClassName}
               >
                 {Object.entries(LOCATION_CLASSES).map(([code, label]) => (
@@ -647,15 +834,90 @@ export function AppointmentModal({
             </label>
             <textarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
               placeholder="Optionele notities voor deze afspraak..."
               rows={3}
               className={`${inputClassName} resize-none`}
             />
           </div>
 
+          {/* Report Composer Section - only shown in edit mode when toggled */}
+          {isEditMode && showReportComposer && editingEvent?.extendedProps.patient && (
+            <div className="border-t border-slate-200 pt-4">
+              <div className="flex items-center justify-between mb-4">
+                <label className={labelClassName}>
+                  <FileText className="h-4 w-4 inline mr-1" />
+                  Nieuw verslag
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowReportComposer(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              
+              {/* Quick Actions voor type selectie */}
+              <div className="mb-4">
+                <QuickActions
+                  onSelectType={setSelectedReportType}
+                  selectedType={selectedReportType}
+                  disabled={isSavingReport}
+                />
+              </div>
+              
+              {/* Rich Text Editor */}
+              <div className="mb-3">
+                <RichTextEditor
+                  value={reportContent}
+                  onChange={setReportContent}
+                  placeholder="Begin met typen..."
+                  minHeight="150px"
+                />
+              </div>
+              
+              {/* Character count */}
+              <div className="flex justify-between text-xs text-slate-500 mb-4">
+                <span>
+                  {reportContent.replace(/<[^>]*>/g, '').trim().length} / 5000 karakters
+                </span>
+                {reportContent.replace(/<[^>]*>/g, '').trim().length > 0 && 
+                 reportContent.replace(/<[^>]*>/g, '').trim().length < 20 && (
+                  <span className="text-amber-600">Minimaal 20 karakters</span>
+                )}
+              </div>
+              
+              {/* Save button */}
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowReportComposer(false);
+                    setReportContent('');
+                  }}
+                  disabled={isSavingReport}
+                >
+                  Annuleren
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleSaveReport}
+                  disabled={
+                    isSavingReport ||
+                    reportContent.replace(/<[^>]*>/g, '').trim().length < 20 ||
+                    reportContent.replace(/<[^>]*>/g, '').trim().length > 5000
+                  }
+                >
+                  {isSavingReport ? 'Opslaan...' : 'Verslag opslaan'}
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Linked Reports Section - only shown in edit mode */}
-          {isEditMode && (
+          {isEditMode && !editingReport && (
             <div className="border-t border-slate-200 pt-4">
               <label className={labelClassName}>
                 <FileText className="h-4 w-4 inline mr-1" />
@@ -669,7 +931,7 @@ export function AppointmentModal({
                 </div>
               ) : (
                 <div className="space-y-2 mt-2">
-                  {linkedReports.map((report) => {
+                  {linkedReports.map((report: LinkedReport) => {
                     const reportDate = new Date(report.created_at);
                     const TYPE_LABELS: Record<string, string> = {
                       behandeladvies: 'Behandeladvies',
@@ -680,10 +942,11 @@ export function AppointmentModal({
                       contact: 'Contactnotitie',
                     };
                     return (
-                      <Link
+                      <button
                         key={report.id}
-                        href={`/epd/patients/${editingEvent?.extendedProps.patient?.id}/rapportage?reportId=${report.id}`}
-                        className="block p-3 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+                        type="button"
+                        onClick={() => handleEditReport(report)}
+                        className="w-full text-left p-3 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-slate-700">
@@ -697,7 +960,7 @@ export function AppointmentModal({
                           {report.content.substring(0, 100)}
                           {report.content.length > 100 ? '...' : ''}
                         </p>
-                      </Link>
+                      </button>
                     );
                   })}
                 </div>
@@ -705,7 +968,77 @@ export function AppointmentModal({
             </div>
           )}
 
-          <DialogFooter className="flex justify-between sm:justify-between gap-2">
+          {/* Report Edit Section - shown when editing a report */}
+          {isEditMode && editingReport && (
+            <div className="border-t border-slate-200 pt-4">
+              <div className="flex items-center justify-between mb-4">
+                <label className={labelClassName}>
+                  <FileText className="h-4 w-4 inline mr-1" />
+                  Verslag bewerken
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingReport(null);
+                    setEditReportContent('');
+                  }}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              
+              {/* Rich Text Editor */}
+              <div className="mb-3">
+                <RichTextEditor
+                  value={editReportContent}
+                  onChange={setEditReportContent}
+                  placeholder="Begin met typen..."
+                  minHeight="150px"
+                />
+              </div>
+              
+              {/* Character count */}
+              <div className="flex justify-between text-xs text-slate-500 mb-4">
+                <span>
+                  {editReportContent.replace(/<[^>]*>/g, '').trim().length} / 5000 karakters
+                </span>
+                {editReportContent.replace(/<[^>]*>/g, '').trim().length > 0 && 
+                 editReportContent.replace(/<[^>]*>/g, '').trim().length < 20 && (
+                  <span className="text-amber-600">Minimaal 20 karakters</span>
+                )}
+              </div>
+              
+              {/* Save button */}
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingReport(null);
+                    setEditReportContent('');
+                  }}
+                  disabled={isUpdatingReport}
+                >
+                  Annuleren
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleSaveEditedReport}
+                  disabled={
+                    isUpdatingReport ||
+                    editReportContent.replace(/<[^>]*>/g, '').trim().length < 20 ||
+                    editReportContent.replace(/<[^>]*>/g, '').trim().length > 5000
+                  }
+                >
+                  {isUpdatingReport ? 'Opslaan...' : 'Wijzigingen opslaan'}
+                </Button>
+              </div>
+            </div>
+          )}
+          </div>
+
+          <DialogFooter className="flex-shrink-0 flex justify-between sm:justify-between gap-2 pt-4 px-6 pb-6 border-t border-slate-200 bg-white">
             {isEditMode && editingEvent?.extendedProps.patient && (
               <div className="flex gap-2 mr-auto">
                 <Button
@@ -720,14 +1053,11 @@ export function AppointmentModal({
                 <Button
                   type="button"
                   variant="outline"
-                  asChild
+                  onClick={() => setShowReportComposer(!showReportComposer)}
+                  disabled={isSubmitting}
                 >
-                  <Link
-                    href={`/epd/patients/${editingEvent.extendedProps.patient.id}/rapportage?encounterId=${editingEvent.id}`}
-                  >
-                    <PenLine className="h-4 w-4 mr-1" />
-                    Maak verslag
-                  </Link>
+                  <PenLine className="h-4 w-4 mr-1" />
+                  {showReportComposer ? 'Verberg verslag' : 'Maak verslag'}
                 </Button>
               </div>
             )}
@@ -753,7 +1083,7 @@ export function AppointmentModal({
                 Sluiten
               </Button>
               <Button type="submit" disabled={isSubmitting || (!selectedPatient && !isEditMode)}>
-                {isSubmitting ? 'Opslaan...' : isEditMode ? 'Wijzigingen opslaan' : 'Afspraak maken'}
+                {isSubmitting ? 'Opslaan...' : isEditMode ? 'Opslaan' : 'Afspraak maken'}
               </Button>
             </div>
           </DialogFooter>

@@ -1,0 +1,134 @@
+{
+  "version": "ICD-10-GM 2024",
+  "source": "WHO (publiek domein)",
+  "description": "GGZ-relevante ICD-10 codes voor Mini EPD prototype",
+  "categories": [
+    {
+      "name": "Depressieve stoornissen",
+      "codes": [
+        { "code": "F32.0", "display": "Lichte depressieve episode", "keywords": ["depressie", "licht", "somber"] },
+        { "code": "F32.1", "display": "Matige depressieve episode", "keywords": ["depressie", "matig", "somber"] },
+        { "code": "F32.2", "display": "Ernstige depressieve episode zonder psychotische kenmerken", "keywords": ["depressie", "ernstig", "somber"] },
+        { "code": "F32.3", "display": "Ernstige depressieve episode met psychotische kenmerken", "keywords": ["depressie", "ernstig", "psychose", "waan"] },
+        { "code": "F33.0", "display": "Recidiverende depressieve stoornis, huidige episode licht", "keywords": ["depressie", "recidiverend", "terugkerend"] },
+        { "code": "F33.1", "display": "Recidiverende depressieve stoornis, huidige episode matig", "keywords": ["depressie", "recidiverend", "terugkerend"] },
+        { "code": "F33.2", "display": "Recidiverende depressieve stoornis, huidige episode ernstig", "keywords": ["depressie", "recidiverend", "terugkerend", "ernstig"] }
+      ]
+    },
+    {
+      "name": "Angststoornissen",
+      "codes": [
+        { "code": "F40.0", "display": "Agorafobie", "keywords": ["angst", "plein", "open ruimte", "fobie"] },
+        { "code": "F40.1", "display": "Sociale fobie", "keywords": ["sociaal", "angst", "vermijding", "fobie"] },
+        { "code": "F40.2", "display": "Specifieke fobie", "keywords": ["fobie", "specifiek", "angst"] },
+        { "code": "F41.0", "display": "Paniekstoornis", "keywords": ["paniek", "aanval", "angst", "hartkloppingen"] },
+        { "code": "F41.1", "display": "Gegeneraliseerde angststoornis", "keywords": ["gad", "piekeren", "angst", "zorgen"] },
+        { "code": "F41.2", "display": "Gemengde angststoornis en depressieve stoornis", "keywords": ["angst", "depressie", "gemengd"] },
+        { "code": "F41.3", "display": "Andere gemengde angststoornissen", "keywords": ["angst", "gemengd"] },
+        { "code": "F41.9", "display": "Angststoornis, niet gespecificeerd", "keywords": ["angst", "nos"] }
+      ]
+    },
+    {
+      "name": "Trauma- en stressorgerelateerde stoornissen",
+      "codes": [
+        { "code": "F43.0", "display": "Acute stressreactie", "keywords": ["stress", "acuut", "trauma"] },
+        { "code": "F43.1", "display": "Posttraumatische stressstoornis", "keywords": ["ptss", "trauma", "herbeleven", "nachtmerries"] },
+        { "code": "F43.2", "display": "Aanpassingsstoornis", "keywords": ["aanpassing", "stress", "life event"] },
+        { "code": "F43.8", "display": "Andere reacties op ernstige stress", "keywords": ["stress", "trauma"] }
+      ]
+    },
+    {
+      "name": "Obsessief-compulsieve stoornissen",
+      "codes": [
+        { "code": "F42.0", "display": "Overwegend obsessieve gedachten of ruminaties", "keywords": ["ocd", "obsessie", "dwang", "gedachten"] },
+        { "code": "F42.1", "display": "Overwegend compulsieve handelingen", "keywords": ["ocd", "compulsie", "dwang", "rituelen"] },
+        { "code": "F42.2", "display": "Gemengde obsessieve gedachten en handelingen", "keywords": ["ocd", "obsessie", "compulsie", "dwang"] }
+      ]
+    },
+    {
+      "name": "Bipolaire stoornissen",
+      "codes": [
+        { "code": "F31.0", "display": "Bipolaire stoornis, huidige episode hypomaan", "keywords": ["bipolair", "hypomanie", "manisch"] },
+        { "code": "F31.1", "display": "Bipolaire stoornis, huidige episode manisch zonder psychose", "keywords": ["bipolair", "manie", "manisch"] },
+        { "code": "F31.3", "display": "Bipolaire stoornis, huidige episode licht of matig depressief", "keywords": ["bipolair", "depressie"] },
+        { "code": "F31.4", "display": "Bipolaire stoornis, huidige episode ernstig depressief", "keywords": ["bipolair", "depressie", "ernstig"] }
+      ]
+    },
+    {
+      "name": "Persoonlijkheidsstoornissen",
+      "codes": [
+        { "code": "F60.0", "display": "Paranoïde persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "paranoide", "wantrouwen"] },
+        { "code": "F60.1", "display": "Schizoïde persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "schizoid", "teruggetrokken"] },
+        { "code": "F60.2", "display": "Antisociale persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "antisociaal", "psychopathie"] },
+        { "code": "F60.3", "display": "Borderline persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "borderline", "emotieregulatie", "instabiel"] },
+        { "code": "F60.4", "display": "Theatrale persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "theatraal", "histrionisch"] },
+        { "code": "F60.6", "display": "Vermijdende persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "vermijdend", "angst", "afwijzing"] },
+        { "code": "F60.7", "display": "Afhankelijke persoonlijkheidsstoornis", "keywords": ["persoonlijkheid", "afhankelijk", "dependent"] }
+      ]
+    },
+    {
+      "name": "ADHD en gedragsstoornissen",
+      "codes": [
+        { "code": "F90.0", "display": "Aandachtstekortstoornis met hyperactiviteit", "keywords": ["adhd", "add", "concentratie", "hyperactief"] },
+        { "code": "F90.1", "display": "Hyperkinetische gedragsstoornis", "keywords": ["adhd", "gedrag", "hyperactief"] }
+      ]
+    },
+    {
+      "name": "Autismespectrumstoornissen",
+      "codes": [
+        { "code": "F84.0", "display": "Autisme", "keywords": ["autisme", "ass", "spectrum"] },
+        { "code": "F84.5", "display": "Syndroom van Asperger", "keywords": ["asperger", "autisme", "ass", "spectrum"] }
+      ]
+    },
+    {
+      "name": "Eetstoornissen",
+      "codes": [
+        { "code": "F50.0", "display": "Anorexia nervosa", "keywords": ["eetstoornis", "anorexia", "gewicht", "eten"] },
+        { "code": "F50.2", "display": "Boulimia nervosa", "keywords": ["eetstoornis", "boulimia", "eetbuien", "braken"] },
+        { "code": "F50.9", "display": "Eetstoornis, niet gespecificeerd", "keywords": ["eetstoornis", "nos"] }
+      ]
+    },
+    {
+      "name": "Schizofrenie en psychotische stoornissen",
+      "codes": [
+        { "code": "F20.0", "display": "Paranoïde schizofrenie", "keywords": ["schizofrenie", "psychose", "waan", "hallucinatie"] },
+        { "code": "F20.9", "display": "Schizofrenie, niet gespecificeerd", "keywords": ["schizofrenie", "psychose", "nos"] },
+        { "code": "F23.0", "display": "Acute polymorf psychotische stoornis zonder symptomen van schizofrenie", "keywords": ["psychose", "acuut"] }
+      ]
+    },
+    {
+      "name": "Stoornissen door middelengebruik",
+      "codes": [
+        { "code": "F10.1", "display": "Schadelijk gebruik van alcohol", "keywords": ["alcohol", "verslaving", "middelen"] },
+        { "code": "F10.2", "display": "Alcoholafhankelijkheid", "keywords": ["alcohol", "verslaving", "afhankelijk"] },
+        { "code": "F12.1", "display": "Schadelijk gebruik van cannabis", "keywords": ["cannabis", "wiet", "middelen"] },
+        { "code": "F12.2", "display": "Cannabisafhankelijkheid", "keywords": ["cannabis", "wiet", "verslaving"] },
+        { "code": "F19.1", "display": "Schadelijk gebruik van meerdere middelen", "keywords": ["middelen", "drugs", "verslaving"] },
+        { "code": "F19.2", "display": "Afhankelijkheid van meerdere middelen", "keywords": ["middelen", "drugs", "verslaving", "afhankelijk"] }
+      ]
+    },
+    {
+      "name": "Somatoforme en dissociatieve stoornissen",
+      "codes": [
+        { "code": "F44.0", "display": "Dissociatieve amnesie", "keywords": ["dissociatie", "amnesie", "geheugen"] },
+        { "code": "F44.1", "display": "Dissociatieve fugue", "keywords": ["dissociatie", "fugue"] },
+        { "code": "F45.0", "display": "Somatisatiestoornis", "keywords": ["somatisch", "lichamelijk", "klachten"] },
+        { "code": "F45.2", "display": "Hypochondrische stoornis", "keywords": ["hypochondrie", "ziekte", "angst"] }
+      ]
+    },
+    {
+      "name": "Slaapstoornissen",
+      "codes": [
+        { "code": "F51.0", "display": "Niet-organische insomnie", "keywords": ["slaap", "insomnie", "slapeloosheid"] },
+        { "code": "F51.1", "display": "Niet-organische hypersomnie", "keywords": ["slaap", "hypersomnie", "slaperigheid"] }
+      ]
+    }
+  ],
+  "frequentCodes": [
+    "F32.1",
+    "F41.1",
+    "F43.1",
+    "F41.0",
+    "F60.3"
+  ]
+}
