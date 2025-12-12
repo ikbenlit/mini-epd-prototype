@@ -5,10 +5,33 @@ import { redirect } from 'next/navigation';
 import { authFetch, getBaseUrl } from '@/lib/server/api-client';
 import type { Report, ReportListResponse, CreateReportInput } from '@/lib/types/report';
 
-export async function getReports(patientId: string): Promise<Report[]> {
+interface GetReportsOptions {
+  limit?: number;
+  offset?: number;
+}
+
+export async function getReports(
+  patientId: string,
+  options?: GetReportsOptions
+): Promise<Report[]> {
+  const result = await getReportsPaginated(patientId, options);
+  return result.reports;
+}
+
+export async function getReportsPaginated(
+  patientId: string,
+  options?: GetReportsOptions
+): Promise<ReportListResponse> {
   const baseUrl = getBaseUrl();
   const url = new URL('/api/reports', baseUrl);
   url.searchParams.set('patientId', patientId);
+
+  if (options?.limit) {
+    url.searchParams.set('limit', options.limit.toString());
+  }
+  if (options?.offset) {
+    url.searchParams.set('offset', options.offset.toString());
+  }
 
   const response = await authFetch(url.toString(), {
     cache: 'no-store',
@@ -21,8 +44,7 @@ export async function getReports(patientId: string): Promise<Report[]> {
     throw new Error('Fout bij ophalen rapportages');
   }
 
-  const data: ReportListResponse = await response.json();
-  return data.reports;
+  return response.json();
 }
 
 export async function createReport(

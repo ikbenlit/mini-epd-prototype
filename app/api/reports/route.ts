@@ -19,6 +19,12 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate'); // Optional: YYYY-MM-DD
     const includeInHandover = searchParams.get('includeInHandover'); // Optional: 'true'
 
+    // Pagination parameters
+    const limitParam = searchParams.get('limit');
+    const offsetParam = searchParams.get('offset');
+    const limit = Math.min(Math.max(parseInt(limitParam ?? '50'), 1), 100); // 1-100, default 50
+    const offset = Math.max(parseInt(offsetParam ?? '0'), 0);
+
     if (!patientId) {
       return NextResponse.json(
         { error: 'patientId query parameter is verplicht' },
@@ -49,9 +55,25 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createClient();
+
+    // Selectieve kolommen voor betere performance
+    // Grote kolommen (ai_reasoning, audio_url) worden niet opgehaald tenzij nodig
+    const selectColumns = [
+      'id',
+      'patient_id',
+      'type',
+      'content',
+      'created_at',
+      'updated_at',
+      'shift_date',
+      'include_in_handover',
+      'structured_data',
+      'created_by',
+    ].join(', ');
+
     let query = supabase
       .from('reports')
-      .select('*')
+      .select(selectColumns)
       .eq('patient_id', patientId)
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
@@ -81,7 +103,11 @@ export async function GET(request: NextRequest) {
       query = query.eq('include_in_handover', true);
     }
 
-    const { data, error } = await query;
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1);
+
+    // Execute query with count
+    const { data, error, count } = await query;
 
     if (error) {
       console.error('Error fetching reports:', error);
@@ -91,12 +117,35 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response: ReportListResponse = {
-      reports: data ?? [],
-      total: data?.length ?? 0,
-    };
+    // Get total count (separate query for accurate pagination)
+    const countQuery = supabase
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .eq('patient_id', patientId)
+      .is('deleted_at', null);
 
-    return NextResponse.json(response);
+    // Apply same filters to count query
+    if (type) countQuery.eq('type', type);
+    if (types) countQuery.in('type', types.split(',').map((t) => t.trim()));
+    if (startDate && endDate) {
+      countQuery.gte('shift_date', startDate).lte('shift_date', endDate);
+    } else if (startDate) {
+      countQuery.gte('shift_date', startDate);
+    } else if (endDate) {
+      countQuery.lte('shift_date', endDate);
+    }
+    if (includeInHandover === 'true') countQuery.eq('include_in_handover', true);
+
+    const { count: totalCount } = await countQuery;
+    const total = totalCount ?? 0;
+
+    return NextResponse.json({
+      reports: data ?? [],
+      total,
+      limit,
+      offset,
+      hasMore: offset + limit < total,
+    });
   } catch (error) {
     console.error('Unexpected error in GET /api/reports:', error);
     return NextResponse.json(

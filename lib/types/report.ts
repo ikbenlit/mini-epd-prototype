@@ -139,6 +139,10 @@ export interface ClassificationResult {
 export interface ReportListResponse {
   reports: Report[];
   total: number;
+  // Pagination fields (optional for backwards compatibility)
+  limit?: number;
+  offset?: number;
+  hasMore?: boolean;
 }
 
 // Helper function to calculate shift_date from timestamp

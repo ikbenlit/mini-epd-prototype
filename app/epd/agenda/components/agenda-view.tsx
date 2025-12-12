@@ -7,10 +7,25 @@
  */
 
 import React, { useState, useCallback, useRef, useTransition, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { startOfWeek, endOfWeek, addDays, format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 
-import { AgendaCalendar } from './agenda-calendar';
+// Lazy load FullCalendar component (~150KB+ savings)
+const AgendaCalendar = dynamic(
+  () => import('./agenda-calendar').then((mod) => mod.AgendaCalendar),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full bg-slate-50 rounded-lg flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
+          <span className="text-sm text-slate-500">Agenda laden...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 import { AgendaToolbar } from './agenda-toolbar';
 import { AppointmentModal } from './appointment-modal';
 import { RescheduleDialog } from './reschedule-dialog';

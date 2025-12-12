@@ -18,7 +18,7 @@ import type { Intake } from '@/lib/types/intake';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { getPatientEncounters } from '@/app/epd/agenda/actions';
-import { getActiveCarePlan, getPatientIntakes } from './behandelplan/actions';
+import { getActiveCarePlan } from './behandelplan/actions';
 import type { SmartGoal, Intervention, Behandelstructuur, Evaluatiemoment } from '@/lib/types/behandelplan';
 
 function extractHulpvraag(notes: string | null): string | null {
@@ -33,54 +33,39 @@ export default async function PatientDashboardPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  
-  // Fetch recent intakes (optional)
-  let recentIntakes: Intake[] = [];
-  try {
-    const intakes = await getIntakesByPatientId(id);
-    recentIntakes = intakes.slice(0, 3); // Get up to 3 most recent
-  } catch (error) {
-    // Silently fail - intakes are optional for dashboard
-    console.error('Failed to fetch intakes for dashboard:', error);
-  }
 
-  // Fetch encounters (vandaag, toekomst en recente)
+  // Fetch all data in parallel for better performance
+  const [intakesResult, encountersResult, carePlanResult] = await Promise.all([
+    getIntakesByPatientId(id).catch(() => [] as Intake[]),
+    getPatientEncounters(id).catch(() => []),
+    getActiveCarePlan(id).catch(() => null),
+  ]);
+
+  // Process intakes
+  const recentIntakes = intakesResult.slice(0, 3);
+
+  // Process encounters
   let upcomingEncounters: any[] = [];
   let recentEncounters: any[] = [];
-  try {
-    const allEncounters = await getPatientEncounters(id);
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    // Split into upcoming (vandaag + toekomst) and recent (verleden)
-    const upcoming = allEncounters.filter(e => new Date(e.period_start) >= todayStart);
-    const recent = allEncounters.filter(e => new Date(e.period_start) < todayStart);
-    
-    // Take 5 most relevant: prioritize upcoming, then recent
-    upcomingEncounters = upcoming.slice(0, 5);
-    if (upcomingEncounters.length < 5) {
-      recentEncounters = recent.slice(0, 5 - upcomingEncounters.length);
-    }
-  } catch (error) {
-    console.error('Failed to fetch encounters:', error);
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const upcoming = encountersResult.filter((e: any) => new Date(e.period_start) >= todayStart);
+  const recent = encountersResult.filter((e: any) => new Date(e.period_start) < todayStart);
+
+  upcomingEncounters = upcoming.slice(0, 5);
+  if (upcomingEncounters.length < 5) {
+    recentEncounters = recent.slice(0, 5 - upcomingEncounters.length);
   }
 
-  // Fetch active care plan
-  let activeCarePlan: any = null;
+  // Process care plan and get hulpvraag from already-fetched intakes
+  const activeCarePlan = carePlanResult;
   let hulpvraag: string | null = null;
-  try {
-    activeCarePlan = await getActiveCarePlan(id);
-    
-    // Get hulpvraag from linked intake
-    if (activeCarePlan?.based_on_intake_id) {
-      const intakes = await getPatientIntakes(id);
-      const linkedIntake = intakes.find(i => i.id === activeCarePlan.based_on_intake_id);
-      if (linkedIntake?.notes) {
-        hulpvraag = extractHulpvraag(linkedIntake.notes);
-      }
+  if (activeCarePlan?.based_on_intake_id) {
+    const linkedIntake = intakesResult.find((i: Intake) => i.id === activeCarePlan.based_on_intake_id);
+    if (linkedIntake?.notes) {
+      hulpvraag = extractHulpvraag(linkedIntake.notes);
     }
-  } catch (error) {
-    console.error('Failed to fetch care plan:', error);
   }
 
   return (
@@ -307,18 +292,25 @@ export default async function PatientDashboardPage({
             <div className="mb-4 p-3 bg-teal-50 rounded-lg">
               <p className="text-xs font-medium text-teal-700 mb-2">Behandelstructuur</p>
               <div className="grid grid-cols-2 gap-2 text-sm text-teal-900">
-                <div>
-                  <span className="font-medium">Duur:</span> {activeCarePlan.behandelstructuur.duur}
-                </div>
-                <div>
-                  <span className="font-medium">Frequentie:</span> {activeCarePlan.behandelstructuur.frequentie}
-                </div>
-                <div>
-                  <span className="font-medium">Aantal sessies:</span> {activeCarePlan.behandelstructuur.aantalSessies}
-                </div>
-                <div>
-                  <span className="font-medium">Vorm:</span> {activeCarePlan.behandelstructuur.vorm}
-                </div>
+                {(() => {
+                  const bs = activeCarePlan.behandelstructuur as unknown as Behandelstructuur;
+                  return (
+                    <>
+                      <div>
+                        <span className="font-medium">Duur:</span> {bs.duur}
+                      </div>
+                      <div>
+                        <span className="font-medium">Frequentie:</span> {bs.frequentie}
+                      </div>
+                      <div>
+                        <span className="font-medium">Aantal sessies:</span> {bs.aantalSessies}
+                      </div>
+                      <div>
+                        <span className="font-medium">Vorm:</span> {bs.vorm}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -328,7 +320,7 @@ export default async function PatientDashboardPage({
             <div className="mb-4">
               <p className="text-xs font-medium text-slate-600 mb-2">Doelen ({activeCarePlan.goals.length})</p>
               <div className="space-y-2">
-                {activeCarePlan.goals.slice(0, 3).map((goal: SmartGoal) => (
+                {(activeCarePlan.goals as unknown as SmartGoal[]).slice(0, 3).map((goal) => (
                   <div key={goal.id} className="p-2 bg-slate-50 rounded border border-slate-200">
                     <div className="flex items-start justify-between mb-1">
                       <p className="text-sm font-medium text-slate-900">{goal.title}</p>
@@ -369,7 +361,7 @@ export default async function PatientDashboardPage({
             <div className="mb-4">
               <p className="text-xs font-medium text-slate-600 mb-2">Interventies ({activeCarePlan.activities.length})</p>
               <div className="flex flex-wrap gap-2">
-                {activeCarePlan.activities.slice(0, 5).map((intervention: Intervention) => (
+                {(activeCarePlan.activities as unknown as Intervention[]).slice(0, 5).map((intervention) => (
                   <span
                     key={intervention.id}
                     className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-medium"
@@ -393,10 +385,10 @@ export default async function PatientDashboardPage({
             <div>
               <p className="text-xs font-medium text-slate-600 mb-2">Aankomende evaluatiemomenten</p>
               <div className="space-y-2">
-                {activeCarePlan.evaluatiemomenten
-                  .filter((evaluatie: Evaluatiemoment) => evaluatie.status === 'gepland')
+                {(activeCarePlan.evaluatiemomenten as unknown as Evaluatiemoment[])
+                  .filter((evaluatie) => evaluatie.status === 'gepland')
                   .slice(0, 2)
-                  .map((evaluatie: Evaluatiemoment) => (
+                  .map((evaluatie) => (
                     <div key={evaluatie.id} className="p-2 bg-amber-50 rounded border border-amber-200">
                       <div className="flex items-center justify-between">
                         <div>
