@@ -101,6 +101,14 @@
       "status": "active"
     },
     {
+      "slug": "diagnose-systeem",
+      "title": "Diagnose Systeem",
+      "group": "features",
+      "description": "ICD-10 diagnoses vastleggen en beheren",
+      "order": 8,
+      "status": "completed"
+    },
+    {
       "slug": "agenda",
       "title": "Agenda Systeem",
       "group": "features",

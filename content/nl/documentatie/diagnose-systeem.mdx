@@ -1,0 +1,211 @@
+---
+title: "Diagnose Systeem"
+category: "diagnose-systeem"
+group: "features"
+version: "1.0.0"
+releaseDate: "2025-12-17"
+status: "completed"
+description: "Vastleggen en beheren van diagnoses met ICD-10 codering voor GGZ-behandelaars"
+---
+
+## Overzicht
+
+Het diagnose systeem biedt een complete workflow voor het registreren en beheren van diagnoses binnen de GGZ. Diagnoses worden gekoppeld aan intakes en gebruiken de ICD-10 classificatie voor gestandaardiseerde codering.
+
+**Kernfunctionaliteit:**
+- Master-detail layout voor overzichtelijk diagnosebeheer
+- ICD-10 codering met zoekfunctionaliteit
+- Onderscheid tussen hoofd- en nevendiagnoses
+- Status tracking (actief, in remissie, opgelost, inactief)
+- Koppeling aan intakes voor volledige dossiervorming
+
+---
+
+## Diagnose Overzicht
+
+### Master-Detail Layout
+
+De diagnose pagina gebruikt een master-detail layout:
+
+- **Linker paneel (Master)**: Lijst van alle diagnoses
+- **Rechter paneel (Detail)**: Formulier voor bekijken/bewerken/toevoegen
+
+**Navigatie:**
+1. Open het cliëntdossier
+2. Klik op "Diagnoses" in de zijbalk
+3. U ziet direct het overzicht van alle diagnoses
+
+### Diagnose Lijst
+
+De lijst toont diagnoses in de volgende volgorde:
+1. **Hoofddiagnoses** eerst
+2. **Actieve diagnoses** boven inactieve
+3. **Meest recent** bovenaan binnen categorieën
+
+**Weergegeven informatie per diagnose:**
+- ICD-10 code en beschrijving
+- Type (hoofd- of nevendiagnose)
+- Status met kleurcodering
+- Ernst niveau
+- Gekoppelde intake
+
+---
+
+## Nieuwe Diagnose Toevoegen
+
+### Stappen
+
+1. Klik op **"Nieuw"** rechtsboven in de diagnoselijst
+2. Vul het formulier in:
+   - **Intake**: Selecteer de bijbehorende intake
+   - **ICD-10 Code**: Zoek en selecteer de diagnose
+   - **Ernst**: Licht, Matig of Ernstig
+   - **Type**: Hoofddiagnose of Nevendiagnose
+   - **Status**: Actief, In remissie, Opgelost of Inactief
+   - **Onderbouwing**: Klinische redenering (optioneel)
+3. Klik op **"Opslaan"**
+
+### Intake Vereiste
+
+Een diagnose moet altijd gekoppeld worden aan een intake. Als er nog geen intake bestaat:
+1. Ga naar het tabblad "Intakes" van de patiënt
+2. Maak eerst een intake aan
+3. Keer terug naar Diagnoses om een nieuwe diagnose toe te voegen
+
+---
+
+## ICD-10 Code Zoeken
+
+### Zoekfunctionaliteit
+
+De ICD-10 combobox ondersteunt zoeken op:
+- **Code** (bijv. "F32" voor depressie)
+- **Beschrijving** (bijv. "depressieve episode")
+- **Trefwoorden** (bijv. "angst", "stemmingsstoornis")
+
+### Veelgebruikte Codes
+
+Bij een lege zoekquery worden automatisch veelgebruikte GGZ-codes getoond:
+- Depressieve stoornissen (F32, F33)
+- Angststoornissen (F40, F41)
+- Persoonlijkheidsstoornissen (F60)
+- PTSS (F43.1)
+- ADHD (F90)
+
+### Zoeken
+
+1. Klik in het ICD-10 zoekveld
+2. Begin met typen (code of beschrijving)
+3. Resultaten verschijnen na 200ms
+4. Klik op de gewenste code om te selecteren
+
+---
+
+## Diagnose Types
+
+### Hoofddiagnose
+
+De primaire diagnose die de behandeling bepaalt:
+- Eén hoofddiagnose per behandeltraject aanbevolen
+- Bepaalt de zorgzwaarte en behandelindicatie
+- Wordt gebruikt voor declaratie en verantwoording
+
+### Nevendiagnose
+
+Bijkomende diagnoses die de behandeling beïnvloeden:
+- Comorbiditeit documenteren
+- Relevante somatische aandoeningen
+- Contextuele factoren
+
+---
+
+## Status en Ernst
+
+### Klinische Status
+
+| Status | Betekenis |
+|--------|-----------|
+| **Actief** | Huidige diagnose, in behandeling |
+| **In remissie** | Symptomen verminderd, nog wel aanwezig |
+| **Opgelost** | Diagnose niet meer van toepassing |
+| **Inactief** | Historische diagnose |
+
+### Ernst Niveau
+
+| Ernst | Indicatie |
+|-------|-----------|
+| **Licht** | Beperkte functionele beperkingen |
+| **Matig** | Matige impact op dagelijks functioneren |
+| **Ernstig** | Aanzienlijke functionele beperkingen |
+
+---
+
+## Diagnose Bewerken
+
+1. Klik op een diagnose in de lijst
+2. Het detail formulier toont de huidige gegevens
+3. Pas de gewenste velden aan:
+   - ICD-10 code wijzigen
+   - Status bijwerken (bijv. actief → in remissie)
+   - Ernst aanpassen
+   - Onderbouwing toevoegen of wijzigen
+4. Klik op **"Opslaan"**
+
+**Let op:** De gekoppelde intake kan niet worden gewijzigd. Verwijder de diagnose en maak een nieuwe aan als de koppeling fout is.
+
+---
+
+## Diagnose Verwijderen
+
+1. Selecteer de diagnose in de lijst
+2. Klik op **"Verwijderen"** linksonder in het formulier
+3. Bevestig met **"Ja, verwijder"**
+
+**Waarschuwing:** Verwijderde diagnoses kunnen niet worden hersteld. Overweeg de status te wijzigen naar "Opgelost" in plaats van verwijderen.
+
+---
+
+## Datamodel
+
+### Conditions Tabel
+
+Diagnoses worden opgeslagen in de `conditions` tabel (FHIR Condition resource):
+
+| Veld | Beschrijving |
+|------|--------------|
+| `code_code` | ICD-10 code |
+| `code_display` | Beschrijving |
+| `code_system` | "ICD-10" |
+| `clinical_status` | active/remission/resolved/inactive |
+| `severity_display` | licht/matig/ernstig |
+| `category` | primary-diagnosis/encounter-diagnosis |
+| `note` | Onderbouwing |
+| `encounter_id` | Koppeling naar intake |
+| `recorded_date` | Registratiedatum |
+
+---
+
+## Tips voor Gebruik
+
+**Best practices:**
+- Documenteer de hoofddiagnose zodra deze vastgesteld is
+- Gebruik de onderbouwing voor klinische redenering
+- Update de status wanneer het beloop verandert
+- Houd nevendiagnoses actueel voor volledig beeld
+
+**Let op:**
+- Minimaal één intake vereist voor het toevoegen van diagnoses
+- Alle wijzigingen worden direct opgeslagen
+- Gebruik correcte ICD-10 codes voor declaratie
+
+---
+
+## Gerelateerde Documentatie
+
+**Workflow:**
+- [Intake Systeem](/documentatie/intake-system) - Intakes waaraan diagnoses worden gekoppeld
+- [Screening Systeem](/documentatie/screening-system) - Voorafgaand aan intake en diagnose
+
+**Basis:**
+- [FHIR Datamodel](/documentatie/fhir-datamodel) - Onderliggende datastructuur
+- [Client Management](/documentatie/client-management) - Cliëntbeheer
