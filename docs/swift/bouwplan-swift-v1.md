@@ -129,14 +129,14 @@ lib/
 
 | Epic ID | Titel | Doel | Status | Stories | Effort |
 |---------|-------|------|--------|---------|--------|
-| E0 | Setup & Foundation | Zustand, routing, base layout | ⏳ To Do | 4 | 8 SP |
-| E1 | Command Center | Input, voice, context bar | ⏳ To Do | 5 | 13 SP |
+| E0 | Setup & Foundation | Zustand, routing, base layout | ✅ Done | 4 | 8 SP |
+| E1 | Command Center | Input, voice, context bar | ✅ Done | 5 | 13 SP |
 | E2 | Intent Classification | Local + AI fallback | ⏳ To Do | 4 | 10 SP |
 | E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ⏳ To Do | 6 | 21 SP |
 | E4 | Navigation & Auth | Login keuze, routing, preferences | ⏳ To Do | 4 | 8 SP |
 | E5 | Polish & Testing | Animaties, error handling, tests | ⏳ To Do | 4 | 8 SP |
 
-**Totaal: 27 stories, 68 story points**
+**Totaal: 27 stories, 68 story points (21 SP done, 47 SP remaining)**
 
 **Belangrijk:**
 - Bouw per epic en per story, niet alles tegelijk
@@ -152,10 +152,10 @@ lib/
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E0.S1 | Zustand installeren | `pnpm add zustand` succesvol, import werkt | ⏳ | — | 1 |
-| E0.S2 | Swift store opzetten | `stores/swift-store.ts` met basis state | ⏳ | E0.S1 | 2 |
-| E0.S3 | Swift route aanmaken | `/epd/swift` route met eigen layout | ⏳ | E0.S2 | 2 |
-| E0.S4 | Swift folder structuur | `components/swift/`, `lib/swift/` aangemaakt | ⏳ | E0.S3 | 3 |
+| E0.S1 | Zustand installeren | `pnpm add zustand` succesvol, import werkt | ✅ | — | 1 |
+| E0.S2 | Swift store opzetten | `stores/swift-store.ts` met basis state | ✅ | E0.S1 | 2 |
+| E0.S3 | Swift route aanmaken | `/epd/swift` route met eigen layout | ✅ | E0.S2 | 2 |
+| E0.S4 | Swift folder structuur | `components/swift/`, `lib/swift/` aangemaakt | ✅ | E0.S3 | 3 |
 
 **Technical Notes:**
 ```bash
@@ -192,11 +192,11 @@ interface SwiftStore {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E1.S1 | Command Center layout | 4-zone layout (context, canvas, recent, input) | ⏳ | E0.S4 | 3 |
-| E1.S2 | Context Bar | Dienst, patiënt dropdown, user info | ⏳ | E1.S1 | 2 |
-| E1.S3 | Command Input | Tekst input met placeholder, focus state | ⏳ | E1.S1 | 2 |
-| E1.S4 | Voice Input integratie | Deepgram streaming in command input | ⏳ | E1.S3 | 3 |
-| E1.S5 | Recent Strip | Laatste 5 acties als chips | ⏳ | E1.S1 | 3 |
+| E1.S1 | Command Center layout | 4-zone layout (context, canvas, recent, input) | ✅ | E0.S4 | 3 |
+| E1.S2 | Context Bar | Dienst, patiënt dropdown, user info | ✅ | E1.S1 | 2 |
+| E1.S3 | Command Input | Tekst input met placeholder, focus state | ✅ | E1.S1 | 2 |
+| E1.S4 | Voice Input integratie | Deepgram streaming in command input | ✅ | E1.S3 | 3 |
+| E1.S5 | Recent Strip | Laatste 5 acties als chips | ✅ | E1.S1 | 3 |
 
 **Technical Notes:**
 ```
@@ -530,3 +530,4 @@ Een epic is **Done** wanneer:
 | Versie | Datum | Auteur | Wijziging |
 |--------|-------|--------|-----------|
 | v1.0 | 23-12-2024 | Colin Lit | Initiële versie |
+| v1.1 | 23-12-2024 | Claude | E0 + E1 voltooid (21 SP) |

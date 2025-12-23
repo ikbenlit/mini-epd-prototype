@@ -4,44 +4,234 @@
  * Command Input
  *
  * Bottom input bar for text and voice commands.
+ * Height: 64px (h-16)
+ *
+ * Features:
+ * - Text input with dynamic placeholder
+ * - Focus state with ring
+ * - Send button (appears when input has value)
+ * - Voice input with Deepgram streaming
+ * - ⌘K shortcut hint
  */
 
+import { forwardRef, useState, useEffect, useRef } from 'react';
 import { useSwiftStore } from '@/stores/swift-store';
-import { Mic } from 'lucide-react';
+import { useSwiftVoice } from '@/lib/swift/use-swift-voice';
+import { Mic, MicOff, Send, Loader2 } from 'lucide-react';
 
-export function CommandInput() {
-  const { inputValue, setInputValue, isVoiceActive, setVoiceActive } = useSwiftStore();
+export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_, ref) {
+  const {
+    inputValue,
+    setInputValue,
+    clearInput,
+    activePatient,
+    activeBlock,
+    isVoiceActive,
+  } = useSwiftStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Process intent (E2)
-    console.log('Submit:', inputValue);
+  const {
+    isRecording,
+    isConnecting,
+    isConnected,
+    error: voiceError,
+    startRecording,
+    stopRecording,
+    analyserNode,
+    isBrowserSupported,
+  } = useSwiftVoice();
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const waveformRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
+
+  const hasValue = inputValue.trim().length > 0;
+
+  // Waveform visualization
+  useEffect(() => {
+    if (!analyserNode || !waveformRef.current || !isRecording) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      return;
+    }
+
+    const canvas = waveformRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const bufferLength = analyserNode.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const draw = () => {
+      if (!isRecording) return;
+
+      animationRef.current = requestAnimationFrame(draw);
+      analyserNode.getByteFrequencyData(dataArray);
+
+      ctx.fillStyle = 'rgb(30, 41, 59)'; // slate-800
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = (dataArray[i] / 255) * canvas.height;
+
+        // Gradient from blue to red based on amplitude
+        const hue = 220 - (dataArray[i] / 255) * 40;
+        ctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
+
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    };
+
+    draw();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [analyserNode, isRecording]);
+
+  // Dynamic placeholder based on context
+  const getPlaceholder = () => {
+    if (isRecording) return 'Luisteren...';
+    if (isConnecting) return 'Verbinden met spraakherkenning...';
+    if (activePatient) {
+      return `Actie voor ${activePatient.name_given[0]}... (bijv. "notitie medicatie")`;
+    }
+    return 'Typ of spreek je intentie... (bijv. "notitie jan medicatie")';
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hasValue || isProcessing) return;
+
+    // Stop recording if active
+    if (isRecording) {
+      stopRecording();
+    }
+
+    setIsProcessing(true);
+    try {
+      // TODO: Process intent (E2)
+      console.log('Submit:', inputValue);
+      clearInput();
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleVoiceToggle = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const isDisabled = isProcessing || activeBlock !== null;
+
   return (
-    <footer className="h-16 border-t border-slate-700 flex items-center px-4 shrink-0">
-      <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-3">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Typ je intentie... (bijv. 'notitie jan medicatie')"
-          className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          autoFocus
-        />
-        <button
-          type="button"
-          onClick={() => setVoiceActive(!isVoiceActive)}
-          className={`p-2 rounded-lg transition-colors ${
-            isVoiceActive
-              ? 'bg-red-600 hover:bg-red-500 text-white'
-              : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-          }`}
-          title="Voice input"
-        >
-          <Mic size={20} />
-        </button>
+    <footer className="h-16 border-t border-slate-700 flex items-center px-4 shrink-0 bg-slate-900">
+      <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-2">
+        {/* Input wrapper with optional waveform */}
+        <div className="relative flex-1">
+          {/* Waveform canvas (shown when recording) */}
+          {isRecording && (
+            <canvas
+              ref={waveformRef}
+              width={200}
+              height={40}
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded opacity-60"
+            />
+          )}
+
+          <input
+            ref={ref}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={getPlaceholder()}
+            disabled={isDisabled}
+            className={`w-full bg-slate-800 border rounded-xl py-3 text-white placeholder:text-slate-500
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-slate-800/80
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-all duration-200
+                       ${isRecording ? 'pl-[220px] pr-12 border-red-500/50' : 'pl-4 pr-12 border-slate-600'}`}
+            autoFocus
+          />
+
+          {/* Status indicators */}
+          {!hasValue && !isRecording && !isConnecting && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-600 pointer-events-none hidden sm:block">
+              ⌘K
+            </span>
+          )}
+          {isConnecting && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-amber-500 flex items-center gap-1">
+              <Loader2 size={12} className="animate-spin" />
+              Verbinden
+            </span>
+          )}
+          {voiceError && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-400 max-w-[150px] truncate">
+              {voiceError}
+            </span>
+          )}
+        </div>
+
+        {/* Send button - appears when has value */}
+        {hasValue && (
+          <button
+            type="submit"
+            disabled={isProcessing}
+            className="p-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Verstuur (Enter)"
+          >
+            {isProcessing ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <Send size={20} />
+            )}
+          </button>
+        )}
+
+        {/* Voice button */}
+        {isBrowserSupported ? (
+          <button
+            type="button"
+            onClick={handleVoiceToggle}
+            disabled={isDisabled || isConnecting}
+            className={`p-3 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              isRecording
+                ? 'bg-red-600 hover:bg-red-500 text-white ring-4 ring-red-600/30'
+                : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+            }`}
+            title={isRecording ? 'Stop opname' : 'Start voice input'}
+          >
+            {isConnecting ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : isRecording ? (
+              <MicOff size={20} />
+            ) : (
+              <Mic size={20} />
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="p-3 rounded-xl bg-slate-800 text-slate-600 cursor-not-allowed"
+            title="Spraakherkenning niet ondersteund in deze browser"
+          >
+            <MicOff size={20} />
+          </button>
+        )}
       </form>
     </footer>
   );
-}
+});
