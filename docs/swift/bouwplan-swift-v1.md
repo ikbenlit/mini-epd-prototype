@@ -131,12 +131,12 @@ lib/
 |---------|-------|------|--------|---------|--------|
 | E0 | Setup & Foundation | Zustand, routing, base layout | ✅ Done | 4 | 8 SP |
 | E1 | Command Center | Input, voice, context bar | ✅ Done | 5 | 13 SP |
-| E2 | Intent Classification | Local + AI fallback | ⏳ To Do | 4 | 10 SP |
+| E2 | Intent Classification | Local + AI fallback | ✅ Done | 4 | 10 SP |
 | E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ⏳ To Do | 6 | 21 SP |
 | E4 | Navigation & Auth | Login keuze, routing, preferences | ⏳ To Do | 4 | 8 SP |
 | E5 | Polish & Testing | Animaties, error handling, tests | ⏳ To Do | 4 | 8 SP |
 
-**Totaal: 27 stories, 68 story points (21 SP done, 47 SP remaining)**
+**Totaal: 27 stories, 68 story points (31 SP done, 37 SP remaining)**
 
 **Belangrijk:**
 - Bouw per epic en per story, niet alles tegelijk
@@ -221,10 +221,10 @@ Command Center Layout:
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E2.S1 | Local classifier | Regex patterns voor P1 intents, <50ms | ⏳ | E0.S4 | 3 |
-| E2.S2 | Entity extraction | Patient naam, categorie uit input | ⏳ | E2.S1 | 3 |
-| E2.S3 | AI fallback | Claude Haiku bij confidence <0.8 | ⏳ | E2.S2 | 2 |
-| E2.S4 | Intent API route | POST /api/intent/classify | ⏳ | E2.S3 | 2 |
+| E2.S1 | Local classifier | Regex patterns voor P1 intents, <50ms | ✅ | E0.S4 | 3 |
+| E2.S2 | Entity extraction | Patient naam, categorie uit input | ✅ | E2.S1 | 3 |
+| E2.S3 | AI fallback | Claude Haiku bij confidence <0.8 | ✅ | E2.S2 | 2 |
+| E2.S4 | Intent API route | POST /api/intent/classify | ✅ | E2.S3 | 2 |
 
 **Technical Notes:**
 ```typescript
@@ -531,3 +531,6 @@ Een epic is **Done** wanneer:
 |--------|-------|--------|-----------|
 | v1.0 | 23-12-2024 | Colin Lit | Initiële versie |
 | v1.1 | 23-12-2024 | Claude | E0 + E1 voltooid (21 SP) |
+| v1.2 | 23-12-2024 | Claude | E2.S1 + E2.S2 voltooid (27 SP) |
+| v1.3 | 23-12-2024 | Claude | E2.S3 AI fallback voltooid (29 SP) |
+| v1.4 | 23-12-2024 | Claude | E2 Intent Classification voltooid (31 SP) |
