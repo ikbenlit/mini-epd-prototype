@@ -85,9 +85,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect to /epd/patients if authenticated and trying to access login
+  // Helper: get preferred interface redirect path
+  const getPreferredPath = () => {
+    const preference = user?.user_metadata?.preferred_interface
+    return preference === 'swift' ? '/epd/swift' : '/epd/clients'
+  }
+
+  // Redirect to preferred interface if authenticated and trying to access login
   if (user && pathname === '/login') {
-    return NextResponse.redirect(new URL('/epd/patients', request.url))
+    return NextResponse.redirect(new URL(getPreferredPath(), request.url))
+  }
+
+  // Redirect /epd to preferred interface based on user preference
+  if (user && pathname === '/epd') {
+    return NextResponse.redirect(new URL(getPreferredPath(), request.url))
   }
 
   return supabaseResponse

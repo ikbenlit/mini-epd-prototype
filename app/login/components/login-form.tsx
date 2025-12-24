@@ -4,9 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Zap, Layout } from 'lucide-react'
-import { loginWithPassword, signUpWithPassword } from '@/lib/auth/client'
-
-type InterfacePreference = 'swift' | 'klassiek'
+import { loginWithPassword, signUpWithPassword, updateInterfacePreference, type InterfacePreference } from '@/lib/auth/client'
 
 export function LoginForm() {
   const router = useRouter()
@@ -38,6 +36,8 @@ export function LoginForm() {
 
         const result = await signUpWithPassword(email, password)
         if (result.session) {
+          // Save interface preference after successful signup
+          await updateInterfacePreference(interfacePreference)
           setMessage({ type: 'success', text: 'Account aangemaakt! Je wordt doorgestuurd...' })
           setTimeout(() => {
             router.push(getRedirectPath())
@@ -50,6 +50,8 @@ export function LoginForm() {
         }
       } else {
         await loginWithPassword(email, password)
+        // Save interface preference after successful login
+        await updateInterfacePreference(interfacePreference)
         setMessage({ type: 'success', text: 'Ingelogd! Je wordt doorgestuurd...' })
         setTimeout(() => {
           router.push(getRedirectPath())
@@ -57,6 +59,8 @@ export function LoginForm() {
       }
     } catch (error: any) {
       if (error.code === 'user_already_registered' && error.data?.session) {
+        // Save interface preference for auto-logged in user
+        await updateInterfacePreference(interfacePreference)
         setMessage({ type: 'success', text: 'Dit emailadres bestaat al. Je bent nu ingelogd!' })
         setTimeout(() => {
           router.push(getRedirectPath())
@@ -90,6 +94,8 @@ export function LoginForm() {
     setLoading(true)
     try {
       await loginWithPassword('demo@mini-ecd.demo', 'Demo2024!')
+      // Save interface preference for demo user
+      await updateInterfacePreference(interfacePreference)
       router.push(getRedirectPath())
     } catch (error: any) {
       setMessage({ type: 'error', text: 'Demo login mislukt. Probeer handmatig in te loggen.' })

@@ -15,7 +15,7 @@ export type SwiftIntent =
   | 'overdracht'
   | 'unknown';
 
-export type BlockType = Exclude<SwiftIntent, 'unknown'>;
+export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'fallback';
 
 // Extracted entities from user input
 export interface ExtractedEntities {

@@ -268,3 +268,33 @@ export async function isDemoUser(): Promise<boolean> {
 export async function getDemoAccessLevel(): Promise<'read_only' | 'interactive' | 'presenter' | null> {
   return null
 }
+
+/**
+ * Update user's preferred interface (Swift or Klassiek)
+ * Stored in user_metadata.preferred_interface
+ */
+export type InterfacePreference = 'swift' | 'klassiek'
+
+export async function updateInterfacePreference(preference: InterfacePreference) {
+  const supabase = createClient()
+  const { error } = await supabase.auth.updateUser({
+    data: { preferred_interface: preference }
+  })
+
+  if (error) {
+    console.error('Failed to update interface preference:', error)
+    throw error
+  }
+
+  return true
+}
+
+/**
+ * Get user's preferred interface from metadata
+ * Returns 'klassiek' as default if not set
+ */
+export async function getInterfacePreference(): Promise<InterfacePreference> {
+  const user = await getUser()
+  const preference = user?.user_metadata?.preferred_interface as InterfacePreference | undefined
+  return preference || 'klassiek'
+}

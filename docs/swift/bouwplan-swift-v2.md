@@ -346,15 +346,15 @@ function renderBlock(activeBlock: BlockType, prefillData: BlockPrefillData) {
 
 ---
 
-### Epic 4 — Navigation & Auth ⏳ TO DO
+### Epic 4 — Navigation & Auth ✅ DONE
 **Epic Doel:** Login pagina met interface keuze, routing naar Swift/Klassiek.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E4.S1 | Login form uitbreiden | Interface selector (Swift/Klassiek) | ⏳ | E0.S3 | 2 |
-| E4.S2 | Preference opslag | user_metadata.preferred_interface | ⏳ | E4.S1 | 2 |
-| E4.S3 | Redirect middleware | /epd → preference route | ⏳ | E4.S2 | 2 |
-| E4.S4 | Fallback Picker | Visuele keuze bij lage confidence | ⏳ | E3.S0 | 2 |
+| E4.S1 | Login form uitbreiden | Interface selector (Swift/Klassiek) | ✅ | E0.S3 | 2 |
+| E4.S2 | Preference opslag | user_metadata.preferred_interface | ✅ | E4.S1 | 2 |
+| E4.S3 | Redirect middleware | /epd → preference route | ✅ | E4.S2 | 2 |
+| E4.S4 | Fallback Picker | Visuele keuze bij lage confidence | ✅ | E3.S0 | 2 |
 
 ---
 

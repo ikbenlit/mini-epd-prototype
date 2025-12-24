@@ -8,12 +8,12 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSwiftStore } from '@/stores/swift-store';
-import type { BlockType } from '@/lib/swift/types';
-import type { BlockPrefillData } from '@/stores/swift-store';
+import type { BlockType, BlockPrefillData } from '@/stores/swift-store';
 import { DagnotatieBlock } from '../blocks/dagnotitie-block';
 import { ZoekenBlock } from '../blocks/zoeken-block';
 import { OverdrachtBlock } from '../blocks/overdracht-block';
 import { PatientContextCard } from '../blocks/patient-context-card';
+import { FallbackPicker } from '../blocks/fallback-picker';
 
 export function CanvasArea() {
   const { activeBlock, prefillData, activePatient } = useSwiftStore();
@@ -26,6 +26,8 @@ export function CanvasArea() {
         return <ZoekenBlock prefill={prefill} />;
       case 'overdracht':
         return <OverdrachtBlock prefill={prefill} />;
+      case 'fallback':
+        return <FallbackPicker originalInput={prefill.content} />;
       default:
         return null;
     }

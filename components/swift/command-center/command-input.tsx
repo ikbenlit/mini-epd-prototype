@@ -152,29 +152,16 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
         
         clearInput();
       } else {
-        // Low confidence or unknown intent - temporary fallback to dagnotitie
-        // TODO: Replace with FallbackPicker in E4.S4
-        openBlock('dagnotitie', { content: inputText });
-        
-        addRecentAction({
-          intent: 'dagnotitie',
-          label: inputText.slice(0, 50),
-        });
-        
+        // Low confidence or unknown intent - show FallbackPicker
+        openBlock('fallback', { content: inputText });
         clearInput();
       }
     } catch (error) {
       console.error('Error processing intent:', error);
-      
-      // On error, fallback to dagnotitie with the input as content
+
+      // On error, show FallbackPicker so user can choose
       // This ensures the user's input is not lost
-      openBlock('dagnotitie', { content: inputText });
-      
-      addRecentAction({
-        intent: 'dagnotitie',
-        label: inputText.slice(0, 50),
-      });
-      
+      openBlock('fallback', { content: inputText });
       clearInput();
     } finally {
       setIsProcessing(false);
