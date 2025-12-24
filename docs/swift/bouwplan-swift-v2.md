@@ -1,11 +1,21 @@
-# Mission Control — Bouwplan Swift v2.0
+# Mission Control — Bouwplan Swift v2.2
 
 **Projectnaam:** Swift — Contextual UI EPD
-**Versie:** v2.0
+**Versie:** v2.2
 **Datum:** 24-12-2024
 **Auteur:** Colin Lit / Development Team
 
 ---
+
+## Changelog v2.2
+
+> **Belangrijke wijzigingen t.o.v. v2.1:**
+> - Epic 3 compleet: Alle P1 blocks geïmplementeerd (E3.S0-S6)
+> - PatientContextCard toegevoegd: Auto-open na patient selectie
+> - OverdrachtBlock met AI samenvattingen per patiënt
+> - Patient search API geïmplementeerd
+> - Technische debt opgelost: BlockContainer animaties, CanvasArea rendering
+> - Totalen bijgewerkt: 56 SP done (78%), 16 SP remaining
 
 ## Changelog v2.0
 
@@ -151,7 +161,7 @@ lib/
 | E0 | Setup & Foundation | Zustand, routing, base layout | ✅ Done | 4 | 8 SP |
 | E1 | Command Center | Input, voice, context bar | ✅ Done | 5 | 13 SP |
 | E2 | Intent Classification | Local + AI fallback + wiring | ✅ Done | 5 | 12 SP |
-| E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ⏳ To Do | 7 | 23 SP |
+| E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ✅ Done | 7 | 23 SP |
 | E4 | Navigation & Auth | Login keuze, routing, preferences | ⏳ To Do | 4 | 8 SP |
 | E5 | Polish & Testing | Animaties, error handling, tests | ⏳ To Do | 4 | 8 SP |
 
@@ -159,8 +169,8 @@ lib/
 
 | Categorie | SP |
 |-----------|----:|
-| ✅ Done (E0 + E1 + E2) | 33 |
-| ⏳ Remaining | 39 |
+| ✅ Done (E0 + E1 + E2 + E3) | 56 |
+| ⏳ Remaining | 16 |
 
 **Belangrijk:**
 - Bouw per epic en per story, niet alles tegelijk
@@ -271,33 +281,28 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 ---
 
-### Epic 3 — P1 Blocks ⏳ TO DO
+### Epic 3 — P1 Blocks ✅ DONE
 **Epic Doel:** Werkende DagnotatieBlock, ZoekenBlock en OverdrachtBlock.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E3.S0 | CanvasArea block rendering | Switch/case voor block types, prefill doorgeven | ⏳ | E2.S5 | 2 |
-| E3.S1 | Block Container | Animatie wrapper, close button, sizes | ⏳ | E1.S1 | 2 |
-| E3.S2 | DagnotatieBlock | Patient, categorie, tekst, opslaan naar /api/reports | ⏳ | E3.S0, E3.S1 | 5 |
-| E3.S3 | Patient search API | GET /api/patients/search?q= fuzzy search | ⏳ | E0.S4 | 3 |
-| E3.S4 | ZoekenBlock | Input, resultaten, selectie → store | ⏳ | E3.S0, E3.S3 | 3 |
-| E3.S5 | PatientContextCard | Na selectie: notities, vitals, diagnose | ⏳ | E3.S4 | 5 |
-| E3.S6 | OverdrachtBlock | AI samenvatting per patiënt (bestaande API) | ⏳ | E3.S0 | 3 |
+| E3.S0 | CanvasArea block rendering | Switch/case voor block types, prefill doorgeven | ✅ | E2.S5 | 2 |
+| E3.S1 | Block Container | Animatie wrapper, close button, sizes | ✅ | E1.S1 | 2 |
+| E3.S2 | DagnotatieBlock | Patient, categorie, tekst, opslaan naar /api/reports | ✅ | E3.S0, E3.S1 | 5 |
+| E3.S3 | Patient search API | GET /api/patients/search?q= fuzzy search | ✅ | E0.S4 | 3 |
+| E3.S4 | ZoekenBlock | Input, resultaten, selectie → store | ✅ | E3.S0, E3.S3 | 3 |
+| E3.S5 | PatientContextCard | Na selectie: notities, vitals, diagnose | ✅ | E3.S4 | 5 |
+| E3.S6 | OverdrachtBlock | AI samenvatting per patiënt (bestaande API) | ✅ | E3.S0 | 3 |git status .
 
-**E3.S0 Technical Notes (KRITIEK - NIEUW):**
+
+**E3.S0 Technical Notes (✅ GEÏMPLEMENTEERD):**
 ```typescript
 // components/swift/command-center/canvas-area.tsx
-// HUIDIGE SITUATIE (placeholder):
-{activeBlock ? (
-  <div className="text-slate-400">Block: {activeBlock}</div>
-) : (
-  <EmptyState />
-)}
-
-// MOET WORDEN:
+// IMPLEMENTATIE:
 import { DagnotatieBlock } from '../blocks/dagnotitie-block';
 import { ZoekenBlock } from '../blocks/zoeken-block';
 import { OverdrachtBlock } from '../blocks/overdracht-block';
+import { PatientContextCard } from '../blocks/patient-context-card';
 
 function renderBlock(activeBlock: BlockType, prefillData: BlockPrefillData) {
   switch (activeBlock) {
@@ -308,7 +313,7 @@ function renderBlock(activeBlock: BlockType, prefillData: BlockPrefillData) {
     case 'overdracht':
       return <OverdrachtBlock prefill={prefillData} />;
     default:
-      return <EmptyState />;
+      return null;
   }
 }
 
@@ -319,27 +324,24 @@ function renderBlock(activeBlock: BlockType, prefillData: BlockPrefillData) {
       {renderBlock(activeBlock, prefillData)}
     </motion.div>
   </AnimatePresence>
+) : activePatient ? (
+  <motion.div key="patient-context" {...blockAnimations}>
+    <PatientContextCard />
+  </motion.div>
 ) : (
   <EmptyState />
 )}
 ```
 
-**E3.S2 Technical Notes:**
+**E3.S2 Technical Notes (✅ GEÏMPLEMENTEERD):**
 ```typescript
 // components/swift/blocks/dagnotitie-block.tsx
-interface DagnotitieBlockProps {
-  prefill?: {
-    patientId?: string;
-    patientName?: string;
-    category?: VerpleegkundigCategory;
-    content?: string;
-  };
-}
-
-// 1. Patient lookup: patientName → patientId via E3.S3 API
-// 2. Category selector: medicatie | adl | gedrag | incident | observatie
-// 3. Tekst input: textarea of rich editor
+// IMPLEMENTATIE:
+// 1. Patient search: Debounced search met /api/fhir/Patient?q=...
+// 2. Category selector: 5 categorie buttons (medicatie, adl, gedrag, incident, observatie)
+// 3. Tekst input: Textarea met character counter (max 500)
 // 4. Opslaan: POST /api/reports met type 'verpleegkundig'
+// 5. Success toast + auto-close block na 500ms
 ```
 
 ---
@@ -394,23 +396,17 @@ import type { SwiftIntent, BlockType, ShiftType } from '@/lib/swift/types';
 
 **Wanneer:** Voorafgaand aan E-D1.S1 (diagnostiek intent patterns).
 
-### 5.2 BlockContainer Animaties (Low Priority)
+### 5.2 BlockContainer Animaties (RESOLVED)
 
 **Probleem:** BlockContainer bestaat maar heeft nog geen framer-motion animaties.
 
-**Huidige situatie:**
-```typescript
-// components/swift/blocks/block-container.tsx
-// Geen AnimatePresence of motion.div
-```
+**Oplossing:** Geïmplementeerd in E3.S1. BlockContainer heeft nu volledige animatie support met framer-motion.
 
-**Oplossing:** Implementeren in E5.S1 of integreren in E3.S0.
-
-### 5.3 CanvasArea Placeholder (High Priority - RESOLVED)
+### 5.3 CanvasArea Placeholder (RESOLVED)
 
 **Probleem:** CanvasArea toont placeholder tekst i.p.v. blocks.
 
-**Oplossing:** Story E3.S0 toegevoegd. Dit is de hoogste prioriteit na E2.S5.
+**Oplossing:** Geïmplementeerd in E3.S0. CanvasArea heeft nu volledige block rendering met switch/case en animaties.
 
 ---
 
@@ -437,20 +433,20 @@ import type { SwiftIntent, BlockType, ShiftType } from '@/lib/swift/types';
 ### 6.3 Manual Test Checklist (MVP Demo)
 
 **Happy Flows:**
-- [ ] User kan inloggen en Swift kiezen
-- [ ] Command input krijgt focus met Cmd+K
-- [ ] "notitie jan medicatie" → DagnotatieBlock opent met prefill
-- [ ] Dagnotitie opslaan → toast + block sluit
-- [ ] "zoek marie" → ZoekenBlock met resultaten
-- [ ] Patiënt selecteren → PatientContextCard
-- [ ] "overdracht" → OverdrachtBlock met AI samenvatting
-- [ ] Voice input → transcript in command input
+- [ ] User kan inloggen en Swift kiezen (E4)
+- [x] Command input krijgt focus met Cmd+K (E1.S1)
+- [x] "notitie jan medicatie" → DagnotatieBlock opent met prefill (E3.S2)
+- [x] Dagnotitie opslaan → toast + block sluit (E3.S2)
+- [x] "zoek marie" → ZoekenBlock met resultaten (E3.S4)
+- [x] Patiënt selecteren → PatientContextCard (E3.S5)
+- [x] "overdracht" → OverdrachtBlock met AI samenvatting (E3.S6)
+- [x] Voice input → transcript in command input (E1.S4)
 
 **Error Scenarios:**
-- [ ] Onbekende intent → FallbackPicker
-- [ ] Network error → toast met retry
-- [ ] Lege notitie → validation error
-- [ ] Geen zoekresultaten → "Geen patiënten gevonden"
+- [ ] Onbekende intent → FallbackPicker (E4.S4)
+- [x] Network error → toast met retry (E3.S2, E3.S6)
+- [x] Lege notitie → validation error (E3.S2)
+- [x] Geen zoekresultaten → "Geen patiënten gevonden" (E3.S4)
 
 ---
 
@@ -525,23 +521,24 @@ import type { SwiftIntent, BlockType, ShiftType } from '@/lib/swift/types';
 - ✅ E0: Setup & Foundation (8 SP) — DONE
 - ✅ E1: Command Center (13 SP) — DONE
 - ✅ E2: Intent Classification (12 SP) — DONE
-- ⏳ E3-E5: Remaining (39 SP) — TO DO
+- ✅ E3: P1 Blocks (23 SP) — DONE
+- ⏳ E4-E5: Remaining (16 SP) — TO DO
 
-**Totaal Done: 33 SP / 72 SP (46%)**
+**Totaal Done: 56 SP / 72 SP (78%)**
 
-### Sprint 3 (Huidige Sprint): Core Wiring + First Block
+### Sprint 3 (Voltooid): Core Wiring + Blocks
 - ✅ E2.S5: Input → Block wiring (2 SP) — DONE
-- E3.S0: CanvasArea block rendering (2 SP) ← **KRITIEK**
-- E3.S1: Block Container (2 SP)
-- E3.S2: DagnotatieBlock (5 SP)
-- **Deliverable:** "notitie jan" → DagnotatieBlock werkt end-to-end
+- ✅ E3.S0: CanvasArea block rendering (2 SP) — DONE
+- ✅ E3.S1: Block Container (2 SP) — DONE
+- ✅ E3.S2: DagnotatieBlock (5 SP) — DONE
+- **Deliverable:** "notitie jan" → DagnotatieBlock werkt end-to-end ✅
 
-### Sprint 4: Remaining Blocks
-- E3.S3: Patient search API (3 SP)
-- E3.S4: ZoekenBlock (3 SP)
-- E3.S5: PatientContextCard (5 SP)
-- E3.S6: OverdrachtBlock (3 SP)
-- **Deliverable:** Alle P1 blocks werken
+### Sprint 4 (Voltooid): Remaining Blocks
+- ✅ E3.S3: Patient search API (3 SP) — DONE
+- ✅ E3.S4: ZoekenBlock (3 SP) — DONE
+- ✅ E3.S5: PatientContextCard (5 SP) — DONE
+- ✅ E3.S6: OverdrachtBlock (3 SP) — DONE
+- **Deliverable:** Alle P1 blocks werken ✅
 
 ### Sprint 5: Polish & Ship
 - E4: Navigation & Auth (8 SP)
@@ -656,3 +653,4 @@ Een epic is **Done** wanneer:
 | v1.5 | 24-12-2024 | Claude | E2.S5 toegevoegd: Input → Block wiring (+2 SP) |
 | **v2.0** | **24-12-2024** | **Claude** | **Major update: E3.S0 toegevoegd, technische debt sectie, diagnostiek workflow referentie, sprint planning aangepast (29 stories, 72 SP)** |
 | **v2.1** | **24-12-2024** | **Claude** | **E2.S5 voltooid: Input → Block wiring geïmplementeerd, Epic 2 compleet (33 SP done, 46%)** |
+| **v2.2** | **24-12-2024** | **Claude** | **Epic 3 compleet: Alle P1 blocks geïmplementeerd (E3.S0-S6), PatientContextCard toegevoegd, OverdrachtBlock met AI samenvattingen (56 SP done, 78%)** |

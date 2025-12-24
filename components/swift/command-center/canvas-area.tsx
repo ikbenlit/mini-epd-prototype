@@ -6,19 +6,60 @@
  * Central area where blocks appear. Shows empty state when no block is active.
  */
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { useSwiftStore } from '@/stores/swift-store';
+import type { BlockType } from '@/lib/swift/types';
+import type { BlockPrefillData } from '@/stores/swift-store';
+import { DagnotatieBlock } from '../blocks/dagnotitie-block';
+import { ZoekenBlock } from '../blocks/zoeken-block';
+import { OverdrachtBlock } from '../blocks/overdracht-block';
+import { PatientContextCard } from '../blocks/patient-context-card';
 
 export function CanvasArea() {
-  const { activeBlock } = useSwiftStore();
+  const { activeBlock, prefillData, activePatient } = useSwiftStore();
+
+  function renderBlock(blockType: BlockType, prefill: BlockPrefillData) {
+    switch (blockType) {
+      case 'dagnotitie':
+        return <DagnotatieBlock prefill={prefill} />;
+      case 'zoeken':
+        return <ZoekenBlock prefill={prefill} />;
+      case 'overdracht':
+        return <OverdrachtBlock prefill={prefill} />;
+      default:
+        return null;
+    }
+  }
+
+  const blockAnimations = {
+    initial: { opacity: 0, y: 20, scale: 0.95 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: -20, scale: 0.95 },
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+  };
 
   return (
     <main className="flex-1 flex items-center justify-center p-4 overflow-auto">
-      {activeBlock ? (
-        // Block will be rendered here by the page component
-        <div className="text-slate-400">Block: {activeBlock}</div>
-      ) : (
-        <EmptyState />
-      )}
+      <AnimatePresence mode="wait">
+        {activeBlock ? (
+          <motion.div key={activeBlock} {...blockAnimations}>
+            {renderBlock(activeBlock, prefillData)}
+          </motion.div>
+        ) : activePatient ? (
+          <motion.div key="patient-context" {...blockAnimations}>
+            <PatientContextCard />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <EmptyState />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
