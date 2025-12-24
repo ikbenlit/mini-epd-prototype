@@ -17,6 +17,7 @@
 import { forwardRef, useState, useEffect, useRef } from 'react';
 import { useSwiftStore } from '@/stores/swift-store';
 import { useSwiftVoice } from '@/lib/swift/use-swift-voice';
+import type { BlockType } from '@/lib/swift/types';
 import { Mic, MicOff, Send, Loader2 } from 'lucide-react';
 
 export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_, ref) {
@@ -27,6 +28,8 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
     activePatient,
     activeBlock,
     isVoiceActive,
+    openBlock,
+    addRecentAction,
   } = useSwiftStore();
 
   const {
@@ -115,10 +118,63 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
       stopRecording();
     }
 
+    const inputText = inputValue.trim();
     setIsProcessing(true);
+    
     try {
-      // TODO: Process intent (E2)
-      console.log('Submit:', inputValue);
+      // Call intent classification API
+      const response = await fetch('/api/intent/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: inputText }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Onbekende fout' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      const { intent, confidence, entities } = result;
+
+      // Check if we have a valid intent with sufficient confidence
+      if (intent !== 'unknown' && confidence >= 0.5) {
+        // Open the appropriate block with prefill data
+        // Type assertion: intent is BlockType after 'unknown' check
+        openBlock(intent as BlockType, entities);
+        
+        // Add to recent actions
+        addRecentAction({
+          intent,
+          label: inputText.slice(0, 50), // Truncate for display
+          patientName: entities.patientName,
+        });
+        
+        clearInput();
+      } else {
+        // Low confidence or unknown intent - temporary fallback to dagnotitie
+        // TODO: Replace with FallbackPicker in E4.S4
+        openBlock('dagnotitie', { content: inputText });
+        
+        addRecentAction({
+          intent: 'dagnotitie',
+          label: inputText.slice(0, 50),
+        });
+        
+        clearInput();
+      }
+    } catch (error) {
+      console.error('Error processing intent:', error);
+      
+      // On error, fallback to dagnotitie with the input as content
+      // This ensures the user's input is not lost
+      openBlock('dagnotitie', { content: inputText });
+      
+      addRecentAction({
+        intent: 'dagnotitie',
+        label: inputText.slice(0, 50),
+      });
+      
       clearInput();
     } finally {
       setIsProcessing(false);

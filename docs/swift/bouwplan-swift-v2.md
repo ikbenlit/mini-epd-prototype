@@ -1,9 +1,20 @@
-# Mission Control — Bouwplan Swift v1.0
+# Mission Control — Bouwplan Swift v2.0
 
 **Projectnaam:** Swift — Contextual UI EPD
-**Versie:** v1.0
-**Datum:** 23-12-2024
+**Versie:** v2.0
+**Datum:** 24-12-2024
 **Auteur:** Colin Lit / Development Team
+
+---
+
+## Changelog v2.0
+
+> **Belangrijke wijzigingen t.o.v. v1.5:**
+> - E3.S0 toegevoegd: CanvasArea block rendering (kritieke blokkade)
+> - Technische debt sectie toegevoegd (type duplicatie, keyboard shortcuts)
+> - Diagnostiek Workflow als uitbreiding opgenomen
+> - Sprint planning aangepast aan huidige voortgang
+> - Totalen bijgewerkt: 29 stories, 72 SP
 
 ---
 
@@ -35,6 +46,8 @@ Swift is een **Contextual UI** interface voor het Mini-EPD systeem. In plaats va
 | FO | Functionele flows, blocks | `swift-fo-ai.md` |
 | TO | Technische architectuur | `to-swift-v1.md` |
 | UX | Visuele specificaties | `swift-ux-v2.1.md` |
+| **Diagnostiek FO** | Behandelaar workflow | `swift-fo-diagnostiek-workflow.md` |
+| **Diagnostiek Bouwplan** | Uitbreiding voor behandelaars | `bouwplan-swift-diagnostiek-workflow.md` |
 
 ---
 
@@ -57,10 +70,10 @@ Swift is een **Contextual UI** interface voor het Mini-EPD systeem. In plaats va
 | Validation | Zod | 4.1.12 |
 | Forms | react-hook-form | 7.66.1 |
 
-**Nieuw toe te voegen:**
-| Component | Technologie | Versie | Reden |
-|-----------|-------------|--------|-------|
-| State Management | Zustand | ^4.5.0 | Lightweight, TypeScript-first |
+**Nieuw toegevoegd:**
+| Component | Technologie | Versie | Status |
+|-----------|-------------|--------|--------|
+| State Management | Zustand | 5.0.9 | ✅ Geïnstalleerd |
 
 ### 2.2 Projectkaders
 
@@ -69,6 +82,7 @@ Swift is een **Contextual UI** interface voor het Mini-EPD systeem. In plaats va
 | **Bouwtijd** | 4 weken (4 sprints) |
 | **Team** | 1 developer |
 | **Scope** | MVP: P1 blocks (dagnotitie, zoeken, overdracht) |
+| **Uitbreiding** | Diagnostiek workflow (optioneel, +22 SP) |
 | **Data** | Bestaande Supabase database |
 | **Doel** | Werkende demo + user testing |
 
@@ -80,6 +94,7 @@ Swift is een **Contextual UI** interface voor het Mini-EPD systeem. In plaats va
   - Herbruikbare block componenten
   - Centrale intent classificatie logica
   - Shared hooks voor common patterns
+  - **Let op:** Types importeren uit `lib/swift/types.ts`, niet dupliceren
 
 - **KISS (Keep It Simple, Stupid)**
   - Local-first intent classificatie (regex)
@@ -105,22 +120,26 @@ components/
 │   ├── command-center/
 │   │   ├── command-center.tsx      // Main container
 │   │   ├── command-input.tsx       // Input component
+│   │   ├── canvas-area.tsx         // Block rendering ← KRITIEK
 │   │   └── index.ts                // Barrel export
 │   └── blocks/
+│       ├── block-container.tsx     // Wrapper met animaties
 │       ├── dagnotitie-block.tsx
 │       ├── zoeken-block.tsx
+│       ├── overdracht-block.tsx
 │       └── index.ts
 
-// ✅ Store slice pattern
+// ✅ Store importeert types (geen duplicatie)
 stores/
-└── swift-store.ts                   // Single store file
+└── swift-store.ts                   // Importeert uit lib/swift/types.ts
 
 // ✅ Intent classification
 lib/
 └── swift/
+    ├── types.ts                     // SINGLE SOURCE OF TRUTH voor types
     ├── intent-classifier.ts         // Local classification
     ├── intent-classifier-ai.ts      // AI fallback
-    └── types.ts                     // Type definitions
+    └── entity-extractor.ts          // Entity parsing
 ```
 
 ---
@@ -131,12 +150,17 @@ lib/
 |---------|-------|------|--------|---------|--------|
 | E0 | Setup & Foundation | Zustand, routing, base layout | ✅ Done | 4 | 8 SP |
 | E1 | Command Center | Input, voice, context bar | ✅ Done | 5 | 13 SP |
-| E2 | Intent Classification | Local + AI fallback + wiring | ⏳ In Progress | 5 | 12 SP |
-| E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ⏳ To Do | 6 | 21 SP |
+| E2 | Intent Classification | Local + AI fallback + wiring | ✅ Done | 5 | 12 SP |
+| E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ⏳ To Do | 7 | 23 SP |
 | E4 | Navigation & Auth | Login keuze, routing, preferences | ⏳ To Do | 4 | 8 SP |
 | E5 | Polish & Testing | Animaties, error handling, tests | ⏳ To Do | 4 | 8 SP |
 
-**Totaal: 28 stories, 70 story points (31 SP done, 39 SP remaining)**
+**Totaal: 29 stories, 72 story points**
+
+| Categorie | SP |
+|-----------|----:|
+| ✅ Done (E0 + E1 + E2) | 33 |
+| ⏳ Remaining | 39 |
 
 **Belangrijk:**
 - Bouw per epic en per story, niet alles tegelijk
@@ -147,7 +171,7 @@ lib/
 
 ## 4. Epics & Stories (Uitwerking)
 
-### Epic 0 — Setup & Foundation
+### Epic 0 — Setup & Foundation ✅ DONE
 **Epic Doel:** Werkende development omgeving met Zustand store en Swift routing.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
@@ -157,46 +181,18 @@ lib/
 | E0.S3 | Swift route aanmaken | `/epd/swift` route met eigen layout | ✅ | E0.S2 | 2 |
 | E0.S4 | Swift folder structuur | `components/swift/`, `lib/swift/` aangemaakt | ✅ | E0.S3 | 3 |
 
-**Technical Notes:**
-```bash
-# E0.S1: Dependency installatie
-pnpm add zustand
-```
-
-```typescript
-// E0.S2: Store structuur
-// stores/swift-store.ts
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-
-interface SwiftStore {
-  // Context
-  activePatient: Patient | null;
-  shift: 'nacht' | 'ochtend' | 'middag' | 'avond';
-
-  // Block state
-  activeBlock: BlockType | null;
-  prefillData: Record<string, unknown>;
-
-  // Actions
-  setActivePatient: (patient: Patient | null) => void;
-  openBlock: (type: BlockType, prefill?: Record<string, unknown>) => void;
-  closeBlock: () => void;
-}
-```
-
 ---
 
-### Epic 1 — Command Center
+### Epic 1 — Command Center ✅ DONE
 **Epic Doel:** Werkende command center met tekst en voice input.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E1.S1 | Command Center layout | 4-zone layout (context, canvas, recent, input) | ✅ | E0.S4 | 3 |
-| E1.S2 | Context Bar | Dienst, patiënt dropdown, user info | ✅ | E1.S1 | 2 |
-| E1.S3 | Command Input | Tekst input met placeholder, focus state | ✅ | E1.S1 | 2 |
-| E1.S4 | Voice Input integratie | Deepgram streaming in command input | ✅ | E1.S3 | 3 |
-| E1.S5 | Recent Strip | Laatste 5 acties als chips | ✅ | E1.S1 | 3 |
+| E1.S1 | Command Center layout | 4-zone layout (context, canvas, recent, input), keyboard shortcuts (⌘K, Escape) | ✅ | E0.S4 | 3 |
+| E1.S2 | Context Bar | Dienst indicator, patiënt chip, user info | ✅ | E1.S1 | 2 |
+| E1.S3 | Command Input | Tekst input met placeholder, focus state, send button | ✅ | E1.S1 | 2 |
+| E1.S4 | Voice Input integratie | Deepgram streaming, waveform visualisatie | ✅ | E1.S3 | 3 |
+| E1.S5 | Recent Strip | Laatste 5 acties als chips, click-to-repeat | ✅ | E1.S1 | 3 |
 
 **Technical Notes:**
 ```
@@ -205,7 +201,7 @@ Command Center Layout:
 │ Context Bar (48px)                       │
 ├─────────────────────────────────────────┤
 │                                         │
-│ Canvas Area (flex)                      │
+│ Canvas Area (flex) ← Blocks hier        │
 │                                         │
 ├─────────────────────────────────────────┤
 │ Recent Strip (48px)                     │
@@ -216,72 +212,121 @@ Command Center Layout:
 
 ---
 
-### Epic 2 — Intent Classification
-**Epic Doel:** Two-tier intent classificatie (local + AI fallback).
+### Epic 2 — Intent Classification ✅ DONE
+**Epic Doel:** Two-tier intent classificatie (local + AI fallback) + wiring naar blocks.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
 | E2.S1 | Local classifier | Regex patterns voor P1 intents, <50ms | ✅ | E0.S4 | 3 |
 | E2.S2 | Entity extraction | Patient naam, categorie uit input | ✅ | E2.S1 | 3 |
 | E2.S3 | AI fallback | Claude Haiku bij confidence <0.8 | ✅ | E2.S2 | 2 |
-| E2.S4 | Intent API route | POST /api/intent/classify | ✅ | E2.S3 | 2 |
-| E2.S5 | Input → Block wiring | CommandInput submit → API → openBlock | ⏳ | E2.S4 | 2 |
+| E2.S4 | Intent API route | POST /api/intent/classify met logging | ✅ | E2.S3 | 2 |
+| E2.S5 | Input → Block wiring | CommandInput.handleSubmit → API → openBlock | ✅ | E2.S4 | 2 |
 
-**Technical Notes:**
+**E2.S5 Technical Notes (✅ GEÏMPLEMENTEERD):**
 ```typescript
-// E2.S1: Local classifier patterns
-const INTENT_PATTERNS = {
-  dagnotitie: [
-    /^notitie\s+(\w+)/i,
-    /^(\w+)\s+(medicatie|adl|gedrag|incident)/i,
-    /dagnotitie/i,
-  ],
-  zoeken: [
-    /^zoek\s+(\w+)/i,
-    /^wie is\s+(\w+)/i,
-    /^vind\s+(\w+)/i,
-  ],
-  overdracht: [
-    /^overdracht/i,
-    /^dienst (klaar|afronden)/i,
-    /^wat moet ik weten/i,
-  ],
-};
-
-// E2.S5: Input → Block wiring
-// In CommandInput.handleSubmit:
-const handleSubmit = async () => {
-  const response = await fetch('/api/intent/classify', {
-    method: 'POST',
-    body: JSON.stringify({ input: inputValue }),
-  });
-  const { intent, confidence, entities } = await response.json();
-
-  if (intent !== 'unknown' && confidence >= 0.5) {
-    openBlock(intent, entities);  // Open juiste block met prefill
-  } else {
-    // Toon FallbackPicker (E4.S4)
+// components/swift/command-center/command-input.tsx
+// IMPLEMENTATIE:
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!hasValue || isProcessing) return;
+  
+  const inputText = inputValue.trim();
+  setIsProcessing(true);
+  
+  try {
+    const response = await fetch('/api/intent/classify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: inputText }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Onbekende fout' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    
+    const { intent, confidence, entities } = await response.json();
+    
+    if (intent !== 'unknown' && confidence >= 0.5) {
+      openBlock(intent as BlockType, entities);
+      addRecentAction({ intent, label: inputText.slice(0, 50), patientName: entities.patientName });
+      clearInput();
+    } else {
+      // Tijdelijke fallback naar dagnotitie (wordt vervangen door FallbackPicker in E4.S4)
+      openBlock('dagnotitie', { content: inputText });
+      addRecentAction({ intent: 'dagnotitie', label: inputText.slice(0, 50) });
+      clearInput();
+    }
+  } catch (error) {
+    // Error handling met fallback naar dagnotitie
+    openBlock('dagnotitie', { content: inputText });
+    addRecentAction({ intent: 'dagnotitie', label: inputText.slice(0, 50) });
+    clearInput();
+  } finally {
+    setIsProcessing(false);
   }
 };
 ```
 
 ---
 
-### Epic 3 — P1 Blocks
+### Epic 3 — P1 Blocks ⏳ TO DO
 **Epic Doel:** Werkende DagnotatieBlock, ZoekenBlock en OverdrachtBlock.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
+| E3.S0 | CanvasArea block rendering | Switch/case voor block types, prefill doorgeven | ⏳ | E2.S5 | 2 |
 | E3.S1 | Block Container | Animatie wrapper, close button, sizes | ⏳ | E1.S1 | 2 |
-| E3.S2 | DagnotatieBlock | Patient, categorie, tekst, opslaan | ⏳ | E3.S1, E2.S2 | 5 |
+| E3.S2 | DagnotatieBlock | Patient, categorie, tekst, opslaan naar /api/reports | ⏳ | E3.S0, E3.S1 | 5 |
 | E3.S3 | Patient search API | GET /api/patients/search?q= fuzzy search | ⏳ | E0.S4 | 3 |
-| E3.S4 | ZoekenBlock | Input, resultaten, selectie → store | ⏳ | E3.S1, E3.S3 | 3 |
+| E3.S4 | ZoekenBlock | Input, resultaten, selectie → store | ⏳ | E3.S0, E3.S3 | 3 |
 | E3.S5 | PatientContextCard | Na selectie: notities, vitals, diagnose | ⏳ | E3.S4 | 5 |
-| E3.S6 | OverdrachtBlock | AI samenvatting per patiënt (bestaande API) | ⏳ | E3.S1 | 3 |
+| E3.S6 | OverdrachtBlock | AI samenvatting per patiënt (bestaande API) | ⏳ | E3.S0 | 3 |
 
-**Technical Notes:**
+**E3.S0 Technical Notes (KRITIEK - NIEUW):**
 ```typescript
-// E3.S2: DagnotatieBlock prefill
+// components/swift/command-center/canvas-area.tsx
+// HUIDIGE SITUATIE (placeholder):
+{activeBlock ? (
+  <div className="text-slate-400">Block: {activeBlock}</div>
+) : (
+  <EmptyState />
+)}
+
+// MOET WORDEN:
+import { DagnotatieBlock } from '../blocks/dagnotitie-block';
+import { ZoekenBlock } from '../blocks/zoeken-block';
+import { OverdrachtBlock } from '../blocks/overdracht-block';
+
+function renderBlock(activeBlock: BlockType, prefillData: BlockPrefillData) {
+  switch (activeBlock) {
+    case 'dagnotitie':
+      return <DagnotatieBlock prefill={prefillData} />;
+    case 'zoeken':
+      return <ZoekenBlock prefill={prefillData} />;
+    case 'overdracht':
+      return <OverdrachtBlock prefill={prefillData} />;
+    default:
+      return <EmptyState />;
+  }
+}
+
+// In CanvasArea:
+{activeBlock ? (
+  <AnimatePresence mode="wait">
+    <motion.div key={activeBlock} {...blockAnimations}>
+      {renderBlock(activeBlock, prefillData)}
+    </motion.div>
+  </AnimatePresence>
+) : (
+  <EmptyState />
+)}
+```
+
+**E3.S2 Technical Notes:**
+```typescript
+// components/swift/blocks/dagnotitie-block.tsx
 interface DagnotitieBlockProps {
   prefill?: {
     patientId?: string;
@@ -289,16 +334,17 @@ interface DagnotitieBlockProps {
     category?: VerpleegkundigCategory;
     content?: string;
   };
-  onSave: () => void;
-  onCancel: () => void;
 }
 
-// Gebruikt bestaande POST /api/reports
+// 1. Patient lookup: patientName → patientId via E3.S3 API
+// 2. Category selector: medicatie | adl | gedrag | incident | observatie
+// 3. Tekst input: textarea of rich editor
+// 4. Opslaan: POST /api/reports met type 'verpleegkundig'
 ```
 
 ---
 
-### Epic 4 — Navigation & Auth
+### Epic 4 — Navigation & Auth ⏳ TO DO
 **Epic Doel:** Login pagina met interface keuze, routing naar Swift/Klassiek.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
@@ -306,61 +352,71 @@ interface DagnotitieBlockProps {
 | E4.S1 | Login form uitbreiden | Interface selector (Swift/Klassiek) | ⏳ | E0.S3 | 2 |
 | E4.S2 | Preference opslag | user_metadata.preferred_interface | ⏳ | E4.S1 | 2 |
 | E4.S3 | Redirect middleware | /epd → preference route | ⏳ | E4.S2 | 2 |
-| E4.S4 | Fallback Picker | Visuele keuze bij lage confidence | ⏳ | E3.S1 | 2 |
-
-**Technical Notes:**
-```typescript
-// E4.S2: Preference in Supabase
-await supabase.auth.updateUser({
-  data: {
-    preferred_interface: 'swift', // of 'classic'
-    remember_interface_choice: true,
-  },
-});
-```
+| E4.S4 | Fallback Picker | Visuele keuze bij lage confidence | ⏳ | E3.S0 | 2 |
 
 ---
 
-### Epic 5 — Polish & Testing
+### Epic 5 — Polish & Testing ⏳ TO DO
 **Epic Doel:** Gepolijste UX met animaties, error handling en tests.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E5.S1 | Block animaties | Slide up/down met framer-motion | ⏳ | E3.S1 | 2 |
+| E5.S1 | Block animaties | Slide up/down met framer-motion | ⏳ | E3.S0 | 2 |
 | E5.S2 | Error handling | Network errors, validation, toasts | ⏳ | E3.S6 | 2 |
-| E5.S3 | Keyboard shortcuts | Cmd+K focus, Escape close, Enter submit | ⏳ | E1.S3 | 2 |
+| E5.S3 | Keyboard shortcuts | Verificatie bestaande shortcuts werken | ⏳ | E1.S1 | 2 |
 | E5.S4 | Smoke tests | Happy flow tests voor alle P1 blocks | ⏳ | E5.S2 | 2 |
 
-**Technical Notes:**
-```typescript
-// E5.S1: Framer Motion animaties
-const blockVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: 20, scale: 0.95 },
-};
-
-// E5.S3: Keyboard shortcuts
-useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-      inputRef.current?.focus();
-    }
-    if (e.key === 'Escape') {
-      closeBlock();
-    }
-  };
-  window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeEventListener('keydown', handleKeyDown);
-}, []);
-```
+**Nota:** Keyboard shortcuts (⌘K focus, Escape close) zijn al geïmplementeerd in E1.S1.
+E5.S3 is nu verificatie + eventuele uitbreiding (Enter submit, etc.).
 
 ---
 
-## 5. Kwaliteit & Testplan
+## 5. Technische Debt & Bekende Issues
 
-### 5.1 Test Types
+### 5.1 Type Duplicatie (Medium Priority)
+
+**Probleem:**
+```typescript
+// lib/swift/types.ts - BRON
+export type SwiftIntent = 'dagnotitie' | 'zoeken' | 'overdracht' | 'unknown';
+
+// stores/swift-store.ts - DUPLICAAT (moet verwijderd worden)
+export type SwiftIntent = 'dagnotitie' | 'zoeken' | 'overdracht' | 'unknown';
+```
+
+**Impact:** Bij uitbreiding intents (diagnostiek workflow) moet op twee plekken gewijzigd worden.
+
+**Oplossing:** Verwijder duplicaat uit `swift-store.ts`, importeer uit `lib/swift/types.ts`:
+```typescript
+// stores/swift-store.ts
+import type { SwiftIntent, BlockType, ShiftType } from '@/lib/swift/types';
+```
+
+**Wanneer:** Voorafgaand aan E-D1.S1 (diagnostiek intent patterns).
+
+### 5.2 BlockContainer Animaties (Low Priority)
+
+**Probleem:** BlockContainer bestaat maar heeft nog geen framer-motion animaties.
+
+**Huidige situatie:**
+```typescript
+// components/swift/blocks/block-container.tsx
+// Geen AnimatePresence of motion.div
+```
+
+**Oplossing:** Implementeren in E5.S1 of integreren in E3.S0.
+
+### 5.3 CanvasArea Placeholder (High Priority - RESOLVED)
+
+**Probleem:** CanvasArea toont placeholder tekst i.p.v. blocks.
+
+**Oplossing:** Story E3.S0 toegevoegd. Dit is de hoogste prioriteit na E2.S5.
+
+---
+
+## 6. Kwaliteit & Testplan
+
+### 6.1 Test Types
 
 | Test Type | Scope | Tools | Wanneer |
 |-----------|-------|-------|---------|
@@ -370,7 +426,7 @@ useEffect(() => {
 | E2E Tests | Complete flows | Playwright (optioneel) | E5 |
 | Manual Tests | Demo scenarios | Checklist | E5 |
 
-### 5.2 Test Coverage Targets
+### 6.2 Test Coverage Targets
 
 | Area | Target | Reden |
 |------|--------|-------|
@@ -378,7 +434,7 @@ useEffect(() => {
 | API routes | 80%+ | Data integrity |
 | UI components | 60%+ | Belangrijkste flows |
 
-### 5.3 Manual Test Checklist (MVP Demo)
+### 6.3 Manual Test Checklist (MVP Demo)
 
 **Happy Flows:**
 - [ ] User kan inloggen en Swift kiezen
@@ -398,9 +454,9 @@ useEffect(() => {
 
 ---
 
-## 6. Demo & Presentatieplan
+## 7. Demo & Presentatieplan
 
-### 6.1 Demo Scenario
+### 7.1 Demo Scenario
 
 **Duur:** 10 minuten
 **Doelgroep:** Zorgprofessionals, management
@@ -438,7 +494,7 @@ useEffect(() => {
    - Vragen
 ```
 
-### 6.2 Backup Plan
+### 7.2 Backup Plan
 
 | Probleem | Oplossing |
 |----------|-----------|
@@ -449,7 +505,7 @@ useEffect(() => {
 
 ---
 
-## 7. Risico's & Mitigatie
+## 8. Risico's & Mitigatie
 
 | Risico | Kans | Impact | Mitigatie | Owner |
 |--------|------|--------|-----------|-------|
@@ -459,37 +515,69 @@ useEffect(() => {
 | User adoption | Middel | Middel | Keuze behouden, geen dwang | Product |
 | Scope creep | Hoog | Hoog | Strict P1-only, backlog voor rest | Dev |
 | Performance | Laag | Middel | Code splitting, lazy loading | Dev |
+| **CanvasArea blocking** | Hoog | Hoog | E3.S0 prioriteit na E2.S5 | Dev |
 
 ---
 
-## 8. Sprint Planning
+## 9. Sprint Planning (Aangepast)
 
-### Sprint 1 (Week 1): Foundation
-- E0: Setup & Foundation (8 SP)
-- E1.S1-S3: Command Center basics (7 SP)
-- **Deliverable:** Swift route met command input
+### Huidige Status (24-12-2024)
+- ✅ E0: Setup & Foundation (8 SP) — DONE
+- ✅ E1: Command Center (13 SP) — DONE
+- ✅ E2: Intent Classification (12 SP) — DONE
+- ⏳ E3-E5: Remaining (39 SP) — TO DO
 
-### Sprint 2 (Week 2): Intent & Blocks
-- E1.S4-S5: Voice + Recent (6 SP)
-- E2: Intent Classification (10 SP)
-- **Deliverable:** Werkende intent classificatie
+**Totaal Done: 33 SP / 72 SP (46%)**
 
-### Sprint 3 (Week 3): P1 Blocks
-- E3: Alle P1 blocks (21 SP)
-- **Deliverable:** DagnotatieBlock, ZoekenBlock, OverdrachtBlock
+### Sprint 3 (Huidige Sprint): Core Wiring + First Block
+- ✅ E2.S5: Input → Block wiring (2 SP) — DONE
+- E3.S0: CanvasArea block rendering (2 SP) ← **KRITIEK**
+- E3.S1: Block Container (2 SP)
+- E3.S2: DagnotatieBlock (5 SP)
+- **Deliverable:** "notitie jan" → DagnotatieBlock werkt end-to-end
 
-### Sprint 4 (Week 4): Polish & Ship
+### Sprint 4: Remaining Blocks
+- E3.S3: Patient search API (3 SP)
+- E3.S4: ZoekenBlock (3 SP)
+- E3.S5: PatientContextCard (5 SP)
+- E3.S6: OverdrachtBlock (3 SP)
+- **Deliverable:** Alle P1 blocks werken
+
+### Sprint 5: Polish & Ship
 - E4: Navigation & Auth (8 SP)
 - E5: Polish & Testing (8 SP)
+- Technische debt opruimen
 - **Deliverable:** Demo-ready MVP
 
 ---
 
-## 9. Definition of Done
+## 10. Uitbreidingen (Backlog)
+
+### Diagnostiek Workflow (22 SP)
+
+**Status:** Gepland na MVP
+**Documentatie:** `bouwplan-swift-diagnostiek-workflow.md`
+
+| Epic | Stories | SP | Vereisten |
+|------|---------|----:|-----------|
+| E-D1 | Afspraak & Rapportage | 12 | E3 compleet |
+| E-D2 | Diagnose Beheer | 10 | E3 compleet |
+
+**Pre-requisites:**
+1. Swift MVP compleet (E0-E5)
+2. Report type "diagnostiek" toevoegen aan REPORT_TYPES
+3. SwiftIntent uitbreiden met nieuwe types
+4. Entity extraction voor datum/tijd
+
+**Zie:** `bouwplan-swift-diagnostiek-workflow-beoordeling.md` voor details.
+
+---
+
+## 11. Definition of Done
 
 Een story is **Done** wanneer:
 - [ ] Code geschreven en werkend
-- [ ] TypeScript types correct
+- [ ] TypeScript types correct (geen duplicaten)
 - [ ] Component responsive (mobile + desktop)
 - [ ] Error states afgehandeld
 - [ ] Toegankelijkheid basics (focus, labels)
@@ -504,29 +592,42 @@ Een epic is **Done** wanneer:
 
 ---
 
-## 10. Referenties
+## 12. Referenties
 
 ### Project Documenten
 - PRD: `docs/swift/swift-prd.md`
 - FO: `docs/swift/swift-fo-ai.md`
 - TO: `docs/swift/to-swift-v1.md`
 - UX: `docs/swift/swift-ux-v2.1.md`
+- Diagnostiek FO: `docs/swift/swift-fo-diagnostiek-workflow.md`
+- Diagnostiek Bouwplan: `docs/swift/bouwplan-swift-diagnostiek-workflow.md`
+- Beoordeling: `docs/swift/bouwplan-swift-diagnostiek-workflow-beoordeling.md`
 
 ### Bestaande Code Referenties
+- Swift Store: `stores/swift-store.ts`
+- Swift Types: `lib/swift/types.ts` (SINGLE SOURCE)
+- Intent Classifier: `lib/swift/intent-classifier.ts`
+- Intent API: `app/api/intent/classify/route.ts`
+- Command Center: `components/swift/command-center/`
+- Block Container: `components/swift/blocks/block-container.tsx`
+
+### Bestaande EPD Code (Hergebruik)
 - Command component: `components/ui/command.tsx`
 - Speech streaming: `components/speech-recorder-streaming.tsx`
 - Overdracht API: `app/api/overdracht/generate/route.ts`
 - Report types: `lib/types/report.ts`
+- Reports API: `app/api/reports/route.ts`
 
 ### External
 - Zustand: https://zustand-demo.pmnd.rs/
 - cmdk: https://cmdk.paco.me/
 - Deepgram: https://developers.deepgram.com/docs
 - Claude API: https://docs.anthropic.com/
+- Framer Motion: https://www.framer.com/motion/
 
 ---
 
-## 11. Glossary
+## 13. Glossary
 
 | Term | Betekenis |
 |------|-----------|
@@ -539,6 +640,7 @@ Een epic is **Done** wanneer:
 | Klassiek EPD | Traditionele menu-gebaseerde interface |
 | P1 | Prioriteit 1 (MVP scope) |
 | SP | Story Points (Fibonacci: 1, 2, 3, 5, 8) |
+| Wiring | Koppeling tussen componenten (input → API → block) |
 
 ---
 
@@ -552,3 +654,5 @@ Een epic is **Done** wanneer:
 | v1.3 | 23-12-2024 | Claude | E2.S3 AI fallback voltooid (29 SP) |
 | v1.4 | 23-12-2024 | Claude | E2.S1-S4 voltooid (31 SP) |
 | v1.5 | 24-12-2024 | Claude | E2.S5 toegevoegd: Input → Block wiring (+2 SP) |
+| **v2.0** | **24-12-2024** | **Claude** | **Major update: E3.S0 toegevoegd, technische debt sectie, diagnostiek workflow referentie, sprint planning aangepast (29 stories, 72 SP)** |
+| **v2.1** | **24-12-2024** | **Claude** | **E2.S5 voltooid: Input → Block wiring geïmplementeerd, Epic 2 compleet (33 SP done, 46%)** |
