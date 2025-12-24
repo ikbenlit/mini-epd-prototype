@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Zap, Layout } from 'lucide-react'
 import { loginWithPassword, signUpWithPassword } from '@/lib/auth/client'
+
+type InterfacePreference = 'swift' | 'klassiek'
 
 export function LoginForm() {
   const router = useRouter()
@@ -16,6 +18,12 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [interfacePreference, setInterfacePreference] = useState<InterfacePreference>('klassiek')
+
+  // Redirect path based on interface preference
+  const getRedirectPath = () => {
+    return interfacePreference === 'swift' ? '/epd/swift' : '/epd/clients'
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +40,7 @@ export function LoginForm() {
         if (result.session) {
           setMessage({ type: 'success', text: 'Account aangemaakt! Je wordt doorgestuurd...' })
           setTimeout(() => {
-            router.push('/epd/patients')
+            router.push(getRedirectPath())
           }, 1000)
         } else {
           setMessage({
@@ -44,14 +52,14 @@ export function LoginForm() {
         await loginWithPassword(email, password)
         setMessage({ type: 'success', text: 'Ingelogd! Je wordt doorgestuurd...' })
         setTimeout(() => {
-          router.push('/epd/clients')
+          router.push(getRedirectPath())
         }, 1000)
       }
     } catch (error: any) {
       if (error.code === 'user_already_registered' && error.data?.session) {
         setMessage({ type: 'success', text: 'Dit emailadres bestaat al. Je bent nu ingelogd!' })
         setTimeout(() => {
-          router.push('/epd/patients')
+          router.push(getRedirectPath())
         }, 1000)
       } else if (error.code === 'user_already_registered') {
         setMessage({
@@ -82,7 +90,7 @@ export function LoginForm() {
     setLoading(true)
     try {
       await loginWithPassword('demo@mini-ecd.demo', 'Demo2024!')
-      router.push('/epd/clients')
+      router.push(getRedirectPath())
     } catch (error: any) {
       setMessage({ type: 'error', text: 'Demo login mislukt. Probeer handmatig in te loggen.' })
       setLoading(false)
@@ -120,6 +128,45 @@ export function LoginForm() {
           >
             Registreren
           </button>
+        </div>
+
+        {/* Interface Selector */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Interface voorkeur
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setInterfacePreference('klassiek')}
+              className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                interfacePreference === 'klassiek'
+                  ? 'border-teal-500 bg-teal-50 text-teal-700'
+                  : 'border-slate-200 hover:border-slate-300 text-slate-600'
+              }`}
+            >
+              <Layout className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium text-sm">Klassiek</div>
+                <div className="text-xs opacity-70">Menu navigatie</div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setInterfacePreference('swift')}
+              className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                interfacePreference === 'swift'
+                  ? 'border-amber-500 bg-amber-50 text-amber-700'
+                  : 'border-slate-200 hover:border-slate-300 text-slate-600'
+              }`}
+            >
+              <Zap className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium text-sm">Swift</div>
+                <div className="text-xs opacity-70">Spraak & AI</div>
+              </div>
+            </button>
+          </div>
         </div>
 
         {message && (
