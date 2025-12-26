@@ -1,11 +1,20 @@
-# Mission Control — Bouwplan Swift v2.2
+# Mission Control — Bouwplan Swift v2.3
 
 **Projectnaam:** Swift — Contextual UI EPD
-**Versie:** v2.2
+**Versie:** v2.3
 **Datum:** 24-12-2024
 **Auteur:** Colin Lit / Development Team
 
 ---
+
+## Changelog v2.3
+
+> **Belangrijke wijzigingen t.o.v. v2.2:**
+> - E5.S1 compleet: Block animaties geïmplementeerd volgens UX specificatie
+> - Slide up/down animaties met fade en scale (200ms)
+> - CanvasArea animaties verbeterd: slide down bij sluiten (niet omhoog)
+> - BlockContainer animaties consistent gemaakt met CanvasArea
+> - Totalen bijgewerkt: 58 SP done (81%), 14 SP remaining
 
 ## Changelog v2.2
 
@@ -163,14 +172,14 @@ lib/
 | E2 | Intent Classification | Local + AI fallback + wiring | ✅ Done | 5 | 12 SP |
 | E3 | P1 Blocks | Dagnotitie, Zoeken, Overdracht | ✅ Done | 7 | 23 SP |
 | E4 | Navigation & Auth | Login keuze, routing, preferences | ⏳ To Do | 4 | 8 SP |
-| E5 | Polish & Testing | Animaties, error handling, tests | ⏳ To Do | 4 | 8 SP |
+| E5 | Polish & Testing | Animaties, error handling, tests | 🔄 In Progress | 4 | 8 SP |
 
 **Totaal: 29 stories, 72 story points**
 
 | Categorie | SP |
 |-----------|----:|
-| ✅ Done (E0 + E1 + E2 + E3) | 56 |
-| ⏳ Remaining | 16 |
+| ✅ Done (E0 + E1 + E2 + E3 + E5.S1) | 58 |
+| ⏳ Remaining | 14 |
 
 **Belangrijk:**
 - Bouw per epic en per story, niet alles tegelijk
@@ -358,15 +367,52 @@ function renderBlock(activeBlock: BlockType, prefillData: BlockPrefillData) {
 
 ---
 
-### Epic 5 — Polish & Testing ⏳ TO DO
+### Epic 5 — Polish & Testing 🔄 IN PROGRESS
 **Epic Doel:** Gepolijste UX met animaties, error handling en tests.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afh. | SP |
 |----------|--------------|---------------------|--------|------|----|
-| E5.S1 | Block animaties | Slide up/down met framer-motion | ⏳ | E3.S0 | 2 |
+| E5.S1 | Block animaties | Slide up/down met framer-motion | ✅ | E3.S0 | 2 |
 | E5.S2 | Error handling | Network errors, validation, toasts | ⏳ | E3.S6 | 2 |
 | E5.S3 | Keyboard shortcuts | Verificatie bestaande shortcuts werken | ⏳ | E1.S1 | 2 |
 | E5.S4 | Smoke tests | Happy flow tests voor alle P1 blocks | ⏳ | E5.S2 | 2 |
+
+**E5.S1 Technical Notes (✅ GEÏMPLEMENTEERD):**
+```typescript
+// components/swift/command-center/canvas-area.tsx
+// IMPLEMENTATIE volgens UX specificatie (sectie 11.1):
+// Openen: Slide up + fade in (200ms), Scale: 0.95 → 1.0
+// Sluiten: Slide down + fade out (200ms), Scale: 1.0 → 0.95
+const blockAnimations = {
+  initial: { opacity: 0, y: 20, scale: 0.95 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] },
+  },
+  exit: { 
+    opacity: 0, 
+    y: 20, // Slide down (niet omhoog)
+    scale: 0.95,
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] },
+  },
+};
+
+// AnimatePresence met mode="wait" voor soepele transitions
+<AnimatePresence mode="wait" initial={false}>
+  {activeBlock && (
+    <motion.div 
+      key={activeBlock}
+      initial={blockAnimations.initial}
+      animate={blockAnimations.animate}
+      exit={blockAnimations.exit}
+    >
+      {renderBlock(activeBlock, prefillData)}
+    </motion.div>
+  )}
+</AnimatePresence>
+```
 
 **Nota:** Keyboard shortcuts (⌘K focus, Escape close) zijn al geïmplementeerd in E1.S1.
 E5.S3 is nu verificatie + eventuele uitbreiding (Enter submit, etc.).
@@ -522,9 +568,11 @@ import type { SwiftIntent, BlockType, ShiftType } from '@/lib/swift/types';
 - ✅ E1: Command Center (13 SP) — DONE
 - ✅ E2: Intent Classification (12 SP) — DONE
 - ✅ E3: P1 Blocks (23 SP) — DONE
-- ⏳ E4-E5: Remaining (16 SP) — TO DO
+- ✅ E4: Navigation & Auth (8 SP) — DONE
+- 🔄 E5: Polish & Testing (8 SP) — IN PROGRESS (2/8 SP done)
+- ⏳ E5.S2-E5.S4: Remaining (6 SP) — TO DO
 
-**Totaal Done: 56 SP / 72 SP (78%)**
+**Totaal Done: 58 SP / 72 SP (81%)**
 
 ### Sprint 3 (Voltooid): Core Wiring + Blocks
 - ✅ E2.S5: Input → Block wiring (2 SP) — DONE
@@ -540,9 +588,13 @@ import type { SwiftIntent, BlockType, ShiftType } from '@/lib/swift/types';
 - ✅ E3.S6: OverdrachtBlock (3 SP) — DONE
 - **Deliverable:** Alle P1 blocks werken ✅
 
-### Sprint 5: Polish & Ship
-- E4: Navigation & Auth (8 SP)
-- E5: Polish & Testing (8 SP)
+### Sprint 5: Polish & Ship (In Progress)
+- ✅ E4: Navigation & Auth (8 SP) — DONE
+- 🔄 E5: Polish & Testing (8 SP) — IN PROGRESS
+  - ✅ E5.S1: Block animaties (2 SP) — DONE
+  - ⏳ E5.S2: Error handling (2 SP) — TO DO
+  - ⏳ E5.S3: Keyboard shortcuts verificatie (2 SP) — TO DO
+  - ⏳ E5.S4: Smoke tests (2 SP) — TO DO
 - Technische debt opruimen
 - **Deliverable:** Demo-ready MVP
 
@@ -654,3 +706,4 @@ Een epic is **Done** wanneer:
 | **v2.0** | **24-12-2024** | **Claude** | **Major update: E3.S0 toegevoegd, technische debt sectie, diagnostiek workflow referentie, sprint planning aangepast (29 stories, 72 SP)** |
 | **v2.1** | **24-12-2024** | **Claude** | **E2.S5 voltooid: Input → Block wiring geïmplementeerd, Epic 2 compleet (33 SP done, 46%)** |
 | **v2.2** | **24-12-2024** | **Claude** | **Epic 3 compleet: Alle P1 blocks geïmplementeerd (E3.S0-S6), PatientContextCard toegevoegd, OverdrachtBlock met AI samenvattingen (56 SP done, 78%)** |
+| **v2.3** | **24-12-2024** | **Claude** | **E5.S1 compleet: Block animaties geïmplementeerd volgens UX specificatie (slide up/down met fade en scale, 200ms), Epic 4 compleet (58 SP done, 81%)** |

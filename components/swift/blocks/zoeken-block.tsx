@@ -252,7 +252,7 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
         {searchQuery.length >= 2 && (
           <div className="space-y-2">
             {isSearching ? (
-              <div className="flex items-center justify-center py-8 text-slate-400">
+              <div className="flex items-center justify-center py-8 text-slate-500">
                 <Loader2 className="h-5 w-5 animate-spin mr-2" />
                 <span className="text-sm">Zoeken...</span>
               </div>
@@ -269,8 +269,8 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
                       className={cn(
                         'w-full px-3 py-2.5 rounded-lg border text-left transition-colors',
                         isSelected
-                          ? 'bg-slate-700 border-slate-600 cursor-wait'
-                          : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700 hover:border-slate-600 cursor-pointer'
+                          ? 'bg-slate-100 border-slate-300 cursor-wait'
+                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 cursor-pointer'
                       )}
                     >
                       <div className="flex items-center justify-between">
@@ -284,17 +284,17 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
                               .toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-white truncate">
+                            <div className="text-sm font-medium text-slate-900 truncate">
                               {formatPatientDisplay(patient)}
                             </div>
                             <div className="flex items-center gap-3 mt-0.5">
                               {patient.identifier_bsn && (
-                                <span className="text-xs text-slate-400">
+                                <span className="text-xs text-slate-500">
                                   BSN: {patient.identifier_bsn}
                                 </span>
                               )}
                               {patient.identifier_client_number && (
-                                <span className="text-xs text-slate-400">
+                                <span className="text-xs text-slate-500">
                                   Client: {patient.identifier_client_number}
                                 </span>
                               )}
@@ -302,9 +302,9 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
                           </div>
                         </div>
                         {isSelected ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-blue-400 shrink-0" />
+                          <Loader2 className="h-4 w-4 animate-spin text-blue-600 shrink-0" />
                         ) : (
-                          <Check className="h-4 w-4 text-slate-500 shrink-0" />
+                          <Check className="h-4 w-4 text-slate-400 shrink-0" />
                         )}
                       </div>
                     </button>
@@ -312,7 +312,7 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-slate-500">
+              <div className="flex flex-col items-center justify-center py-8 text-slate-400">
                 <User className="h-8 w-8 mb-2 opacity-50" />
                 <p className="text-sm">Geen patiënten gevonden</p>
                 <p className="text-xs mt-1">Probeer een andere zoekterm</p>
@@ -323,7 +323,7 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
 
         {/* Empty State */}
         {searchQuery.length < 2 && (
-          <div className="flex flex-col items-center justify-center py-8 text-slate-500">
+          <div className="flex flex-col items-center justify-center py-8 text-slate-400">
             <Search className="h-8 w-8 mb-2 opacity-50" />
             <p className="text-sm">Typ minimaal 2 karakters om te zoeken</p>
           </div>

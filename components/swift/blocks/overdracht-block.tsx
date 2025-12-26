@@ -191,7 +191,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
       <div className="space-y-6">
         {/* Period Selector */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-300">Periode</label>
+          <label className="text-sm font-medium text-slate-700">Periode</label>
           <div className="grid grid-cols-4 gap-2">
             {PERIOD_OPTIONS.map((option) => (
               <button
@@ -201,8 +201,8 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
                 className={cn(
                   'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                   period === option.value
-                    ? 'bg-slate-700 text-white border-2 border-slate-500'
-                    : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700 hover:text-white'
+                    ? 'bg-slate-900 text-white border-2 border-slate-700'
+                    : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900'
                 )}
               >
                 {option.label}
@@ -218,10 +218,10 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
         {isLoadingPatients ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-slate-400 mr-2" />
-            <span className="text-sm text-slate-400">Patiënten laden...</span>
+            <span className="text-sm text-slate-500">Patiënten laden...</span>
           </div>
         ) : displayPatients.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
+          <div className="text-center py-8 text-slate-400">
             <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Geen patiënten gevonden voor deze periode</p>
           </div>
@@ -236,21 +236,21 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
               return (
                 <div
                   key={patient.id}
-                  className="p-4 rounded-lg bg-slate-800/50 border border-slate-700"
+                  className="p-4 rounded-lg bg-slate-50 border border-slate-200"
                 >
                   {/* Patient Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-base font-medium text-white">
+                      <h3 className="text-base font-medium text-slate-900">
                         {formatPatientName(patient)}
                       </h3>
                       {patient.alerts.total > 0 && (
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-500">
                             {patient.alerts.total} alert{patient.alerts.total > 1 ? 's' : ''}
                           </span>
                           {patient.alerts.high_risk_count > 0 && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/30 text-red-300">
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
                               {patient.alerts.high_risk_count} risico
                             </span>
                           )}
@@ -272,18 +272,18 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
                   {/* Loading State */}
                   {loading && (
                     <div className="py-6 text-center">
-                      <Loader2 className="h-6 w-6 text-violet-400 mx-auto mb-2 animate-spin" />
-                      <p className="text-sm text-slate-400">Samenvatting wordt gegenereerd...</p>
+                      <Loader2 className="h-6 w-6 text-violet-600 mx-auto mb-2 animate-spin" />
+                      <p className="text-sm text-slate-500">Samenvatting wordt gegenereerd...</p>
                     </div>
                   )}
 
                   {/* Error State */}
                   {error && (
                     <div className="py-4">
-                      <div className="p-3 bg-red-900/20 rounded-lg border border-red-800 mb-3">
+                      <div className="p-3 bg-red-50 rounded-lg border border-red-200 mb-3">
                         <div className="flex items-start gap-2">
-                          <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" />
-                          <p className="text-sm text-red-300">{error}</p>
+                          <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm text-red-700">{error}</p>
                         </div>
                       </div>
                       <Button
@@ -300,11 +300,11 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
 
                   {/* Summary Content */}
                   {summary && (
-                    <div className="space-y-4 pt-4 border-t border-slate-700">
+                    <div className="space-y-4 pt-4 border-t border-slate-200">
                       {/* Samenvatting */}
                       <div>
-                        <h4 className="text-sm font-medium text-slate-300 mb-2">Samenvatting</h4>
-                        <p className="text-sm text-slate-400 leading-relaxed bg-slate-900/50 p-3 rounded-lg">
+                        <h4 className="text-sm font-medium text-slate-700 mb-2">Samenvatting</h4>
+                        <p className="text-sm text-slate-600 leading-relaxed bg-white p-3 rounded-lg border border-slate-200">
                           {summary.samenvatting}
                         </p>
                       </div>
@@ -312,7 +312,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
                       {/* Aandachtspunten */}
                       {summary.aandachtspunten.length > 0 && (
                         <div>
-                          <h4 className="text-sm font-medium text-slate-300 mb-2">
+                          <h4 className="text-sm font-medium text-slate-700 mb-2">
                             Aandachtspunten ({summary.aandachtspunten.length})
                           </h4>
                           <div className="space-y-2">
@@ -326,16 +326,16 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
                       {/* Actiepunten */}
                       {summary.actiepunten.length > 0 && (
                         <div>
-                          <h4 className="text-sm font-medium text-slate-300 mb-2">
+                          <h4 className="text-sm font-medium text-slate-700 mb-2">
                             Actiepunten ({summary.actiepunten.length})
                           </h4>
                           <ul className="space-y-2">
                             {summary.actiepunten.map((actie, index) => (
                               <li
                                 key={index}
-                                className="flex items-start gap-2 text-sm text-slate-400"
+                                className="flex items-start gap-2 text-sm text-slate-600"
                               >
-                                <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0 mt-0.5" />
+                                <CheckCircle2 className="h-4 w-4 text-teal-600 flex-shrink-0 mt-0.5" />
                                 <span>{actie}</span>
                               </li>
                             ))}
@@ -344,7 +344,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
                       )}
 
                       {/* Footer */}
-                      <div className="pt-3 border-t border-slate-700 flex items-center justify-between">
+                      <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <Clock className="h-3.5 w-3.5" />
                           <span>
@@ -388,15 +388,15 @@ function AandachtspuntItem({ punt }: { punt: AISamenvatting['aandachtspunten'][0
   const getBronTypeStyle = (type: string): { bg: string; text: string } => {
     switch (type) {
       case 'observatie':
-        return { bg: 'bg-teal-900/30', text: 'text-teal-300' };
+        return { bg: 'bg-teal-50', text: 'text-teal-700' };
       case 'rapportage':
-        return { bg: 'bg-indigo-900/30', text: 'text-indigo-300' };
+        return { bg: 'bg-indigo-50', text: 'text-indigo-700' };
       case 'verpleegkundig':
-        return { bg: 'bg-amber-900/30', text: 'text-amber-300' };
+        return { bg: 'bg-amber-50', text: 'text-amber-700' };
       case 'risico':
-        return { bg: 'bg-red-900/30', text: 'text-red-300' };
+        return { bg: 'bg-red-50', text: 'text-red-700' };
       default:
-        return { bg: 'bg-slate-800', text: 'text-slate-400' };
+        return { bg: 'bg-slate-100', text: 'text-slate-600' };
     }
   };
 
@@ -407,16 +407,16 @@ function AandachtspuntItem({ punt }: { punt: AISamenvatting['aandachtspunten'][0
       className={cn(
         'p-3 rounded-lg border-l-4',
         punt.urgent
-          ? 'bg-red-900/20 border-red-500'
-          : 'bg-slate-800/50 border-slate-600'
+          ? 'bg-red-50 border-red-500'
+          : 'bg-white border border-slate-200 border-l-slate-400'
       )}
     >
       <div className="flex items-start gap-2 mb-2">
-        {punt.urgent && <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" />}
+        {punt.urgent && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />}
         <p
           className={cn(
             'text-sm flex-1',
-            punt.urgent ? 'text-red-200 font-medium' : 'text-slate-300'
+            punt.urgent ? 'text-red-700 font-medium' : 'text-slate-700'
           )}
         >
           {punt.tekst}

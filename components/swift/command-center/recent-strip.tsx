@@ -11,10 +11,10 @@ import { useSwiftStore, type SwiftIntent } from '@/stores/swift-store';
 import { FileText, Search, ArrowRightLeft, HelpCircle, Clock } from 'lucide-react';
 
 const INTENT_CONFIG: Record<SwiftIntent, { icon: typeof FileText; color: string; label: string }> = {
-  dagnotitie: { icon: FileText, color: 'text-blue-400 bg-blue-400/10', label: 'Notitie' },
-  zoeken: { icon: Search, color: 'text-emerald-400 bg-emerald-400/10', label: 'Zoeken' },
-  overdracht: { icon: ArrowRightLeft, color: 'text-purple-400 bg-purple-400/10', label: 'Overdracht' },
-  unknown: { icon: HelpCircle, color: 'text-slate-400 bg-slate-400/10', label: 'Actie' },
+  dagnotitie: { icon: FileText, color: 'text-blue-600 bg-blue-50 border border-blue-200', label: 'Notitie' },
+  zoeken: { icon: Search, color: 'text-emerald-600 bg-emerald-50 border border-emerald-200', label: 'Zoeken' },
+  overdracht: { icon: ArrowRightLeft, color: 'text-purple-600 bg-purple-50 border border-purple-200', label: 'Overdracht' },
+  unknown: { icon: HelpCircle, color: 'text-slate-600 bg-slate-50 border border-slate-200', label: 'Actie' },
 };
 
 function formatRelativeTime(date: Date): string {
@@ -45,7 +45,7 @@ export function RecentStrip() {
   };
 
   return (
-    <div className="h-12 border-t border-slate-700 flex items-center px-4 gap-3 shrink-0 bg-slate-900/50">
+    <div className="h-12 border-t border-slate-200 flex items-center px-4 gap-3 shrink-0 bg-white">
       {/* Label */}
       <div className="flex items-center gap-1.5 text-slate-500 shrink-0">
         <Clock size={12} />
@@ -53,11 +53,11 @@ export function RecentStrip() {
       </div>
 
       {/* Divider */}
-      <div className="h-4 w-px bg-slate-700" />
+      <div className="h-4 w-px bg-slate-200" />
 
       {/* Actions */}
       {recentActions.length === 0 ? (
-        <span className="text-xs text-slate-600 italic">Nog geen acties</span>
+        <span className="text-xs text-slate-400 italic">Nog geen acties</span>
       ) : (
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {recentActions.map((action) => {
@@ -90,17 +90,17 @@ export function RecentStrip() {
 
       {/* Quick actions hint (when empty) */}
       {recentActions.length === 0 && (
-        <div className="ml-auto flex items-center gap-2 text-xs text-slate-600">
+        <div className="ml-auto flex items-center gap-2 text-xs text-slate-500">
           <span>Probeer:</span>
           <button
             onClick={() => setInputValue('notitie ')}
-            className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors"
+            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
           >
             notitie
           </button>
           <button
             onClick={() => setInputValue('zoek ')}
-            className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors"
+            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
           >
             zoek
           </button>

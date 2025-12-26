@@ -240,15 +240,15 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
           <Label htmlFor="patient-search">Patiënt *</Label>
           <div className="relative" ref={dropdownRef}>
             {selectedPatient ? (
-              <div className="flex items-center gap-2 p-2 rounded-md border border-slate-700 bg-slate-800/50">
-                <User className="h-4 w-4 text-slate-400" />
-                <span className="flex-1 text-sm text-white">{formatPatientName(selectedPatient)}</span>
+              <div className="flex items-center gap-2 p-2 rounded-md border border-slate-200 bg-slate-50">
+                <User className="h-4 w-4 text-slate-500" />
+                <span className="flex-1 text-sm text-slate-900">{formatPatientName(selectedPatient)}</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={handleClearPatient}
-                  className="h-6 w-6 p-0 text-slate-400 hover:text-white"
+                  className="h-6 w-6 p-0 text-slate-400 hover:text-slate-700"
                 >
                   ×
                 </Button>
@@ -278,13 +278,13 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
                   )}
                 </div>
                 {showPatientDropdown && patients.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-md shadow-lg max-h-60 overflow-auto">
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-md shadow-lg max-h-60 overflow-auto">
                     {patients.map((patient) => (
                       <button
                         key={patient.id}
                         type="button"
                         onClick={() => handleSelectPatient(patient)}
-                        className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 transition-colors"
+                        className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                       >
                         <div className="font-medium">{formatPatientName(patient)}</div>
                         {patient.identifier_bsn && (
@@ -314,8 +314,8 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
                   className={cn(
                     'px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     isSelected
-                      ? 'bg-slate-700 text-white border-2 border-slate-500'
-                      : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-slate-900 text-white border-2 border-slate-700'
+                      : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900'
                   )}
                 >
                   {catConfig.label}
@@ -349,9 +349,9 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
             id="include-handover"
             checked={includeInHandover}
             onChange={(e) => setIncludeInHandover(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-slate-600 focus:ring-slate-500"
+            className="h-4 w-4 rounded border-slate-300 bg-white text-blue-600 focus:ring-blue-500"
           />
-          <Label htmlFor="include-handover" className="cursor-pointer text-sm text-slate-300">
+          <Label htmlFor="include-handover" className="cursor-pointer text-sm text-slate-700">
             Opnemen in overdracht
           </Label>
         </div>

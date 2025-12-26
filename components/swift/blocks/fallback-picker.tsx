@@ -33,7 +33,7 @@ const BLOCK_OPTIONS: BlockOption[] = [
     description: 'Schrijf een dagnotitie',
     icon: FileText,
     shortcut: '1',
-    color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    color: 'bg-blue-50 text-blue-600 border-blue-200',
   },
   {
     type: 'zoeken',
@@ -41,7 +41,7 @@ const BLOCK_OPTIONS: BlockOption[] = [
     description: 'Zoek een patiënt',
     icon: Search,
     shortcut: '2',
-    color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+    color: 'bg-emerald-50 text-emerald-600 border-emerald-200',
   },
   {
     type: 'overdracht',
@@ -49,7 +49,7 @@ const BLOCK_OPTIONS: BlockOption[] = [
     description: 'Bekijk overdracht',
     icon: ArrowRightLeft,
     shortcut: '3',
-    color: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+    color: 'bg-amber-50 text-amber-600 border-amber-200',
   },
 ];
 
@@ -108,14 +108,14 @@ export function FallbackPicker({ originalInput }: FallbackPickerProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] }}
-      className="w-full max-w-md bg-slate-800 rounded-xl border border-slate-700 shadow-2xl overflow-hidden"
+      className="w-full max-w-md bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-        <h2 className="text-lg font-medium text-white">Wat wil je doen?</h2>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+        <h2 className="text-lg font-medium text-slate-900">Wat wil je doen?</h2>
         <button
           onClick={closeBlock}
-          className="p-1 rounded hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
           title="Sluiten (Esc)"
           aria-label="Sluiten"
         >
@@ -125,9 +125,9 @@ export function FallbackPicker({ originalInput }: FallbackPickerProps) {
 
       {/* Original input display */}
       {originalInput && (
-        <div className="px-4 py-2 bg-slate-900/50 border-b border-slate-700">
-          <p className="text-sm text-slate-400">
-            Je zei: <span className="text-slate-300">&quot;{originalInput}&quot;</span>
+        <div className="px-4 py-2 bg-slate-50 border-b border-slate-200">
+          <p className="text-sm text-slate-500">
+            Je zei: <span className="text-slate-700">&quot;{originalInput}&quot;</span>
           </p>
         </div>
       )}
@@ -141,12 +141,12 @@ export function FallbackPicker({ originalInput }: FallbackPickerProps) {
               onClick={() => handleSelect(option)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`flex flex-col items-center gap-2 p-4 rounded-lg border transition-all ${option.color} hover:brightness-110`}
+              className={`flex flex-col items-center gap-2 p-4 rounded-lg border transition-all ${option.color} hover:shadow-md`}
             >
               <option.icon size={28} />
               <span className="font-medium text-sm">{option.label}</span>
-              <span className="text-xs opacity-60 text-center">{option.description}</span>
-              <span className="mt-1 px-2 py-0.5 bg-slate-900/50 rounded text-xs text-slate-400">
+              <span className="text-xs opacity-70 text-center">{option.description}</span>
+              <span className="mt-1 px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-500">
                 [{option.shortcut}]
               </span>
             </motion.button>
@@ -155,7 +155,7 @@ export function FallbackPicker({ originalInput }: FallbackPickerProps) {
       </div>
 
       {/* Footer hint */}
-      <div className="px-4 py-2 bg-slate-900/30 border-t border-slate-700">
+      <div className="px-4 py-2 bg-slate-50 border-t border-slate-200">
         <p className="text-xs text-slate-500 text-center">
           Druk op [1], [2] of [3] voor snelle selectie
         </p>

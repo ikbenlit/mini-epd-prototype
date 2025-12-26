@@ -72,7 +72,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
       animationRef.current = requestAnimationFrame(draw);
       analyserNode.getByteFrequencyData(dataArray);
 
-      ctx.fillStyle = 'rgb(30, 41, 59)'; // slate-800
+      ctx.fillStyle = 'rgb(248, 250, 252)'; // slate-50
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / bufferLength) * 2.5;
@@ -179,7 +179,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
   const isDisabled = isProcessing || activeBlock !== null;
 
   return (
-    <footer className="h-16 border-t border-slate-700 flex items-center px-4 shrink-0 bg-slate-900">
+    <footer className="h-16 border-t border-slate-200 flex items-center px-4 shrink-0 bg-white">
       <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-2">
         {/* Input wrapper with optional waveform */}
         <div className="relative flex-1">
@@ -200,11 +200,11 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={getPlaceholder()}
             disabled={isDisabled}
-            className={`w-full bg-slate-800 border rounded-xl py-3 text-white placeholder:text-slate-500
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-slate-800/80
+            className={`w-full bg-white border rounded-xl py-3 text-slate-900 placeholder:text-slate-400
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-all duration-200
-                       ${isRecording ? 'pl-[220px] pr-12 border-red-500/50' : 'pl-4 pr-12 border-slate-600'}`}
+                       ${isRecording ? 'pl-[220px] pr-12 border-red-500/50' : 'pl-4 pr-12 border-slate-300'}`}
             autoFocus
           />
 
@@ -252,7 +252,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
             className={`p-3 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
               isRecording
                 ? 'bg-red-600 hover:bg-red-500 text-white ring-4 ring-red-600/30'
-                : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
             }`}
             title={isRecording ? 'Stop opname' : 'Start voice input'}
           >
@@ -268,7 +268,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
           <button
             type="button"
             disabled
-            className="p-3 rounded-xl bg-slate-800 text-slate-600 cursor-not-allowed"
+            className="p-3 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed"
             title="Spraakherkenning niet ondersteund in deze browser"
           >
             <MicOff size={20} />

@@ -25,12 +25,18 @@ const SIZE_CLASSES: Record<BlockSize, string> = {
   full: 'max-w-4xl',
 };
 
-// Container animations
+// Container animations - consistent met CanvasArea slide up/down
+// Slide up + fade in bij openen, scale 0.95 → 1.0 (200ms)
 const containerVariants: Variants = {
-  initial: { scale: 0.98, opacity: 0 },
+  initial: { 
+    scale: 0.95, 
+    opacity: 0,
+    y: 0, // BlockContainer animatie wordt door CanvasArea gedaan
+  },
   animate: {
     scale: 1,
     opacity: 1,
+    y: 0,
     transition: {
       duration: 0.2,
       ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
@@ -67,15 +73,15 @@ export function BlockContainer({ title, size = 'md', children }: BlockContainerP
       variants={containerVariants}
       initial="initial"
       animate="animate"
-      className={`w-full ${SIZE_CLASSES[size]} bg-slate-800 rounded-xl border border-slate-700 shadow-2xl`}
+      className={`w-full ${SIZE_CLASSES[size]} bg-white rounded-xl border border-slate-200 shadow-lg`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
         <motion.h2
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.05, duration: 0.2 }}
-          className="text-lg font-medium text-white"
+          className="text-lg font-medium text-slate-900"
         >
           {title}
         </motion.h2>
@@ -85,7 +91,7 @@ export function BlockContainer({ title, size = 'md', children }: BlockContainerP
           initial="rest"
           whileHover="hover"
           whileTap="tap"
-          className="p-1 rounded hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
           title="Sluiten (Esc)"
           aria-label="Block sluiten"
         >

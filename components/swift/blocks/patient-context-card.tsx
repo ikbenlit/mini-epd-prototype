@@ -61,12 +61,12 @@ export function PatientContextCard() {
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-slate-400 mr-2" />
-          <span className="text-sm text-slate-400">Context laden...</span>
+          <span className="text-sm text-slate-500">Context laden...</span>
         </div>
       ) : error ? (
         <div className="text-center py-8">
-          <AlertTriangle className="h-8 w-8 text-red-400 mx-auto mb-2" />
-          <p className="text-sm text-red-600">{error}</p>
+          <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-2" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       ) : data ? (
         <div className="space-y-6">
@@ -74,8 +74,8 @@ export function PatientContextCard() {
           {data.reports && data.reports.length > 0 && (
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <FileText className="h-4 w-4 text-slate-400" />
-                <h3 className="text-sm font-medium text-slate-300">Recente notities</h3>
+                <FileText className="h-4 w-4 text-slate-500" />
+                <h3 className="text-sm font-medium text-slate-700">Recente notities</h3>
                 <span className="text-xs text-slate-500">({data.reports.length})</span>
               </div>
               <div className="space-y-2">
@@ -95,8 +95,8 @@ export function PatientContextCard() {
           {data.vitals && data.vitals.length > 0 && (
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <Activity className="h-4 w-4 text-slate-400" />
-                <h3 className="text-sm font-medium text-slate-300">Vitale functies (vandaag)</h3>
+                <Activity className="h-4 w-4 text-slate-500" />
+                <h3 className="text-sm font-medium text-slate-700">Vitale functies (vandaag)</h3>
                 <span className="text-xs text-slate-500">({data.vitals.length})</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -111,8 +111,8 @@ export function PatientContextCard() {
           {data.conditions && data.conditions.length > 0 && (
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <Stethoscope className="h-4 w-4 text-slate-400" />
-                <h3 className="text-sm font-medium text-slate-300">Actieve diagnoses</h3>
+                <Stethoscope className="h-4 w-4 text-slate-500" />
+                <h3 className="text-sm font-medium text-slate-700">Actieve diagnoses</h3>
                 <span className="text-xs text-slate-500">({data.conditions.length})</span>
               </div>
               <div className="space-y-2">
@@ -127,8 +127,8 @@ export function PatientContextCard() {
           {data.risks && data.risks.length > 0 && (
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="h-4 w-4 text-amber-400" />
-                <h3 className="text-sm font-medium text-slate-300">Risico&apos;s</h3>
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                <h3 className="text-sm font-medium text-slate-700">Risico&apos;s</h3>
                 <span className="text-xs text-slate-500">({data.risks.length})</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -144,7 +144,7 @@ export function PatientContextCard() {
             (!data.vitals || data.vitals.length === 0) &&
             (!data.conditions || data.conditions.length === 0) &&
             (!data.risks || data.risks.length === 0) && (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-400">
                 <p className="text-sm">Geen context beschikbaar voor deze patiënt</p>
               </div>
             )}
@@ -159,12 +159,12 @@ function ReportItem({ report }: { report: Report }) {
   const formattedDate = date ? format(date, 'd MMM HH:mm', { locale: nl }) : 'Onbekend';
 
   return (
-    <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
       <div className="flex items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="text-xs font-medium text-slate-400 uppercase">{report.type}</span>
+          <span className="text-xs font-medium text-slate-500 uppercase">{report.type}</span>
           {report.include_in_handover && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-blue-900/50 text-blue-300">
+            <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
               Overdracht
             </span>
           )}
@@ -174,7 +174,7 @@ function ReportItem({ report }: { report: Report }) {
           {formattedDate}
         </div>
       </div>
-      <p className="text-sm text-slate-300 line-clamp-2">{report.content}</p>
+      <p className="text-sm text-slate-700 line-clamp-2">{report.content}</p>
     </div>
   );
 }
@@ -189,8 +189,8 @@ function VitalItem({ vital }: { vital: VitalSign }) {
       className={cn(
         'p-2 rounded-lg border',
         isAbnormal
-          ? 'bg-amber-900/20 border-amber-700 text-amber-200'
-          : 'bg-slate-800/50 border-slate-700 text-slate-300'
+          ? 'bg-amber-50 border-amber-200 text-amber-700'
+          : 'bg-slate-50 border-slate-200 text-slate-700'
       )}
     >
       <div className="text-xs font-medium mb-0.5">{vital.code_display}</div>
@@ -208,10 +208,10 @@ function ConditionItem({ condition }: { condition: Condition }) {
   const formattedDate = date ? format(date, 'd MMM yyyy', { locale: nl }) : null;
 
   return (
-    <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-800/50 border border-slate-700">
-      <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+    <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-50 border border-slate-200">
+      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-slate-300">{condition.code_display}</p>
+        <p className="text-sm text-slate-700">{condition.code_display}</p>
         {formattedDate && (
           <p className="text-xs text-slate-500">Sinds {formattedDate}</p>
         )}
@@ -230,11 +230,11 @@ function RiskBadge({ risk }: { risk: RiskAssessment }) {
     weglopen: 'Weglopen',
   };
 
-  const RISK_LEVEL_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-    zeer_hoog: { bg: 'bg-red-900/30', text: 'text-red-300', dot: 'bg-red-500' },
-    hoog: { bg: 'bg-red-900/20', text: 'text-red-400', dot: 'bg-red-500' },
-    gemiddeld: { bg: 'bg-amber-900/20', text: 'text-amber-300', dot: 'bg-amber-500' },
-    laag: { bg: 'bg-green-900/20', text: 'text-green-300', dot: 'bg-green-500' },
+  const RISK_LEVEL_STYLES: Record<string, { bg: string; text: string; dot: string; border: string }> = {
+    zeer_hoog: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200' },
+    hoog: { bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500', border: 'border-red-200' },
+    gemiddeld: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200' },
+    laag: { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500', border: 'border-green-200' },
   };
 
   const styles = RISK_LEVEL_STYLES[risk.risk_level] || RISK_LEVEL_STYLES.laag;
@@ -250,7 +250,7 @@ function RiskBadge({ risk }: { risk: RiskAssessment }) {
         'inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border',
         styles.bg,
         styles.text,
-        styles.dot === 'bg-red-500' ? 'border-red-700' : styles.dot === 'bg-amber-500' ? 'border-amber-700' : 'border-green-700'
+        styles.border
       )}
     >
       <span className={cn('w-1.5 h-1.5 rounded-full', styles.dot)} />
