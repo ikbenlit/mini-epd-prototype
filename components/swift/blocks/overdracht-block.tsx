@@ -28,6 +28,7 @@ import { format } from 'date-fns';
 import { nl } from 'date-fns/locale/nl';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { safeFetch, getErrorInfo, retryFetch } from '@/lib/swift/error-handler';
 
 interface OverdrachtBlockProps {
   prefill?: BlockPrefillData;
@@ -64,10 +65,11 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
     const fetchPatients = async () => {
       setIsLoadingPatients(true);
       try {
-        const response = await fetch('/api/overdracht/patients');
-        if (!response.ok) {
-          throw new Error('Kon patiëntenlijst niet laden');
-        }
+        const response = await safeFetch(
+          '/api/overdracht/patients',
+          undefined,
+          { operation: 'Patiëntenlijst laden' }
+        );
         const data = await response.json();
         setPatients(data.patients || []);
 
@@ -84,10 +86,15 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
         setPatientSummaries(summaries);
       } catch (error) {
         console.error('Failed to fetch patients:', error);
+        const statusCode = (error as any)?.statusCode;
+        const errorInfo = getErrorInfo(error, {
+          operation: 'Patiëntenlijst laden',
+          statusCode,
+        });
         toast({
           variant: 'destructive',
-          title: 'Laden mislukt',
-          description: error instanceof Error ? error.message : 'Kon patiëntenlijst niet laden',
+          title: errorInfo.title,
+          description: errorInfo.description,
         });
       } finally {
         setIsLoadingPatients(false);
@@ -125,16 +132,20 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
     });
 
     try {
-      const response = await fetch('/api/overdracht/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId, period }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Genereren mislukt' }));
-        throw new Error(errorData.error || 'Genereren mislukt');
-      }
+      const response = await retryFetch(
+        () =>
+          safeFetch(
+            '/api/overdracht/generate',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ patientId, period }),
+            },
+            { operation: 'Overdracht genereren' }
+          ),
+        3,
+        1000
+      );
 
       const summary: AISamenvatting = await response.json();
 
@@ -153,6 +164,11 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
       });
     } catch (error) {
       console.error('Failed to generate summary:', error);
+      const statusCode = (error as any)?.statusCode;
+      const errorInfo = getErrorInfo(error, {
+        operation: 'Overdracht genereren',
+        statusCode,
+      });
       setPatientSummaries((prev) => {
         const updated = new Map(prev);
         const existing = updated.get(patientId);
@@ -160,7 +176,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
           updated.set(patientId, {
             ...existing,
             loading: false,
-            error: error instanceof Error ? error.message : 'Onbekende fout',
+            error: errorInfo.description,
           });
         }
         return updated;

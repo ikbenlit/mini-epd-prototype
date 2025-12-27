@@ -22,8 +22,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search, User } from 'lucide-react';
+import { Loader2, Search, User, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { safeFetch, getErrorInfo, retryFetch } from '@/lib/swift/error-handler';
 
 interface DagnotitieBlockProps {
   prefill?: BlockPrefillData;
@@ -82,31 +83,39 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
 
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/fhir/Patient?q=${encodeURIComponent(query)}`);
-      if (response.ok) {
-        const data = await response.json();
-        const mappedPatients: Patient[] =
-          data.entry?.map((e: { resource: any }) => {
-            const p = e.resource;
-            return {
-              id: p.id,
-              name_family: p.name?.[0]?.family,
-              name_given: p.name?.[0]?.given || [],
-              identifier_bsn: p.identifier?.find(
-                (id: any) => id.system === 'http://fhir.nl/fhir/NamingSystem/bsn'
-              )?.value,
-            };
-          }) || [];
-        setPatients(mappedPatients);
-        setShowPatientDropdown(mappedPatients.length > 0);
-      }
+      const response = await safeFetch(
+        `/api/fhir/Patient?q=${encodeURIComponent(query)}`,
+        undefined,
+        { operation: 'Patiënt zoeken' }
+      );
+      const data = await response.json();
+      const mappedPatients: Patient[] =
+        data.entry?.map((e: { resource: any }) => {
+          const p = e.resource;
+          return {
+            id: p.id,
+            name_family: p.name?.[0]?.family,
+            name_given: p.name?.[0]?.given || [],
+            identifier_bsn: p.identifier?.find(
+              (id: any) => id.system === 'http://fhir.nl/fhir/NamingSystem/bsn'
+            )?.value,
+          };
+        }) || [];
+      setPatients(mappedPatients);
+      setShowPatientDropdown(mappedPatients.length > 0);
     } catch (error) {
       console.error('Failed to search patients:', error);
+      const errorInfo = getErrorInfo(error, { operation: 'Patiënt zoeken' });
+      toast({
+        variant: 'destructive',
+        title: errorInfo.title,
+        description: errorInfo.description,
+      });
       setPatients([]);
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [toast]);
 
   // Debounced search
   useEffect(() => {
@@ -184,24 +193,28 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          patient_id: patientId,
-          type: 'verpleegkundig',
-          content: content.trim(),
-          category,
-          include_in_handover: includeInHandover,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Onbekende fout' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
-      }
+      const response = await retryFetch(
+        () =>
+          safeFetch(
+            '/api/reports',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                patient_id: patientId,
+                type: 'verpleegkundig',
+                content: content.trim(),
+                category,
+                include_in_handover: includeInHandover,
+              }),
+            },
+            { operation: 'Dagnotitie opslaan' }
+          ),
+        3,
+        1000
+      );
 
       const data = await response.json();
 
@@ -216,15 +229,35 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
       }, 500);
     } catch (error) {
       console.error('Failed to save dagnotitie:', error);
+      const statusCode = (error as any)?.statusCode;
+      const errorInfo = getErrorInfo(error, {
+        operation: 'Dagnotitie opslaan',
+        statusCode,
+      });
+
       toast({
         variant: 'destructive',
-        title: 'Opslaan mislukt',
-        description: error instanceof Error ? error.message : 'Er ging iets mis',
+        title: errorInfo.title,
+        description: errorInfo.description,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Keyboard shortcut: Cmd/Ctrl+Enter to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl+Enter: save dagnotitie
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSave]);
 
   const formatPatientName = (patient: Patient): string => {
     const given = patient.name_given?.join(' ') || '';
@@ -366,14 +399,21 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
           >
             Annuleren
           </Button>
-          <Button type="submit" disabled={isSubmitting || !patientId || !content.trim()}>
+          <Button
+            type="submit"
+            disabled={isSubmitting || !patientId || !content.trim()}
+            title="Opslaan (⌘Enter)"
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Opslaan...
               </>
             ) : (
-              'Opslaan'
+              <>
+                Opslaan
+                <span className="ml-2 text-xs opacity-70 hidden sm:inline">⌘↵</span>
+              </>
             )}
           </Button>
         </div>

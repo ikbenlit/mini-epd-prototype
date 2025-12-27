@@ -19,6 +19,7 @@ import { ContextBar } from './context-bar';
 import { CommandInput } from './command-input';
 import { RecentStrip } from './recent-strip';
 import { CanvasArea } from './canvas-area';
+import { OfflineBanner } from './offline-banner';
 
 export function CommandCenter() {
   const { closeBlock, activeBlock } = useSwiftStore();
@@ -49,6 +50,9 @@ export function CommandCenter() {
 
   return (
     <>
+      {/* Offline Banner */}
+      <OfflineBanner />
+
       {/* Context Bar - 48px */}
       <ContextBar />
 

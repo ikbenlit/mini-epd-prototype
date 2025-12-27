@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Search, User, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { safeFetch, getErrorInfo } from '@/lib/swift/error-handler';
 
 interface ZoekenBlockProps {
   prefill?: BlockPrefillData;
@@ -53,20 +54,24 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
 
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/patients/search?q=${encodeURIComponent(query)}&limit=10`);
-      if (response.ok) {
-        const data = await response.json();
-        setPatients(data.patients || []);
-      } else {
-        const errorData = await response.json().catch(() => ({ error: 'Zoeken mislukt' }));
-        throw new Error(errorData.error || 'Zoeken mislukt');
-      }
+      const response = await safeFetch(
+        `/api/patients/search?q=${encodeURIComponent(query)}&limit=10`,
+        undefined,
+        { operation: 'Patiënt zoeken' }
+      );
+      const data = await response.json();
+      setPatients(data.patients || []);
     } catch (error) {
       console.error('Failed to search patients:', error);
+      const statusCode = (error as any)?.statusCode;
+      const errorInfo = getErrorInfo(error, {
+        operation: 'Patiënt zoeken',
+        statusCode,
+      });
       toast({
         variant: 'destructive',
-        title: 'Zoeken mislukt',
-        description: error instanceof Error ? error.message : 'Er ging iets mis',
+        title: errorInfo.title,
+        description: errorInfo.description,
       });
       setPatients([]);
     } finally {
@@ -128,10 +133,11 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
 
     try {
       // Fetch full patient data from FHIR API
-      const response = await fetch(`/api/fhir/Patient/${patient.id}`);
-      if (!response.ok) {
-        throw new Error('Patiënt data ophalen mislukt');
-      }
+      const response = await safeFetch(
+        `/api/fhir/Patient/${patient.id}`,
+        undefined,
+        { operation: 'Patiënt data ophalen' }
+      );
 
       const fhirPatient = await response.json();
 
@@ -205,10 +211,15 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
       }, 100);
     } catch (error) {
       console.error('Failed to select patient:', error);
+      const statusCode = (error as any)?.statusCode;
+      const errorInfo = getErrorInfo(error, {
+        operation: 'Patiënt selecteren',
+        statusCode,
+      });
       toast({
         variant: 'destructive',
-        title: 'Selectie mislukt',
-        description: error instanceof Error ? error.message : 'Er ging iets mis',
+        title: errorInfo.title,
+        description: errorInfo.description,
       });
       setSelectedPatientId(null);
     }

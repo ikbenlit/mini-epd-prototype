@@ -10,6 +10,7 @@
 import { useSwiftStore, type ShiftType } from '@/stores/swift-store';
 import { Sun, Moon, Sunrise, Sunset, X, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useOffline } from './offline-banner';
 
 const SHIFT_CONFIG: Record<ShiftType, { icon: typeof Sun; label: string; color: string }> = {
   nacht: { icon: Moon, label: 'Nachtdienst', color: 'text-indigo-600' },
@@ -20,11 +21,15 @@ const SHIFT_CONFIG: Record<ShiftType, { icon: typeof Sun; label: string; color: 
 
 export function ContextBar() {
   const { shift, activePatient, setActivePatient } = useSwiftStore();
+  const isOffline = useOffline();
   const shiftConfig = SHIFT_CONFIG[shift];
   const ShiftIcon = shiftConfig.icon;
 
   return (
-    <header className="h-12 border-b border-slate-200 flex items-center px-4 justify-between shrink-0 bg-white">
+    <header
+      className="h-12 border-b border-slate-200 flex items-center px-4 justify-between shrink-0 bg-white"
+      style={isOffline ? { marginTop: '40px' } : undefined}
+    >
       {/* Left: Logo + Shift */}
       <div className="flex items-center gap-4">
         <Link

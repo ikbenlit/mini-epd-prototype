@@ -19,6 +19,8 @@ import { useSwiftStore } from '@/stores/swift-store';
 import { useSwiftVoice } from '@/lib/swift/use-swift-voice';
 import type { BlockType } from '@/lib/swift/types';
 import { Mic, MicOff, Send, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { safeFetch, getErrorInfo } from '@/lib/swift/error-handler';
 
 export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_, ref) {
   const {
@@ -31,6 +33,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
     openBlock,
     addRecentAction,
   } = useSwiftStore();
+  const { toast } = useToast();
 
   const {
     isRecording,
@@ -109,8 +112,8 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
     return 'Typ of spreek je intentie... (bijv. "notitie jan medicatie")';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!hasValue || isProcessing) return;
 
     // Stop recording if active
@@ -123,16 +126,15 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
     
     try {
       // Call intent classification API
-      const response = await fetch('/api/intent/classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: inputText }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Onbekende fout' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
-      }
+      const response = await safeFetch(
+        '/api/intent/classify',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: inputText }),
+        },
+        { operation: 'Intent classificeren' }
+      );
 
       const result = await response.json();
       const { intent, confidence, entities } = result;
@@ -158,6 +160,18 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
       }
     } catch (error) {
       console.error('Error processing intent:', error);
+      const statusCode = (error as any)?.statusCode;
+      const errorInfo = getErrorInfo(error, {
+        operation: 'Intent classificeren',
+        statusCode,
+      });
+
+      // Show error toast
+      toast({
+        variant: 'destructive',
+        title: errorInfo.title,
+        description: errorInfo.description,
+      });
 
       // On error, show FallbackPicker so user can choose
       // This ensures the user's input is not lost
@@ -175,6 +189,20 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
       startRecording();
     }
   };
+
+  // Keyboard shortcut: Cmd/Ctrl+Enter to submit
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl+Enter: submit command
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleSubmit();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSubmit]);
 
   const isDisabled = isProcessing || activeBlock !== null;
 
