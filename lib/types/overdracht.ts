@@ -102,6 +102,7 @@ export interface Aandachtspunt {
 export const GenerateOverdrachtSchema = z.object({
   patientId: z.string().uuid('Patient ID moet een geldige UUID zijn'),
   period: z.enum(['1d', '3d', '7d', '14d']).optional().default('1d'),
+  filterForRole: z.enum(['psychiater', 'verpleegkundige']).optional().default('verpleegkundige'),
 });
 
 export type GenerateOverdrachtInput = z.infer<typeof GenerateOverdrachtSchema>;

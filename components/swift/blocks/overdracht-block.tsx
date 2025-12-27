@@ -56,6 +56,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
   const { toast } = useToast();
 
   const [period, setPeriod] = useState<PeriodValue>('1d');
+  const [filterRole, setFilterRole] = useState<'verpleegkundige' | 'psychiater'>('verpleegkundige');
   const [patients, setPatients] = useState<PatientOverzicht[]>([]);
   const [isLoadingPatients, setIsLoadingPatients] = useState(true);
   const [patientSummaries, setPatientSummaries] = useState<Map<string, PatientSummary>>(new Map());
@@ -139,7 +140,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ patientId, period }),
+              body: JSON.stringify({ patientId, period, filterForRole: filterRole }),
             },
             { operation: 'Overdracht genereren' }
           ),
@@ -182,7 +183,7 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
         return updated;
       });
     }
-  }, [period]);
+  }, [period, filterRole]);
 
   // Filter patients: if activePatient is set, only show that one
   const displayPatients = activePatient
@@ -227,6 +228,44 @@ export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
           </div>
           <p className="text-xs text-slate-500">
             {PERIOD_OPTIONS.find((o) => o.value === period)?.description}
+          </p>
+        </div>
+
+        {/* Role Filter Toggle */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-700">Doelgroep</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setFilterRole('verpleegkundige')}
+              className={cn(
+                'px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
+                filterRole === 'verpleegkundige'
+                  ? 'bg-slate-900 text-white border-2 border-slate-700'
+                  : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+              )}
+            >
+              <div className="font-semibold">Verpleegkundige</div>
+              <div className="text-xs opacity-80 mt-0.5">Alle gemarkeerde items</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterRole('psychiater')}
+              className={cn(
+                'px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
+                filterRole === 'psychiater'
+                  ? 'bg-slate-900 text-white border-2 border-slate-700'
+                  : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+              )}
+            >
+              <div className="font-semibold">Psychiater</div>
+              <div className="text-xs opacity-80 mt-0.5">Behandelrelevante items</div>
+            </button>
+          </div>
+          <p className="text-xs text-slate-500">
+            {filterRole === 'psychiater'
+              ? 'AI filtert op behandelrelevantie voor psychiater'
+              : 'Toont alle door verpleegkundige gemarkeerde items'}
           </p>
         </div>
 

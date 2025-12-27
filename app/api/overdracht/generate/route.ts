@@ -9,7 +9,7 @@ import { createClient } from '@/lib/auth/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
-  OVERDRACHT_SYSTEM_PROMPT,
+  buildSystemPrompt,
   buildOverdrachtUserPrompt,
   calculateAge,
   formatPatientName,
@@ -154,7 +154,10 @@ async function loadOverdrachtContext(
 /**
  * Call Claude API
  */
-async function callClaudeAPI(context: OverdrachtContext): Promise<{
+async function callClaudeAPI(
+  context: OverdrachtContext,
+  role: 'psychiater' | 'verpleegkundige' = 'verpleegkundige'
+): Promise<{
   samenvatting: string;
   aandachtspunten: Aandachtspunt[];
   actiepunten: string[];
@@ -164,6 +167,7 @@ async function callClaudeAPI(context: OverdrachtContext): Promise<{
     throw new Error('ANTHROPIC_API_KEY ontbreekt in environment');
   }
 
+  const systemPrompt = buildSystemPrompt(role);
   const userPrompt = buildOverdrachtUserPrompt(context);
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -177,7 +181,7 @@ async function callClaudeAPI(context: OverdrachtContext): Promise<{
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2048,
       temperature: 0.3,
-      system: OVERDRACHT_SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     }),
   });
@@ -277,7 +281,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { patientId, period } = result.data;
+    const { patientId, period, filterForRole } = result.data;
     const supabase = await createClient();
 
     // Check auth
@@ -289,8 +293,8 @@ export async function POST(request: NextRequest) {
     // Load context with period filter
     const context = await loadOverdrachtContext(supabase, patientId, period);
 
-    // Call Claude API
-    const aiResult = await callClaudeAPI(context);
+    // Call Claude API with role-specific filtering
+    const aiResult = await callClaudeAPI(context, filterForRole);
 
     const durationMs = Date.now() - startTime;
 

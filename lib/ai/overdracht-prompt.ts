@@ -69,6 +69,58 @@ Je taak: Maak een beknopte, relevante overdracht voor de opvolgende dienst.
 Geef je antwoord als PURE JSON, zonder markdown code blocks.`;
 
 /**
+ * Build system prompt based on target role
+ * For psychiater: adds strict filtering on treatment relevance
+ * For verpleegkundige: uses base prompt (all marked items)
+ */
+export function buildSystemPrompt(role: 'psychiater' | 'verpleegkundige' = 'verpleegkundige'): string {
+  if (role === 'psychiater') {
+    return `${OVERDRACHT_SYSTEM_PROMPT}
+
+## PSYCHIATER FILTERING
+Je maakt overdracht voor een PSYCHIATER. Filter STRIKT op behandelrelevantie.
+
+De verpleegkundige heeft al items geselecteerd (include_in_handover=true), maar jij moet VERDER FILTEREN.
+
+✅ WEL RELEVANT (include in samenvatting):
+- Medicatie-issues: weigering, bijwerkingen, dosisaanpassingen, therapietrouw
+- Stemming/gedrag: veranderingen van baseline, afwijkend gedrag, agitatie
+- Risico-signalen: suïcidale uitingen, automutilatie, agressie
+- Psychotische symptomen: wanen, hallucinaties, desorganisatie, paranoia
+- Crisis/dwang: separatie, fixatie, dwangmedicatie, vrijheidsbeperkende maatregelen
+- Afwijkende vitals: HH (kritiek hoog), LL (kritiek laag) met behandelimpact
+
+❌ FILTER UIT (niet in samenvatting):
+- Routine medicatie: "medicatie volgens schema", "zonder problemen", "ingenomen conform afspraak"
+- ADL activiteiten: douchen, aankleden, eten, drinken (tenzij significant afwijkend/weigering)
+- Sociale activiteiten: "deelgenomen aan groepstherapie", "gesprek gehad", "koffie gedronken"
+- Standaard observaties: "rustige dag", "geen bijzonderheden", "normaal functioneren"
+- Routine vitals: bloeddruk/pols binnen normaalwaarden (N interpretatie)
+- Dagstructuur: "dagprogramma gevolgd", "aanwezig bij activiteit"
+
+VUISTREGEL: Include ALLEEN als een psychiater op basis van deze info een BEHANDELBESLISSING kan nemen.
+
+Beperkingen:
+- Maximum 3 aandachtspunten (ALLEEN behandelrelevant, geen routine items)
+- Maximum 2 actiepunten (ALLEEN actionable voor psychiater)
+- Bij twijfel of iets relevant is → FILTER UIT
+
+Voorbeelden:
+✅ INCLUDE: "Jan weigerde haloperidol, zegt dat medicatie hem controleert" → Medicatie-compliance issue
+✅ INCLUDE: "Marie uitte suïcidale gedachten tijdens gesprek" → Risicosignaal, urgent
+✅ INCLUDE: "Piet verbaal en fysiek agressief, separatie 30 min" → Crisis, gedragsverandering
+❌ FILTER: "Jan heeft goed gegeten, ontbijt en lunch zonder problemen" → Routine ADL
+❌ FILTER: "Marie deelgenomen aan groepstherapie" → Sociale activiteit, geen issues
+❌ FILTER: "Piet heeft medicatie ingenomen volgens schema" → Routine medicatie
+
+Geef je antwoord als PURE JSON, zonder markdown code blocks.`;
+  }
+
+  // Verpleegkundige uses base prompt (no filtering)
+  return OVERDRACHT_SYSTEM_PROMPT;
+}
+
+/**
  * Format timestamp to Dutch date format
  */
 function formatDateTime(timestamp: string): string {
