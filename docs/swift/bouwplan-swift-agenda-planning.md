@@ -65,8 +65,8 @@ Toelichting: dit bouwt voort op het Swift conversatie‑model en hergebruikt de 
 | E1 | Intent & entity layer | Agenda intents + entities toevoegen | Done | 4 | Swift intent stack |
 | E2 | Date/time parsing | NLP‑helpers voor datum/tijd | Done | 3 | Geen nieuwe deps |
 | E3 | Backend integratie | Agenda data APIs + reuse actions | Done | 4 | Auth vereist |
-| E4 | AgendaBlock UI | List/create/cancel/reschedule views | To Do | 5 | Swift artifact |
-| E5 | Chat orchestration | Action routing + prompt update | To Do | 3 | Swift chat API |
+| E4 | AgendaBlock UI | List/create/cancel/reschedule views | Done | 5 | Swift artifact |
+| E5 | Chat orchestration | Action routing + prompt update | Done | 3 | Swift chat API |
 | E6 | QA & docs | Testplan + docs update | To Do | 3 | Manual QA |
 
 ---
@@ -373,9 +373,9 @@ Epic doel: agenda intents laten landen in juiste artifact.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E5.S1 | Action routing | Agenda intents openen AgendaBlock met juiste mode | To Do | E4.S1 | 2 |
-| E5.S2 | Chat prompt update | `/api/swift/chat` prompt bevat agenda sectie + action format | To Do | E1.S3 | 2 |
-| E5.S3 | Error states | User-friendly errors + link naar `/epd/agenda` | To Do | E3.S1 | 2 |
+| E5.S1 | Action routing | Agenda intents openen AgendaBlock met juiste mode | Done | E4.S1 | 2 |
+| E5.S2 | Chat prompt update | `/api/swift/chat` prompt bevat agenda sectie + action format | Done | E1.S3 | 2 |
+| E5.S3 | Error states | User-friendly errors + link naar `/epd/agenda` | Done | E3.S1 | 2 |
 
 **Technical notes:**
 

@@ -21,6 +21,7 @@ import type { BlockType } from '@/lib/swift/types';
 import { Mic, MicOff, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { safeFetch, getErrorInfo } from '@/lib/swift/error-handler';
+import { routeIntentToArtifact } from '@/lib/swift/action-parser';
 
 export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_, ref) {
   const {
@@ -31,6 +32,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
     activeBlock,
     isVoiceActive,
     openBlock,
+    openArtifact,
     addRecentAction,
   } = useSwiftStore();
   const { toast } = useToast();
@@ -139,22 +141,27 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
       const result = await response.json();
       const { intent, confidence, entities } = result;
 
-      // Check if we have a valid intent with sufficient confidence
-      if (intent !== 'unknown' && confidence >= 0.5) {
-        // Open the appropriate block with prefill data
-        // Type assertion: intent is BlockType after 'unknown' check
-        openBlock(intent as BlockType, entities);
-        
+      // Route intent to artifact using Epic 5.S1 routing logic
+      const artifactConfig = routeIntentToArtifact(intent, entities, confidence);
+
+      if (artifactConfig) {
+        // Open artifact with routing configuration
+        openArtifact({
+          type: artifactConfig.type,
+          title: artifactConfig.title,
+          prefill: artifactConfig.prefill,
+        });
+
         // Add to recent actions
         addRecentAction({
           intent,
           label: inputText.slice(0, 50), // Truncate for display
           patientName: entities.patientName,
         });
-        
+
         clearInput();
       } else {
-        // Low confidence or unknown intent - show FallbackPicker
+        // Low confidence or missing required entities - show FallbackPicker
         openBlock('fallback', { content: inputText });
         clearInput();
       }

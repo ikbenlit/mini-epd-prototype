@@ -24,6 +24,7 @@ import {
     LocationClassCode,
     APPOINTMENT_TYPE_COLORS
 } from '@/app/epd/agenda/types';
+import { AgendaErrorAlert } from './agenda-error-state';
 
 interface AgendaCreateFormProps {
     prefillData?: {
@@ -177,10 +178,11 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-5">
 
                 {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2 text-sm text-red-700">
-                        <AlertCircle className="h-4 w-4" />
-                        {error}
-                    </div>
+                    <AgendaErrorAlert
+                        error={error}
+                        onDismiss={() => setError(null)}
+                        showFallbackLink={true}
+                    />
                 )}
 
                 {/* Patient Selection */}

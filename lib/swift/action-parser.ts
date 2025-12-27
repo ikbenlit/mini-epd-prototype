@@ -13,7 +13,16 @@ import type { ChatAction, SwiftIntent, BlockType } from '@/stores/swift-store';
 // Validation schema for action objects
 const ActionSchema = z.object({
   type: z.literal('action'),
-  intent: z.enum(['dagnotitie', 'zoeken', 'overdracht', 'unknown']),
+  intent: z.enum([
+    'dagnotitie',
+    'zoeken',
+    'overdracht',
+    'agenda_query',
+    'create_appointment',
+    'cancel_appointment',
+    'reschedule_appointment',
+    'unknown',
+  ]),
   entities: z.object({
     patientName: z.string().optional(),
     patientId: z.string().optional(),
@@ -27,7 +36,17 @@ const ActionSchema = z.object({
   confidence: z.number().min(0).max(1),
   artifact: z
     .object({
-      type: z.enum(['dagnotitie', 'zoeken', 'overdracht', 'fallback', 'patient-dashboard']),
+      type: z.enum([
+        'dagnotitie',
+        'zoeken',
+        'overdracht',
+        'agenda_query',
+        'create_appointment',
+        'cancel_appointment',
+        'reschedule_appointment',
+        'fallback',
+        'patient-dashboard',
+      ]),
       prefill: z.record(z.string(), z.any()),
     })
     .optional(),
@@ -148,5 +167,124 @@ export function validateArtifactType(intent: SwiftIntent, artifactType?: BlockTy
   // Intent should match artifact type (except for 'unknown' and 'fallback')
   if (intent === 'unknown') return artifactType === 'fallback';
 
+  // For agenda intents, all map to agenda block types
+  const agendaIntents: SwiftIntent[] = [
+    'agenda_query',
+    'create_appointment',
+    'cancel_appointment',
+    'reschedule_appointment',
+  ];
+  if (agendaIntents.includes(intent)) {
+    return agendaIntents.includes(artifactType as SwiftIntent);
+  }
+
   return intent === artifactType;
+}
+
+/**
+ * Route intent to appropriate artifact configuration
+ *
+ * Maps intents (especially agenda intents) to the correct artifact type with prefill data.
+ * Implements Epic 5.S1 routing logic.
+ *
+ * @param intent - The classified intent
+ * @param entities - Extracted entities from user input
+ * @param confidence - Intent classification confidence (0-1)
+ * @returns Artifact configuration or null if confidence too low or required data missing
+ */
+export function routeIntentToArtifact(
+  intent: SwiftIntent,
+  entities: Record<string, any>,
+  confidence: number
+): { type: BlockType; prefill: Record<string, any>; title: string } | null {
+  // Confidence threshold: return null if too low
+  // This triggers fallback/clarification question in UI
+  if (confidence < 0.7) {
+    return null;
+  }
+
+  // Route agenda intents to AgendaBlock with appropriate configuration
+  switch (intent) {
+    case 'agenda_query':
+      return {
+        type: 'agenda_query',
+        title: 'Agenda',
+        prefill: {
+          dateRange: entities.dateRange,
+        },
+      };
+
+    case 'create_appointment':
+      // Require patient for create
+      if (!entities.patientName && !entities.patientId) {
+        return null; // Missing required entity - trigger clarification
+      }
+      return {
+        type: 'create_appointment',
+        title: 'Nieuwe afspraak',
+        prefill: {
+          patientName: entities.patientName,
+          patientId: entities.patientId,
+          datetime: entities.datetime,
+          appointmentType: entities.appointmentType,
+          location: entities.location,
+        },
+      };
+
+    case 'cancel_appointment':
+      return {
+        type: 'cancel_appointment',
+        title: 'Afspraak annuleren',
+        prefill: {
+          identifier: entities.identifier,
+        },
+      };
+
+    case 'reschedule_appointment':
+      // Require identifier to know which appointment
+      if (!entities.identifier) {
+        return null; // Missing required entity - trigger clarification
+      }
+      return {
+        type: 'reschedule_appointment',
+        title: 'Afspraak verzetten',
+        prefill: {
+          identifier: entities.identifier,
+          newDatetime: entities.newDatetime,
+        },
+      };
+
+    // Non-agenda intents - direct mapping
+    case 'dagnotitie':
+      return {
+        type: 'dagnotitie',
+        title: 'Dagnotitie',
+        prefill: entities,
+      };
+
+    case 'zoeken':
+      return {
+        type: 'zoeken',
+        title: 'Patiënt zoeken',
+        prefill: entities,
+      };
+
+    case 'overdracht':
+      return {
+        type: 'overdracht',
+        title: 'Overdracht',
+        prefill: entities,
+      };
+
+    case 'unknown':
+      // Unknown intent - show fallback picker
+      return {
+        type: 'fallback',
+        title: 'Keuze maken',
+        prefill: entities,
+      };
+
+    default:
+      return null;
+  }
 }
