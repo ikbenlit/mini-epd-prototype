@@ -92,14 +92,24 @@ interface SwiftStore {
   isStreaming: boolean;
   pendingAction: ChatAction | null;
 
+  // Artifact state (E4 - Multiple artifacts support)
+  openArtifacts: Artifact[];
+  activeArtifactId: string | null;
+
   // Context actions
   setActivePatient: (patient: Patient | null) => void;
   setShift: (shift: ShiftType) => void;
 
-  // Block actions
+  // Block actions (legacy - will be replaced by artifact actions)
   openBlock: (type: BlockType, prefill?: BlockPrefillData) => void;
   closeBlock: () => void;
   setBlockLoading: (loading: boolean) => void;
+
+  // Artifact actions (E4.S2)
+  openArtifact: (artifact: Omit<Artifact, 'id' | 'createdAt'>) => void;
+  closeArtifact: (id: string) => void;
+  switchArtifact: (id: string) => void;
+  closeAllArtifacts: () => void;
 
   // Input actions
   setInputValue: (value: string) => void;
@@ -143,6 +153,9 @@ const initialState = {
   chatMessages: [],
   isStreaming: false,
   pendingAction: null,
+  // Artifact state (E4)
+  openArtifacts: [],
+  activeArtifactId: null,
 };
 
 // Create the store
@@ -263,6 +276,89 @@ export const useSwiftStore = create<SwiftStore>()(
       setStreaming: (streaming) => set({ isStreaming: streaming }, false, 'setStreaming'),
 
       setPendingAction: (action) => set({ pendingAction: action }, false, 'setPendingAction'),
+
+      // Artifact actions (E4.S2)
+      openArtifact: (artifactData) => {
+        set(
+          (state) => {
+            // Create artifact with unique ID and timestamp
+            const newArtifact: Artifact = {
+              ...artifactData,
+              id: crypto.randomUUID(),
+              createdAt: new Date(),
+            };
+
+            let artifacts = [...state.openArtifacts];
+
+            // Max 3 artifacts - remove oldest if at capacity
+            if (artifacts.length >= 3) {
+              console.log('[Store] Max 3 artifacts reached, removing oldest');
+              artifacts = artifacts.slice(1); // Remove first (oldest)
+            }
+
+            console.log('[Store] Opening artifact:', newArtifact.type, newArtifact.title);
+
+            return {
+              openArtifacts: [...artifacts, newArtifact],
+              activeArtifactId: newArtifact.id,
+            };
+          },
+          false,
+          'openArtifact'
+        );
+      },
+
+      closeArtifact: (id) => {
+        set(
+          (state) => {
+            const artifacts = state.openArtifacts.filter((a) => a.id !== id);
+
+            // If closing active artifact, switch to last remaining artifact
+            let newActiveId = state.activeArtifactId;
+            if (state.activeArtifactId === id) {
+              newActiveId = artifacts.length > 0 ? artifacts[artifacts.length - 1].id : null;
+            }
+
+            console.log('[Store] Closing artifact:', id, 'New active:', newActiveId);
+
+            return {
+              openArtifacts: artifacts,
+              activeArtifactId: newActiveId,
+            };
+          },
+          false,
+          'closeArtifact'
+        );
+      },
+
+      switchArtifact: (id) => {
+        set(
+          (state) => {
+            // Verify artifact exists
+            const exists = state.openArtifacts.some((a) => a.id === id);
+            if (!exists) {
+              console.warn('[Store] Cannot switch to artifact:', id, '(not found)');
+              return state;
+            }
+
+            console.log('[Store] Switching to artifact:', id);
+            return { activeArtifactId: id };
+          },
+          false,
+          'switchArtifact'
+        );
+      },
+
+      closeAllArtifacts: () => {
+        set(
+          {
+            openArtifacts: [],
+            activeArtifactId: null,
+          },
+          false,
+          'closeAllArtifacts'
+        );
+      },
 
       // Reset
       reset: () => set(initialState, false, 'reset'),

@@ -222,12 +222,12 @@ const useChatStore = create<ChatState>((set) => ({
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
-| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ In Progress | 1/4 | 13 SP | Container & tabs structure |
+| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ In Progress | 2/4 | 13 SP | Lifecycle management werkend |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 17/31 stories compleet, 2 geskipt (53 SP / 85 SP = **62%**)
+**Voortgang:** ✅ 18/31 stories compleet, 2 geskipt (56 SP / 85 SP = **66%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -613,7 +613,7 @@ E3.S5 (useChatStream hook) is geskipt omdat:
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
 | E4.S1 | ArtifactContainer component | Wrapper met tabs bovenaan, max 3 artifacts | ✅ **Compleet** | E3.S6 | 5 |
-| E4.S2 | Artifact lifecycle management | Open/close/switch tussen artifacts in store | ⏳ | E4.S1 | 3 |
+| E4.S2 | Artifact lifecycle management | Open/close/switch tussen artifacts in store | ✅ **Compleet** | E4.S1 | 3 |
 | E4.S3 | Slide-in animatie | Artifact slide-in van rechts (200ms ease-out) | ⏳ | E4.S2 | 2 |
 | E4.S4 | Placeholder state | "Artifacts verschijnen hier" met voorbeelden | ⏳ | E4.S3 | 3 |
 
@@ -739,7 +739,27 @@ function ArtifactPlaceholder() {
 **Git Commits:**
 - (to be committed) — E4.S1 (ArtifactContainer component)
 
-**Note:** E4.S1 definieert de structuur. E4.S2 voegt store state toe (openArtifacts[], activeArtifactId, actions).
+**Deliverables (E4.S2 compleet):**
+- ✅ `stores/swift-store.ts` — openArtifacts[], activeArtifactId state
+- ✅ Store actions: openArtifact(), closeArtifact(), switchArtifact(), closeAllArtifacts()
+- ✅ openArtifact: Auto-generate ID + timestamp, max 3 logic (remove oldest)
+- ✅ closeArtifact: Filter out artifact, auto-switch to last remaining
+- ✅ switchArtifact: Verify exists, set activeArtifactId
+- ✅ closeAllArtifacts: Clear all artifacts + active ID
+- ✅ Console logging: "[Store] Opening artifact:", "[Store] Closing artifact:", etc.
+- ✅ ArtifactArea: Refactored to use ArtifactContainer
+- ✅ ArtifactArea: Pass store actions (switchArtifact, closeArtifact)
+- ✅ CommandCenter: openArtifact() i.p.v. openBlock()
+- ✅ CommandCenter: getArtifactTitle() voor artifact titles
+- ✅ CommandCenter: Escape key → closeAllArtifacts()
+- ✅ Integration: Chat → Action → openArtifact → Tabs + Container
+- ✅ Build succesvol zonder errors
+
+**Git Commits:**
+- `855744c` — E4.S1 (ArtifactContainer component)
+- (to be committed) — E4.S2 (Artifact lifecycle management)
+
+**Note:** E4.S1 + E4.S2 maken het artifact systeem volledig functioneel. E4.S3 voegt animaties toe.
 
 **Deliverable Epic 4 complete:** Meerdere artifacts mogelijk, smooth transitions, placeholder state
 

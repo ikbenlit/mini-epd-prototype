@@ -22,18 +22,19 @@ import { ContextBar } from './context-bar';
 import { OfflineBanner } from './offline-banner';
 import { ChatPanel } from '../chat/chat-panel';
 import { ArtifactArea } from '../artifacts/artifact-area';
+import { getArtifactTitle } from '../artifacts/artifact-container';
 
 export function CommandCenter() {
-  const { closeBlock, activeBlock, openBlock, pendingAction, setPendingAction } = useSwiftStore();
+  const { closeAllArtifacts, openArtifacts, openArtifact, pendingAction, setPendingAction } = useSwiftStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcuts
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // Escape: close active block
-      if (e.key === 'Escape' && activeBlock) {
+      // Escape: close all artifacts
+      if (e.key === 'Escape' && openArtifacts.length > 0) {
         e.preventDefault();
-        closeBlock();
+        closeAllArtifacts();
       }
 
       // Cmd/Ctrl + K: focus input (chat input in v3.0)
@@ -42,7 +43,7 @@ export function CommandCenter() {
         inputRef.current?.focus();
       }
     },
-    [activeBlock, closeBlock]
+    [openArtifacts, closeAllArtifacts]
   );
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function CommandCenter() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // E3.S6: Handle pending actions from chat (artifact opening)
+  // E3.S6 + E4.S2: Handle pending actions from chat (artifact opening)
   useEffect(() => {
     if (!pendingAction) return;
 
@@ -60,10 +61,17 @@ export function CommandCenter() {
     if (pendingAction.artifact) {
       const { type, prefill } = pendingAction.artifact;
 
-      console.log('[CommandCenter] Opening artifact:', type, 'with prefill:', prefill);
+      // Generate title for the artifact
+      const title = getArtifactTitle(type, prefill);
 
-      // Open the block with prefill data
-      openBlock(type, prefill);
+      console.log('[CommandCenter] Opening artifact:', type, title);
+
+      // Open the artifact (E4.S2 - new artifact system)
+      openArtifact({
+        type,
+        prefill,
+        title,
+      });
 
       // Clear pending action after processing
       setPendingAction(null);
@@ -71,7 +79,7 @@ export function CommandCenter() {
       console.log('[CommandCenter] Action has no artifact, skipping');
       setPendingAction(null);
     }
-  }, [pendingAction, openBlock, setPendingAction]);
+  }, [pendingAction, openArtifact, setPendingAction]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
