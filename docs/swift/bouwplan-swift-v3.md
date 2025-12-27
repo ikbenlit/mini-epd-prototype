@@ -221,13 +221,13 @@ const useChatStore = create<ChatState>((set) => ({
 | E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ✅ **Compleet** | 3/3 | 5 SP | Docs aangemaakt |
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
-| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ In Progress | 4/6 | 21 SP | Intent detection parsing |
+| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ In Progress | 5/6 | 21 SP | E3.S5 geskipt (inline in ChatPanel) |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 0/4 | 13 SP | Week 5 |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 15/31 stories compleet (46 SP / 85 SP = **54%**)
+**Voortgang:** ✅ 15/31 stories compleet, 1 geskipt (46 SP / 85 SP = **54%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -410,8 +410,8 @@ const MESSAGE_STYLES = {
 | E3.S2 | Streaming response logic | Claude API streaming werkt, chunks naar frontend | ✅ **Compleet** | E3.S1 | 5 |
 | E3.S3 | Medical scribe system prompt | Prompt met role, intents, examples, Nederlands | ✅ **Compleet** | E3.S2 | 3 |
 | E3.S4 | Intent detection in response | AI genereert action objects (intent + entities) | ✅ **Compleet** | E3.S3 | 5 |
-| E3.S5 | Frontend streaming handling | useChatStream hook, message chunks renderen | ⏳ | E3.S4 | 3 |
-| E3.S6 | Artifact opening from chat | Action object opent juiste block met prefill | ⏳ | E3.S5 | 2 |
+| ~~E3.S5~~ | ~~Frontend streaming handling~~ | ~~useChatStream hook, message chunks renderen~~ | ❌ **GESKIPT** | ~~E3.S4~~ | ~~3~~ |
+| E3.S6 | Artifact opening from chat | Action object opent juiste block met prefill | ⏳ | E3.S4 | 2 |
 
 **Technical Notes:**
 
@@ -575,7 +575,15 @@ export function useChatStream() {
 - `8efac84` — E3.S3 (Medical scribe system prompt v1.0)
 - (to be committed) — E3.S4 (Intent detection in response)
 
-**Remaining:** E3.S5-E3.S6 voor frontend streaming polish en artifact opening
+**Note E3.S5 - GESKIPT:**
+E3.S5 (useChatStream hook) is geskipt omdat:
+- Streaming logica al werkend geïmplementeerd in ChatPanel (E3.S2)
+- Inline implementatie is voldoende voor huidige use case
+- Geen andere components gebruiken streaming (YAGNI principe)
+- Refactor naar hook kan later indien nodig
+- Dependencies: E3.S6 nu afhankelijk van E3.S4 i.p.v. E3.S5
+
+**Remaining:** E3.S6 voor artifact opening (laatste story Epic 3!)
 
 ---
 
