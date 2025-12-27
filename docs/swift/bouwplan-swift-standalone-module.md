@@ -64,7 +64,7 @@ Development practices:
 | E0 | Product/UX alignment | Scope en UX flows vastleggen | Done | 2 | Route group akkoord |
 | E1 | Routing & layout scheiding | Swift los van EPD layout | Done | 4 | `/epd/swift` blijft |
 | E2 | Navigatie & toegang | Entry/exit flows borgen | Done | 3 | MVP only |
-| E3 | Swift shell polish | Full-screen gedrag + responsive | To Do | 3 | Geen redesign |
+| E3 | Swift shell polish | Full-screen gedrag + responsive | Done | 3 | Geen redesign |
 | E4 | QA & docs | Validatie en documentatie | To Do | 3 | Manual checks |
 
 ---
@@ -114,9 +114,9 @@ Epic doel: full-screen ervaring is clean en consistent.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E3.S1 | Full-screen layout check | Geen sidebar spacing of EPD padding zichtbaar | To Do | E1.S2 | 2 |
-| E3.S2 | Responsive gedrag check | Chat/artifacts stacken op mobiel zoals nu | To Do | E1.S2 | 2 |
-| E3.S3 | Visuele consistentie | Context bar en offline banner correct gepositioneerd | To Do | E1.S2 | 1 |
+| E3.S1 | Full-screen layout check | Geen sidebar spacing of EPD padding zichtbaar | Done | E1.S2 | 2 |
+| E3.S2 | Responsive gedrag check | Chat/artifacts stacken op mobiel zoals nu | Done | E1.S2 | 2 |
+| E3.S3 | Visuele consistentie | Context bar en offline banner correct gepositioneerd | Done | E1.S2 | 1 |
 
 Technical notes:
 - Geen redesign of nieuwe UI componenten.

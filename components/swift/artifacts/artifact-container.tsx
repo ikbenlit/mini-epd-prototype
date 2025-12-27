@@ -14,6 +14,7 @@ import { ArtifactTab } from './artifact-tab';
 import { DagnotatieBlock } from '../blocks/dagnotitie-block';
 import { ZoekenBlock } from '../blocks/zoeken-block';
 import { OverdrachtBlock } from '../blocks/overdracht-block';
+import { PatientDashboardBlock } from '../blocks/patient-dashboard-block';
 import { FallbackPicker } from '../blocks/fallback-picker';
 import type { Artifact, BlockType } from '@/stores/swift-store';
 
@@ -30,13 +31,15 @@ interface ArtifactContainerProps {
 function renderArtifactBlock(artifact: Artifact) {
   switch (artifact.type) {
     case 'dagnotitie':
-      return <DagnotatieBlock key={artifact.id} />;
+      return <DagnotatieBlock key={artifact.id} prefill={artifact.prefill} />;
     case 'zoeken':
-      return <ZoekenBlock key={artifact.id} />;
+      return <ZoekenBlock key={artifact.id} prefill={artifact.prefill} />;
     case 'overdracht':
-      return <OverdrachtBlock key={artifact.id} />;
+      return <OverdrachtBlock key={artifact.id} prefill={artifact.prefill} />;
+    case 'patient-dashboard':
+      return <PatientDashboardBlock key={artifact.id} prefill={artifact.prefill} />;
     case 'fallback':
-      return <FallbackPicker key={artifact.id} />;
+      return <FallbackPicker key={artifact.id} originalInput={artifact.prefill?.content} />;
     default:
       return (
         <div className="p-4 text-slate-500">
@@ -61,6 +64,10 @@ export function getArtifactTitle(type: BlockType, prefill?: any): string {
       return 'Dienst Overdracht';
     case 'fallback':
       return 'Kies een actie';
+    case 'patient-dashboard':
+      return prefill?.patientName
+        ? `Dashboard - ${prefill.patientName}`
+        : 'Patiëntoverzicht';
     default:
       return 'Artifact';
   }

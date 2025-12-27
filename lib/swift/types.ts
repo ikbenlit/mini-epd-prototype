@@ -9,7 +9,7 @@ import type { VerpleegkundigCategory } from '@/lib/types/report';
 // Intent types
 export type SwiftIntent = 'dagnotitie' | 'zoeken' | 'overdracht' | 'unknown';
 
-export type BlockType = Exclude<SwiftIntent, 'unknown'>;
+export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'patient-dashboard';
 
 // Shift types
 export type ShiftType = 'nacht' | 'ochtend' | 'middag' | 'avond';
@@ -28,6 +28,7 @@ export interface ExtractedEntities {
   patientId?: string;
   category?: VerpleegkundigCategory;
   content?: string;
+  query?: string;
 }
 
 // Block sizes
@@ -60,6 +61,12 @@ export const BLOCK_CONFIGS: Record<BlockType, BlockConfig> = {
     title: 'Overdracht',
     size: 'lg',
     icon: 'ArrowRightLeft',
+  },
+  'patient-dashboard': {
+    type: 'patient-dashboard',
+    title: 'Patiëntoverzicht',
+    size: 'lg',
+    icon: 'LayoutDashboard',
   },
 };
 

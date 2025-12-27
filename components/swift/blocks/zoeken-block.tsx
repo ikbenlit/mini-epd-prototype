@@ -34,11 +34,12 @@ interface PatientSearchResult {
 
 export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
   const config = BLOCK_CONFIGS.zoeken;
-  const { closeBlock, setActivePatient, addRecentAction } = useSwiftStore();
+  const { closeBlock, setActivePatient, addRecentAction, openArtifact } = useSwiftStore();
   const { toast } = useToast();
+  const prefillQuery = prefill?.patientName || prefill?.query || '';
 
   // Search state
-  const [searchQuery, setSearchQuery] = useState<string>(prefill?.patientName || '');
+  const [searchQuery, setSearchQuery] = useState<string>(prefillQuery);
   const [patients, setPatients] = useState<PatientSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -81,14 +82,14 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
 
   // Prefill search query
   useEffect(() => {
-    if (prefill?.patientName) {
-      setSearchQuery(prefill.patientName);
+    if (prefillQuery) {
+      setSearchQuery(prefillQuery);
       // Auto-search if prefill is provided
-      if (prefill.patientName.length >= 2) {
-        searchPatients(prefill.patientName);
+      if (prefillQuery.length >= 2) {
+        searchPatients(prefillQuery);
       }
     }
-  }, [prefill, searchPatients]);
+  }, [prefillQuery, searchPatients]);
 
   // Debounced search
   useEffect(() => {
@@ -201,14 +202,16 @@ export function ZoekenBlock({ prefill }: ZoekenBlockProps) {
         description: `${patient.name} is nu actief`,
       });
 
-      // Close search block and open PatientContextCard
+      // Close legacy block (v2) and open dashboard artifact (v3)
       closeBlock();
-      
-      // Open PatientContextCard after a short delay to allow ZoekenBlock to close
-      setTimeout(() => {
-        // PatientContextCard will auto-open when activePatient is set
-        // We don't need to explicitly open it as a block - it's shown automatically
-      }, 100);
+      openArtifact({
+        type: 'patient-dashboard',
+        title: `Dashboard - ${patient.name}`,
+        prefill: {
+          patientId: patient.id,
+          patientName: patient.name,
+        },
+      });
     } catch (error) {
       console.error('Failed to select patient:', error);
       const statusCode = (error as any)?.statusCode;

@@ -15,7 +15,7 @@ export type SwiftIntent =
   | 'overdracht'
   | 'unknown';
 
-export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'fallback';
+export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'fallback' | 'patient-dashboard';
 
 // Chat types (v3.0)
 export type ChatMessageType = 'user' | 'assistant' | 'system' | 'error';
@@ -44,6 +44,7 @@ export interface ExtractedEntities {
   patientId?: string;
   category?: VerpleegkundigCategory;
   content?: string;
+  query?: string;
 }
 
 // Block prefill data

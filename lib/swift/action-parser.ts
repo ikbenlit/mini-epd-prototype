@@ -24,7 +24,7 @@ const ActionSchema = z.object({
   confidence: z.number().min(0).max(1),
   artifact: z
     .object({
-      type: z.enum(['dagnotitie', 'zoeken', 'overdracht', 'fallback']),
+      type: z.enum(['dagnotitie', 'zoeken', 'overdracht', 'fallback', 'patient-dashboard']),
       prefill: z.record(z.string(), z.any()),
     })
     .optional(),
@@ -140,6 +140,7 @@ export function getConfidenceLabel(confidence: number): string {
  */
 export function validateArtifactType(intent: SwiftIntent, artifactType?: BlockType): boolean {
   if (!artifactType) return true; // No artifact is valid
+  if (artifactType === 'patient-dashboard') return true;
 
   // Intent should match artifact type (except for 'unknown' and 'fallback')
   if (intent === 'unknown') return artifactType === 'fallback';
