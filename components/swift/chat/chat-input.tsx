@@ -9,7 +9,7 @@
  * Story: E2.S4 (ChatInput component)
  */
 
-import { useState, useRef, KeyboardEvent, ChangeEvent } from 'react';
+import { useState, useRef, KeyboardEvent, ChangeEvent, forwardRef, useImperativeHandle } from 'react';
 import { Send, Mic } from 'lucide-react';
 import { useSwiftStore } from '@/stores/swift-store';
 import { cn } from '@/lib/utils';
@@ -20,14 +20,32 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
-export function ChatInput({
+export interface ChatInputHandle {
+  focus: () => void;
+  clear: () => void;
+}
+
+export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function ChatInput({
   placeholder = 'Typ of spreek wat je wilt doen...',
   onSend,
   disabled = false,
-}: ChatInputProps) {
+}, ref) {
   const [inputValue, setInputValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const addChatMessage = useSwiftStore((s) => s.addChatMessage);
+
+  // Expose focus and clear methods to parent
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      textareaRef.current?.focus();
+    },
+    clear: () => {
+      setInputValue('');
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
+    },
+  }));
 
   // Handle input change and auto-resize
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -72,6 +90,15 @@ export function ChatInput({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
+    }
+
+    // Escape to clear input
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setInputValue('');
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
 
     // Shift+Enter for new line (default behavior, no need to handle)
@@ -140,14 +167,18 @@ export function ChatInput({
       {/* Helper text */}
       <p className="text-xs text-slate-400 mt-2">
         <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-xs">
+          ⌘K
+        </kbd>{' '}
+        focus •{' '}
+        <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-xs">
+          Esc
+        </kbd>{' '}
+        clear •{' '}
+        <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-xs">
           Enter
         </kbd>{' '}
-        om te versturen •{' '}
-        <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-xs">
-          Shift+Enter
-        </kbd>{' '}
-        voor nieuwe regel
+        versturen
       </p>
     </div>
   );
-}
+});

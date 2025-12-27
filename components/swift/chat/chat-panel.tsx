@@ -12,7 +12,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { ChatMessage } from './chat-message';
-import { ChatInput } from './chat-input';
+import { ChatInput, ChatInputHandle } from './chat-input';
 import { useSwiftStore } from '@/stores/swift-store';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +22,9 @@ export function ChatPanel() {
   // Refs for scrolling
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Ref for chat input (for keyboard shortcuts)
+  const chatInputRef = useRef<ChatInputHandle>(null);
 
   // Scroll-lock state
   const [isScrolledUp, setIsScrolledUp] = useState(false);
@@ -60,6 +63,20 @@ export function ChatPanel() {
   useEffect(() => {
     scrollToBottom('auto');
   }, [scrollToBottom]);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // ⌘K or Ctrl+K to focus chat input
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        chatInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -118,10 +135,13 @@ export function ChatPanel() {
       </div>
 
       {/* Chat input */}
-      <ChatInput onSend={(message) => {
-        // Handle send (AI response will be added in E3)
-        console.log('User sent:', message);
-      }} />
+      <ChatInput
+        ref={chatInputRef}
+        onSend={(message) => {
+          // Handle send (AI response will be added in E3)
+          console.log('User sent:', message);
+        }}
+      />
     </div>
   );
 }
