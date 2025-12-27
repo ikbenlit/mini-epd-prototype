@@ -17,6 +17,27 @@ export type SwiftIntent =
 
 export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'fallback';
 
+// Chat types (v3.0)
+export type ChatMessageType = 'user' | 'assistant' | 'system' | 'error';
+
+export interface ChatMessage {
+  id: string;
+  type: ChatMessageType;
+  content: string;
+  timestamp: Date;
+  action?: ChatAction; // Optional action attached to assistant messages
+}
+
+export interface ChatAction {
+  intent: SwiftIntent;
+  entities: ExtractedEntities;
+  confidence: number;
+  artifact?: {
+    type: BlockType;
+    prefill: BlockPrefillData;
+  };
+}
+
 // Extracted entities from user input
 export interface ExtractedEntities {
   patientName?: string;
@@ -57,6 +78,11 @@ interface SwiftStore {
   // Recent actions
   recentActions: RecentAction[];
 
+  // Chat state (v3.0)
+  chatMessages: ChatMessage[];
+  isStreaming: boolean;
+  pendingAction: ChatAction | null;
+
   // Context actions
   setActivePatient: (patient: Patient | null) => void;
   setShift: (shift: ShiftType) => void;
@@ -73,6 +99,13 @@ interface SwiftStore {
 
   // Recent actions
   addRecentAction: (action: Omit<RecentAction, 'id' | 'timestamp'>) => void;
+
+  // Chat actions (v3.0)
+  addChatMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
+  updateLastMessage: (content: string) => void;
+  clearChat: () => void;
+  setStreaming: (streaming: boolean) => void;
+  setPendingAction: (action: ChatAction | null) => void;
 
   // Reset
   reset: () => void;
@@ -97,6 +130,10 @@ const initialState = {
   inputValue: '',
   isVoiceActive: false,
   recentActions: [],
+  // Chat state (v3.0)
+  chatMessages: [],
+  isStreaming: false,
+  pendingAction: null,
 };
 
 // Create the store
@@ -160,6 +197,56 @@ export const useSwiftStore = create<SwiftStore>()(
           'addRecentAction'
         );
       },
+
+      // Chat actions (v3.0)
+      addChatMessage: (message) => {
+        const newMessage: ChatMessage = {
+          ...message,
+          id: crypto.randomUUID(),
+          timestamp: new Date(),
+        };
+
+        set(
+          (state) => ({
+            chatMessages: [...state.chatMessages, newMessage],
+          }),
+          false,
+          'addChatMessage'
+        );
+      },
+
+      updateLastMessage: (content) => {
+        set(
+          (state) => {
+            const messages = [...state.chatMessages];
+            if (messages.length > 0) {
+              messages[messages.length - 1] = {
+                ...messages[messages.length - 1],
+                content,
+              };
+            }
+            return { chatMessages: messages };
+          },
+          false,
+          'updateLastMessage'
+        );
+      },
+
+      clearChat: () => {
+        set(
+          {
+            chatMessages: [],
+            isStreaming: false,
+            pendingAction: null,
+          },
+          false,
+          'clearChat'
+        );
+      },
+
+      setStreaming: (streaming) => set({ isStreaming: streaming }, false, 'setStreaming'),
+
+      setPendingAction: (action) => set({ pendingAction: action }, false, 'setPendingAction'),
 
       // Reset
       reset: () => set(initialState, false, 'reset'),
