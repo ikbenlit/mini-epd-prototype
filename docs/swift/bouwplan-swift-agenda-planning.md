@@ -41,7 +41,7 @@ Toelichting: dit bouwt voort op het Swift conversatie‑model en hergebruikt de 
 ## 3. Epics & Stories Overzicht
 | Epic ID | Titel | Doel | Status | Stories | Opmerkingen |
 |---------|-------|------|--------|---------|-------------|
-| E0 | Alignment & scope | MVP afbakenen en keuzes vastleggen | To Do | 2 | FO‑based |
+| E0 | Alignment & scope | MVP afbakenen en keuzes vastleggen | Done | 2 | FO‑based |
 | E1 | Intent & entity layer | Agenda intents + entities toevoegen | To Do | 4 | Swift intent stack |
 | E2 | Date/time parsing | NLP‑helpers voor datum/tijd | To Do | 3 | Geen nieuwe deps |
 | E3 | Backend integratie | Agenda data APIs + reuse actions | To Do | 4 | Auth vereist |
@@ -58,8 +58,16 @@ Epic doel: MVP scope, UX flows en beslissingen vastleggen.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E0.S1 | Scope + out-of-scope vastleggen | P1/P2 lijst bevestigd, OOS lijst bevestigd | To Do | - | 1 |
-| E0.S2 | UX flow beschrijven | Entry/exit, artifact gedrag en fallback flows gedocumenteerd | To Do | E0.S1 | 2 |
+| E0.S1 | Scope + out-of-scope vastleggen | P1/P2 lijst bevestigd, OOS lijst bevestigd | Done | - | 1 |
+| E0.S2 | UX flow beschrijven | Entry/exit, artifact gedrag en fallback flows gedocumenteerd | Done | E0.S1 | 2 |
+
+UX flow (MVP):
+- Entry: user is in Swift chat; agenda intents open AgendaBlock when confidence >= 0.7.
+- Exit: close artifact via tab close; for full view use link to `/epd/agenda` from the AgendaBlock footer.
+- Queries: default to today when clear; ask a clarification question when date range is missing or ambiguous.
+- Create: require patient + date + time; use active patient when user says "deze patient"; otherwise ask in chat.
+- Cancel/reschedule: if multiple matches, show disambiguation list in AgendaBlock; confirm before final action.
+- Fallback: if intent confidence < 0.7, keep artifact closed and ask for missing details.
 
 ---
 
