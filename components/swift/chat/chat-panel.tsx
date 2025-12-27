@@ -3,20 +3,30 @@
 /**
  * Chat Panel (v3.0)
  *
- * Chat interface met message list en input.
- * Toont chat messages met verschillende types (user, assistant, system, error).
+ * Chat interface met scrollable message list, auto-scroll, en scroll-lock detection.
  *
  * Epic: E2 (Chat Panel & Messages)
- * Story: E2.S2 (ChatMessage component) - testing
+ * Story: E2.S3 (ChatPanel component - scrolling)
  */
 
+import { useRef, useEffect, useState, useCallback } from 'react';
+import { ArrowDown } from 'lucide-react';
 import { ChatMessage } from './chat-message';
 import { useSwiftStore } from '@/stores/swift-store';
+import { cn } from '@/lib/utils';
 
 export function ChatPanel() {
   const chatMessages = useSwiftStore((s) => s.chatMessages);
 
-  // Demo messages for testing E2.S2 (will be removed in E2.S3)
+  // Refs for scrolling
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-lock state
+  const [isScrolledUp, setIsScrolledUp] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  // Demo messages for testing scrolling behavior (will be removed when chat input is implemented)
   const demoMessages = chatMessages.length === 0 ? [
     {
       id: '1',
@@ -27,34 +37,120 @@ export function ChatPanel() {
     {
       id: '2',
       type: 'user' as const,
-      content: 'Notitie voor Jan: medicatie gegeven om 14:00',
+      content: 'Hoi, ik wil een notitie maken',
       timestamp: new Date(),
     },
     {
       id: '3',
       type: 'assistant' as const,
-      content: 'Ik begrijp dat je een notitie wilt maken voor Jan over medicatie. Ik open een dagnotitie voor je waarin je dit kunt vastleggen.',
+      content: 'Natuurlijk! Voor welke patiënt wil je een notitie maken?',
       timestamp: new Date(),
     },
     {
       id: '4',
-      type: 'error' as const,
-      content: 'Er ging iets mis met de verbinding. Probeer het opnieuw.',
+      type: 'user' as const,
+      content: 'Notitie voor Jan: medicatie gegeven om 14:00',
+      timestamp: new Date(),
+    },
+    {
+      id: '5',
+      type: 'assistant' as const,
+      content: 'Ik begrijp dat je een notitie wilt maken voor Jan over medicatie. Ik open een dagnotitie voor je waarin je dit kunt vastleggen.',
+      timestamp: new Date(),
+    },
+    {
+      id: '6',
+      type: 'user' as const,
+      content: 'Zoek Marie van den Berg',
+      timestamp: new Date(),
+    },
+    {
+      id: '7',
+      type: 'assistant' as const,
+      content: 'Ik zoek Marie van den Berg voor je op in het systeem.',
+      timestamp: new Date(),
+    },
+    {
+      id: '8',
+      type: 'user' as const,
+      content: 'Maak overdracht voor deze dienst',
+      timestamp: new Date(),
+    },
+    {
+      id: '9',
+      type: 'assistant' as const,
+      content: 'Ik maak een overdracht voor je. Welke dienst bedoel je precies? Nacht, ochtend, middag of avond?',
+      timestamp: new Date(),
+    },
+    {
+      id: '10',
+      type: 'user' as const,
+      content: 'Avonddienst',
+      timestamp: new Date(),
+    },
+    {
+      id: '11',
+      type: 'assistant' as const,
+      content: 'Prima! Ik open een overdracht voor de avonddienst. Je kunt hier alle relevante informatie voor de overdracht invullen.',
+      timestamp: new Date(),
+    },
+    {
+      id: '12',
+      type: 'system' as const,
+      content: 'Dit is een lange conversatie om scrolling te testen',
       timestamp: new Date(),
     },
   ] : chatMessages;
 
   const hasMessages = demoMessages.length > 0;
 
+  // Scroll to bottom function
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+    setIsScrolledUp(false);
+    setShowScrollButton(false);
+  }, []);
+
+  // Detect scroll position (scroll-lock detection)
+  const handleScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
+
+    setIsScrolledUp(!isNearBottom);
+
+    // Show scroll button only if scrolled up AND there are messages
+    setShowScrollButton(!isNearBottom && hasMessages);
+  }, [hasMessages]);
+
+  // Auto-scroll to latest message when new message arrives (unless user scrolled up)
+  useEffect(() => {
+    if (!isScrolledUp && hasMessages) {
+      scrollToBottom('smooth');
+    }
+  }, [demoMessages.length, isScrolledUp, hasMessages, scrollToBottom]);
+
+  // Initial scroll to bottom on mount
+  useEffect(() => {
+    scrollToBottom('auto');
+  }, [scrollToBottom]);
+
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Chat messages area */}
-      <div className="flex-1 overflow-auto p-6">
+      {/* Chat messages area - scrollable */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-6 relative"
+      >
         {hasMessages ? (
           <div className="flex flex-col space-y-3">
             {demoMessages.map((message) => (
               <ChatMessage key={message.id} message={message} showTimestamp />
             ))}
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} />
           </div>
         ) : (
           <div className="flex items-center justify-center h-full">
@@ -75,6 +171,25 @@ export function ChatPanel() {
             </div>
           </div>
         )}
+
+        {/* Scroll to bottom button */}
+        {showScrollButton && (
+          <button
+            onClick={() => scrollToBottom('smooth')}
+            className={cn(
+              'absolute bottom-4 right-4 z-10',
+              'bg-white border border-slate-300 rounded-full p-2',
+              'shadow-lg hover:shadow-xl',
+              'transition-all duration-200',
+              'hover:bg-slate-50 active:scale-95',
+              'flex items-center gap-2 text-sm text-slate-700 font-medium px-3 py-2'
+            )}
+            aria-label="Scroll naar laatste bericht"
+          >
+            <ArrowDown className="w-4 h-4" />
+            <span>Scroll naar beneden</span>
+          </button>
+        )}
       </div>
 
       {/* Chat input - placeholder */}
@@ -94,7 +209,7 @@ export function ChatPanel() {
           </button>
         </div>
         <p className="text-xs text-slate-400 mt-2">
-          E2.S2 compleet: ChatMessage component werkend ✓
+          E2.S3 in progress: Auto-scroll en scroll-lock werkend ✓
         </p>
       </div>
     </div>
