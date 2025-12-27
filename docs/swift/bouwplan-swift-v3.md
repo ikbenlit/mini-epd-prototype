@@ -222,12 +222,12 @@ const useChatStore = create<ChatState>((set) => ({
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
-| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ In Progress | 2/4 | 13 SP | Lifecycle management werkend |
+| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
-**Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 18/31 stories compleet, 2 geskipt (56 SP / 85 SP = **66%**)
+**Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
+**Voortgang:** ✅ 21/31 stories compleet, 3 geskipt (58 SP / 82 SP = **71%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -614,8 +614,8 @@ E3.S5 (useChatStream hook) is geskipt omdat:
 |----------|--------------|---------------------|--------|------------------|--------------|
 | E4.S1 | ArtifactContainer component | Wrapper met tabs bovenaan, max 3 artifacts | ✅ **Compleet** | E3.S6 | 5 |
 | E4.S2 | Artifact lifecycle management | Open/close/switch tussen artifacts in store | ✅ **Compleet** | E4.S1 | 3 |
-| E4.S3 | Slide-in animatie | Artifact slide-in van rechts (200ms ease-out) | ⏳ | E4.S2 | 2 |
-| E4.S4 | Placeholder state | "Artifacts verschijnen hier" met voorbeelden | ⏳ | E4.S3 | 3 |
+| E4.S3 | Slide-in animatie | Artifact slide-in van rechts (200ms ease-out) | ✅ **Compleet** | E4.S2 | 2 |
+| ~~E4.S4~~ | ~~Placeholder state~~ | ~~"Artifacts verschijnen hier" met voorbeelden~~ | ❌ **GESKIPT** | ~~E4.S3~~ | ~~3~~ |
 
 **Technical Notes:**
 
@@ -757,11 +757,29 @@ function ArtifactPlaceholder() {
 
 **Git Commits:**
 - `855744c` — E4.S1 (ArtifactContainer component)
-- (to be committed) — E4.S2 (Artifact lifecycle management)
+- `f6c422b` — E4.S2 (Artifact lifecycle management)
 
-**Note:** E4.S1 + E4.S2 maken het artifact systeem volledig functioneel. E4.S3 voegt animaties toe.
+**Deliverables (E4.S3 compleet):**
+- ✅ `app/globals.css` — artifact-enter keyframes + animation class
+- ✅ Keyframes: translateX(100%) → translateX(0) met opacity fade-in
+- ✅ Animation: 200ms ease-out (conform bouwplan)
+- ✅ Reduced motion support: animation: none voor prefers-reduced-motion
+- ✅ ArtifactContainer: artifact-enter class op content wrapper
+- ✅ Key prop op wrapper div (activeArtifact.id) → re-triggers animatie bij switch
+- ✅ Smooth slide-in van rechts bij artifact open/switch
+- ✅ Build succesvol zonder errors
 
-**Deliverable Epic 4 complete:** Meerdere artifacts mogelijk, smooth transitions, placeholder state
+**Git Commits:**
+- (to be committed) — E4.S3 (Slide-in animatie)
+
+**Note E4.S4 - GESKIPT:**
+E4.S4 (Placeholder state) is geskipt omdat:
+- Placeholder al volledig geïmplementeerd in E4.S1 (lines 79-92 artifact-container.tsx)
+- Bevat emoji (📋), titel, en voorbeelden zoals gespecificeerd in bouwplan
+- Geen extra werk nodig, acceptatiecriteria al behaald
+- Story Points niet meegeteld in totaal (3 SP geannuleerd)
+
+**🎉 EPIC 4 COMPLEET!** Alle stories (3 compleet, 1 geskipt) afgerond. Artifact systeem volledig functioneel met tabs, lifecycle management, en smooth animaties!
 
 ---
 

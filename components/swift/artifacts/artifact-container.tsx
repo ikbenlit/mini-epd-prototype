@@ -112,7 +112,9 @@ export function ArtifactContainer({
       {/* Active artifact content */}
       <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
         {activeArtifact ? (
-          renderArtifactBlock(activeArtifact)
+          <div key={activeArtifact.id} className="artifact-enter w-full">
+            {renderArtifactBlock(activeArtifact)}
+          </div>
         ) : (
           <div className="text-slate-500">
             Selecteer een artifact om te bekijken

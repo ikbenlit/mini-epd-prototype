@@ -235,6 +235,22 @@ body {
   animation: float 5s ease-in-out infinite;
 }
 
+/* Artifact slide-in animation (Epic 4, Story E4.S3) */
+@keyframes artifact-enter {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.artifact-enter {
+  animation: artifact-enter 200ms ease-out;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -247,6 +263,10 @@ body {
   }
 
   .animate-float {
+    animation: none !important;
+  }
+
+  .artifact-enter {
     animation: none !important;
   }
 }
