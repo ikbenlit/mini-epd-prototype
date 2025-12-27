@@ -223,11 +223,11 @@ const useChatStore = create<ChatState>((set) => ({
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
-| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 2/5 | 13 SP (8 SP compleet) | Week 6 |
+| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 3/5 | 13 SP (10 SP compleet) | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
-**Voortgang:** ✅ 23/31 stories compleet, 3 geskipt (66 SP / 82 SP = **80%**)
+**Voortgang:** ✅ 24/31 stories compleet, 3 geskipt (68 SP / 82 SP = **83%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -816,7 +816,7 @@ E4.S4 (Placeholder state) is geskipt omdat:
 |----------|--------------|---------------------|--------|------------------|--------------|
 | E5.S1 | AI-filtering psychiater | `/api/overdracht/generate` filtert op behandelrelevantie | ✅ | E4.S4 | 5 |
 | E5.S2 | Linked evidence UI | Bronnotitie links in OverdrachtBlock, hover preview | ✅ | E5.S1 | 3 |
-| E5.S3 | Voice input integratie | Bestaande Deepgram blijft werken in chat input | ⏳ | E2.S4 | 2 |
+| E5.S3 | Voice input integratie | Bestaande Deepgram blijft werken in chat input | ✅ | E2.S4 | 2 |
 | E5.S4 | Error states & offline | Chat error messages, offline banner margin fix | ⏳ | E3.S2 | 2 |
 | E5.S5 | Polish & animations | Smooth transitions, loading states, toast confirmations | ⏳ | E5.S4 | 1 |
 
@@ -1176,11 +1176,60 @@ function enrichWithSourceData(
 **Git Commits:**
 - `adf6c3f` — E5.S2 (Linked evidence UI, 231 insertions, 4 deletions)
 
-**E5.S3 - Voice input:**
-- Bestaande `use-swift-voice.ts` hook blijft werken
-- Integreren in ChatInput component
-- Mic icon rechts van input field
-- Live transcript verschijnt in input tijdens recording
+---
+
+**E5.S3 - Voice input integratie (COMPLEET - AL GEÏMPLEMENTEERD IN E2):**
+
+**Doel:** Voice input functionaliteit werkend in CommandInput met live transcript.
+
+**Status:** ✅ **Al volledig geïmplementeerd in Epic 2** (Chat Panel & Messages)
+
+**Bestaande Implementatie:**
+
+1. **use-swift-voice.ts hook** (`lib/swift/use-swift-voice.ts` - 116 regels):
+   - Wraps `useDeepgramStreaming` voor Swift-specific behavior
+   - Live transcript streaming naar input field
+   - Base text tracking voor append/replace logica
+   - Voice active state management
+
+2. **CommandInput integratie** (`components/swift/command-center/command-input.tsx`):
+   - useSwiftVoice() hook geïntegreerd (regel 19, 38-47)
+   - Mic button rechts van input (regel 274-294)
+   - Waveform visualization tijdens recording (regel 215-222)
+   - handleVoiceToggle functie (regel 185-191)
+   - Status indicators: connecting, error (regel 245-255)
+
+**Deliverables (E5.S3 - AL COMPLEET):**
+- ✅ `lib/swift/use-swift-voice.ts` (116 regels) — Voice hook met Deepgram streaming
+- ✅ CommandInput: useSwiftVoice() hook integratie
+- ✅ Mic icon rechts van input field (Mic/MicOff/Loader2)
+- ✅ Live transcript verschijnt in input tijdens recording
+- ✅ Waveform canvas visualization (200x40px)
+- ✅ Voice button states: idle (slate), recording (red + ring), connecting (spinner)
+- ✅ handleVoiceToggle: start/stop recording
+- ✅ Browser support check (isBrowserSupported)
+- ✅ Error handling met toast notifications
+- ✅ Disabled states: tijdens processing of wanneer block open
+
+**Acceptatiecriteria:**
+1. ✅ Bestaande use-swift-voice.ts hook werkt zonder wijzigingen
+2. ✅ CommandInput gebruikt voice hook (regel 19)
+3. ✅ Mic button zichtbaar rechts van input (regel 274-294)
+4. ✅ Live transcript verschijnt in input tijdens recording (via setInputValue)
+5. ✅ Waveform visualization actief tijdens recording
+6. ✅ Voice button heeft 3 states: idle, recording, connecting
+7. ✅ Browser support check voorkomt errors op niet-ondersteunde browsers
+8. ✅ Build succesvol, geen errors
+
+**Technical Details:**
+- Deepgram streaming: language='nl', model='nova-2', endpointingMs=2000
+- Base text tracking: baseTextRef stores text before recording
+- Interim vs Final: interim = preview (replace), final = append to base
+- Voice active state: synced met Swift store (setVoiceActive)
+- Analyser node: gebruikt voor waveform frequency data
+
+**Git Commits:**
+- Geïmplementeerd in Epic 2 (E2.S4 - Voice input)
 
 **E5.S4 - Error states:**
 ```tsx
