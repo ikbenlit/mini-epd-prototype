@@ -169,9 +169,7 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSave = useCallback(async () => {
     if (!patientId) {
       toast({
         variant: 'destructive',
@@ -243,6 +241,11 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
     } finally {
       setIsSubmitting(false);
     }
+  }, [patientId, content, category, includeInHandover, patientName, toast, closeBlock]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSave();
   };
 
   // Keyboard shortcut: Cmd/Ctrl+Enter to save
