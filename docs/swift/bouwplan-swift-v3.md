@@ -221,13 +221,13 @@ const useChatStore = create<ChatState>((set) => ({
 | E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ✅ **Compleet** | 3/3 | 5 SP | Docs aangemaakt |
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
-| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ To Do | 0/6 | 21 SP | Week 3-4 |
+| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ In Progress | 3/6 | 21 SP | Medical scribe prompt v1.0 |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 0/4 | 13 SP | Week 5 |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 11/31 stories compleet (30 SP / 85 SP = **35%**)
+**Voortgang:** ✅ 14/31 stories compleet (41 SP / 85 SP = **48%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -400,15 +400,15 @@ const MESSAGE_STYLES = {
 
 ---
 
-### Epic 3 — Chat API & Medical Scribe
+### Epic 3 — Chat API & Medical Scribe ⏳ **IN PROGRESS**
 
 **Epic Doel:** AI conversatie werkend krijgen met intent detection en artifact opening.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E3.S1 | Chat API endpoint skeleton | `/api/swift/chat` route met SSE setup | ⏳ | E2.S5 | 3 |
-| E3.S2 | Streaming response logic | Claude API streaming werkt, chunks naar frontend | ⏳ | E3.S1 | 5 |
-| E3.S3 | Medical scribe system prompt | Prompt met role, intents, examples, Nederlands | ⏳ | E3.S2 | 3 |
+| E3.S1 | Chat API endpoint skeleton | `/api/swift/chat` route met SSE setup | ✅ **Compleet** | E2.S5 | 3 |
+| E3.S2 | Streaming response logic | Claude API streaming werkt, chunks naar frontend | ✅ **Compleet** | E3.S1 | 5 |
+| E3.S3 | Medical scribe system prompt | Prompt met role, intents, examples, Nederlands | ✅ **Compleet** | E3.S2 | 3 |
 | E3.S4 | Intent detection in response | AI genereert action objects (intent + entities) | ⏳ | E3.S3 | 5 |
 | E3.S5 | Frontend streaming handling | useChatStream hook, message chunks renderen | ⏳ | E3.S4 | 3 |
 | E3.S6 | Artifact opening from chat | Action object opent juiste block met prefill | ⏳ | E3.S5 | 2 |
@@ -529,7 +529,35 @@ export function useChatStream() {
 - Open juiste block via `openBlock(artifact.type, artifact.prefill)`
 - Block verschijnt rechts in artifact area
 
-**Deliverable:** Werkende conversatie met AI, intents worden herkend, blocks openen
+**Deliverables (E3.S1 & E3.S2 compleet):**
+- ✅ `app/api/swift/chat/route.ts` (307 regels) — SSE API endpoint met Claude streaming
+- ✅ `lib/swift/chat-api.ts` (109 regels) — Client helper voor streaming
+- ✅ `components/swift/chat/chat-panel.tsx` (updated) — Streaming integration
+- ✅ Claude API integration (Sonnet 4, 2048 tokens, temp 0.7)
+- ✅ Real-time streaming via Server-Sent Events
+- ✅ Event parsing (content_block_delta, message_stop, error)
+- ✅ Simple system prompt met context (patiënt + dienst)
+- ✅ Rate limiting (20 req/min per user)
+- ✅ Authentication + error handling
+- ✅ Conversation history (max 20 messages)
+
+**Deliverables (E3.S3 compleet):**
+- ✅ `buildMedicalScribePrompt()` functie (243 regels) — Volledige medical scribe prompt v1.0
+- ✅ Intent detection instructies: dagnotitie, zoeken, overdracht, rapportage
+- ✅ P1 & P2 intents met triggers en entities
+- ✅ Confidence thresholds (>0.9, 0.7-0.9, 0.5-0.7, <0.5)
+- ✅ JSON action object format met examples
+- ✅ Context injection (activePatient, shift)
+- ✅ Verduidelijkingsvragen en error handling
+- ✅ Nederlands tone of voice (vriendelijk, professioneel, to-the-point)
+- ✅ 4 voorbeelden: dagnotitie, zoeken, verduidelijking, onduidelijke intent
+- ✅ Build succesvol zonder type errors
+
+**Git Commits:**
+- `a51acf6` — E3.S1 & E3.S2 (Chat API + Claude streaming)
+- (to be committed) — E3.S3 (Medical scribe system prompt v1.0)
+
+**Remaining:** E3.S4-E3.S6 voor intent detection parsing, frontend handling, en artifact opening
 
 ---
 
