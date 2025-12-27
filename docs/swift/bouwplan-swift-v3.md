@@ -226,8 +226,8 @@ const useChatStore = create<ChatState>((set) => ({
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ✅ **Compleet** | 5/5 | 13 SP | E5 COMPLEET 🎉 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
-**Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
-**Voortgang:** ✅ 26/31 stories compleet, 3 geskipt (71 SP / 82 SP = **87%**)
+**Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 7 SP geannuleerd door skips)
+**Voortgang:** ✅ 24/31 stories compleet, 3 geskipt = 27 done (71 SP / 82 SP = **87%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -400,7 +400,7 @@ const MESSAGE_STYLES = {
 
 ---
 
-### Epic 3 — Chat API & Medical Scribe ⏳ **IN PROGRESS**
+### Epic 3 — Chat API & Medical Scribe ✅ **COMPLEET**
 
 **Epic Doel:** AI conversatie werkend krijgen met intent detection en artifact opening.
 
@@ -808,7 +808,7 @@ E4.S4 (Placeholder state) is geskipt omdat:
 
 ---
 
-### Epic 5 — AI-Filtering & Polish
+### Epic 5 — AI-Filtering & Polish ✅ **COMPLEET**
 
 **Epic Doel:** AI-filtering voor psychiater overdracht, linked evidence, final polish.
 
@@ -1386,6 +1386,40 @@ function enrichWithSourceData(
 
 **Git Commits:**
 - Geïmplementeerd in Epics 2-5 (verspreid over alle components)
+
+---
+
+**🎉 EPIC 5 COMPLEET!** Alle stories (5 compleet) afgerond. AI-filtering, linked evidence, en polish features volledig geïmplementeerd!
+
+**Epic 5 Samenvatting:**
+- **Status:** ✅ Compleet (5/5 stories, 13 SP)
+- **Duur:** Stories E5.S1-E5.S5
+- **Impact:** Psychiater filtering, linked evidence UI, voice input, error handling, smooth animations
+
+**Belangrijkste Features:**
+1. **AI-filtering psychiater (E5.S1)** - Role toggle voor behandelrelevante filtering
+2. **Linked evidence UI (E5.S2)** - Klikbare bronverwijzingen met hover preview
+3. **Voice input (E5.S3)** - Deepgram integratie al werkend (geïmplementeerd in E2)
+4. **Error states & offline (E5.S4)** - Error handler utility en offline banner
+5. **Polish & animations (E5.S5)** - Smooth transitions, loading states, toast confirmations
+
+**Files Gewijzigd:**
+- `lib/types/overdracht.ts` - filterForRole parameter
+- `lib/ai/overdracht-prompt.ts` - buildSystemPrompt met psychiater filtering
+- `app/api/overdracht/generate/route.ts` - Role-based prompt selection
+- `components/swift/blocks/overdracht-block.tsx` - Role toggle UI
+- `components/swift/shared/linked-evidence.tsx` - Popover met source data
+- `lib/swift/error-handler.ts` - Gecentraliseerde error handling
+- `components/swift/command-center/offline-banner.tsx` - Offline detection
+
+**Git Commits:**
+- `c6616d8` - E5.S1 (AI-filtering psychiater)
+- `adf6c3f` - E5.S2 (Linked evidence UI)
+- `1bab375` - E5.S3 (Voice input - al geïmplementeerd)
+- `1ecc8f9` - E5.S4 (Error states - al geïmplementeerd)
+- `60afb17` - E5.S5 (Polish & animations - Epic 5 COMPLEET!)
+
+**Voortgang:** 71 SP / 82 SP (87%) - Ready voor Epic 6 (Testing & Refinement)!
 
 ---
 
