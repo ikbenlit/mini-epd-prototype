@@ -51,6 +51,15 @@ export interface BlockPrefillData extends ExtractedEntities {
   // Additional prefill data specific to blocks
 }
 
+// Artifact type (E4 - Multiple artifacts support)
+export interface Artifact {
+  id: string;
+  type: BlockType;
+  prefill: BlockPrefillData;
+  title: string;
+  createdAt: Date;
+}
+
 // Recent action for the Recent Strip
 export interface RecentAction {
   id: string;

@@ -222,12 +222,12 @@ const useChatStore = create<ChatState>((set) => ({
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
-| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 0/4 | 13 SP | Week 5 |
+| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ In Progress | 1/4 | 13 SP | Container & tabs structure |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 16/31 stories compleet, 2 geskipt (48 SP / 85 SP = **56%**)
+**Voortgang:** ✅ 17/31 stories compleet, 2 geskipt (53 SP / 85 SP = **62%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -602,7 +602,7 @@ E3.S5 (useChatStream hook) is geskipt omdat:
 - `5b10176` — E3.S5 skip documentatie
 - (to be committed) — E3.S6 (Artifact opening from chat)
 
-**🎉 EPIC 3 COMPLEET!** Alle stories (4 compleet, 1 geskipt, 1 compleet) afgerond. Medical scribe chat werkt end-to-end!
+**🎉 EPIC 3 COMPLEET!** Alle stories (5 compleet, 1 geskipt) afgerond. Medical scribe chat werkt end-to-end!
 
 ---
 
@@ -612,7 +612,7 @@ E3.S5 (useChatStream hook) is geskipt omdat:
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E4.S1 | ArtifactContainer component | Wrapper met tabs bovenaan, max 3 artifacts | ⏳ | E3.S6 | 5 |
+| E4.S1 | ArtifactContainer component | Wrapper met tabs bovenaan, max 3 artifacts | ✅ **Compleet** | E3.S6 | 5 |
 | E4.S2 | Artifact lifecycle management | Open/close/switch tussen artifacts in store | ⏳ | E4.S1 | 3 |
 | E4.S3 | Slide-in animatie | Artifact slide-in van rechts (200ms ease-out) | ⏳ | E4.S2 | 2 |
 | E4.S4 | Placeholder state | "Artifacts verschijnen hier" met voorbeelden | ⏳ | E4.S3 | 3 |
@@ -723,7 +723,25 @@ function ArtifactPlaceholder() {
 }
 ```
 
-**Deliverable:** Meerdere artifacts mogelijk, smooth transitions, placeholder state
+**Deliverables (E4.S1 compleet):**
+- ✅ `stores/swift-store.ts` — Artifact interface gedefineerd (id, type, prefill, title, createdAt)
+- ✅ `components/swift/artifacts/artifact-tab.tsx` (60 regels) — Tab component met close button
+- ✅ `components/swift/artifacts/artifact-container.tsx` (127 regels) — Container met tabs + rendering
+- ✅ ArtifactTab: Active state styling, hover effects, close button
+- ✅ ArtifactTab: Title truncation, tooltip, min/max width
+- ✅ ArtifactContainer: Tabs alleen bij >1 artifact
+- ✅ ArtifactContainer: renderArtifactBlock() voor alle block types
+- ✅ ArtifactContainer: getArtifactTitle() helper functie
+- ✅ ArtifactContainer: Placeholder state wanneer geen artifacts
+- ✅ Conditional rendering: DagnotatieBlock, ZoekenBlock, OverdrachtBlock, FallbackPicker
+- ✅ Build succesvol zonder errors
+
+**Git Commits:**
+- (to be committed) — E4.S1 (ArtifactContainer component)
+
+**Note:** E4.S1 definieert de structuur. E4.S2 voegt store state toe (openArtifacts[], activeArtifactId, actions).
+
+**Deliverable Epic 4 complete:** Meerdere artifacts mogelijk, smooth transitions, placeholder state
 
 ---
 
