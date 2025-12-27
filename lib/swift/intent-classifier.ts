@@ -93,6 +93,65 @@ const INTENT_PATTERNS: Record<Exclude<SwiftIntent, 'unknown'>, PatternConfig[]> 
     { pattern: /^begin\s+dienst\b/i, weight: 0.9 },
     { pattern: /^nieuwe?\s+dienst\b/i, weight: 0.85 },
   ],
+  // Agenda intents
+  agenda_query: [
+    // Exact commands
+    { pattern: /^agenda\b/i, weight: 1.0 },
+    { pattern: /^mijn\s+agenda\b/i, weight: 0.95 },
+    { pattern: /^volgende\s+afspraak\b/i, weight: 0.95 },
+
+    // Question patterns
+    { pattern: /^wat\s+zijn\s+(mijn\s+)?afspraken\b/i, weight: 1.0 },
+    { pattern: /^(wat|wanneer)\s+is\s+(mijn\s+)?volgende\s+afspraak\b/i, weight: 1.0 },
+
+    // Date scoped queries
+    { pattern: /^afspraken\s+(vandaag|morgen|deze\s+week|volgende\s+week)\b/i, weight: 0.95 },
+    { pattern: /^(vandaag|morgen|deze\s+week|volgende\s+week)\s+afspraken\b/i, weight: 0.9 },
+    { pattern: /^agenda\s+(vandaag|morgen|deze\s+week|volgende\s+week)\b/i, weight: 0.9 },
+    { pattern: /^planning\s+(vandaag|morgen|deze\s+week|volgende\s+week)\b/i, weight: 0.85 },
+    { pattern: /^afspraken\b(?!\s+(maken|plannen|inplannen|annuleren|verzetten|verplaatsen|verschuiven))\b/i, weight: 0.85 },
+
+    // Verb patterns
+    { pattern: /^toon\s+agenda\b/i, weight: 0.9 },
+    { pattern: /^laat\s+(mijn\s+)?agenda\s+zien\b/i, weight: 0.85 },
+  ],
+  create_appointment: [
+    // Exact commands
+    { pattern: /^maak\s+afspraak\b/i, weight: 1.0 },
+    { pattern: /^plan\s+(een\s+)?(afspraak|intake|gesprek)\b/i, weight: 1.0 },
+    { pattern: /^afspraak\s+(maken|plannen|inplannen)\b/i, weight: 0.95 },
+    { pattern: /^afspraken\s+(maken|plannen|inplannen)\b/i, weight: 0.95 },
+    { pattern: /^nieuwe?\s+afspraak\b/i, weight: 0.95 },
+
+    // Type-first patterns
+    { pattern: /^maak\s+(een\s+)?(intake|behandeling|gesprek)\b/i, weight: 0.9 },
+    { pattern: /^(intake|behandeling|gesprek)\s+(met\s+)?\w+/i, weight: 0.85 },
+    { pattern: /^afspraak\s+met\s+\w+/i, weight: 0.9 },
+    { pattern: /^plan\s+afspraak\s+met\s+\w+/i, weight: 0.9 },
+  ],
+  cancel_appointment: [
+    // Exact commands
+    { pattern: /^annuleer\s+(de\s+)?afspraak\b/i, weight: 1.0 },
+    { pattern: /^cancel\s+(de\s+)?afspraak\b/i, weight: 1.0 },
+    { pattern: /^verwijder\s+afspraak\b/i, weight: 0.95 },
+    { pattern: /^afspraak\s+annuleren\b/i, weight: 0.95 },
+    { pattern: /^zeg\s+afspraak\s+af\b/i, weight: 0.95 },
+
+    // Short forms
+    { pattern: /^annuleer\s+\w+/i, weight: 0.7 }, // "annuleer jan"
+  ],
+  reschedule_appointment: [
+    // Exact commands
+    { pattern: /^verzet\s+(de\s+)?afspraak\b/i, weight: 1.0 },
+    { pattern: /^verplaats\s+(de\s+)?afspraak\b/i, weight: 1.0 },
+    { pattern: /^verschuif\s+afspraak\b/i, weight: 0.95 },
+    { pattern: /^afspraak\s+verzetten\b/i, weight: 0.95 },
+
+    // Time shifts
+    { pattern: /^\d{1,2}[:.]\d{2}\s+naar\s+\d{1,2}[:.]\d{2}\b/i, weight: 0.9 },
+    { pattern: /^(verzet|verplaats)\s+\d{1,2}[:.]\d{2}\b/i, weight: 0.9 },
+    { pattern: /^verzet\s+\w+\s+naar\b/i, weight: 0.85 }, // "verzet jan naar dinsdag"
+  ],
 };
 
 // Help patterns (separate, always check)

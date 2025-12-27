@@ -8,12 +8,16 @@
  */
 
 import { useSwiftStore, type SwiftIntent } from '@/stores/swift-store';
-import { FileText, Search, ArrowRightLeft, HelpCircle, Clock } from 'lucide-react';
+import { FileText, Search, ArrowRightLeft, HelpCircle, Clock, Calendar, Plus, X } from 'lucide-react';
 
 const INTENT_CONFIG: Record<SwiftIntent, { icon: typeof FileText; color: string; label: string }> = {
   dagnotitie: { icon: FileText, color: 'text-blue-600 bg-blue-50 border border-blue-200', label: 'Notitie' },
   zoeken: { icon: Search, color: 'text-emerald-600 bg-emerald-50 border border-emerald-200', label: 'Zoeken' },
   overdracht: { icon: ArrowRightLeft, color: 'text-purple-600 bg-purple-50 border border-purple-200', label: 'Overdracht' },
+  agenda_query: { icon: Calendar, color: 'text-teal-600 bg-teal-50 border border-teal-200', label: 'Agenda' },
+  create_appointment: { icon: Plus, color: 'text-green-600 bg-green-50 border border-green-200', label: 'Afspraak' },
+  cancel_appointment: { icon: X, color: 'text-red-600 bg-red-50 border border-red-200', label: 'Annuleren' },
+  reschedule_appointment: { icon: Clock, color: 'text-amber-600 bg-amber-50 border border-amber-200', label: 'Verzetten' },
   unknown: { icon: HelpCircle, color: 'text-slate-600 bg-slate-50 border border-slate-200', label: 'Actie' },
 };
 

@@ -20,6 +20,9 @@ const ActionSchema = z.object({
     category: z.enum(['medicatie', 'adl', 'gedrag', 'incident', 'observatie']).optional(),
     content: z.string().optional(),
     query: z.string().optional(), // For zoeken intent
+    date: z.string().optional(),
+    time: z.string().optional(),
+    identifier: z.string().optional(),
   }),
   confidence: z.number().min(0).max(1),
   artifact: z

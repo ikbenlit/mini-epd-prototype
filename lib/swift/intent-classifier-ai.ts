@@ -11,12 +11,25 @@ import type { VerpleegkundigCategory } from '@/lib/types/report';
 
 // Zod schema for AI response validation
 const AIIntentResponseSchema = z.object({
-  intent: z.enum(['dagnotitie', 'zoeken', 'overdracht', 'unknown']),
+  intent: z.enum([
+    'dagnotitie',
+    'zoeken',
+    'overdracht',
+    'agenda_query',
+    'create_appointment',
+    'cancel_appointment',
+    'reschedule_appointment',
+    'unknown',
+  ]),
   confidence: z.number().min(0).max(1),
   entities: z.object({
     patientName: z.string().optional(),
     category: z.enum(['medicatie', 'adl', 'gedrag', 'incident', 'observatie']).optional(),
     content: z.string().optional(),
+    query: z.string().optional(),
+    date: z.string().optional(),
+    time: z.string().optional(),
+    identifier: z.string().optional(),
   }).optional(),
   reasoning: z.string().optional(),
 });
@@ -45,7 +58,19 @@ Je taak is om de intentie van een zorgmedewerker te classificeren in één van d
 3. **overdracht** - Gebruiker wil een overdracht/samenvatting van de dienst
    Voorbeelden: "overdracht", "wat moet ik weten", "dienst afronden"
 
-4. **unknown** - Intentie is onduidelijk of past niet in bovenstaande categorieën
+4. **agenda_query** - Gebruiker wil afspraken opvragen of de agenda zien
+   Voorbeelden: "afspraken vandaag", "wat is mijn volgende afspraak", "agenda volgende week"
+
+5. **create_appointment** - Gebruiker wil een afspraak maken of plannen
+   Voorbeelden: "maak afspraak met jan morgen 14:00", "plan intake volgende week"
+
+6. **cancel_appointment** - Gebruiker wil een afspraak annuleren
+   Voorbeelden: "annuleer afspraak jan", "zeg afspraak af"
+
+7. **reschedule_appointment** - Gebruiker wil een afspraak verzetten
+   Voorbeelden: "verzet 14:00 naar 15:00", "verplaats afspraak naar dinsdag"
+
+8. **unknown** - Intentie is onduidelijk of past niet in bovenstaande categorieën
 
 Voor dagnotitie, extraheer ook:
 - patientName: de naam van de patiënt (indien genoemd)
@@ -55,14 +80,41 @@ Voor dagnotitie, extraheer ook:
 Voor zoeken, extraheer:
 - patientName: de naam die gezocht wordt
 
+Voor agenda_query, extraheer:
+- query: het relevante datum-/tijd-bereik of scope (bijv. "vandaag", "volgende week")
+- patientName: de patiëntnaam als die expliciet genoemd is
+- date: een expliciete datum als losse waarde (bijv. "2025-01-05")
+- time: een expliciete tijd (24-uurs, bijv. "14:00")
+
+Voor create_appointment, extraheer:
+- patientName: de patiëntnaam als die expliciet genoemd is
+- query: datum/tijd/type/locatie details in vrije tekst (bijv. "morgen 14:00 intake")
+- date: een expliciete datum als losse waarde (bijv. "2025-01-05")
+- time: een expliciete tijd (24-uurs, bijv. "14:00")
+
+Voor cancel_appointment, extraheer:
+- patientName: de patiëntnaam als die expliciet genoemd is
+- query: afspraakdetails in vrije tekst (bijv. "afspraak om 14:00", "afspraak van vrijdag")
+- identifier: een expliciete afspraak-id indien genoemd
+
+Voor reschedule_appointment, extraheer:
+- patientName: de patiëntnaam als die expliciet genoemd is
+- query: huidige + nieuwe datum/tijd in vrije tekst (bijv. "14:00 naar 15:00")
+- date: de nieuwe expliciete datum indien genoemd
+- time: de nieuwe expliciete tijd indien genoemd
+
 Antwoord ALLEEN met een JSON object in dit formaat:
 {
-  "intent": "dagnotitie" | "zoeken" | "overdracht" | "unknown",
+  "intent": "dagnotitie" | "zoeken" | "overdracht" | "agenda_query" | "create_appointment" | "cancel_appointment" | "reschedule_appointment" | "unknown",
   "confidence": 0.0-1.0,
   "entities": {
     "patientName": "naam" (optioneel),
     "category": "medicatie" | "adl" | "gedrag" | "incident" | "observatie" (optioneel),
-    "content": "inhoud" (optioneel)
+    "content": "inhoud" (optioneel),
+    "query": "vrije tekst voor planning" (optioneel),
+    "date": "YYYY-MM-DD" (optioneel),
+    "time": "HH:MM" (optioneel),
+    "identifier": "id" (optioneel)
   },
   "reasoning": "korte uitleg" (optioneel)
 }`;
@@ -138,6 +190,10 @@ export async function classifyIntentWithAI(input: string): Promise<AIClassificat
         patientName: validated.entities?.patientName,
         category: validated.entities?.category as VerpleegkundigCategory | undefined,
         content: validated.entities?.content,
+        query: validated.entities?.query,
+        date: validated.entities?.date,
+        time: validated.entities?.time,
+        identifier: validated.entities?.identifier,
       },
       source: 'ai',
       processingTimeMs,

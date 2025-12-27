@@ -13,6 +13,10 @@ export type SwiftIntent =
   | 'dagnotitie'
   | 'zoeken'
   | 'overdracht'
+  | 'agenda_query'
+  | 'create_appointment'
+  | 'cancel_appointment'
+  | 'reschedule_appointment'
   | 'unknown';
 
 export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'fallback' | 'patient-dashboard';
@@ -45,6 +49,9 @@ export interface ExtractedEntities {
   category?: VerpleegkundigCategory;
   content?: string;
   query?: string;
+  date?: string;
+  time?: string;
+  identifier?: string;
 }
 
 // Block prefill data

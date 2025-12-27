@@ -7,7 +7,15 @@
 import type { VerpleegkundigCategory } from '@/lib/types/report';
 
 // Intent types
-export type SwiftIntent = 'dagnotitie' | 'zoeken' | 'overdracht' | 'unknown';
+export type SwiftIntent =
+  | 'dagnotitie'
+  | 'zoeken'
+  | 'overdracht'
+  | 'agenda_query'
+  | 'create_appointment'
+  | 'cancel_appointment'
+  | 'reschedule_appointment'
+  | 'unknown';
 
 export type BlockType = Exclude<SwiftIntent, 'unknown'> | 'patient-dashboard';
 
@@ -29,6 +37,9 @@ export interface ExtractedEntities {
   category?: VerpleegkundigCategory;
   content?: string;
   query?: string;
+  date?: string;
+  time?: string;
+  identifier?: string;
 }
 
 // Block sizes
@@ -61,6 +72,30 @@ export const BLOCK_CONFIGS: Record<BlockType, BlockConfig> = {
     title: 'Overdracht',
     size: 'lg',
     icon: 'ArrowRightLeft',
+  },
+  agenda_query: {
+    type: 'agenda_query',
+    title: 'Agenda',
+    size: 'lg',
+    icon: 'Calendar',
+  },
+  create_appointment: {
+    type: 'create_appointment',
+    title: 'Nieuwe afspraak',
+    size: 'lg',
+    icon: 'Plus',
+  },
+  cancel_appointment: {
+    type: 'cancel_appointment',
+    title: 'Afspraak annuleren',
+    size: 'lg',
+    icon: 'X',
+  },
+  reschedule_appointment: {
+    type: 'reschedule_appointment',
+    title: 'Afspraak verzetten',
+    size: 'lg',
+    icon: 'Clock',
   },
   'patient-dashboard': {
     type: 'patient-dashboard',
