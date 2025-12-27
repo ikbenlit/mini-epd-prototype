@@ -3,14 +3,36 @@
 /**
  * Artifact Area (v3.0)
  *
- * Placeholder component voor artifact display area.
- * Toont welke artifacts hier zullen verschijnen.
+ * Displays active blocks based on activeBlock state.
+ * Shows placeholder when no block is active.
  *
- * Epic: E1 (Foundation)
- * Story: E1.S3 (Placeholder componenten)
+ * Epic: E1 (Foundation), E3 (Chat API & Medical Scribe)
+ * Stories: E1.S3 (Placeholder componenten), E3.S6 (Artifact opening from chat)
  */
 
+import { useSwiftStore } from '@/stores/swift-store';
+import { DagnotatieBlock } from '../blocks/dagnotitie-block';
+import { ZoekenBlock } from '../blocks/zoeken-block';
+import { OverdrachtBlock } from '../blocks/overdracht-block';
+import { FallbackPicker } from '../blocks/fallback-picker';
+
 export function ArtifactArea() {
+  const activeBlock = useSwiftStore((s) => s.activeBlock);
+  const prefillData = useSwiftStore((s) => s.prefillData);
+
+  // Render active block
+  if (activeBlock) {
+    return (
+      <div className="h-full flex items-center justify-center bg-slate-50 p-6 overflow-y-auto">
+        {activeBlock === 'dagnotitie' && <DagnotatieBlock />}
+        {activeBlock === 'zoeken' && <ZoekenBlock />}
+        {activeBlock === 'overdracht' && <OverdrachtBlock />}
+        {activeBlock === 'fallback' && <FallbackPicker />}
+      </div>
+    );
+  }
+
+  // Placeholder when no block is active
   return (
     <div className="h-full flex items-center justify-center bg-slate-50 p-6">
       <div className="max-w-lg text-center text-slate-500">
@@ -55,7 +77,7 @@ export function ArtifactArea() {
         </div>
 
         <p className="text-xs text-slate-400 mt-6">
-          Artifact functionaliteit komt in Epic 4
+          Vraag me iets in de chat om te beginnen!
         </p>
       </div>
     </div>

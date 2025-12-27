@@ -24,7 +24,7 @@ import { ChatPanel } from '../chat/chat-panel';
 import { ArtifactArea } from '../artifacts/artifact-area';
 
 export function CommandCenter() {
-  const { closeBlock, activeBlock } = useSwiftStore();
+  const { closeBlock, activeBlock, openBlock, pendingAction, setPendingAction } = useSwiftStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcuts
@@ -49,6 +49,29 @@ export function CommandCenter() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  // E3.S6: Handle pending actions from chat (artifact opening)
+  useEffect(() => {
+    if (!pendingAction) return;
+
+    console.log('[CommandCenter] Processing pending action:', pendingAction);
+
+    // Check if action has artifact data
+    if (pendingAction.artifact) {
+      const { type, prefill } = pendingAction.artifact;
+
+      console.log('[CommandCenter] Opening artifact:', type, 'with prefill:', prefill);
+
+      // Open the block with prefill data
+      openBlock(type, prefill);
+
+      // Clear pending action after processing
+      setPendingAction(null);
+    } else {
+      console.log('[CommandCenter] Action has no artifact, skipping');
+      setPendingAction(null);
+    }
+  }, [pendingAction, openBlock, setPendingAction]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">

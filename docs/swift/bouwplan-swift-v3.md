@@ -221,13 +221,13 @@ const useChatStore = create<ChatState>((set) => ({
 | E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ✅ **Compleet** | 3/3 | 5 SP | Docs aangemaakt |
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
-| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ In Progress | 5/6 | 21 SP | E3.S5 geskipt (inline in ChatPanel) |
+| E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 0/4 | 13 SP | Week 5 |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 15/31 stories compleet, 1 geskipt (46 SP / 85 SP = **54%**)
+**Voortgang:** ✅ 16/31 stories compleet, 2 geskipt (48 SP / 85 SP = **56%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -411,7 +411,7 @@ const MESSAGE_STYLES = {
 | E3.S3 | Medical scribe system prompt | Prompt met role, intents, examples, Nederlands | ✅ **Compleet** | E3.S2 | 3 |
 | E3.S4 | Intent detection in response | AI genereert action objects (intent + entities) | ✅ **Compleet** | E3.S3 | 5 |
 | ~~E3.S5~~ | ~~Frontend streaming handling~~ | ~~useChatStream hook, message chunks renderen~~ | ❌ **GESKIPT** | ~~E3.S4~~ | ~~3~~ |
-| E3.S6 | Artifact opening from chat | Action object opent juiste block met prefill | ⏳ | E3.S4 | 2 |
+| E3.S6 | Artifact opening from chat | Action object opent juiste block met prefill | ✅ **Compleet** | E3.S4 | 2 |
 
 **Technical Notes:**
 
@@ -583,7 +583,26 @@ E3.S5 (useChatStream hook) is geskipt omdat:
 - Refactor naar hook kan later indien nodig
 - Dependencies: E3.S6 nu afhankelijk van E3.S4 i.p.v. E3.S5
 
-**Remaining:** E3.S6 voor artifact opening (laatste story Epic 3!)
+**Deliverables (E3.S6 compleet):**
+- ✅ `components/swift/artifacts/artifact-area.tsx` (updated) — Renders active blocks
+- ✅ ArtifactArea: DagnotatieBlock, ZoekenBlock, OverdrachtBlock rendering
+- ✅ ArtifactArea: Placeholder state wanneer geen block actief
+- ✅ CommandCenter: useEffect voor pendingAction handling
+- ✅ CommandCenter: openBlock() aanroep met artifact type + prefill
+- ✅ CommandCenter: setPendingAction(null) na verwerking
+- ✅ Console logging: "[CommandCenter] Processing pending action"
+- ✅ Console logging: "[CommandCenter] Opening artifact: [type] with prefill"
+- ✅ Block opening flow: Chat → Action → PendingAction → Block opens
+- ✅ Build succesvol zonder errors
+
+**Git Commits:**
+- `a51acf6` — E3.S1 & E3.S2 (Chat API + Claude streaming)
+- `8efac84` — E3.S3 (Medical scribe system prompt v1.0)
+- `9b85448` — E3.S4 (Intent detection in response)
+- `5b10176` — E3.S5 skip documentatie
+- (to be committed) — E3.S6 (Artifact opening from chat)
+
+**🎉 EPIC 3 COMPLEET!** Alle stories (4 compleet, 1 geskipt, 1 compleet) afgerond. Medical scribe chat werkt end-to-end!
 
 ---
 
