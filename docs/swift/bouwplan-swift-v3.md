@@ -223,11 +223,11 @@ const useChatStore = create<ChatState>((set) => ({
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
-| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 1/5 | 13 SP (5 SP compleet) | Week 6 |
+| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 2/5 | 13 SP (8 SP compleet) | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
-**Voortgang:** ✅ 22/31 stories compleet, 3 geskipt (63 SP / 82 SP = **77%**)
+**Voortgang:** ✅ 23/31 stories compleet, 3 geskipt (66 SP / 82 SP = **80%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -815,7 +815,7 @@ E4.S4 (Placeholder state) is geskipt omdat:
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
 | E5.S1 | AI-filtering psychiater | `/api/overdracht/generate` filtert op behandelrelevantie | ✅ | E4.S4 | 5 |
-| E5.S2 | Linked evidence UI | Bronnotitie links in OverdrachtBlock, hover preview | ⏳ | E5.S1 | 3 |
+| E5.S2 | Linked evidence UI | Bronnotitie links in OverdrachtBlock, hover preview | ✅ | E5.S1 | 3 |
 | E5.S3 | Voice input integratie | Bestaande Deepgram blijft werken in chat input | ⏳ | E2.S4 | 2 |
 | E5.S4 | Error states & offline | Chat error messages, offline banner margin fix | ⏳ | E3.S2 | 2 |
 | E5.S5 | Polish & animations | Smooth transitions, loading states, toast confirmations | ⏳ | E5.S4 | 1 |
@@ -1075,34 +1075,106 @@ Output:
 
 ---
 
-**E5.S2 - Linked evidence:**
+**E5.S2 - Linked evidence (COMPLEET):**
+
+**Doel:** Bronverwijzingen klikbaar maken met hover preview van volledige source content.
+
+**Implementatie:**
 ```tsx
 // components/swift/shared/linked-evidence.tsx
 interface LinkedEvidenceProps {
-  sourceNotes: Report[];
-  highlightedText: string;
+  bron: Aandachtspunt['bron'];
+  sourceData?: Aandachtspunt['sourceData'];
+  className?: string;
 }
 
-export function LinkedEvidence({ sourceNotes, highlightedText }: LinkedEvidenceProps) {
+export function LinkedEvidence({ bron, sourceData, className }: LinkedEvidenceProps) {
+  // If no source data, just show label without popover
+  if (!sourceData) return <span>{bron.label} • {bron.datum}</span>;
+
   return (
     <Popover>
-      <PopoverTrigger className="underline decoration-dotted cursor-pointer">
-        {highlightedText}
+      <PopoverTrigger asChild>
+        <button className="underline decoration-dotted cursor-help">
+          <Icon /> {bron.label} <ExternalLink />
+        </button>
       </PopoverTrigger>
-      <PopoverContent>
-        <div className="space-y-2">
-          {sourceNotes.map((note) => (
-            <div key={note.id} className="text-sm">
-              <div className="font-medium">{note.author} - {note.timestamp}</div>
-              <div className="text-slate-600">{note.content}</div>
+      <PopoverContent className="w-96 p-4" side="top">
+        {/* Type-specific content display */}
+        {bron.type === 'observatie' && (
+          <div>
+            <span className="text-2xl">{sourceData.value} {sourceData.unit}</span>
+            <div className={getInterpretationColor(sourceData.interpretation)}>
+              Interpretatie: {sourceData.interpretation}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+        {/* ... other types ... */}
       </PopoverContent>
     </Popover>
   );
 }
 ```
+
+**Source Data Enrichment:**
+```typescript
+// app/api/overdracht/generate/route.ts
+function enrichWithSourceData(
+  aandachtspunten: Aandachtspunt[],
+  context: OverdrachtContext
+): Aandachtspunt[] {
+  return aandachtspunten.map((punt) => {
+    const { bron } = punt;
+    let sourceData: Aandachtspunt['sourceData'];
+
+    switch (bron.type) {
+      case 'observatie':
+        const vital = context.vitals.find((v) => v.id === bron.id);
+        if (vital) sourceData = { value: vital.value_quantity_value, ... };
+        break;
+      case 'rapportage':
+      case 'verpleegkundig':
+        const report = context.reports.find((r) => r.id === bron.id);
+        if (report) sourceData = { content: report.content, ... };
+        break;
+      case 'risico':
+        const risk = context.risks.find((r) => r.id === bron.id);
+        if (risk) sourceData = { riskLevel: risk.risk_level, ... };
+        break;
+    }
+
+    return { ...punt, sourceData };
+  });
+}
+```
+
+**Deliverables (E5.S2 - COMPLEET):**
+- ✅ `lib/types/overdracht.ts` (+12 regels) — Aandachtspunt type extended met sourceData field
+- ✅ `components/swift/shared/linked-evidence.tsx` (+160 regels NEW) — LinkedEvidence component met Popover
+- ✅ `app/api/overdracht/generate/route.ts` (+58 regels) — enrichWithSourceData() functie
+- ✅ `components/swift/blocks/overdracht-block.tsx` (+1/-3 regels) — LinkedEvidence integration in AandachtspuntItem
+- ✅ Type-specific content display (observaties, rapportages, risico's)
+- ✅ Color-coded interpretations (HH/LL red, H/L amber, N teal)
+- ✅ Color-coded risk levels (hoog/zeer_hoog red, gemiddeld amber, laag teal)
+- ✅ Hover popover met volledige source content
+- ✅ Icons per type (Activity, FileText, AlertTriangle, ExternalLink)
+- ✅ Build succesvol zonder errors
+- ✅ Backwards compatible (werkt met/zonder sourceData)
+
+**Acceptatiecriteria:**
+1. ✅ Bronverwijzingen zijn klikbaar/hoverable in OverdrachtBlock
+2. ✅ Hover toont popover met volledige source content
+3. ✅ Observaties tonen: value + unit + interpretation met kleuren
+4. ✅ Rapportages tonen: content + createdBy
+5. ✅ Risico's tonen: riskLevel + rationale met severity kleuren
+6. ✅ Popover positioneert correct (side="top" align="start")
+7. ✅ Visual feedback: underline-dotted, ExternalLink icon, cursor-help
+8. ✅ Accessible: keyboard navigable, asChild trigger pattern
+9. ✅ API enricht aandachtspunten met sourceData uit context
+10. ✅ Build succesvol, geen type errors
+
+**Git Commits:**
+- `adf6c3f` — E5.S2 (Linked evidence UI, 231 insertions, 4 deletions)
 
 **E5.S3 - Voice input:**
 - Bestaande `use-swift-voice.ts` hook blijft werken
