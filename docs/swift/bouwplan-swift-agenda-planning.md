@@ -63,8 +63,8 @@ Toelichting: dit bouwt voort op het Swift conversatie‑model en hergebruikt de 
 |---------|-------|------|--------|---------|-------------|
 | E0 | Alignment & scope | MVP afbakenen en keuzes vastleggen | Done | 2 | FO‑based |
 | E1 | Intent & entity layer | Agenda intents + entities toevoegen | Done | 4 | Swift intent stack |
-| E2 | Date/time parsing | NLP‑helpers voor datum/tijd | To Do | 3 | Geen nieuwe deps |
-| E3 | Backend integratie | Agenda data APIs + reuse actions | To Do | 4 | Auth vereist |
+| E2 | Date/time parsing | NLP‑helpers voor datum/tijd | Done | 3 | Geen nieuwe deps |
+| E3 | Backend integratie | Agenda data APIs + reuse actions | Done | 4 | Auth vereist |
 | E4 | AgendaBlock UI | List/create/cancel/reschedule views | To Do | 5 | Swift artifact |
 | E5 | Chat orchestration | Action routing + prompt update | To Do | 3 | Swift chat API |
 | E6 | QA & docs | Testplan + docs update | To Do | 3 | Manual QA |
@@ -193,9 +193,9 @@ Epic doel: datum/tijd interpretatie uit natuurlijke taal.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E2.S1 | Date parser utility | `lib/swift/date-time-parser.ts` met relatieve datums | To Do | E1.S4 | 3 |
-| E2.S2 | Time parser utility | Tijd normalisatie (14:00, half drie) | To Do | E2.S1 | 2 |
-| E2.S3 | Entity extraction hook | Entity extractor gebruikt parser output | To Do | E2.S2 | 2 |
+| E2.S1 | Date parser utility | `lib/swift/date-time-parser.ts` met relatieve datums | Done | E1.S4 | 3 |
+| E2.S2 | Time parser utility | Tijd normalisatie (14:00, half drie) | Done | E2.S1 | 2 |
+| E2.S3 | Entity extraction hook | Entity extractor gebruikt parser output | Done | E2.S2 | 2 |
 
 **Technical notes:**
 
@@ -232,10 +232,10 @@ Epic doel: agenda data ontsluiten voor Swift blocks.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E3.S1 | Agenda query API | Endpoint voor afspraken op datumrange (auth) | To Do | E1.S4 | 3 |
-| E3.S2 | Create appointment API | Endpoint die `createEncounter` aanroept | To Do | E3.S1 | 3 |
-| E3.S3 | Cancel/reschedule API | Endpoints die `cancelEncounter`/`rescheduleEncounter` aanroepen | To Do | E3.S1 | 3 |
-| E3.S4 | Patient match API | Fuzzy patiënt matching + disambiguation lijst | To Do | E1.S4 | 2 |
+| E3.S1 | Agenda query API | Endpoint voor afspraken op datumrange (auth) | Done | E1.S4 | 3 |
+| E3.S2 | Create appointment API | Endpoint die `createEncounter` aanroept | Done | E3.S1 | 3 |
+| E3.S3 | Cancel/reschedule API | Endpoints die `cancelEncounter`/`rescheduleEncounter` aanroepen | Done | E3.S1 | 3 |
+| E3.S4 | Patient match API | Fuzzy patiënt matching + disambiguation lijst | Done | E1.S4 | 2 |
 
 **Technical notes:**
 
