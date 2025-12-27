@@ -29,6 +29,7 @@ import { nl } from 'date-fns/locale/nl';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { safeFetch, getErrorInfo, retryFetch } from '@/lib/swift/error-handler';
+import { LinkedEvidence } from '@/components/swift/shared/linked-evidence';
 
 interface OverdrachtBlockProps {
   prefill?: BlockPrefillData;
@@ -487,9 +488,7 @@ function AandachtspuntItem({ punt }: { punt: AISamenvatting['aandachtspunten'][0
         >
           {getBronTypeLabel(punt.bron.type)}
         </span>
-        <span className="text-xs text-slate-500">
-          {punt.bron.label} • {punt.bron.datum}
-        </span>
+        <LinkedEvidence bron={punt.bron} sourceData={punt.sourceData} />
       </div>
     </div>
   );

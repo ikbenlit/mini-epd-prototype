@@ -220,6 +220,59 @@ async function callClaudeAPI(
 }
 
 /**
+ * Enrich aandachtspunten with full source data
+ */
+function enrichWithSourceData(
+  aandachtspunten: Aandachtspunt[],
+  context: OverdrachtContext
+): Aandachtspunt[] {
+  return aandachtspunten.map((punt) => {
+    const { bron } = punt;
+    let sourceData: Aandachtspunt['sourceData'];
+
+    switch (bron.type) {
+      case 'observatie': {
+        const vital = context.vitals.find((v) => v.id === bron.id);
+        if (vital) {
+          sourceData = {
+            value: vital.value_quantity_value?.toString() || undefined,
+            unit: vital.value_quantity_unit || undefined,
+            interpretation: vital.interpretation_code || undefined,
+          };
+        }
+        break;
+      }
+      case 'rapportage':
+      case 'verpleegkundig': {
+        const report = context.reports.find((r) => r.id === bron.id);
+        if (report) {
+          sourceData = {
+            content: report.content,
+            createdBy: report.created_by || undefined,
+          };
+        }
+        break;
+      }
+      case 'risico': {
+        const risk = context.risks.find((r) => r.id === bron.id);
+        if (risk) {
+          sourceData = {
+            riskLevel: risk.risk_level,
+            rationale: risk.rationale || undefined,
+          };
+        }
+        break;
+      }
+    }
+
+    return {
+      ...punt,
+      sourceData,
+    };
+  });
+}
+
+/**
  * Log AI event to database
  */
 async function logAIEvent(
@@ -298,13 +351,16 @@ export async function POST(request: NextRequest) {
 
     const durationMs = Date.now() - startTime;
 
+    // Enrich aandachtspunten with full source data for linked evidence
+    const enrichedAandachtspunten = enrichWithSourceData(aiResult.aandachtspunten, context);
+
     // Log AI event
     await logAIEvent(supabase, patientId, context, aiResult, durationMs);
 
     // Build response
     const response: AISamenvatting = {
       samenvatting: aiResult.samenvatting,
-      aandachtspunten: aiResult.aandachtspunten,
+      aandachtspunten: enrichedAandachtspunten,
       actiepunten: aiResult.actiepunten,
       generatedAt: new Date().toISOString(),
       durationMs,

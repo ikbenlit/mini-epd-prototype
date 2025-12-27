@@ -96,6 +96,18 @@ export interface Aandachtspunt {
     datum: string;
     label: string;
   };
+  sourceData?: {
+    // Voor observaties (vitals)
+    value?: string;
+    unit?: string;
+    interpretation?: string;
+    // Voor reports (rapportage, verpleegkundig)
+    content?: string;
+    createdBy?: string;
+    // Voor risico's
+    riskLevel?: string;
+    rationale?: string;
+  };
 }
 
 // Zod schema for generate request
