@@ -822,31 +822,258 @@ E4.S4 (Placeholder state) is geskipt omdat:
 
 **Technical Notes:**
 
-**E5.S1 - AI-filtering:**
+**E5.S1 - AI-filtering psychiater (Swift OverdrachtBlock):**
+
+**Context:**
+- OverdrachtBlock is een Swift artifact (geopend via chat)
+- Toont patient lijst met AI samenvattingen
+- Gebruikt bestaande `/api/overdracht/generate` endpoint
+- Verpleegkundigen hebben items gemarkeerd met `include_in_handover = true`
+
+**Implementatie - Role Toggle in OverdrachtBlock:**
+```tsx
+// components/swift/blocks/overdracht-block.tsx
+
+export function OverdrachtBlock({ prefill }: OverdrachtBlockProps) {
+  const [period, setPeriod] = useState<PeriodValue>('1d');
+  const [filterRole, setFilterRole] = useState<'verpleegkundige' | 'psychiater'>('verpleegkundige'); // 🆕
+
+  // Update generateSummary to include filterRole
+  const generateSummary = useCallback(async (patientId: string) => {
+    const response = await retryFetch(
+      () => safeFetch(
+        '/api/overdracht/generate',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patientId,
+            period,
+            filterForRole: filterRole // 🆕 Add role parameter
+          }),
+        },
+        { operation: 'Overdracht genereren' }
+      ),
+      3,
+      1000
+    );
+    // ...
+  }, [period, filterRole]); // 🆕 Add filterRole dependency
+
+  return (
+    <BlockContainer title={config.title} size={config.size}>
+      <div className="space-y-6">
+        {/* 🆕 Role Selector - NIEUW */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-700">Voor wie is deze overdracht?</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setFilterRole('verpleegkundige')}
+              className={cn(
+                'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                filterRole === 'verpleegkundige'
+                  ? 'bg-slate-900 text-white border-2 border-slate-700'
+                  : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+              )}
+            >
+              Verpleegkundige
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterRole('psychiater')}
+              className={cn(
+                'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                filterRole === 'psychiater'
+                  ? 'bg-violet-600 text-white border-2 border-violet-700'
+                  : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+              )}
+            >
+              Psychiater
+            </button>
+          </div>
+          <p className="text-xs text-slate-500">
+            {filterRole === 'psychiater'
+              ? 'Alleen behandelrelevante informatie (medicatie, risico\'s, gedrag)'
+              : 'Volledige overdracht voor collega verpleegkundige'
+            }
+          </p>
+        </div>
+
+        {/* Period Selector - blijft hetzelfde */}
+        {/* ... */}
+      </div>
+    </BlockContainer>
+  );
+}
+```
+
+**API Schema Update:**
+```typescript
+// lib/types/overdracht.ts
+export const GenerateOverdrachtSchema = z.object({
+  patientId: z.string().uuid('Patient ID moet een geldige UUID zijn'),
+  period: z.enum(['1d', '3d', '7d', '14d']).optional().default('1d'),
+  filterForRole: z.enum(['psychiater', 'verpleegkundige']).optional().default('verpleegkundige'), // 🆕
+});
+
+export type GenerateOverdrachtInput = z.infer<typeof GenerateOverdrachtSchema>;
+```
+
+**API Route Update:**
 ```typescript
 // app/api/overdracht/generate/route.ts
-// Uitbreiden met filtering parameter
-interface GenerateOverdrachtRequest {
-  shift: ShiftType;
-  filterForRole?: 'psychiater' | 'verpleegkundige';
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const result = GenerateOverdrachtSchema.safeParse(body);
+
+  const { patientId, period, filterForRole } = result.data; // 🆕 Extract filterForRole
+
+  // Load context (data loading blijft HETZELFDE - altijd include_in_handover=true)
+  const context = await loadOverdrachtContext(supabase, patientId, period);
+
+  // Call Claude API with role-specific prompt
+  const aiResult = await callClaudeAPI(context, filterForRole); // 🆕 Pass role
+
+  // ...
 }
 
-// AI prompt voor filtering
-const FILTER_PROMPT = `
-Analyseer deze verpleegkundige notities en selecteer ALLEEN behandelrelevante informatie voor de psychiater:
+// 🆕 Update callClaudeAPI signature
+async function callClaudeAPI(
+  context: OverdrachtContext,
+  role: 'psychiater' | 'verpleegkundige' = 'verpleegkundige' // 🆕 Add parameter
+): Promise<{
+  samenvatting: string;
+  aandachtspunten: Aandachtspunt[];
+  actiepunten: string[];
+}> {
+  const systemPrompt = buildSystemPrompt(role); // 🆕 Role-specific prompt
+  const userPrompt = buildOverdrachtUserPrompt(context); // Blijft hetzelfde
 
-WEL relevant:
-- Medicatie-issues (weigering, bijwerkingen)
-- Stemming/gedrag veranderingen
-- Risico-signalen (suïcidale uitingen, agressie)
-- Psychotische symptomen
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      temperature: 0.3,
+      system: systemPrompt, // 🆕 Role-specific
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+  });
 
-NIET relevant:
-- Routine medicatie ("volgens schema")
-- ADL activiteiten ("gedoucht", "ontbijt")
-- Standaard observaties ("rustige dag")
-`;
+  // ... rest blijft hetzelfde
+}
 ```
+
+**AI Prompt - Role-specific Filtering:**
+```typescript
+// lib/ai/overdracht-prompt.ts
+
+// 🆕 New function for role-specific prompts
+export function buildSystemPrompt(role: 'psychiater' | 'verpleegkundige'): string {
+  const basePrompt = OVERDRACHT_SYSTEM_PROMPT; // Bestaande prompt voor verpleegkundige
+
+  if (role === 'psychiater') {
+    return `${basePrompt}
+
+## PSYCHIATER FILTERING
+Je maakt overdracht voor een PSYCHIATER. Filter STRIKT op behandelrelevantie.
+
+De verpleegkundige heeft al items geselecteerd (include_in_handover=true), maar jij moet VERDER FILTEREN.
+
+✅ WEL RELEVANT (include in samenvatting):
+- Medicatie-issues: weigering, bijwerkingen, dosisaanpassingen, therapietrouw
+- Stemming/gedrag: veranderingen van baseline, afwijkend gedrag, agitatie
+- Risico-signalen: suïcidale uitingen, automutilatie, agressie
+- Psychotische symptomen: wanen, hallucinaties, desorganisatie, paranoia
+- Crisis/dwang: separatie, fixatie, dwangmedicatie, vrijheidsbeperkende maatregelen
+- Afwijkende vitals: HH (kritiek hoog), LL (kritiek laag) met behandelimpact
+
+❌ FILTER UIT (niet in samenvatting):
+- Routine medicatie: "medicatie volgens schema", "zonder problemen", "ingenomen conform afspraak"
+- ADL activiteiten: douchen, aankleden, eten, drinken (tenzij significant afwijkend/weigering)
+- Sociale activiteiten: "deelgenomen aan groepstherapie", "gesprek gehad", "koffie gedronken"
+- Standaard observaties: "rustige dag", "geen bijzonderheden", "normaal functioneren"
+- Routine vitals: bloeddruk/pols binnen normaalwaarden (N interpretatie)
+- Dagstructuur: "dagprogramma gevolgd", "aanwezig bij activiteit"
+
+VUISTREGEL: Include ALLEEN als een psychiater op basis van deze info een BEHANDELBESLISSING kan nemen.
+
+Beperkingen:
+- Maximum 3 aandachtspunten (ALLEEN behandelrelevant, geen routine items)
+- Maximum 2 actiepunten (ALLEEN actionable voor psychiater)
+- Bij twijfel of iets relevant is → FILTER UIT
+
+Voorbeelden:
+✅ INCLUDE: "Jan weigerde haloperidol, zegt dat medicatie hem controleert" → Medicatie-compliance issue
+✅ INCLUDE: "Marie uitte suïcidale gedachten tijdens gesprek" → Risicosignaal, urgent
+✅ INCLUDE: "Piet verbaal en fysiek agressief, separatie 30 min" → Crisis, gedragsverandering
+❌ FILTER: "Jan heeft goed gegeten, ontbijt en lunch zonder problemen" → Routine ADL
+❌ FILTER: "Marie deelgenomen aan groepstherapie" → Sociale activiteit, geen issues
+❌ FILTER: "Piet heeft medicatie ingenomen volgens schema" → Routine medicatie
+
+Geef je antwoord als PURE JSON, zonder markdown code blocks.`;
+  }
+
+  // Verpleegkundige gebruikt bestaande prompt (geen filtering)
+  return basePrompt;
+}
+
+// Bestaande OVERDRACHT_SYSTEM_PROMPT blijft voor verpleegkundige view
+export const OVERDRACHT_SYSTEM_PROMPT = `Je bent een ervaren verpleegkundige die overdrachten maakt in een GGZ-instelling.
+...`; // Blijft hetzelfde
+```
+
+**Filtering Logic:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Report Filtering Flow                     │
+└─────────────────────────────────────────────────────────────┘
+
+Stap 1 (Server - ALTIJD):
+  ├─ Filter: include_in_handover = true
+  └─ Result: Alleen aangevinkte items (bijv. 8 reports)
+
+Stap 2 (AI - Role-afhankelijk):
+  ├─ Verpleegkundige: Geen extra filtering (toon alle 8 reports)
+  └─ Psychiater: Filter op behandelrelevantie (bijv. 3 relevante reports)
+
+Output:
+  ├─ Verpleegkundige: 5 aandachtspunten, 3 actiepunten (volledige context)
+  └─ Psychiater: 2-3 aandachtspunten, 1-2 actiepunten (behandelrelevant)
+```
+
+**Deliverables (E5.S1):**
+- [ ] `lib/types/overdracht.ts` — Update GenerateOverdrachtSchema met filterForRole
+- [ ] `lib/ai/overdracht-prompt.ts` — buildSystemPrompt(role) functie met psychiater filtering
+- [ ] `app/api/overdracht/generate/route.ts` — callClaudeAPI met role parameter
+- [ ] `components/swift/blocks/overdracht-block.tsx` — Role toggle UI (Verpleegkundige/Psychiater)
+- [ ] API call updated met filterForRole in request body
+- [ ] Psychiater prompt: max 3 aandachtspunten, 2 actiepunten, strict filtering
+- [ ] Verpleegkundige prompt: blijft hetzelfde (geen filtering)
+- [ ] UI: Role selector met beschrijving per rol
+- [ ] Build succesvol zonder errors
+- [ ] Test: verpleegkundige view toont alle items, psychiater view toont alleen behandelrelevante items
+
+**Acceptatiecriteria:**
+1. ✅ Role toggle zichtbaar in OverdrachtBlock (boven period selector)
+2. ✅ Default role = "verpleegkundige" (backwards compatible)
+3. ✅ Psychiater view filtert op behandelrelevantie (medicatie-issues, gedrag, risico)
+4. ✅ Psychiater view filtert UIT: routine medicatie, ADL, sociale activiteiten
+5. ✅ Verpleegkundige view blijft werken zoals voorheen (alle aangevinkte items)
+6. ✅ AI prompt duidelijk onderscheid tussen WEL/NIET relevant voor psychiater
+7. ✅ Build succesvol, geen type errors
+
+**Git Commits:**
+- (to be committed) — E5.S1 (AI-filtering psychiater in OverdrachtBlock)
+
+---
 
 **E5.S2 - Linked evidence:**
 ```tsx
