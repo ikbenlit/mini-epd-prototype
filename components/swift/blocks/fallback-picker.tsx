@@ -68,10 +68,13 @@ export function FallbackPicker({ originalInput }: FallbackPickerProps) {
 
       openBlock(option.type, prefillData);
 
-      addRecentAction({
-        intent: option.type,
-        label: option.label,
-      });
+      // Only add to recent actions if it's a valid SwiftIntent (not patient-dashboard)
+      if (option.type !== 'patient-dashboard') {
+        addRecentAction({
+          intent: option.type,
+          label: option.label,
+        });
+      }
     },
     [openBlock, addRecentAction, originalInput]
   );

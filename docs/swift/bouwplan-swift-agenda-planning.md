@@ -281,11 +281,11 @@ Epic doel: Swift artifact voor agenda flows.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E4.S1 | AgendaBlock skeleton | Block met tabs/modes (list/create/cancel/reschedule) | To Do | E3.S1 | 3 |
-| E4.S2 | List view | Lijst met afspraken + empty state | To Do | E4.S1 | 3 |
-| E4.S3 | Create form | Prefill + validatie + submit | To Do | E4.S1 | 5 |
-| E4.S4 | Cancel view | Disambiguation + confirm flow | To Do | E4.S1 | 3 |
-| E4.S5 | Reschedule view | Edit form met nieuwe tijd | To Do | E4.S1 | 3 |
+| E4.S1 | AgendaBlock skeleton | Block met tabs/modes (list/create/cancel/reschedule) | Done | E3.S1 | 3 |
+| E4.S2 | List view | Lijst met afspraken + empty state | Done | E4.S1 | 3 |
+| E4.S3 | Create form | Prefill + validatie + submit | Done | E4.S1 | 5 |
+| E4.S4 | Cancel view | Disambiguation + confirm flow | Done | E4.S1 | 3 |
+| E4.S5 | Reschedule view | Edit form met nieuwe tijd | Done | E4.S1 | 3 |
 
 **Technical notes:**
 

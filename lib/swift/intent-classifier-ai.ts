@@ -183,18 +183,25 @@ export async function classifyIntentWithAI(input: string): Promise<AIClassificat
 
     const processingTimeMs = performance.now() - startTime;
 
+    // Build entities object with backward compatibility
+    const entities: ExtractedEntities = {
+      patientName: validated.entities?.patientName,
+      category: validated.entities?.category as VerpleegkundigCategory | undefined,
+      content: validated.entities?.content,
+      query: validated.entities?.query,
+      // Legacy fields for backward compatibility
+      date: validated.entities?.date,
+      time: validated.entities?.time,
+    };
+
+    // For agenda intents, we'll rely on local entity extraction
+    // AI just provides the basic fields (patientName, date, time)
+    // and the local extractor will structure them properly
+
     return {
       intent: validated.intent as SwiftIntent,
       confidence: validated.confidence,
-      entities: {
-        patientName: validated.entities?.patientName,
-        category: validated.entities?.category as VerpleegkundigCategory | undefined,
-        content: validated.entities?.content,
-        query: validated.entities?.query,
-        date: validated.entities?.date,
-        time: validated.entities?.time,
-        identifier: validated.entities?.identifier,
-      },
+      entities,
       source: 'ai',
       processingTimeMs,
       reasoning: validated.reasoning,

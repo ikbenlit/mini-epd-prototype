@@ -32,14 +32,46 @@ export interface IntentClassificationResult {
 
 // Extracted entities from user input
 export interface ExtractedEntities {
+  // Common entities
   patientName?: string;
   patientId?: string;
+
+  // Dagnotitie entities
   category?: VerpleegkundigCategory;
   content?: string;
+
+  // Search entities
   query?: string;
+
+  // Agenda entities
+  dateRange?: {
+    start: Date;
+    end: Date;
+    label: 'vandaag' | 'morgen' | 'deze week' | 'volgende week' | 'custom';
+  };
+  datetime?: {
+    date: Date;
+    time: string; // "HH:mm" format
+  };
+  appointmentType?: 'intake' | 'behandeling' | 'follow-up' | 'telefonisch' |
+                    'huisbezoek' | 'online' | 'crisis' | 'overig';
+  location?: 'praktijk' | 'online' | 'thuis';
+  identifier?: {
+    type: 'patient' | 'time' | 'both';
+    patientName?: string;
+    patientId?: string;
+    time?: string;
+    date?: Date;
+    encounterId?: string;
+  };
+  newDatetime?: {
+    date: Date;
+    time: string;
+  };
+
+  // Legacy fields (for backward compatibility)
   date?: string;
   time?: string;
-  identifier?: string;
 }
 
 // Block sizes
