@@ -14,10 +14,17 @@ import { ArrowDown } from 'lucide-react';
 import { ChatMessage } from './chat-message';
 import { ChatInput, ChatInputHandle } from './chat-input';
 import { useSwiftStore } from '@/stores/swift-store';
+import { sendChatMessage } from '@/lib/swift/chat-api';
 import { cn } from '@/lib/utils';
 
 export function ChatPanel() {
   const chatMessages = useSwiftStore((s) => s.chatMessages);
+  const addChatMessage = useSwiftStore((s) => s.addChatMessage);
+  const updateLastMessage = useSwiftStore((s) => s.updateLastMessage);
+  const setStreaming = useSwiftStore((s) => s.setStreaming);
+  const isStreaming = useSwiftStore((s) => s.isStreaming);
+  const activePatient = useSwiftStore((s) => s.activePatient);
+  const shift = useSwiftStore((s) => s.shift);
 
   // Refs for scrolling
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -137,9 +144,48 @@ export function ChatPanel() {
       {/* Chat input */}
       <ChatInput
         ref={chatInputRef}
-        onSend={(message) => {
-          // Handle send (AI response will be added in E3)
-          console.log('User sent:', message);
+        disabled={isStreaming}
+        onSend={async (message) => {
+          // E3.S1: Test streaming API with mock response
+          setStreaming(true);
+
+          // Add empty assistant message that will be filled by streaming
+          addChatMessage({
+            type: 'assistant',
+            content: '',
+          });
+
+          let accumulatedContent = '';
+
+          await sendChatMessage(
+            message,
+            chatMessages,
+            {
+              activePatient: activePatient ? {
+                id: activePatient.id,
+                first_name: activePatient.name_given?.[0] || '',
+                last_name: activePatient.name_family || '',
+              } : null,
+              shift,
+            },
+            (chunk) => {
+              // On each chunk, append to accumulated content and update last message
+              accumulatedContent += chunk;
+              updateLastMessage(accumulatedContent);
+            },
+            () => {
+              // On done
+              setStreaming(false);
+            },
+            (error) => {
+              // On error
+              setStreaming(false);
+              addChatMessage({
+                type: 'error',
+                content: `Er ging iets mis: ${error}`,
+              });
+            }
+          );
         }}
       />
     </div>
