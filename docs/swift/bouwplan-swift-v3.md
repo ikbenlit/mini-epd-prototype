@@ -218,15 +218,16 @@ const useChatStore = create<ChatState>((set) => ({
 
 | Epic ID | Titel | Doel | Status | Stories | Story Points | Opmerkingen |
 |---------|-------|------|--------|---------|--------------|-------------|
-| E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ⏳ To Do | 3 | 5 SP | Voorbereiding |
-| E1 | Foundation - Split-screen | Layout naar 40/60 split | ⏳ To Do | 4 | 13 SP | Week 1-2 |
-| E2 | Chat Panel & Messages | Chat UI zonder AI | ⏳ To Do | 5 | 13 SP | Week 2-3 |
-| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ To Do | 6 | 21 SP | Week 3-4 |
-| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 4 | 13 SP | Week 5 |
-| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 5 | 13 SP | Week 6 |
-| E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 4 | 8 SP | Week 7-8 |
+| E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ✅ **Compleet** | 3/3 | 5 SP | Docs aangemaakt |
+| E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
+| E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
+| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ To Do | 0/6 | 21 SP | Week 3-4 |
+| E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 0/4 | 13 SP | Week 5 |
+| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
+| E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
-**Totaal:** 31 stories, **86 Story Points** (~7 weken à 12 SP/week)
+**Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
+**Voortgang:** ✅ 11/31 stories compleet (30 SP / 85 SP = **35%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -237,35 +238,37 @@ const useChatStore = create<ChatState>((set) => ({
 
 ## 4. Epics & Stories (Uitwerking)
 
-### Epic 0 — Pre-work & Planning
+### Epic 0 — Pre-work & Planning ✅ **COMPLEET**
 
 **Epic Doel:** Voorbereiding werk voordat development start. Design tokens verificatie, component audit, medical scribe system prompt.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E0.S1 | Design tokens audit | Alle kleuren/spacing/typography gedocumenteerd in v3 doc | ⏳ | — | 1 |
-| E0.S2 | Component inventory | Lijst van alle blocks die herbruikbaar zijn | ⏳ | — | 2 |
-| E0.S3 | Medical scribe system prompt | Eerste versie prompt voor `/api/swift/chat`, getest met Claude | ⏳ | — | 2 |
+| E0.S1 | Design tokens audit | Alle kleuren/spacing/typography gedocumenteerd in v3 doc | ✅ **Compleet** | — | 1 |
+| E0.S2 | Component inventory | Lijst van alle blocks die herbruikbaar zijn | ✅ **Compleet** | — | 2 |
+| E0.S3 | Medical scribe system prompt | Eerste versie prompt voor `/api/swift/chat`, getest met Claude | ✅ **Compleet** | — | 2 |
 
 **Technical Notes:**
-- E0.S1: Check of alle tokens uit v2.1 nog kloppen voor v3.0
-- E0.S2: Maak lijst van blocks die NIET wijzigen vs. die WEL wijzigen
-- E0.S3: Prompt moet Nederlands zijn, vriendelijk maar professioneel, intent detection
+- E0.S1: Check of alle tokens uit v2.1 nog kloppen voor v3.0 ✅
+- E0.S2: Maak lijst van blocks die NIET wijzigen vs. die WEL wijzigen ✅
+- E0.S3: Prompt moet Nederlands zijn, vriendelijk maar professioneel, intent detection ✅
 
-**Deliverable:** Planning document met component lijst + prompt v1
+**Deliverables:**
+- ✅ `docs/swift/e0-design-tokens-and-components.md` — Design tokens audit + component inventory
+- ✅ `docs/swift/e0-medical-scribe-system-prompt.md` — Medical scribe prompt v1.0
 
 ---
 
-### Epic 1 — Foundation - Split-screen Layout
+### Epic 1 — Foundation - Split-screen Layout ✅ **COMPLEET**
 
 **Epic Doel:** CommandCenter omzetten naar split-screen layout (40% chat, 60% artifacts).
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E1.S1 | Feature flag setup | `FEATURE_FLAG_SWIFT_V3` in `.env` + conditional rendering | ⏳ | E0.S2 | 1 |
-| E1.S2 | CommandCenter layout wijzigen | Split-screen grid (40/60), context bar blijft | ⏳ | E1.S1 | 5 |
-| E1.S3 | Placeholder componenten | ChatPanel (lege div), ArtifactArea (lege div) | ⏳ | E1.S2 | 2 |
-| E1.S4 | Responsive breakpoints | Desktop/tablet/mobile toggle tussen chat/artifact | ⏳ | E1.S3 | 5 |
+| ~~E1.S1~~ | ~~Feature flag setup~~ | ~~`FEATURE_FLAG_SWIFT_V3` in `.env` + conditional rendering~~ | ❌ **GESKIPT** | — | ~~1~~ |
+| E1.S2 | CommandCenter layout wijzigen | Split-screen grid (40/60), context bar blijft | ✅ **Compleet** | E0.S2 | 5 |
+| E1.S3 | Placeholder componenten | ChatPanel (welcome msg), ArtifactArea (placeholder) | ✅ **Compleet** | E1.S2 | 2 |
+| E1.S4 | Responsive breakpoints | Desktop/tablet/mobile toggle tussen chat/artifact | ✅ **Compleet** | E1.S3 | 5 |
 
 **Technical Notes:**
 ```tsx
@@ -292,21 +295,28 @@ const useChatStore = create<ChatState>((set) => ({
 - Tablet (768-1200px): 45/55 split
 - Mobile (<768px): Toggle tussen chat en artifact (full screen)
 
-**Deliverable:** Split-screen layout zichtbaar, feature flag werkt, v2.1 nog beschikbaar
+**Deliverables:**
+- ✅ `components/swift/chat/chat-panel.tsx` — Chat placeholder met welcome message
+- ✅ `components/swift/artifacts/artifact-area.tsx` — Artifact placeholder met voorbeelden
+- ✅ `components/swift/command-center/command-center.tsx` — Gerefactored naar split-screen (40/60)
+- ✅ Responsive breakpoints: `lg:w-[40%]` en `lg:w-[60%]` (desktop), `w-full` (mobile)
+- ✅ Build succesvol zonder errors
+
+**Note:** E1.S1 (Feature flag) geskipt — we werken op separate branch `swift` i.p.v. feature flag
 
 ---
 
-### Epic 2 — Chat Panel & Messages
+### Epic 2 — Chat Panel & Messages ✅ **COMPLEET**
 
-**Epic Doel:** Chat UI werkend krijgen zonder AI (hardcoded responses voor testing).
+**Epic Doel:** Chat UI werkend krijgen zonder AI (gebruikers kunnen typen en zien messages verschijnen).
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E2.S1 | Store uitbreiding | `chatMessages`, `isStreaming` in swift-store.ts | ⏳ | E1.S4 | 2 |
-| E2.S2 | ChatMessage component | User/assistant/system/error message types met styling | ⏳ | E2.S1 | 3 |
-| E2.S3 | ChatPanel component | Scrollable message list, auto-scroll, scroll-lock | ⏳ | E2.S2 | 5 |
-| E2.S4 | ChatInput component | Tekst input onderaan chat (40% width), enter to send | ⏳ | E2.S3 | 2 |
-| E2.S5 | Keyboard shortcuts | ⌘K focus, Escape clear, Enter submit | ⏳ | E2.S4 | 1 |
+| E2.S1 | Store uitbreiding | `chatMessages`, `isStreaming` in swift-store.ts | ✅ **Compleet** | E1.S4 | 2 |
+| E2.S2 | ChatMessage component | User/assistant/system/error message types met styling | ✅ **Compleet** | E2.S1 | 3 |
+| E2.S3 | ChatPanel component | Scrollable message list, auto-scroll, scroll-lock | ✅ **Compleet** | E2.S2 | 5 |
+| E2.S4 | ChatInput component | Tekst input onderaan chat (40% width), enter to send | ✅ **Compleet** | E2.S3 | 2 |
+| E2.S5 | Keyboard shortcuts | ⌘K focus, Escape clear, Enter submit | ✅ **Compleet** | E2.S4 | 1 |
 
 **Technical Notes:**
 
@@ -365,7 +375,28 @@ const MESSAGE_STYLES = {
 - Enter submit (tenzij Shift pressed)
 - Placeholder: "Typ of spreek..."
 
-**Deliverable:** Werkende chat UI (zonder AI), gebruiker kan typen en ziet messages verschijnen
+**E2.S5 - Keyboard shortcuts:**
+- ⌘K / Ctrl+K: Focus chat input (global)
+- Escape: Clear input (local)
+- Enter: Submit message
+- Shift+Enter: New line
+
+**Deliverables:**
+- ✅ `stores/swift-store.ts` (+87 regels) — Chat state: chatMessages[], isStreaming, pendingAction, actions
+- ✅ `components/swift/chat/chat-message.tsx` (76 regels) — Message component met 4 types (user/assistant/system/error)
+- ✅ `components/swift/chat/chat-panel.tsx` (148 regels) — Scrollable message list, auto-scroll, scroll-lock, keyboard shortcuts
+- ✅ `components/swift/chat/chat-input.tsx` (184 regels) — Multi-line input, Enter submit, Shift+Enter new line, forwardRef
+- ✅ Keyboard shortcuts: ⌘K focus, Escape clear, Enter submit, Shift+Enter new line
+- ✅ Auto-scroll met scroll-lock detection (100px threshold)
+- ✅ "Scroll naar beneden" button bij scroll-lock
+- ✅ Cross-platform support (macOS + Windows/Linux)
+- ✅ Build succesvol zonder errors
+
+**Git Commits:**
+- `e3ff72c` — E2.S1 & E2.S2 (Store uitbreiding + ChatMessage component)
+- `b5e245e` — E2.S3 (ChatPanel scrolling functionaliteit)
+- `8f6f24f` — E2.S4 (ChatInput component met keyboard shortcuts)
+- `d2931a3` — E2.S5 (Global keyboard shortcuts ⌘K focus)
 
 ---
 
