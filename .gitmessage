@@ -1,0 +1,17 @@
+# <type>(<scope>): <subject>
+# 
+# <body>
+# 
+# <footer>
+#
+# Types: feat | fix | docs | style | refactor | perf | test | chore | ci | build | revert
+# Scopes: epd | auth | api | ui | db | docs | swift | behandelplan | verpleegrapportage
+#
+# Voorbeelden:
+# feat(epd): voeg AI-samenvatting toe
+# fix(auth): corrigeer redirect loop
+# docs: update API documentatie
+#
+# Regels: imperatief, max 50 karakters, kleine letter, geen punt
+# Tip: Blijf compact - body is optioneel, alleen toevoegen als nodig
+

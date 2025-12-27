@@ -15,6 +15,7 @@ import { ChatMessage } from './chat-message';
 import { ChatInput, ChatInputHandle } from './chat-input';
 import { useSwiftStore } from '@/stores/swift-store';
 import { sendChatMessage } from '@/lib/swift/chat-api';
+import { parseActionFromResponse, shouldOpenArtifact } from '@/lib/swift/action-parser';
 import { cn } from '@/lib/utils';
 
 export function ChatPanel() {
@@ -23,6 +24,7 @@ export function ChatPanel() {
   const updateLastMessage = useSwiftStore((s) => s.updateLastMessage);
   const setStreaming = useSwiftStore((s) => s.setStreaming);
   const isStreaming = useSwiftStore((s) => s.isStreaming);
+  const setPendingAction = useSwiftStore((s) => s.setPendingAction);
   const activePatient = useSwiftStore((s) => s.activePatient);
   const shift = useSwiftStore((s) => s.shift);
 
@@ -174,8 +176,28 @@ export function ChatPanel() {
               updateLastMessage(accumulatedContent);
             },
             () => {
-              // On done
+              // On done - parse action from complete response
               setStreaming(false);
+
+              // E3.S4: Parse action object from AI response
+              const parsed = parseActionFromResponse(accumulatedContent);
+
+              if (parsed.action) {
+                console.log('[ChatPanel] Action detected:', parsed.action);
+
+                // Update last message with cleaned text content and action
+                updateLastMessage(parsed.textContent, parsed.action);
+
+                // Store action in pendingAction for artifact opening (E3.S6)
+                if (shouldOpenArtifact(parsed.action.confidence)) {
+                  setPendingAction(parsed.action);
+                  console.log('[ChatPanel] Pending action set (confidence:', parsed.action.confidence, ')');
+                } else {
+                  console.log('[ChatPanel] Action confidence too low:', parsed.action.confidence);
+                }
+              } else {
+                console.log('[ChatPanel] No action detected in response');
+              }
             },
             (error) => {
               // On error

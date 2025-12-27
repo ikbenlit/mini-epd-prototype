@@ -12,8 +12,10 @@
 
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { CheckCircle2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ChatMessage as ChatMessageType } from '@/stores/swift-store';
+import { getConfidenceLabel } from '@/lib/swift/action-parser';
 
 // Message styling configuration per type
 const MESSAGE_STYLES = {
@@ -64,6 +66,27 @@ export function ChatMessage({ message, showTimestamp = false }: ChatMessageProps
       <div className="whitespace-pre-wrap break-words leading-relaxed">
         {message.content}
       </div>
+
+      {/* Action badge (E3.S4) - show if action was detected */}
+      {message.action && message.type === 'assistant' && (
+        <div className="mt-2 pt-2 border-t border-slate-200">
+          <div className="flex items-center gap-2 text-xs">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span className="font-medium text-slate-700">
+              {message.action.intent === 'dagnotitie' && 'Dagnotitie'}
+              {message.action.intent === 'zoeken' && 'Patiënt zoeken'}
+              {message.action.intent === 'overdracht' && 'Overdracht'}
+              {message.action.intent === 'unknown' && 'Onbekend'}
+            </span>
+            {message.action.confidence >= 0.7 && (
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+            )}
+            <span className="text-slate-500">
+              {getConfidenceLabel(message.action.confidence)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Timestamp (optional) */}
       {showTimestamp && message.timestamp && (

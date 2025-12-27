@@ -221,13 +221,13 @@ const useChatStore = create<ChatState>((set) => ({
 | E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ✅ **Compleet** | 3/3 | 5 SP | Docs aangemaakt |
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
-| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ In Progress | 3/6 | 21 SP | Medical scribe prompt v1.0 |
+| E3 | Chat API & Medical Scribe | AI conversatie werkend | ⏳ In Progress | 4/6 | 21 SP | Intent detection parsing |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ⏳ To Do | 0/4 | 13 SP | Week 5 |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **85 Story Points** (~7 weken à 12 SP/week)
-**Voortgang:** ✅ 14/31 stories compleet (41 SP / 85 SP = **48%**)
+**Voortgang:** ✅ 15/31 stories compleet (46 SP / 85 SP = **54%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -409,7 +409,7 @@ const MESSAGE_STYLES = {
 | E3.S1 | Chat API endpoint skeleton | `/api/swift/chat` route met SSE setup | ✅ **Compleet** | E2.S5 | 3 |
 | E3.S2 | Streaming response logic | Claude API streaming werkt, chunks naar frontend | ✅ **Compleet** | E3.S1 | 5 |
 | E3.S3 | Medical scribe system prompt | Prompt met role, intents, examples, Nederlands | ✅ **Compleet** | E3.S2 | 3 |
-| E3.S4 | Intent detection in response | AI genereert action objects (intent + entities) | ⏳ | E3.S3 | 5 |
+| E3.S4 | Intent detection in response | AI genereert action objects (intent + entities) | ✅ **Compleet** | E3.S3 | 5 |
 | E3.S5 | Frontend streaming handling | useChatStream hook, message chunks renderen | ⏳ | E3.S4 | 3 |
 | E3.S6 | Artifact opening from chat | Action object opent juiste block met prefill | ⏳ | E3.S5 | 2 |
 
@@ -553,11 +553,29 @@ export function useChatStream() {
 - ✅ 4 voorbeelden: dagnotitie, zoeken, verduidelijking, onduidelijke intent
 - ✅ Build succesvol zonder type errors
 
+**Deliverables (E3.S4 compleet):**
+- ✅ `lib/swift/action-parser.ts` (149 regels) — JSON action parser met Zod validatie
+- ✅ `parseActionFromResponse()` — Extract JSON from ```json code blocks
+- ✅ `extractJsonBlock()` — Markdown code block regex matching
+- ✅ `removeJsonBlocks()` — Clean text content zonder JSON
+- ✅ `shouldOpenArtifact()` — Confidence threshold check (≥0.7)
+- ✅ `getConfidenceLabel()` — User-friendly labels (Zeer zeker, Redelijk zeker, etc.)
+- ✅ `validateArtifactType()` — Intent/artifact type matching validation
+- ✅ ChatPanel: Action parsing in onDone callback
+- ✅ ChatPanel: setPendingAction voor artifact opening (E3.S6)
+- ✅ ChatMessage: Action badge met intent + confidence indicator
+- ✅ Store: updateLastMessage met optional action parameter
+- ✅ Action schema validation: intent, entities, confidence, artifact
+- ✅ Visual feedback: Sparkles icon, CheckCircle voor high confidence
+- ✅ Console logging voor debugging action detection
+- ✅ Build succesvol zonder type errors
+
 **Git Commits:**
 - `a51acf6` — E3.S1 & E3.S2 (Chat API + Claude streaming)
-- (to be committed) — E3.S3 (Medical scribe system prompt v1.0)
+- `8efac84` — E3.S3 (Medical scribe system prompt v1.0)
+- (to be committed) — E3.S4 (Intent detection in response)
 
-**Remaining:** E3.S4-E3.S6 voor intent detection parsing, frontend handling, en artifact opening
+**Remaining:** E3.S5-E3.S6 voor frontend streaming polish en artifact opening
 
 ---
 

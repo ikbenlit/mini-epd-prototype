@@ -102,7 +102,7 @@ interface SwiftStore {
 
   // Chat actions (v3.0)
   addChatMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
-  updateLastMessage: (content: string) => void;
+  updateLastMessage: (content: string, action?: ChatAction | null) => void;
   clearChat: () => void;
   setStreaming: (streaming: boolean) => void;
   setPendingAction: (action: ChatAction | null) => void;
@@ -215,15 +215,22 @@ export const useSwiftStore = create<SwiftStore>()(
         );
       },
 
-      updateLastMessage: (content) => {
+      updateLastMessage: (content, action?) => {
         set(
           (state) => {
             const messages = [...state.chatMessages];
             if (messages.length > 0) {
-              messages[messages.length - 1] = {
+              const updatedMessage: ChatMessage = {
                 ...messages[messages.length - 1],
                 content,
               };
+
+              // Only add action if it's not null/undefined
+              if (action !== undefined && action !== null) {
+                updatedMessage.action = action;
+              }
+
+              messages[messages.length - 1] = updatedMessage;
             }
             return { chatMessages: messages };
           },
