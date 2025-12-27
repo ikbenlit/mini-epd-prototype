@@ -223,11 +223,11 @@ const useChatStore = create<ChatState>((set) => ({
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
-| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ To Do | 0/5 | 13 SP | Week 6 |
+| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 1/5 | 13 SP (5 SP compleet) | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
-**Voortgang:** ✅ 21/31 stories compleet, 3 geskipt (58 SP / 82 SP = **71%**)
+**Voortgang:** ✅ 22/31 stories compleet, 3 geskipt (63 SP / 82 SP = **77%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -814,7 +814,7 @@ E4.S4 (Placeholder state) is geskipt omdat:
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E5.S1 | AI-filtering psychiater | `/api/overdracht/generate` filtert op behandelrelevantie | ⏳ | E4.S4 | 5 |
+| E5.S1 | AI-filtering psychiater | `/api/overdracht/generate` filtert op behandelrelevantie | ✅ | E4.S4 | 5 |
 | E5.S2 | Linked evidence UI | Bronnotitie links in OverdrachtBlock, hover preview | ⏳ | E5.S1 | 3 |
 | E5.S3 | Voice input integratie | Bestaande Deepgram blijft werken in chat input | ⏳ | E2.S4 | 2 |
 | E5.S4 | Error states & offline | Chat error messages, offline banner margin fix | ⏳ | E3.S2 | 2 |
@@ -1049,29 +1049,29 @@ Output:
   └─ Psychiater: 2-3 aandachtspunten, 1-2 actiepunten (behandelrelevant)
 ```
 
-**Deliverables (E5.S1):**
-- [ ] `lib/types/overdracht.ts` — Update GenerateOverdrachtSchema met filterForRole
-- [ ] `lib/ai/overdracht-prompt.ts` — buildSystemPrompt(role) functie met psychiater filtering
-- [ ] `app/api/overdracht/generate/route.ts` — callClaudeAPI met role parameter
-- [ ] `components/swift/blocks/overdracht-block.tsx` — Role toggle UI (Verpleegkundige/Psychiater)
-- [ ] API call updated met filterForRole in request body
-- [ ] Psychiater prompt: max 3 aandachtspunten, 2 actiepunten, strict filtering
-- [ ] Verpleegkundige prompt: blijft hetzelfde (geen filtering)
-- [ ] UI: Role selector met beschrijving per rol
-- [ ] Build succesvol zonder errors
-- [ ] Test: verpleegkundige view toont alle items, psychiater view toont alleen behandelrelevante items
+**Deliverables (E5.S1 - COMPLEET):**
+- ✅ `lib/types/overdracht.ts` (+1 regel) — GenerateOverdrachtSchema met filterForRole parameter
+- ✅ `lib/ai/overdracht-prompt.ts` (+52 regels) — buildSystemPrompt(role) functie met psychiater filtering regels
+- ✅ `app/api/overdracht/generate/route.ts` (+8/-8 regels) — callClaudeAPI signature met role parameter
+- ✅ `components/swift/blocks/overdracht-block.tsx` (+43 regels) — Role toggle UI (Verpleegkundige/Psychiater)
+- ✅ API call updated met filterForRole in request body (line 143)
+- ✅ Psychiater prompt: max 3 aandachtspunten, 2 actiepunten, strict filtering op behandelrelevantie
+- ✅ Verpleegkundige prompt: blijft hetzelfde (geen extra filtering, base prompt)
+- ✅ UI: Role selector (grid 2 cols) met beschrijving per rol ("Alle gemarkeerde items" vs "Behandelrelevante items")
+- ✅ Build succesvol zonder errors (pnpm build)
+- ✅ filterRole state + useCallback dependency update in generateSummary
 
 **Acceptatiecriteria:**
-1. ✅ Role toggle zichtbaar in OverdrachtBlock (boven period selector)
+1. ✅ Role toggle zichtbaar in OverdrachtBlock ("Doelgroep" selector met 2 knoppen)
 2. ✅ Default role = "verpleegkundige" (backwards compatible)
-3. ✅ Psychiater view filtert op behandelrelevantie (medicatie-issues, gedrag, risico)
-4. ✅ Psychiater view filtert UIT: routine medicatie, ADL, sociale activiteiten
-5. ✅ Verpleegkundige view blijft werken zoals voorheen (alle aangevinkte items)
-6. ✅ AI prompt duidelijk onderscheid tussen WEL/NIET relevant voor psychiater
+3. ✅ Psychiater view filtert op behandelrelevantie (medicatie-issues, gedrag, risico, crisis)
+4. ✅ Psychiater view filtert UIT: routine medicatie, ADL, sociale activiteiten, dagstructuur
+5. ✅ Verpleegkundige view blijft werken zoals voorheen (alle aangevinkte items, max 5 aandachtspunten)
+6. ✅ AI prompt duidelijk onderscheid tussen WEL/NIET relevant voor psychiater (✅/❌ voorbeelden in prompt)
 7. ✅ Build succesvol, geen type errors
 
 **Git Commits:**
-- (to be committed) — E5.S1 (AI-filtering psychiater in OverdrachtBlock)
+- `c6616d8` — E5.S1 (AI-filtering psychiater voor overdracht, 104 insertions, 8 deletions)
 
 ---
 
