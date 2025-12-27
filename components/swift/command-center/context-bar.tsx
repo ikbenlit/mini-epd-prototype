@@ -33,12 +33,12 @@ export function ContextBar() {
       {/* Left: Logo + Shift */}
       <div className="flex items-center gap-4">
         <Link
-          href="/epd"
+          href="/epd/clients"
           className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
           title="Terug naar EPD"
         >
           <ArrowLeft size={16} />
-          <span className="text-sm font-semibold tracking-tight">Swift</span>
+          <span className="text-sm font-semibold tracking-tight">Terug naar EPD</span>
         </Link>
 
         <div className="h-4 w-px bg-slate-200" />
