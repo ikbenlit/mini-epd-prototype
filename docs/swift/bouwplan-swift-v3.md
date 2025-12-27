@@ -223,11 +223,11 @@ const useChatStore = create<ChatState>((set) => ({
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
-| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 3/5 | 13 SP (10 SP compleet) | Week 6 |
+| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 4/5 | 13 SP (12 SP compleet) | Week 6 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
-**Voortgang:** ✅ 24/31 stories compleet, 3 geskipt (68 SP / 82 SP = **83%**)
+**Voortgang:** ✅ 25/31 stories compleet, 3 geskipt (70 SP / 82 SP = **85%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -817,7 +817,7 @@ E4.S4 (Placeholder state) is geskipt omdat:
 | E5.S1 | AI-filtering psychiater | `/api/overdracht/generate` filtert op behandelrelevantie | ✅ | E4.S4 | 5 |
 | E5.S2 | Linked evidence UI | Bronnotitie links in OverdrachtBlock, hover preview | ✅ | E5.S1 | 3 |
 | E5.S3 | Voice input integratie | Bestaande Deepgram blijft werken in chat input | ✅ | E2.S4 | 2 |
-| E5.S4 | Error states & offline | Chat error messages, offline banner margin fix | ⏳ | E3.S2 | 2 |
+| E5.S4 | Error states & offline | Chat error messages, offline banner margin fix | ✅ | E3.S2 | 2 |
 | E5.S5 | Polish & animations | Smooth transitions, loading states, toast confirmations | ⏳ | E5.S4 | 1 |
 
 **Technical Notes:**
@@ -1231,18 +1231,77 @@ function enrichWithSourceData(
 **Git Commits:**
 - Geïmplementeerd in Epic 2 (E2.S4 - Voice input)
 
-**E5.S4 - Error states:**
-```tsx
-// Error message types in chat
-const ERROR_MESSAGES = {
-  network: "Er ging iets mis met de verbinding. Probeer het opnieuw.",
-  stream_interrupted: "De verbinding werd onderbroken. Probeer je bericht opnieuw te versturen.",
-  rate_limit: "Even geduld, er zijn te veel aanvragen. Wacht 30 seconden.",
-  unknown: "Er is een fout opgetreden. Probeer het later opnieuw.",
-};
-```
+---
 
-**Deliverable:** AI-filtering werkt, linked evidence klikbaar, voice input geïntegreerd
+**E5.S4 - Error states & offline (COMPLEET - AL GEÏMPLEMENTEERD IN E5.S2):**
+
+**Doel:** Error handling en offline detection met gebruiksvriendelijke berichten.
+
+**Status:** ✅ **Al volledig geïmplementeerd in E5.S2** (Error Handler + Offline Banner)
+
+**Bestaande Implementatie:**
+
+1. **Error Handler Utility** (`lib/swift/error-handler.ts` - 301 regels):
+   - isOffline() - Detecteert navigator.onLine status
+   - isNetworkError() - Detecteert fetch failures
+   - isTimeoutError() - Detecteert timeout errors
+   - getErrorInfo() - Gebruiksvriendelijke Nederlandse berichten
+   - safeFetch() - Fetch wrapper met 30s timeout en error handling
+   - retryFetch() - Retry logic met exponential backoff (max 3 retries)
+   - parseErrorResponse() - Parse JSON/HTML error responses
+   - HTTP status handling: 401, 403, 404, 429, 500, 503
+
+2. **Offline Banner** (`components/swift/command-center/offline-banner.tsx` - 72 regels):
+   - OfflineBanner component met WifiOff icon
+   - useOffline hook met online/offline event listeners
+   - Fixed positioning: top-0 left-0 right-0 z-[100]
+   - Height: 40px, amber-500 background
+   - Auto show/hide op basis van navigator.onLine
+
+3. **Integration:**
+   - CommandCenter: OfflineBanner geïntegreerd (regel 87)
+   - ContextBar: margin fix met useOffline hook (marginTop: '40px' wanneer offline, regel 31)
+   - ChatPanel: Error messages met type: 'error' (regel 206)
+   - ChatMessage: Support voor error message type
+   - All blocks: safeFetch + getErrorInfo voor error handling
+
+**Deliverables (E5.S4 - AL COMPLEET):**
+- ✅ `lib/swift/error-handler.ts` (301 regels) — Gecentraliseerde error handling
+- ✅ `components/swift/command-center/offline-banner.tsx` (72 regels) — Offline detection banner
+- ✅ isOffline() detection met navigator.onLine
+- ✅ isNetworkError() detection (fetch failures)
+- ✅ getErrorInfo() met Nederlandse berichten per error type
+- ✅ safeFetch() met 30s timeout (AbortSignal.timeout)
+- ✅ retryFetch() met exponential backoff (1s, 2s, 4s delays)
+- ✅ HTTP status messages: 401 (niet geautoriseerd), 404 (niet gevonden), 500 (serverfout), 503 (service niet beschikbaar)
+- ✅ OfflineBanner component met WifiOff icon
+- ✅ useOffline hook voor online/offline events
+- ✅ ContextBar margin fix (marginTop: '40px')
+- ✅ ChatPanel error messages (type: 'error')
+- ✅ All blocks gebruik safeFetch + getErrorInfo
+
+**Acceptatiecriteria:**
+1. ✅ Error handler utility met isOffline(), isNetworkError(), getErrorInfo()
+2. ✅ safeFetch() wrapper met 30s timeout en parseErrorResponse
+3. ✅ retryFetch() met exponential backoff (max 3 retries)
+4. ✅ Nederlandse error messages voor alle HTTP status codes
+5. ✅ OfflineBanner component toont bij geen internetverbinding
+6. ✅ OfflineBanner geïntegreerd in CommandCenter
+7. ✅ ContextBar margin fix voorkomt overlap met banner
+8. ✅ ChatPanel toont error messages in chat (type: 'error')
+9. ✅ ChatMessage supports error type rendering
+10. ✅ Build succesvol, geen errors
+
+**Technical Details:**
+- safeFetch timeout: 30s (AbortSignal.timeout(30000))
+- Retry delays: 1000ms, 2000ms, 4000ms (exponential backoff)
+- Offline detection: window.addEventListener('online'/'offline')
+- Banner z-index: 100 (boven content)
+- ContextBar dynamic margin: isOffline ? '40px' : undefined
+- Error type flow: safeFetch → getErrorInfo → toast/chat message
+
+**Git Commits:**
+- Geïmplementeerd in E5.S2 (Error handler + Offline banner)
 
 ---
 
