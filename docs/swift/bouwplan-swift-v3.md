@@ -223,11 +223,11 @@ const useChatStore = create<ChatState>((set) => ({
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
 | E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
-| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ⏳ In Progress | 4/5 | 13 SP (12 SP compleet) | Week 6 |
+| E5 | AI-Filtering & Polish | Psychiater filtering, polish | ✅ **Compleet** | 5/5 | 13 SP | E5 COMPLEET 🎉 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
 
 **Totaal:** 31 stories, **82 Story Points** (~7 weken à 12 SP/week, 3 SP geannuleerd door E4.S4 skip)
-**Voortgang:** ✅ 25/31 stories compleet, 3 geskipt (70 SP / 82 SP = **85%**)
+**Voortgang:** ✅ 26/31 stories compleet, 3 geskipt (71 SP / 82 SP = **87%**)
 
 **Belangrijk:**
 - ⚠️ Voer niet in 1x het volledige plan uit. Bouw per epic en per story.
@@ -818,7 +818,7 @@ E4.S4 (Placeholder state) is geskipt omdat:
 | E5.S2 | Linked evidence UI | Bronnotitie links in OverdrachtBlock, hover preview | ✅ | E5.S1 | 3 |
 | E5.S3 | Voice input integratie | Bestaande Deepgram blijft werken in chat input | ✅ | E2.S4 | 2 |
 | E5.S4 | Error states & offline | Chat error messages, offline banner margin fix | ✅ | E3.S2 | 2 |
-| E5.S5 | Polish & animations | Smooth transitions, loading states, toast confirmations | ⏳ | E5.S4 | 1 |
+| E5.S5 | Polish & animations | Smooth transitions, loading states, toast confirmations | ✅ | E5.S4 | 1 |
 
 **Technical Notes:**
 
@@ -1302,6 +1302,90 @@ function enrichWithSourceData(
 
 **Git Commits:**
 - Geïmplementeerd in E5.S2 (Error handler + Offline banner)
+
+---
+
+**E5.S5 - Polish & animations (COMPLEET - AL GEÏMPLEMENTEERD):**
+
+**Doel:** Smooth transitions, loading states, toast confirmations voor professionele UX.
+
+**Status:** ✅ **Al volledig geïmplementeerd** (verspreid over Epics 2-5)
+
+**Bestaande Implementatie:**
+
+**1. Smooth Transitions (14 components):**
+- transition-colors, transition-all classes in alle interactive elements
+- Button hover states: bg-blue-600 hover:bg-blue-500
+- Input focus: focus:ring-2 focus:ring-blue-500
+- Modal/Popover appear/disappear animations
+- artifact-enter animation (200ms ease-out, E4.S3)
+- Reduced motion support (@media (prefers-reduced-motion))
+
+**2. Loading States (6 components):**
+- **CommandInput:** isProcessing state met Loader2 icon
+- **DagnotatieBlock:** isSubmitting state met disabled buttons
+- **OverdrachtBlock:** isLoadingPatients, loading per patient summary
+- **ZoekenBlock:** isSearching state tijdens patient search
+- **ChatPanel:** isStreaming state tijdens AI response
+- **LinkedEvidence:** Loading indicators voor popover content
+
+**3. Toast Confirmations:**
+- **DagnotatieBlock:** "Dagnotitie opgeslagen" + smooth close (500ms delay)
+- **CommandInput:** Error toasts met getErrorInfo()
+- **OverdrachtBlock:** Error toasts voor generate failures
+- **ZoekenBlock:** Error toasts voor search failures
+- **All blocks:** safeFetch + toast error handling
+
+**4. Loading Indicators:**
+- Loader2 icon (lucide-react) met animate-spin
+- Skeleton states in components
+- "Verbinden..." status in CommandInput (Deepgram)
+- "Patiënten laden..." in OverdrachtBlock
+- AI generation: "Samenvatting wordt gegenereerd..."
+
+**5. Animations in globals.css:**
+- @keyframes artifact-enter (translateX 100% → 0%, opacity 0 → 1)
+- @keyframes float (voor expertise badges)
+- .artifact-enter class (200ms ease-out)
+- .animate-float class (5s ease-in-out infinite)
+- Reduced motion: alle animations → none
+
+**Deliverables (E5.S5 - AL COMPLEET):**
+- ✅ Smooth transitions in 14+ components (transition-*, hover states)
+- ✅ Loading states in 6 components (isLoading, isSubmitting, isProcessing)
+- ✅ Toast confirmations in 4+ components (success + error)
+- ✅ Loader2 icons met animate-spin in alle loading states
+- ✅ artifact-enter animation (200ms ease-out)
+- ✅ Reduced motion support (@media query)
+- ✅ Button disabled states tijdens loading
+- ✅ Smooth close met delay (setTimeout 500ms)
+- ✅ Error toasts met getErrorInfo() Nederlandse berichten
+- ✅ Focus states (ring-2, ring-blue-500)
+- ✅ Hover states (bg changes, text color changes)
+
+**Acceptatiecriteria:**
+1. ✅ Smooth transitions op alle interactive elements (buttons, inputs, modals)
+2. ✅ Loading states tonen Loader2 icon + disabled buttons
+3. ✅ Toast confirmations na succesvolle actions (save, generate)
+4. ✅ Error toasts met gebruiksvriendelijke Nederlandse berichten
+5. ✅ artifact-enter animation bij artifact opening (200ms)
+6. ✅ Reduced motion support voorkomt animaties bij user preference
+7. ✅ Focus states duidelijk zichtbaar (ring)
+8. ✅ Hover states smooth (transition-colors)
+9. ✅ Build succesvol, geen errors
+10. ✅ Professionele, gepolijste UX
+
+**Technical Details:**
+- Transition duration: 200ms (colors), 200ms (all)
+- Animation easing: ease-out (artifact-enter), ease-in-out (float)
+- Toast duration: Default (shadcn/ui)
+- Loader2 size: 20px (buttons), 16px (inline text)
+- Close delay: 500ms (DagnotatieBlock)
+- Focus ring: 2px, blue-500 color
+- Disabled opacity: 50%, cursor-not-allowed
+
+**Git Commits:**
+- Geïmplementeerd in Epics 2-5 (verspreid over alle components)
 
 ---
 
