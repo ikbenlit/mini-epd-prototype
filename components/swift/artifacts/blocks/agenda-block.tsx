@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Encounter, AppointmentTypeCode, LocationClassCode, CalendarEvent } from '@/app/epd/agenda/types';
+import { AppointmentTypeCode, LocationClassCode, CalendarEvent } from '@/app/epd/agenda/types';
 import { AgendaListView } from './agenda-list-view';
 import { AgendaCreateForm } from './agenda-create-form';
 import { AgendaCancelView } from './agenda-cancel-view';
@@ -16,6 +16,8 @@ export interface AgendaBlockProps {
         type?: AppointmentTypeCode;
         location?: LocationClassCode;
         notes?: string;
+        identifier?: { encounterId?: string; encounter?: CalendarEvent };
+        newDatetime?: { date: Date; time: string };
     };
     disambiguationOptions?: CalendarEvent[];
     onClose?: () => void;

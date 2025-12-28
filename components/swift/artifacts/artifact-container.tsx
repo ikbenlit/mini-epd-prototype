@@ -11,11 +11,13 @@
  */
 
 import { ArtifactTab } from './artifact-tab';
+import { AgendaBlock, type AgendaBlockProps } from './blocks/agenda-block';
 import { DagnotatieBlock } from '../blocks/dagnotitie-block';
 import { ZoekenBlock } from '../blocks/zoeken-block';
 import { OverdrachtBlock } from '../blocks/overdracht-block';
 import { PatientDashboardBlock } from '../blocks/patient-dashboard-block';
 import { FallbackPicker } from '../blocks/fallback-picker';
+import { APPOINTMENT_TYPES, type AppointmentTypeCode, type LocationClassCode } from '@/app/epd/agenda/types';
 import type { Artifact, BlockType } from '@/stores/swift-store';
 
 interface ArtifactContainerProps {
@@ -25,10 +27,107 @@ interface ArtifactContainerProps {
   onCloseArtifact: (id: string) => void;
 }
 
+type AgendaIntent = 'agenda_query' | 'create_appointment' | 'cancel_appointment' | 'reschedule_appointment';
+type AgendaMode = AgendaBlockProps['mode'];
+
+const AGENDA_MODE_MAP: Record<AgendaIntent, AgendaMode> = {
+  agenda_query: 'list',
+  create_appointment: 'create',
+  cancel_appointment: 'cancel',
+  reschedule_appointment: 'reschedule',
+};
+
+const LOCATION_CODE_MAP: Record<string, LocationClassCode> = {
+  praktijk: 'AMB',
+  online: 'VR',
+  thuis: 'HH',
+};
+
+function coerceDate(value: unknown): Date | undefined {
+  if (value instanceof Date) return value;
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  return undefined;
+}
+
+function coerceDateRange(raw: any): AgendaBlockProps['dateRange'] | undefined {
+  const start = coerceDate(raw?.start);
+  const end = coerceDate(raw?.end);
+  if (!start || !end) return undefined;
+  return {
+    start,
+    end,
+    label: typeof raw?.label === 'string' ? raw.label : 'custom',
+  };
+}
+
+function resolveAppointmentType(value: unknown): AppointmentTypeCode | undefined {
+  if (typeof value !== 'string') return undefined;
+  if (value in APPOINTMENT_TYPES) return value as AppointmentTypeCode;
+  return undefined;
+}
+
+function resolveLocation(value: unknown): LocationClassCode | undefined {
+  if (typeof value !== 'string') return undefined;
+  if (value in LOCATION_CODE_MAP) return LOCATION_CODE_MAP[value];
+  if (value === 'AMB' || value === 'VR' || value === 'HH') return value;
+  return undefined;
+}
+
+function buildAgendaPrefill(prefill: Record<string, any> | undefined): AgendaBlockProps['prefillData'] {
+  if (!prefill || typeof prefill !== 'object') return undefined;
+
+  const patient =
+    prefill.patient ||
+    (prefill.patientName || prefill.patientId
+      ? {
+          id: prefill.patientId || '',
+          name: prefill.patientName || '',
+        }
+      : undefined);
+
+  const datetimeDate =
+    coerceDate(prefill?.datetime?.date) ||
+    (prefill?.datetime?.time ? new Date() : undefined);
+  const datetime = datetimeDate
+    ? {
+        date: datetimeDate,
+        time: typeof prefill?.datetime?.time === 'string' ? prefill.datetime.time : '',
+      }
+    : undefined;
+
+  const appointmentType = resolveAppointmentType(prefill?.appointmentType || prefill?.type);
+  const location = resolveLocation(prefill?.location);
+
+  const newDatetimeDate =
+    coerceDate(prefill?.newDatetime?.date) ||
+    (prefill?.newDatetime?.time ? new Date() : undefined);
+  const newDatetime = newDatetimeDate
+    ? {
+        date: newDatetimeDate,
+        time: typeof prefill?.newDatetime?.time === 'string' ? prefill.newDatetime.time : '',
+      }
+    : undefined;
+
+  return {
+    patient,
+    datetime,
+    type: appointmentType,
+    location,
+    notes: typeof prefill?.notes === 'string' ? prefill.notes : undefined,
+    identifier: prefill?.identifier,
+    newDatetime,
+  };
+}
+
 /**
  * Render the appropriate block component based on artifact type
  */
-function renderArtifactBlock(artifact: Artifact) {
+function renderArtifactBlock(artifact: Artifact, onCloseArtifact: (id: string) => void) {
   switch (artifact.type) {
     case 'dagnotitie':
       return <DagnotatieBlock key={artifact.id} prefill={artifact.prefill} />;
@@ -36,6 +135,33 @@ function renderArtifactBlock(artifact: Artifact) {
       return <ZoekenBlock key={artifact.id} prefill={artifact.prefill} />;
     case 'overdracht':
       return <OverdrachtBlock key={artifact.id} prefill={artifact.prefill} />;
+    case 'agenda_query':
+    case 'create_appointment':
+    case 'cancel_appointment':
+    case 'reschedule_appointment': {
+      const agendaType = artifact.type as AgendaIntent;
+      const rawPrefill = artifact.prefill as Record<string, any>;
+      const dateRange = coerceDateRange(rawPrefill?.dateRange);
+      const prefillData = buildAgendaPrefill(rawPrefill);
+      const appointments = Array.isArray(rawPrefill?.appointments)
+        ? rawPrefill.appointments
+        : undefined;
+      const disambiguationOptions = Array.isArray(rawPrefill?.disambiguationOptions)
+        ? rawPrefill.disambiguationOptions
+        : undefined;
+
+      return (
+        <AgendaBlock
+          key={artifact.id}
+          mode={AGENDA_MODE_MAP[agendaType]}
+          appointments={appointments}
+          dateRange={dateRange}
+          prefillData={prefillData}
+          disambiguationOptions={disambiguationOptions}
+          onClose={() => onCloseArtifact(artifact.id)}
+        />
+      );
+    }
     case 'patient-dashboard':
       return <PatientDashboardBlock key={artifact.id} prefill={artifact.prefill} />;
     case 'fallback':
@@ -62,6 +188,16 @@ export function getArtifactTitle(type: BlockType, prefill?: any): string {
       return 'Patiënt Zoeken';
     case 'overdracht':
       return 'Dienst Overdracht';
+    case 'agenda_query':
+      return 'Agenda';
+    case 'create_appointment':
+      return prefill?.patientName
+        ? `Nieuwe afspraak - ${prefill.patientName}`
+        : 'Nieuwe afspraak';
+    case 'cancel_appointment':
+      return 'Afspraak annuleren';
+    case 'reschedule_appointment':
+      return 'Afspraak verzetten';
     case 'fallback':
       return 'Kies een actie';
     case 'patient-dashboard':
@@ -120,7 +256,7 @@ export function ArtifactContainer({
       <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
         {activeArtifact ? (
           <div key={activeArtifact.id} className="artifact-enter w-full">
-            {renderArtifactBlock(activeArtifact)}
+            {renderArtifactBlock(activeArtifact, onCloseArtifact)}
           </div>
         ) : (
           <div className="text-slate-500">

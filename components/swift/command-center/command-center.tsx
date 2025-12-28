@@ -23,6 +23,7 @@ import { OfflineBanner } from './offline-banner';
 import { ChatPanel } from '../chat/chat-panel';
 import { ArtifactArea } from '../artifacts/artifact-area';
 import { getArtifactTitle } from '../artifacts/artifact-container';
+import { routeIntentToArtifact } from '@/lib/swift/action-parser';
 
 export function CommandCenter() {
   const { closeAllArtifacts, openArtifacts, openArtifact, pendingAction, setPendingAction } = useSwiftStore();
@@ -73,12 +74,28 @@ export function CommandCenter() {
         title,
       });
 
-      // Clear pending action after processing
       setPendingAction(null);
+      return;
+    }
+
+    const routedArtifact = routeIntentToArtifact(
+      pendingAction.intent,
+      pendingAction.entities,
+      pendingAction.confidence
+    );
+
+    if (routedArtifact) {
+      console.log('[CommandCenter] Routing action to artifact:', routedArtifact.type);
+      openArtifact({
+        type: routedArtifact.type,
+        prefill: routedArtifact.prefill,
+        title: routedArtifact.title,
+      });
     } else {
       console.log('[CommandCenter] Action has no artifact, skipping');
-      setPendingAction(null);
     }
+
+    setPendingAction(null);
   }, [pendingAction, openArtifact, setPendingAction]);
 
   return (

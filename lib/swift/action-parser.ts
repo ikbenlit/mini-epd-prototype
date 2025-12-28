@@ -1,9 +1,9 @@
 /**
- * Action Parser for Swift Medical Scribe
+ * Action Parser for Swift Assistent
  *
  * Parses JSON action objects from AI responses and validates them.
  *
- * Epic: E3 (Chat API & Medical Scribe)
+ * Epic: E3 (Chat API & Swift Assistent)
  * Story: E3.S4 (Intent detection in response)
  */
 
@@ -29,9 +29,40 @@ const ActionSchema = z.object({
     category: z.enum(['medicatie', 'adl', 'gedrag', 'incident', 'observatie']).optional(),
     content: z.string().optional(),
     query: z.string().optional(), // For zoeken intent
+    dateRange: z
+      .object({
+        start: z.string(),
+        end: z.string(),
+        label: z.string(),
+      })
+      .optional(),
+    datetime: z
+      .object({
+        date: z.string(),
+        time: z.string(),
+      })
+      .optional(),
+    appointmentType: z.string().optional(),
+    location: z.string().optional(),
     date: z.string().optional(),
     time: z.string().optional(),
-    identifier: z.string().optional(),
+    identifier: z
+      .union([
+        z.string(),
+        z.object({
+          encounterId: z.string().optional(),
+          patientName: z.string().optional(),
+          time: z.string().optional(),
+          date: z.string().optional(),
+        }),
+      ])
+      .optional(),
+    newDatetime: z
+      .object({
+        date: z.string().optional(),
+        time: z.string().optional(),
+      })
+      .optional(),
   }),
   confidence: z.number().min(0).max(1),
   artifact: z
