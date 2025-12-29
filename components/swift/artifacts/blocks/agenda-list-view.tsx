@@ -5,6 +5,7 @@ import { nl } from 'date-fns/locale';
 import { Calendar, MapPin, Globe, Home, Clock, X, Info, ChevronRight, Ban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 import {
     CalendarEvent,
     APPOINTMENT_TYPE_COLORS,
@@ -21,6 +22,21 @@ interface AgendaListViewProps {
     onCancelAppointment?: (encounter: CalendarEvent) => void;
     onViewDetails?: (encounter: CalendarEvent) => void;
 }
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
+};
 
 export function AgendaListView({
     appointments = [],
@@ -55,33 +71,43 @@ export function AgendaListView({
     };
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-transparent">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-                <div className="flex items-center gap-2 text-teal-700">
-                    <Calendar className="h-5 w-5" />
-                    <h3 className="font-semibold text-lg capitalize">{formatDateLabel()}</h3>
+            <div className="flex items-center justify-between p-5 border-b border-black/5">
+                <div className="flex items-center gap-3 text-teal-700">
+                    <div className="p-2 bg-teal-50 rounded-lg">
+                        <Calendar className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-semibold text-lg text-gray-900 capitalize leading-tight">{formatDateLabel()}</h3>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 hover:bg-gray-100 rounded-full">
-                    <X className="h-4 w-4" />
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 text-gray-500 hover:text-gray-900 hover:bg-black/5 rounded-full">
+                    <X className="h-5 w-5" />
                 </Button>
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <motion.div
+                className="flex-1 overflow-y-auto p-5 space-y-3"
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+            >
                 {appointments.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500">
-                        <div className="bg-gray-50 p-4 rounded-full mb-3">
+                    <motion.div
+                        variants={itemVariants}
+                        className="flex flex-col items-center justify-center h-full text-center text-gray-500"
+                    >
+                        <div className="bg-gray-50/50 p-4 rounded-full mb-4">
                             <Calendar className="h-8 w-8 text-gray-400" />
                         </div>
-                        <p className="font-medium">Geen afspraken gevonden</p>
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className="font-medium text-gray-900">Geen afspraken gevonden</p>
+                        <p className="text-sm text-gray-500 mt-1 max-w-[200px]">
                             Er staan geen afspraken gepland voor deze periode.
                         </p>
-                        <Button variant="outline" className="mt-4 gap-2 text-teal-600 border-teal-200 hover:bg-teal-50">
+                        <Button variant="outline" className="mt-6 gap-2 text-teal-700 border-teal-200/50 hover:bg-teal-50/50 bg-white/50">
                             <span className="text-lg leading-none">+</span> Maak nieuwe afspraak
                         </Button>
-                    </div>
+                    </motion.div>
                 ) : (
                     appointments.map((evt) => {
                         const encounter = evt.extendedProps.encounter;
@@ -94,18 +120,19 @@ export function AgendaListView({
                         const endTime = evt.end ? format(new Date(evt.end), 'HH:mm') : '';
 
                         return (
-                            <div
+                            <motion.div
                                 key={evt.id}
-                                className="group border rounded-lg p-3 hover:border-teal-200 hover:shadow-sm transition-all bg-white"
+                                variants={itemVariants}
+                                className="group border border-black/5 rounded-2xl p-4 hover:border-teal-200/50 hover:shadow-md transition-all bg-white/60 hover:bg-white/90 backdrop-blur-sm"
                             >
-                                <div className="flex justify-between items-start mb-2">
+                                <div className="flex justify-between items-start mb-3">
                                     <div className="flex flex-col">
-                                        <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                                            <Clock className="h-3.5 w-3.5 text-gray-400" />
+                                        <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-0.5">
+                                            <Clock className="h-3.5 w-3.5" />
                                             <span>{startTime} {endTime && `- ${endTime}`}</span>
                                         </div>
                                         <button
-                                            className="text-left font-semibold text-teal-700 hover:underline mt-0.5"
+                                            className="text-left text-base font-semibold text-gray-900 hover:text-teal-700 hover:underline transition-colors"
                                             onClick={() => console.log('Open patient context', patient?.id)}
                                         >
                                             {evt.title}
@@ -118,7 +145,7 @@ export function AgendaListView({
                                             color: typeColor.text,
                                             borderColor: typeColor.border
                                         }}
-                                        className="whitespace-nowrap shadow-none"
+                                        className="whitespace-nowrap shadow-none px-2.5 py-0.5 text-xs font-medium rounded-md"
                                     >
                                         {encounter.type_display || APPOINTMENT_TYPES[typeCode] || typeCode}
                                     </Badge>
@@ -130,15 +157,15 @@ export function AgendaListView({
                                         <span>{encounter.class_display || LOCATION_CLASSES[classCode] || classCode}</span>
                                     </div>
                                     {encounter.status === 'cancelled' && (
-                                        <Badge variant="destructive" className="h-5 px-1.5">Geannuleerd</Badge>
+                                        <Badge variant="destructive" className="h-5 px-1.5 font-normal rounded-sm">Geannuleerd</Badge>
                                     )}
                                 </div>
 
-                                <div className="flex items-center justify-end gap-2 mt-3 pt-2 border-t border-gray-50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-black/5 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-7 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50"
+                                        className="h-8 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50/50 rounded-lg px-3"
                                         onClick={() => onCancelAppointment?.(evt)}
                                     >
                                         Annuleren
@@ -146,25 +173,25 @@ export function AgendaListView({
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-7 text-xs text-teal-600 hover:bg-teal-50"
+                                        className="h-8 text-xs font-medium text-teal-700 hover:bg-teal-50/50 rounded-lg px-3"
                                         onClick={() => onViewDetails?.(evt)}
                                     >
                                         Details <ChevronRight className="ml-1 h-3 w-3" />
                                     </Button>
                                 </div>
-                            </div>
+                            </motion.div>
                         );
                     })
                 )}
-            </div>
+            </motion.div>
 
             {/* Footer */}
-            <div className="p-3 bg-gray-50 border-t text-center">
+            <div className="p-5 bg-gray-50/80 backdrop-blur-sm border-t border-black/5 text-center">
                 <a
                     href="/epd/agenda"
-                    className="text-xs font-medium text-teal-600 hover:text-teal-700 hover:underline inline-flex items-center gap-1"
+                    className="text-sm font-medium text-teal-700 hover:text-teal-800 hover:underline inline-flex items-center gap-1 transition-colors"
                 >
-                    Open volledige agenda <ChevronRight className="h-3 w-3" />
+                    Open volledige agenda <ChevronRight className="h-4 w-4" />
                 </a>
             </div>
         </div>

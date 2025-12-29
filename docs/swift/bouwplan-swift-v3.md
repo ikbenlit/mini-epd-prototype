@@ -1,10 +1,10 @@
 # 🚀 Mission Control — Bouwplan Swift v3.0
 
-💡 **Transformatie:** Van Command Center naar Medical Scribe Chatbot Interface
+💡 **Transformatie:** Van Command Center naar Swift Assistent Chatbot Interface
 
 ---
 
-**Projectnaam:** Swift Medical Scribe v3.0
+**Projectnaam:** Swift Swift Assistent v3.0
 **Versie:** v3.0
 **Datum:** 27-12-2024
 **Auteur:** Colin Lit
@@ -13,7 +13,7 @@
 
 ## 1. Doel en context
 
-🎯 **Doel:** Swift transformeren van een command-line style interface naar een conversational medical scribe chatbot met split-screen layout (chat links, artifacts rechts).
+🎯 **Doel:** Swift transformeren van een command-line style interface naar een conversational Swift Assistent chatbot met split-screen layout (chat links, artifacts rechts).
 
 📘 **Context:**
 De huidige Swift v2.1 werkt met een command-line paradigma waar gebruikers kort commando's typen ("notitie jan medicatie"). Dit werkt goed, maar voelt transactioneel aan. Gebruikers willen doorvragen, context behouden, en natuurlijker interacteren met het systeem.
@@ -29,7 +29,7 @@ De huidige Swift v2.1 werkt met een command-line paradigma waar gebruikers kort 
 4. **Bekende UX** — Lijkt op ChatGPT Canvas / Claude Artifacts (bekend voor gebruikers)
 
 **Referenties:**
-- **FO v3.0:** `fo-swift-medical-scribe-v3.md` — Functioneel ontwerp medical scribe
+- **FO v3.0:** `fo-swift-medical-scribe-v3.md` — Functioneel ontwerp Swift Assistent
 - **Haalbaarheid:** `haalbaarheidsanalyse-v3.md` — Feasibility analysis (6-8 weken, haalbaar)
 - **UX Analyse:** `v3-redesign-met-huidige-styling.md` — Wat blijft vs. wijzigt
 - **UX v2.1:** `archive/swift-ux-v2.1.md` — Huidige UX/styling
@@ -221,7 +221,7 @@ const useChatStore = create<ChatState>((set) => ({
 | E0 | Pre-work & Planning | Design tokens, component audit, system prompt | ✅ **Compleet** | 3/3 | 5 SP | Docs aangemaakt |
 | E1 | Foundation - Split-screen | Layout naar 40/60 split | ✅ **Compleet** | 3/3 | 12 SP | E1.S1 geskipt (geen feature flag) |
 | E2 | Chat Panel & Messages | Chat UI zonder AI | ✅ **Compleet** | 5/5 | 13 SP | Scrolling, input, shortcuts |
-| E3 | Chat API & Medical Scribe | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
+| E3 | Chat API & Swift Assistent | AI conversatie werkend | ✅ **Compleet** | 6/6 | 21 SP | Artifact opening werkend! |
 | E4 | Artifact Area & Tabs | Meerdere artifacts mogelijk | ✅ **Compleet** | 3/4 | 10 SP | E4.S4 geskipt (placeholder in E4.S1) |
 | E5 | AI-Filtering & Polish | Psychiater filtering, polish | ✅ **Compleet** | 5/5 | 13 SP | E5 COMPLEET 🎉 |
 | E6 | Testing & Refinement | QA, bugs, performance | ⏳ To Do | 0/4 | 8 SP | Week 7-8 |
@@ -240,7 +240,7 @@ const useChatStore = create<ChatState>((set) => ({
 
 ### Epic 0 — Pre-work & Planning ✅ **COMPLEET**
 
-**Epic Doel:** Voorbereiding werk voordat development start. Design tokens verificatie, component audit, medical scribe system prompt.
+**Epic Doel:** Voorbereiding werk voordat development start. Design tokens verificatie, component audit, Swift Assistent system prompt.
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
@@ -400,7 +400,7 @@ const MESSAGE_STYLES = {
 
 ---
 
-### Epic 3 — Chat API & Medical Scribe ✅ **COMPLEET**
+### Epic 3 — Chat API & Swift Assistent ✅ **COMPLEET**
 
 **Epic Doel:** AI conversatie werkend krijgen met intent detection en artifact opening.
 
@@ -441,7 +441,7 @@ export async function POST(req: Request) {
 
 **E3.S3 - System Prompt (samenvatting):**
 ```
-Je bent een medische assistent (medical scribe) voor Swift, een Nederlands GGZ EPD.
+Je bent een medische assistent (Swift Assistent) voor Swift, een Nederlands GGZ EPD.
 
 Je rol:
 - Help zorgmedewerkers met documentatie en administratie
@@ -542,7 +542,7 @@ export function useChatStream() {
 - ✅ Conversation history (max 20 messages)
 
 **Deliverables (E3.S3 compleet):**
-- ✅ `buildMedicalScribePrompt()` functie (243 regels) — Volledige medical scribe prompt v1.0
+- ✅ `buildMedicalScribePrompt()` functie (243 regels) — Volledige Swift Assistent prompt v1.0
 - ✅ Intent detection instructies: dagnotitie, zoeken, overdracht, rapportage
 - ✅ P1 & P2 intents met triggers en entities
 - ✅ Confidence thresholds (>0.9, 0.7-0.9, 0.5-0.7, <0.5)
@@ -1549,7 +1549,7 @@ function enrichWithSourceData(
 
 **Minimaal werkend voor release:**
 1. ✅ Split-screen layout werkend (desktop/tablet/mobile)
-2. ✅ Conversatie met medical scribe voelt natuurlijk (niet robotisch)
+2. ✅ Conversatie met Swift Assistent voelt natuurlijk (niet robotisch)
 3. ✅ Artifacts openen binnen 2 sec na intent detection
 4. ✅ AI-filtering psychiater >85% accuracy (behandelrelevante info)
 5. ✅ Voice input geïntegreerd en werkend
@@ -1705,7 +1705,7 @@ function enrichWithSourceData(
 
 **Mission Control Documents:**
 - **PRD Ephemeral UI:** `docs/swift/archive/nextgen-epd-prd-ephemeral-ui-epd.md` — Product vision
-- **FO v3.0:** `docs/swift/fo-swift-medical-scribe-v3.md` — Functioneel ontwerp medical scribe
+- **FO v3.0:** `docs/swift/fo-swift-medical-scribe-v3.md` — Functioneel ontwerp Swift Assistent
 - **Haalbaarheid:** `docs/swift/haalbaarheidsanalyse-v3.md` — Feasibility analysis
 - **UX v2.1:** `docs/swift/archive/swift-ux-v2.1.md` — Huidige UX/styling
 - **UX Analyse v3:** `docs/swift/v3-redesign-met-huidige-styling.md` — Wat blijft vs. wijzigt
@@ -1746,7 +1746,7 @@ function enrichWithSourceData(
 | **Artifact** | UI-component die verschijnt in artifact area (block) |
 | **Block** | Herbruikbare UI-component (DagnotatieBlock, ZoekenBlock, etc.) |
 | **Prefill** | Vooringevulde data in artifact o.b.v. AI entity extraction |
-| **Medical Scribe** | AI-assistent die medische documentatie ondersteunt |
+| **Swift Assistent** | AI-assistent die medische documentatie ondersteunt |
 | **Linked Evidence** | Klikbare links naar bronnotities in AI-samenvatting |
 
 ---

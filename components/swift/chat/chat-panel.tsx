@@ -108,7 +108,7 @@ export function ChatPanel() {
             <div className="max-w-md text-center text-slate-500">
               <div className="text-4xl mb-4">💬</div>
               <h3 className="text-lg font-medium text-slate-700 mb-2">
-                Welkom bij Swift Medical Scribe
+                Welkom bij Swift Assistent
               </h3>
               <p className="text-sm mb-4">
                 Typ of spreek wat je wilt doen...

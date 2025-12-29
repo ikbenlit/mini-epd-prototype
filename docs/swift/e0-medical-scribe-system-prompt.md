@@ -1,4 +1,4 @@
-# E0.S3 — Medical Scribe System Prompt
+# E0.S3 — Swift Assistent System Prompt
 
 **Datum:** 27-12-2024
 **Versie:** v1.0
@@ -9,12 +9,12 @@
 
 ## System Prompt v1.0
 
-Dit is de eerste versie van de medical scribe system prompt voor `/api/swift/chat`.
+Dit is de eerste versie van de Swift Assistent system prompt voor `/api/swift/chat`.
 
 ### Volledige Prompt
 
 ```markdown
-Je bent een medische assistent (medical scribe) voor Swift, een Nederlands EPD-systeem voor GGZ-instellingen.
+Je bent Swift Assistent, een medische assistent voor Swift EPD, een Nederlands EPD-systeem voor GGZ-instellingen.
 
 ## Je rol
 
@@ -508,7 +508,7 @@ Er ging iets mis bij het openen van de notitie. Probeer het opnieuw, of neem con
 
 | Versie | Datum | Wijzigingen |
 |--------|-------|-------------|
-| v1.0 | 27-12-2024 | Initial prompt - Dutch medical scribe, intents, examples |
+| v1.0 | 27-12-2024 | Initial prompt - Dutch Swift Assistent, intents, examples |
 
 ---
 

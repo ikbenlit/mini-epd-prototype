@@ -3,7 +3,7 @@
  *
  * Client-side helper voor het aanroepen van de Swift chat API met streaming support.
  *
- * Epic: E3 (Chat API & Medical Scribe)
+ * Epic: E3 (Chat API & Swift Assistent)
  * Story: E3.S1 (Chat API endpoint skeleton)
  */
 

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { rescheduleEncounter } from '@/app/epd/agenda/actions';
 import { CalendarEvent } from '@/app/epd/agenda/types';
+import { motion } from 'framer-motion';
 
 interface AgendaRescheduleFormProps {
     prefillData?: {
@@ -98,7 +99,7 @@ export function AgendaRescheduleForm({ prefillData, onClose }: AgendaRescheduleF
                 <p className="text-sm text-gray-500 mt-1 mb-6">
                     De afspraak is verplaatst naar {format(new Date(`${date}T${time}`), 'd MMMM HH:mm', { locale: nl })}.
                 </p>
-                <Button onClick={onClose} variant="outline">Sluiten</Button>
+                <Button onClick={onClose} variant="outline" className="border-black/5 bg-white/50 hover:bg-white">Sluiten</Button>
             </div>
         );
     }
@@ -117,30 +118,39 @@ export function AgendaRescheduleForm({ prefillData, onClose }: AgendaRescheduleF
     const currentStr = currentStart ? format(currentStart, 'd MMMM yyyy HH:mm', { locale: nl }) : 'Onbekend';
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col h-full bg-transparent"
+        >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center justify-between p-5 border-b border-black/5">
                 <h3 className="font-semibold text-lg text-teal-700">Afspraak verzetten</h3>
-                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 hover:bg-gray-100 rounded-full">
-                    <X className="h-4 w-4" />
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 hover:bg-black/5 rounded-full">
+                    <X className="h-5 w-5" />
                 </Button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex-1 p-4 overflow-y-auto space-y-6">
+            <form onSubmit={handleSubmit} className="flex-1 p-5 overflow-y-auto space-y-6">
 
                 {/* Info Card */}
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                    {encounter && <h4 className="font-medium text-blue-900 mb-2">{encounter.title}</h4>}
-                    <div className="flex items-center gap-2 text-sm text-blue-700 opacity-80 decoration-slate-400">
+                <div className="bg-blue-50/70 border border-blue-100/50 rounded-xl p-5 shadow-sm">
+                    {encounter && <h4 className="font-semibold text-blue-900 mb-3 text-lg">{encounter.title}</h4>}
+                    <div className="flex items-center gap-3 text-sm text-blue-800/60 decoration-slate-400 mb-2">
                         <Calendar className="h-4 w-4" />
-                        <span className="line-through decoration-blue-900/40">{currentStr}</span>
+                        <span className="line-through decoration-blue-900/30">{currentStr}</span>
                     </div>
-                    <div className="flex justify-center my-1">
-                        <ArrowRight className="h-4 w-4 text-blue-400 rotate-90 sm:rotate-0" />
+
+                    <div className="pl-0.5 my-2">
+                        <div className="h-6 border-l-2 border-blue-200 ml-2 border-dashed"></div>
+                        <ArrowRight className="h-5 w-5 text-blue-500 my-1" />
+                        <div className="h-2 border-l-2 border-blue-200 ml-2 border-dashed"></div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-semibold text-blue-800">
-                        <Calendar className="h-4 w-4" />
+
+                    <div className="flex items-center gap-3 text-base font-bold text-blue-800 bg-blue-100/50 p-3 rounded-lg border border-blue-200/50">
+                        <Calendar className="h-5 w-5" />
                         <span>
                             {date && time ? format(new Date(`${date}T${time}`), 'd MMMM yyyy HH:mm', { locale: nl }) : '...'}
                         </span>
@@ -148,14 +158,14 @@ export function AgendaRescheduleForm({ prefillData, onClose }: AgendaRescheduleF
                 </div>
 
                 {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2 text-sm text-red-700">
-                        <AlertCircle className="h-4 w-4" />
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-sm text-red-700">
+                        <AlertCircle className="h-5 w-5 shrink-0" />
                         {error}
                     </div>
                 )}
 
-                <div className="space-y-4">
-                    <div className="space-y-1.5">
+                <div className="space-y-5">
+                    <div className="space-y-2">
                         <Label htmlFor="date" className="text-sm font-medium text-gray-700">Nieuwe datum</Label>
                         <div className="relative">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -166,13 +176,13 @@ export function AgendaRescheduleForm({ prefillData, onClose }: AgendaRescheduleF
                                 type="date"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                className="pl-9"
+                                className="pl-10 h-10 bg-white/50 backdrop-blur-sm border-black/10 focus:bg-white transition-colors"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                         <Label htmlFor="time" className="text-sm font-medium text-gray-700">Nieuwe tijd</Label>
                         <div className="relative">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -183,7 +193,7 @@ export function AgendaRescheduleForm({ prefillData, onClose }: AgendaRescheduleF
                                 type="time"
                                 value={time}
                                 onChange={(e) => setTime(e.target.value)}
-                                className="pl-9"
+                                className="pl-10 h-10 bg-white/50 backdrop-blur-sm border-black/10 focus:bg-white transition-colors"
                                 required
                             />
                         </div>
@@ -192,19 +202,19 @@ export function AgendaRescheduleForm({ prefillData, onClose }: AgendaRescheduleF
             </form>
 
             {/* Footer */}
-            <div className="p-4 bg-gray-50 border-t flex justify-between gap-3">
-                <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting} className="flex-1">
+            <div className="p-5 bg-gray-50/80 backdrop-blur-sm border-t border-black/5 flex justify-between gap-3">
+                <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 border-black/10 bg-white/50 hover:bg-white h-10 rounded-lg">
                     Annuleren
                 </Button>
                 <Button
                     type="button"
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white shadow-md hover:shadow-lg h-10 rounded-lg"
                 >
                     {isSubmitting ? 'Verplaatsen...' : 'Bevestig wijziging'}
                 </Button>
             </div>
-        </div>
+        </motion.div>
     );
 }

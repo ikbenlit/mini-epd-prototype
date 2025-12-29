@@ -53,7 +53,7 @@ Closes #123
 - `ui` - UI componenten
 - `db` - Database migraties
 - `docs` - Documentatie
-- `swift` - Swift medical scribe
+- `swift` - Swift Assistent
 - `behandelplan` - Behandelplan
 - `verpleegrapportage` - Verpleegrapportage
 

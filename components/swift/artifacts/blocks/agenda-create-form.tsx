@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { motion } from 'framer-motion';
 import {
     Select,
     SelectContent,
@@ -165,17 +166,22 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
     };
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col h-full bg-transparent"
+        >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="font-semibold text-lg text-teal-700">Nieuwe afspraak inplannen</h3>
-                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 hover:bg-gray-100 rounded-full">
-                    <X className="h-4 w-4" />
+            <div className="flex items-center justify-between p-5 border-b border-black/5">
+                <h3 className="font-semibold text-lg text-gray-900">Nieuwe afspraak inplannen</h3>
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 text-gray-500 hover:text-gray-900 hover:bg-black/5 rounded-full">
+                    <X className="h-5 w-5" />
                 </Button>
             </div>
 
             {/* Form Body */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-5">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
 
                 {error && (
                     <AgendaErrorAlert
@@ -186,7 +192,7 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                 )}
 
                 {/* Patient Selection */}
-                <div className="space-y-1.5" ref={searchRef}>
+                <div className="space-y-2" ref={searchRef}>
                     <Label htmlFor="patient" className="text-sm font-medium text-gray-700">Patiënt <span className="text-red-500">*</span></Label>
                     <div className="relative">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -197,7 +203,7 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                             value={searchQuery}
                             onChange={handleSearchChange}
                             placeholder="Zoek op naam..."
-                            className="pl-9"
+                            className="pl-10 h-10 bg-white/50 backdrop-blur-sm border-black/10 focus:bg-white transition-colors"
                             autoComplete="off"
                         />
                         {isSearching && (
@@ -207,16 +213,16 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                         )}
 
                         {showResults && searchResults.length > 0 && (
-                            <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                            <div className="absolute z-10 w-full mt-1 bg-white/95 backdrop-blur-xl border border-black/5 rounded-xl shadow-xl max-h-48 overflow-y-auto">
                                 {searchResults.map((p) => (
                                     <button
                                         key={p.id}
                                         type="button"
                                         onClick={() => handlePatientSelect(p)}
-                                        className="w-full text-left px-3 py-2 hover:bg-teal-50 text-sm flex flex-col border-b last:border-0"
+                                        className="w-full text-left px-4 py-3 hover:bg-teal-50/50 text-sm flex flex-col border-b last:border-0 border-black/5 transition-colors"
                                     >
                                         <span className="font-medium text-gray-900">{p.name}</span>
-                                        <span className="text-xs text-gray-500">
+                                        <span className="text-xs text-gray-500 mt-0.5">
                                             {p.birthDate && format(new Date(p.birthDate), 'dd-MM-yyyy')}
                                             {p.bsn && ` • BSN: ${p.bsn}`}
                                         </span>
@@ -228,8 +234,8 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                 </div>
 
                 {/* Date & Time */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
+                <div className="grid grid-cols-2 gap-5">
+                    <div className="space-y-2">
                         <Label htmlFor="date" className="text-sm font-medium text-gray-700">Datum <span className="text-red-500">*</span></Label>
                         <div className="relative">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -240,13 +246,13 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                                 type="date"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                className="pl-9"
+                                className="pl-10 h-10 bg-white/50 backdrop-blur-sm border-black/10 focus:bg-white transition-colors"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                         <Label htmlFor="time" className="text-sm font-medium text-gray-700">Tijd <span className="text-red-500">*</span></Label>
                         <div className="relative">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -257,7 +263,7 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                                 type="time"
                                 value={time}
                                 onChange={(e) => setTime(e.target.value)}
-                                className="pl-9"
+                                className="pl-10 h-10 bg-white/50 backdrop-blur-sm border-black/10 focus:bg-white transition-colors"
                                 required
                             />
                         </div>
@@ -265,9 +271,9 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                 </div>
 
                 {/* Type Selection */}
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">Type afspraak <span className="text-red-500">*</span></Label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2.5">
                         {(Object.keys(APPOINTMENT_TYPES) as AppointmentTypeCode[]).map((t) => {
                             const bg = APPOINTMENT_TYPE_COLORS[t].bg;
                             const text = APPOINTMENT_TYPE_COLORS[t].text;
@@ -280,18 +286,18 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                                     type="button"
                                     onClick={() => setType(t)}
                                     className={`
-                    px-3 py-2 text-xs font-medium rounded-md border text-left transition-all
-                    ${isActive ? 'ring-2 ring-offset-1 ring-teal-500' : 'hover:bg-gray-50'}
+                    px-3 py-2.5 text-xs font-medium rounded-lg border text-left transition-all
+                    ${isActive ? 'ring-2 ring-offset-1 ring-teal-500 shadow-sm' : 'hover:bg-black/5 bg-white/40'}
                   `}
                                     style={{
-                                        backgroundColor: isActive ? bg : 'white',
+                                        backgroundColor: isActive ? bg : undefined,
                                         color: isActive ? text : '#374151',
-                                        borderColor: isActive ? border : '#e5e7eb'
+                                        borderColor: isActive ? border : 'rgba(0,0,0,0.1)'
                                     }}
                                 >
                                     <div className="flex items-center justify-between">
                                         <span>{APPOINTMENT_TYPES[t]}</span>
-                                        {isActive && <Check className="h-3 w-3" />}
+                                        {isActive && <Check className="h-3.5 w-3.5" />}
                                     </div>
                                 </button>
                             );
@@ -300,24 +306,24 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                 </div>
 
                 {/* Location Selection */}
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">Locatie <span className="text-red-500">*</span></Label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2.5">
                         {(Object.keys(LOCATION_CLASSES) as LocationClassCode[]).map((l) => (
                             <button
                                 key={l}
                                 type="button"
                                 onClick={() => setLocation(l)}
                                 className={`
-                  flex-1 py-2 px-3 text-xs font-medium rounded-md border flex items-center justify-center gap-1.5 transition-all
+                  flex-1 py-2.5 px-3 text-xs font-medium rounded-lg border flex items-center justify-center gap-2 transition-all
                   ${location === l
-                                        ? 'bg-teal-50 border-teal-200 text-teal-800 ring-2 ring-teal-500 ring-opacity-20'
-                                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}
+                                        ? 'bg-teal-50 border-teal-200 text-teal-800 ring-2 ring-teal-500 ring-opacity-20 shadow-sm'
+                                        : 'bg-white/40 border-black/10 text-gray-600 hover:bg-black/5'}
                 `}
                             >
-                                {l === 'AMB' && <MapPin className="h-3 w-3" />}
-                                {l === 'VR' && <div className="h-3 w-3 border rounded-full" />}
-                                {l === 'HH' && <div className="h-3 w-3 bg-current rounded-sm" />}
+                                {l === 'AMB' && <MapPin className="h-3.5 w-3.5" />}
+                                {l === 'VR' && <div className="h-3.5 w-3.5 border rounded-full" />}
+                                {l === 'HH' && <div className="h-3.5 w-3.5 bg-current rounded-sm" />}
                                 {LOCATION_CLASSES[l]}
                             </button>
                         ))}
@@ -325,14 +331,14 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                 </div>
 
                 {/* Notes */}
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <Label htmlFor="notes" className="text-sm font-medium text-gray-700">Notities (optioneel)</Label>
                     <Textarea
                         id="notes"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Bijv. bijzonderheden, reden van komst..."
-                        className="h-20 text-sm resize-none"
+                        className="h-24 text-sm resize-none bg-white/50 backdrop-blur-sm border-black/10 focus:bg-white transition-colors rounded-lg"
                     />
                 </div>
 
@@ -340,15 +346,15 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
             </form>
 
             {/* Footer / Actions */}
-            <div className="p-4 bg-gray-50 border-t flex justify-between gap-3">
-                <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting} className="flex-1">
+            <div className="p-5 bg-gray-50/80 backdrop-blur-sm border-t border-black/5 flex justify-between gap-3">
+                <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 border-black/10 bg-white/50 hover:bg-white h-10 rounded-lg">
                     Annuleren
                 </Button>
                 <Button
                     type="button"
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white shadow-md hover:shadow-lg transition-all h-10 rounded-lg"
                 >
                     {isSubmitting ? (
                         <div className="flex items-center gap-2">
@@ -360,6 +366,6 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
                     )}
                 </Button>
             </div>
-        </div>
+        </motion.div>
     );
 }

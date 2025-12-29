@@ -1,6 +1,6 @@
-# 🧩 Functioneel Ontwerp (FO) — Swift Medical Scribe Chatbot
+# 🧩 Functioneel Ontwerp (FO) — Swift Swift Assistent Chatbot
 
-**Projectnaam:** Swift — Medical Scribe Chatbot Interface  
+**Projectnaam:** Swift — Swift Assistent Chatbot Interface  
 **Versie:** v3.0  
 **Datum:** 27-12-2024  
 **Auteur:** Colin Lit
@@ -10,7 +10,7 @@
 ## 1. Doel en relatie met het PRD
 
 🎯 **Doel van dit document:**
-Dit Functioneel Ontwerp beschrijft het **redesign** van Swift naar een medical scribe chatbot interface. De gebruiker voert een natuurlijke conversatie met een AI-assistent die intents herkent, acties uitvoert, en relevante UI-componenten toont in een split-screen layout.
+Dit Functioneel Ontwerp beschrijft het **redesign** van Swift naar een Swift Assistent chatbot interface. De gebruiker voert een natuurlijke conversatie met een AI-assistent die intents herkent, acties uitvoert, en relevante UI-componenten toont in een split-screen layout.
 
 📘 **Relatie met andere documenten:**
 - **PRD:** `nextgen-epd-prd-ephemeral-ui-epd.md` — Ephemeral UI visie
@@ -19,16 +19,16 @@ Dit Functioneel Ontwerp beschrijft het **redesign** van Swift naar een medical s
 - **Bouwplan:** `bouwplan-swift-v2.md` — Development roadmap
 
 **Kernprincipe:**
-> De gebruiker voert een natuurlijke conversatie met een medical scribe assistent. De assistent herkent intents, voert acties uit, en toont relevante UI-componenten (artifacts) rechts in beeld. De conversatie blijft zichtbaar en doorlopend — zoals ChatGPT Canvas of Claude Artifacts.
+> De gebruiker voert een natuurlijke conversatie met een Swift Assistent assistent. De assistent herkent intents, voert acties uit, en toont relevante UI-componenten (artifacts) rechts in beeld. De conversatie blijft zichtbaar en doorlopend — zoals ChatGPT Canvas of Claude Artifacts.
 
 **Belangrijkste wijzigingen t.o.v. v2.0:**
 
-| Aspect | v2.0 (Command Center) | v3.0 (Medical Scribe) |
+| Aspect | v2.0 (Command Center) | v3.0 (Swift Assistent) |
 |--------|----------------------|----------------------|
 | Input model | Command-line stijl | Natuurlijke conversatie |
 | UI paradigma | Blocks die verschijnen/verdwijnen | Chat links, artifacts rechts |
 | Context | Per commando | Doorlopende conversatiegeschiedenis |
-| AI rol | Intent classifier | Converserende medical scribe |
+| AI rol | Intent classifier | Converserende Swift Assistent |
 | Interactie | Transactioneel | Relationeel, follow-up mogelijk |
 
 ---
@@ -108,7 +108,7 @@ Dit Functioneel Ontwerp beschrijft het **redesign** van Swift naar een medical s
 ### 4.1 Command Center (Hoofdscherm)
 
 **Beschrijving:**
-Split-screen layout met chat links (40%) en artifacts rechts (60%). De gebruiker voert een natuurlijke conversatie met de medical scribe assistent.
+Split-screen layout met chat links (40%) en artifacts rechts (60%). De gebruiker voert een natuurlijke conversatie met de Swift Assistent assistent.
 
 **Layout:**
 
@@ -184,7 +184,7 @@ Split-screen layout met chat links (40%) en artifacts rechts (60%). De gebruiker
 
 ### 4.3 Chat Panel
 
-**Functie:** Toont doorlopende conversatie met medical scribe assistent.
+**Functie:** Toont doorlopende conversatie met Swift Assistent assistent.
 
 **Elementen:**
 
@@ -216,7 +216,7 @@ Split-screen layout met chat links (40%) en artifacts rechts (60%). De gebruiker
 
 ### 4.4 Chat Input
 
-**Functie:** Tekst + voice input voor conversatie met medical scribe.
+**Functie:** Tekst + voice input voor conversatie met Swift Assistent.
 
 **States:**
 
@@ -301,7 +301,7 @@ Split-screen layout met chat links (40%) en artifacts rechts (60%). De gebruiker
 
 ---
 
-### 4.6 Medical Scribe Chat API
+### 4.6 Swift Assistent Chat API
 
 **Functie:** Chatbot endpoint die conversatie voert en intents herkent.
 
@@ -347,7 +347,7 @@ interface ChatRequest {
 **System Prompt (samenvatting):**
 
 ```
-Je bent een medische assistent (medical scribe) voor Swift, een Nederlands GGZ EPD.
+Je bent een medische assistent (Swift Assistent) voor Swift, een Nederlands GGZ EPD.
 
 Je rol:
 - Help zorgmedewerkers met documentatie en administratie
@@ -739,4 +739,4 @@ components/swift/
 |--------|-------|-------------|
 | v2.0 | 23-12-2024 | Command Center met ephemeral blocks |
 | v2.1 | 23-12-2024 | Prioriteitenlijst, intent mapping, P3 blocks |
-| v3.0 | 27-12-2024 | **Redesign:** Chat + Artifact interface, Medical Scribe conversatie, AI-filtering voor psychiater |
+| v3.0 | 27-12-2024 | **Redesign:** Chat + Artifact interface, Swift Assistent conversatie, AI-filtering voor psychiater |

@@ -5,6 +5,7 @@ import { AgendaListView } from './agenda-list-view';
 import { AgendaCreateForm } from './agenda-create-form';
 import { AgendaCancelView } from './agenda-cancel-view';
 import { AgendaRescheduleForm } from './agenda-reschedule-form';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface AgendaBlockProps {
     mode: 'list' | 'create' | 'cancel' | 'reschedule';
@@ -36,6 +37,7 @@ export function AgendaBlock({
             case 'list':
                 return (
                     <AgendaListView
+                        key="list"
                         appointments={appointments}
                         dateRange={dateRange}
                         onClose={onClose}
@@ -44,25 +46,43 @@ export function AgendaBlock({
                     />
                 );
             case 'create':
-                return <AgendaCreateForm prefillData={prefillData} onClose={onClose} />;
+                return <AgendaCreateForm key="create" prefillData={prefillData} onClose={onClose} />;
             case 'cancel':
                 return (
                     <AgendaCancelView
+                        key="cancel"
                         disambiguationOptions={disambiguationOptions}
                         prefillData={prefillData}
                         onClose={onClose}
                     />
                 );
             case 'reschedule':
-                return <AgendaRescheduleForm prefillData={prefillData} onClose={onClose} />;
+                return <AgendaRescheduleForm key="reschedule" prefillData={prefillData} onClose={onClose} />;
             default:
-                return <div className="p-4 text-red-500">Unknown mode: {mode}</div>;
+                return <div key="error" className="p-4 text-red-500">Unknown mode: {mode}</div>;
         }
     };
 
     return (
-        <div className="w-full max-w-[600px] max-h-[80vh] overflow-y-auto bg-white border rounded shadow-sm">
-            {renderContent()}
-        </div>
+        <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            className="w-full max-w-[600px] max-h-[80vh] h-[600px] overflow-hidden bg-white/95 backdrop-blur-xl border border-black/5 rounded-2xl shadow-2xl flex flex-col"
+        >
+            <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                    key={mode}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col h-full overflow-hidden"
+                >
+                    {renderContent()}
+                </motion.div>
+            </AnimatePresence>
+        </motion.div>
     );
 }

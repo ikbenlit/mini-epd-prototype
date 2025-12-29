@@ -1,9 +1,9 @@
 /**
  * Swift Chat API Route (v3.0)
  *
- * Streaming chat endpoint voor Swift Medical Scribe met Server-Sent Events (SSE).
+ * Streaming chat endpoint voor Swift Assistent met Server-Sent Events (SSE).
  *
- * Epic: E3 (Chat API & Medical Scribe)
+ * Epic: E3 (Chat API & Swift Assistent)
  * Story: E3.S1 (Chat API endpoint skeleton)
  */
 
@@ -76,10 +76,10 @@ const RequestSchema = z.object({
 type RequestData = z.infer<typeof RequestSchema>;
 
 /**
- * Build medical scribe system prompt (E3.S3)
+ * Build Swift Assistent system prompt (E3.S3)
  * Full prompt with intent detection, entity extraction, and action generation
  */
-function buildMedicalScribePrompt(context?: RequestData['context']): string {
+function buildSystemPrompt(context?: RequestData['context']): string {
   // Build context section
   const patientContext = context?.activePatient
     ? `{
@@ -92,7 +92,7 @@ function buildMedicalScribePrompt(context?: RequestData['context']): string {
 
   const shiftContext = context?.shift ?? 'ochtend';
 
-  return `Je bent een medische assistent (medical scribe) voor Swift, een Nederlands EPD-systeem voor GGZ-instellingen.
+  return `Je bent Swift Assistent, een medische assistent voor Swift EPD, een Nederlands EPD-systeem voor GGZ-instellingen.
 
 ## Je rol
 
@@ -524,8 +524,8 @@ export async function POST(request: NextRequest) {
     // 4. Prepare conversation history (limit to last N messages)
     const history = messages.slice(-MAX_HISTORY_MESSAGES);
 
-    // 5. Build medical scribe system prompt (E3.S3)
-    const systemPrompt = buildMedicalScribePrompt(context);
+    // 5. Build Swift Assistent system prompt (E3.S3)
+    const systemPrompt = buildSystemPrompt(context);
 
     // 6. Check for Claude API key
     const apiKey = process.env.ANTHROPIC_API_KEY;

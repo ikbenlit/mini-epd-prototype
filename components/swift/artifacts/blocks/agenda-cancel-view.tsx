@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { cancelEncounter } from '@/app/epd/agenda/actions';
 import { CalendarEvent, APPOINTMENT_TYPES, AppointmentTypeCode } from '@/app/epd/agenda/types';
+import { motion } from 'framer-motion';
 
 interface AgendaCancelViewProps {
     disambiguationOptions?: CalendarEvent[];
@@ -74,7 +75,7 @@ export function AgendaCancelView({ disambiguationOptions, prefillData, onClose }
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Afspraak geannuleerd</h3>
                 <p className="text-sm text-gray-500 mt-1 mb-6">De afspraak is succesvol verwijderd uit de agenda.</p>
-                <Button onClick={onClose} variant="outline">Sluiten</Button>
+                <Button onClick={onClose} variant="outline" className="border-black/5 bg-white/50 hover:bg-white">Sluiten</Button>
             </div>
         );
     }
@@ -82,16 +83,21 @@ export function AgendaCancelView({ disambiguationOptions, prefillData, onClose }
     // Disambiguation Mode
     if (!effectiveEncounter && disambiguationOptions && disambiguationOptions.length > 1) {
         return (
-            <div className="flex flex-col h-full bg-white">
-                <div className="flex items-center justify-between p-4 border-b">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col h-full bg-transparent"
+            >
+                <div className="flex items-center justify-between p-5 border-b border-black/5">
                     <h3 className="font-semibold text-lg text-red-700">Afspraak annuleren</h3>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 hover:bg-gray-100 rounded-full">
-                        <X className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 hover:bg-black/5 rounded-full">
+                        <X className="h-5 w-5" />
                     </Button>
                 </div>
 
-                <div className="flex-1 p-4 overflow-y-auto">
-                    <p className="text-sm text-gray-600 mb-4">
+                <div className="flex-1 p-5 overflow-y-auto">
+                    <p className="text-sm text-gray-600 mb-4 font-medium">
                         Er zijn meerdere afspraken gevonden. Welke wil je annuleren?
                     </p>
 
@@ -103,11 +109,11 @@ export function AgendaCancelView({ disambiguationOptions, prefillData, onClose }
                             const timeStr = format(new Date(evt.start), 'HH:mm');
 
                             return (
-                                <div key={evt.id} className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-gray-50 cursor-pointer">
+                                <div key={evt.id} className="flex items-center space-x-3 border border-black/5 rounded-xl p-4 hover:bg-white/50 cursor-pointer bg-white/40 transition-colors">
                                     <RadioGroupItem value={evt.id} id={evt.id} />
                                     <Label htmlFor={evt.id} className="flex-1 cursor-pointer">
-                                        <div className="font-medium text-gray-900">{evt.title}</div>
-                                        <div className="text-sm text-gray-500">
+                                        <div className="font-semibold text-gray-900">{evt.title}</div>
+                                        <div className="text-sm text-gray-500 mt-0.5">
                                             {dateStr} om {timeStr} • {encounter.type_display || APPOINTMENT_TYPES[typeCode]}
                                         </div>
                                     </Label>
@@ -117,17 +123,17 @@ export function AgendaCancelView({ disambiguationOptions, prefillData, onClose }
                     </RadioGroup>
                 </div>
 
-                <div className="p-4 bg-gray-50 border-t flex justify-between gap-3">
-                    <Button variant="outline" onClick={onClose} className="flex-1">Annuleren</Button>
+                <div className="p-5 bg-gray-50/80 backdrop-blur-sm border-t border-black/5 flex justify-between gap-3">
+                    <Button variant="outline" onClick={onClose} className="flex-1 border-black/10 bg-white/50 hover:bg-white h-10 rounded-lg">Annuleren</Button>
                     <Button
                         onClick={() => { /* State updates automatically via RadioGroup */ }}
                         disabled={!selectedEncounterId}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg h-10 rounded-lg"
                     >
                         Volgende
                     </Button>
                 </div>
-            </div>
+            </motion.div>
         );
     }
 
@@ -140,63 +146,70 @@ export function AgendaCancelView({ disambiguationOptions, prefillData, onClose }
         const endTimeStr = effectiveEncounter.end ? format(new Date(effectiveEncounter.end), 'HH:mm') : '';
 
         return (
-            <div className="flex flex-col h-full bg-white">
-                <div className="flex items-center justify-between p-4 border-b">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col h-full bg-transparent"
+            >
+                <div className="flex items-center justify-between p-5 border-b border-black/5">
                     <h3 className="font-semibold text-lg text-red-700">Weet je het zeker?</h3>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 hover:bg-gray-100 rounded-full">
-                        <X className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 hover:bg-black/5 rounded-full">
+                        <X className="h-5 w-5" />
                     </Button>
                 </div>
 
-                <div className="flex-1 p-4">
-                    <div className="bg-red-50 border border-red-100 rounded-lg p-4 mb-6">
+                <div className="flex-1 p-5">
+                    <div className="bg-red-50/70 border border-red-100/50 rounded-xl p-4 mb-6">
                         <div className="flex items-start gap-3">
-                            <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
-                            <div className="text-sm text-red-800">
-                                <p className="font-medium">Deze actie kan niet ongedaan worden gemaakt.</p>
-                                <p className="mt-1 opacity-90">De afspraak wordt permanent uit de agenda verwijderd.</p>
+                            <div className="p-2 bg-red-100 rounded-full mt-0.5">
+                                <AlertTriangle className="h-4 w-4 text-red-600" />
+                            </div>
+                            <div className="text-sm text-red-900">
+                                <p className="font-semibold text-base">Deze actie kan niet ongedaan worden gemaakt.</p>
+                                <p className="mt-1 opacity-90 leading-relaxed">De afspraak met <span className="font-semibold">{effectiveEncounter.title}</span> wordt permanent uit de agenda verwijderd.</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="border rounded-lg p-4 bg-white shadow-sm">
-                        <h4 className="font-medium text-gray-900 mb-2">{effectiveEncounter.title}</h4>
-                        <div className="space-y-2 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
+                    <div className="border border-black/5 rounded-xl p-5 bg-white/60 shadow-sm backdrop-blur-sm">
+                        <h4 className="font-semibold text-gray-900 mb-3 text-lg">{effectiveEncounter.title}</h4>
+                        <div className="space-y-3 text-sm text-gray-600">
+                            <div className="flex items-center gap-3">
                                 <Calendar className="h-4 w-4 text-gray-400" />
-                                <span className="capitalize">{dateStr}</span>
+                                <span className="capitalize font-medium">{dateStr}</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                                 <Clock className="h-4 w-4 text-gray-400" />
-                                <span>{timeStr} {endTimeStr && `- ${endTimeStr}`}</span>
+                                <span className="font-medium">{timeStr} {endTimeStr && `- ${endTimeStr}`}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className="inline-block w-20 text-gray-400">Type:</span>
-                                <span className="font-medium">{encounter.type_display || APPOINTMENT_TYPES[typeCode]}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="inline-block w-5 text-center text-gray-400">•</span>
+                                <span className="font-medium bg-gray-100 px-2 py-0.5 rounded text-gray-700">{encounter.type_display || APPOINTMENT_TYPES[typeCode]}</span>
                             </div>
                         </div>
                     </div>
 
                     {error && (
-                        <div className="mt-4 p-3 bg-red-100 text-red-700 text-sm rounded-md">
+                        <div className="mt-4 p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
                             {error}
                         </div>
                     )}
                 </div>
 
-                <div className="p-4 bg-gray-50 border-t flex justify-between gap-3">
-                    <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1">
+                <div className="p-5 bg-gray-50/80 backdrop-blur-sm border-t border-black/5 flex justify-between gap-3">
+                    <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1 border-black/10 bg-white/50 hover:bg-white h-10 rounded-lg">
                         Terug
                     </Button>
                     <Button
                         onClick={handleCancel}
                         disabled={isSubmitting}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg h-10 rounded-lg"
                     >
                         {isSubmitting ? 'Annuleren...' : 'Ja, annuleer afspraak'}
                     </Button>
                 </div>
-            </div>
+            </motion.div>
         );
     }
 
