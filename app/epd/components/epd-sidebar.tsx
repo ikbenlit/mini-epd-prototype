@@ -47,7 +47,7 @@ interface EPDSidebarProps {
 
 // LEVEL 1: Behandelaar Context Navigation
 const level1NavigationItems: NavigationItem[] = [
-  { id: "swift", name: "Swift", icon: Zap, href: "/epd/swift" },
+  { id: "cortex", name: "Cortex", icon: Zap, href: "/epd/cortex" },
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, href: "/epd/dashboard" },
   { id: "clients", name: "Cliënten", icon: Users, href: "/epd/patients" },
   {

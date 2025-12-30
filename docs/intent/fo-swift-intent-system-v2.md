@@ -28,7 +28,7 @@ Het systeem bestaat uit drie samenwerkende lagen die elk een andere rol spelen i
     *   *Rol:* AI-gedreven analyse voor complexe zinnen, context-disambiguatie en **Multi-Intents**.
     *   *Voorbeeld:* "Zeg Jan af **en** maak een notitie."
 
-3.  **Layer 3: The Safety Net & Suggestion Engine (De Partner)**
+3.  **Layer 3: The Nudge & Suggestion Engine (De Partner)**
     *   *Rol:* Proactieve business logic die *na* een actie meedenkt.
     *   *Voorbeeld:* Na "Wondzorg registratie" → Suggestie: "Wondcontrole inplannen?"
 
@@ -66,7 +66,7 @@ Het systeem bestaat uit drie samenwerkende lagen die elk een andere rol spelen i
     3.  Extraheert entities (Wie, Wanneer, Wat).
 *   **Output:** Een lijst van uit te voeren acties: `[ActionA, ActionB]`.
 
-### 4.3 Layer 3: The Safety Net (Post-Action Logic)
+### 4.3 Layer 3: The Nudge (Post-Action Logic)
 *   **Trigger:** Succesvolle afronding van een intent (bijv. `CreateAppointment` klaar).
 *   **Werking:** Draait `Domain Rules` op de uitgevoerde actie.
 *   **UI:** Toont een **Suggestion Toast** of **Card** ("Wil je ook...?").
@@ -104,7 +104,7 @@ De UI past zich aan op basis van de complexiteit van de intentie.
           │
           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 4. Safety Net (Proactive Toast)                             │
+│ 4. Nudge (Proactive Toast)                                  │
 │ 💡 "Wil je de griep-poli waarschuwen?"   [Ja, doe maar] [X] │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -124,7 +124,7 @@ Het systeem moet worden omgebouwd van `Single Intent` naar `Intent Chain`:
 
 **Oud:**
 ```typescript
-interface Result { intent: SwiftIntent }
+interface Result { intent: CortexIntent }
 ```
 
 **Nieuw:**
@@ -135,7 +135,7 @@ interface IntentChain {
 }
 
 interface IntentAction {
-  intent: SwiftIntent;
+  intent: CortexIntent;
   entities: ExtractedEntities;
   status: 'pending' | 'success' | 'failed';
   requiresConfirmation: boolean;
@@ -156,12 +156,12 @@ interface IntentAction {
 *   Prompt engineering voor multi-intent herkenning ("En", "Daarna").
 
 ### Fase 3: Proactivity (Maand 2)
-*   Bouwen van de `Safety Net` listeners.
+*   Bouwen van de `Nudge` listeners.
 *   Protocollen toevoegen voor Medicatie en Wondzorg.
 
 ---
 
 ## 8. Bijlagen & Referenties
 *   **PRD/Vision:** `docs/swift/ux-simulation-intent-next-level.md`
-*   **Technical Base:** `lib/swift/intent-classifier-ai.ts`
+*   **Technical Base:** `lib/cortex/intent-classifier-ai.ts`
 *   **Legacy Docs:** `docs/swift/intent-architecture-v2-proposal.md`

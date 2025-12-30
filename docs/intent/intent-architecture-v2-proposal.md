@@ -36,7 +36,7 @@ We vervangen de simpele `Classifier` door een slimmere `Cortex`.
 *   **Nieuwe capability: Entity Disambiguation.**
     *   Snap dat "Jan" verwijst naar de patiënt die ik *vandaaag* in mijn agenda heb.
 
-### Layer 3: The Safety Net (Contextual Logic)
+### Layer 3: The Nudge (Contextual Logic)
 *   **Wat:** Een business logic laag die *na* de intent draait.
 *   **Functie:** Proactive Suggestions.
     *   *Trigger:* Intent `CreateWoundCareNote` 'completed'.
@@ -81,6 +81,6 @@ graph TD
     Plan --> Action1["Action A"]
     Plan --> Action2["Action B"]
     
-    Action1 --> Safety["Layer 3: Safety Net"]
+    Action1 --> Safety["Layer 3: Nudge"]
     Safety -->|Trigger Found| Suggestion["Suggest Follow-up"]
 ```

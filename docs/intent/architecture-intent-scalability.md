@@ -74,7 +74,7 @@ enum IntentCategory {
   SEARCH = 'search',                  // Zoeken, info opvragen
 }
 
-type SwiftIntent =
+type CortexIntent =
   // SAFETY (Hoogste prioriteit - altijd eerst checken)
   | 'risicotaxatie'           // "Risico inschatten bij Jan" / "Suïcidaliteit checken"
   | 'signaleringsplan'        // "Signaleringsplan maken" / "Waarschuwingssignalen vastleggen"
@@ -159,7 +159,7 @@ function hasSafetySignal(input: string): boolean {
 ### Implementation
 
 ```typescript
-// lib/swift/intent-classifier-hierarchical.ts
+// lib/cortex/intent-classifier-hierarchical.ts
 
 interface CategoryPattern {
   pattern: RegExp;
@@ -435,14 +435,14 @@ export function classifyIntentHierarchical(input: string): ClassificationResult 
 
   // PHASE 2: Detect intent within category (smaller search space)
   const categoryIntents = INTENT_PATTERNS_BY_CATEGORY[bestCategory];
-  let bestIntent: SwiftIntent = 'unknown';
+  let bestIntent: CortexIntent = 'unknown';
   let intentConfidence = 0;
 
   for (const [intent, patterns] of Object.entries(categoryIntents)) {
     for (const { pattern, weight } of patterns) {
       if (pattern.test(input)) {
         if (weight > intentConfidence) {
-          bestIntent = intent as SwiftIntent;
+          bestIntent = intent as CortexIntent;
           intentConfidence = weight;
         }
         if (weight === 1.0) break; // Perfect match
@@ -542,16 +542,16 @@ Order intents op basis van gebruiksfrequentie.
 
 ```typescript
 interface IntentMetrics {
-  intent: SwiftIntent;
+  intent: CortexIntent;
   frequency: number;        // Times used
   avgConfidence: number;    // Average confidence
   avgProcessingTime: number;
 }
 
 // Track usage
-const INTENT_STATS = new Map<SwiftIntent, IntentMetrics>();
+const INTENT_STATS = new Map<CortexIntent, IntentMetrics>();
 
-function trackIntentUsage(intent: SwiftIntent, confidence: number, time: number) {
+function trackIntentUsage(intent: CortexIntent, confidence: number, time: number) {
   const stats = INTENT_STATS.get(intent) || {
     intent,
     frequency: 0,
@@ -704,9 +704,9 @@ function classifyCompositional(input: string): ComposedIntent {
 }
 
 // Map to legacy intent
-function toLegacyIntent(composed: ComposedIntent): SwiftIntent {
+function toLegacyIntent(composed: ComposedIntent): CortexIntent {
   const key = `${composed.subject}_${composed.action}`;
-  const mapping: Record<string, SwiftIntent> = {
+  const mapping: Record<string, CortexIntent> = {
     // Risico
     'risico_inschatten': 'risicotaxatie',
     'suicidaliteit_inschatten': 'risicotaxatie',
@@ -951,7 +951,7 @@ const patterns = [
 ### Code Structuur (GGZ)
 
 ```
-lib/swift/
+lib/cortex/
 ├── intent-classifier.ts              # Current (keep for now)
 ├── intent-classifier-hierarchical.ts # New (implement in fase 2)
 ├── intent-classifier-ai.ts           # Current AI fallback
@@ -1023,8 +1023,8 @@ describe('Intent Classification Performance', () => {
 **Step 1: Define Categories (GGZ)**
 
 ```typescript
-// lib/swift/intent-categories.ts
-export const INTENT_CATEGORY_MAP: Record<SwiftIntent, IntentCategory> = {
+// lib/cortex/intent-categories.ts
+export const INTENT_CATEGORY_MAP: Record<CortexIntent, IntentCategory> = {
   // 🚨 Safety (Hoogste prioriteit)
   'risicotaxatie': IntentCategory.SAFETY,
   'signaleringsplan': IntentCategory.SAFETY,
@@ -1085,19 +1085,19 @@ export const INTENT_CATEGORY_MAP: Record<SwiftIntent, IntentCategory> = {
 
 ```bash
 # Create pattern files per category
-mkdir lib/swift/intent-patterns
-touch lib/swift/intent-patterns/safety.ts       # 🚨 Prioriteit
-touch lib/swift/intent-patterns/treatment.ts
-touch lib/swift/intent-patterns/observation.ts
-touch lib/swift/intent-patterns/medication.ts
-touch lib/swift/intent-patterns/assessment.ts
-touch lib/swift/intent-patterns/scheduling.ts
-touch lib/swift/intent-patterns/communication.ts
-touch lib/swift/intent-patterns/search.ts
+mkdir lib/cortex/intent-patterns
+touch lib/cortex/intent-patterns/safety.ts       # 🚨 Prioriteit
+touch lib/cortex/intent-patterns/treatment.ts
+touch lib/cortex/intent-patterns/observation.ts
+touch lib/cortex/intent-patterns/medication.ts
+touch lib/cortex/intent-patterns/assessment.ts
+touch lib/cortex/intent-patterns/scheduling.ts
+touch lib/cortex/intent-patterns/communication.ts
+touch lib/cortex/intent-patterns/search.ts
 ```
 
 ```typescript
-// lib/swift/intent-patterns/safety.ts
+// lib/cortex/intent-patterns/safety.ts
 export const SAFETY_PATTERNS = {
   risicotaxatie: [
     { pattern: /^risico\s*(taxatie|inschatting)/i, weight: 1.0 },
@@ -1111,7 +1111,7 @@ export const SAFETY_PATTERNS = {
   // ...
 };
 
-// lib/swift/intent-patterns/treatment.ts
+// lib/cortex/intent-patterns/treatment.ts
 export const TREATMENT_PATTERNS = {
   behandelplan_maken: [
     { pattern: /^(maak|start)\s*behandelplan/i, weight: 1.0 },
@@ -1126,7 +1126,7 @@ export const TREATMENT_PATTERNS = {
 **Step 3: Build Hierarchical Classifier**
 
 ```typescript
-// lib/swift/intent-classifier-hierarchical.ts
+// lib/cortex/intent-classifier-hierarchical.ts
 import { DOCUMENTATION_PATTERNS } from './intent-patterns/documentation';
 import { PATIENT_CARE_PATTERNS } from './intent-patterns/patient-care';
 // ... import all

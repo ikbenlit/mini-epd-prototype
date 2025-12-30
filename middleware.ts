@@ -88,7 +88,7 @@ export async function middleware(request: NextRequest) {
   // Helper: get preferred interface redirect path
   const getPreferredPath = () => {
     const preference = user?.user_metadata?.preferred_interface
-    return preference === 'swift' ? '/epd/swift' : '/epd/clients'
+    return preference === 'cortex' ? '/epd/cortex' : '/epd/clients'
   }
 
   // Redirect to preferred interface if authenticated and trying to access login

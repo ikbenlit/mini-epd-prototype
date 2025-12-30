@@ -15,7 +15,7 @@ De Swift Cortex V2 architectuur is **goed haalbaar** binnen de bestaande codebas
 | Aspect | Score | Toelichting |
 |--------|-------|-------------|
 | **Technische haalbaarheid** | 🟢 Hoog | Bestaande architectuur is compatibel |
-| **Complexiteit** | 🟡 Middel | Multi-intent en Safety Net zijn nieuwe concepten |
+| **Complexiteit** | 🟡 Middel | Multi-intent en Nudge zijn nieuwe concepten |
 | **Risico** | 🟢 Laag | Incrementeel te bouwen, backward compatible |
 | **MVP Scope** | 🟢 Realistisch | 6 user stories, goed afgebakend |
 
@@ -29,7 +29,7 @@ De Swift Cortex V2 architectuur is **goed haalbaar** binnen de bestaande codebas
 |------------|----------------------|-----|
 | **Layer 1: Reflex Arc** | ✅ `intent-classifier.ts` (60 patterns) | Minimaal - voeg complexity detection toe |
 | **Layer 2: Orchestrator** | ✅ `intent-classifier-ai.ts` (Haiku) | Middel - upgrade prompt voor multi-intent |
-| **Layer 3: Safety Net** | ❌ Niet aanwezig | Nieuw te bouwen |
+| **Layer 3: Nudge** | ❌ Niet aanwezig | Nieuw te bouwen |
 | **Context Injection** | 🟡 Basis aanwezig (`activePatient`, `shift`) | Uitbreiden met `agendaToday`, `recentIntents` |
 | **Multi-Intent Chains** | ❌ Single intent model | Data model refactor nodig |
 | **Entity Extraction** | ✅ `entity-extractor.ts` | Minimaal - voeg `patientResolution` toe |
@@ -38,7 +38,7 @@ De Swift Cortex V2 architectuur is **goed haalbaar** binnen de bestaande codebas
 ### 1.2 Bestaande Bestanden (Assets)
 
 ```
-lib/swift/
+lib/cortex/
 ├── types.ts                 ✅ Basis types, uitbreiden met IntentChain
 ├── intent-classifier.ts     ✅ Layer 1 basis, voeg signals detection toe
 ├── intent-classifier-ai.ts  ✅ Layer 2 basis, upgrade prompt
@@ -49,16 +49,16 @@ lib/swift/
 ├── error-handler.ts         ✅ Recent toegevoegd
 └── [NIEUW] reflex-classifier.ts   → Upgrade van intent-classifier
 └── [NIEUW] orchestrator.ts        → Upgrade van intent-classifier-ai
-└── [NIEUW] safety-net.ts          → Nieuw te bouwen
+└── [NIEUW] nudge.ts               → Nieuw te bouwen
 
 stores/
-└── swift-store.ts           ✅ Uitbreiden met chain state + suggestions
+└── cortex-store.ts           ✅ Uitbreiden met chain state + suggestions
 
-components/swift/
+components/cortex/
 ├── chat/                    ✅ Bestaand, voeg ActionChainCard toe
 ├── artifacts/               ✅ Bestaand, geen wijzigingen
-├── command-center/          ✅ Bestaand, voeg SuggestionToast toe
-└── [NIEUW] suggestion-toast.tsx
+├── command-center/          ✅ Bestaand, voeg NudgeToast toe
+└── [NIEUW] nudge-toast.tsx
 └── [NIEUW] chat/action-chain-card.tsx
 └── [NIEUW] chat/clarification-card.tsx
 ```
@@ -73,7 +73,7 @@ components/swift/
 ```typescript
 // Huidige single-intent response
 interface ClassificationResult {
-  intent: SwiftIntent;
+  intent: CortexIntent;
   confidence: number;
 }
 ```
@@ -90,7 +90,7 @@ interface IntentChain {
 **Impact:**
 - `types.ts`: Nieuwe interfaces toevoegen (~50 regels)
 - `orchestrator.ts`: Nieuwe AI prompt met multi-intent instructies (~150 regels)
-- `swift-store.ts`: Chain state toevoegen (~30 regels)
+- `cortex-store.ts`: Chain state toevoegen (~30 regels)
 - `action-chain-card.tsx`: Nieuwe UI component (~150 regels)
 
 **Effort: M (Medium)**
@@ -110,7 +110,7 @@ context: {
 
 **V2 vereist:**
 ```typescript
-interface SwiftContext {
+interface CortexContext {
   activePatient: { id, name, recentNotes?, upcomingAppointments? };
   currentView: string;
   shift: ShiftType;
@@ -121,7 +121,7 @@ interface SwiftContext {
 ```
 
 **Impact:**
-- Nieuwe `GET /api/swift/context` endpoint (~80 regels)
+- Nieuwe `GET /api/cortex/context` endpoint (~80 regels)
 - Context builder utility (~50 regels)
 - Store uitbreiding voor context sync (~20 regels)
 
@@ -147,20 +147,20 @@ interface SwiftContext {
 
 ---
 
-### 2.4 Safety Net / Proactive Suggestions (US-MVP-06)
+### 2.4 Nudge / Proactive Suggestions (US-MVP-06)
 
 **Huidige situatie:**
 - Niet aanwezig
 
 **V2 vereist:**
 - Protocol Rules database
-- `evaluateSafetyNet()` functie
-- `SuggestionToast` component
+- `evaluateNudge()` functie
+- `NudgeToast` component
 - Store state voor suggestions
 
 **Impact:**
-- `safety-net.ts`: Nieuwe module (~200 regels)
-- `suggestion-toast.tsx`: Nieuw component (~100 regels)
+- `nudge.ts`: Nieuwe module (~200 regels)
+- `nudge-toast.tsx`: Nieuw component (~100 regels)
 - Store uitbreiding (~40 regels)
 - Integratie in action execution flow
 
@@ -184,7 +184,7 @@ interface SwiftContext {
 | Risico | Impact | Mitigatie |
 |--------|--------|-----------|
 | Feature creep | MVP te groot | Strikte scope (6 stories) |
-| Protocol complexity | Safety Net te ambitieus | Begin met 1 hardcoded regel |
+| Protocol complexity | Nudge te ambitieus | Begin met 1 hardcoded regel |
 | Over-engineering | Te veel abstractie | "Working software" first |
 
 ---
@@ -195,10 +195,10 @@ interface SwiftContext {
 
 ```
 Fase 1: Foundation (Week 1)
-├── SwiftContext type definitie
-├── GET /api/swift/context endpoint
+├── CortexContext type definitie
+├── GET /api/cortex/context endpoint
 ├── Reflex complexity detection upgrade
-├── Feature flag: SWIFT_V2_ENABLED
+├── Feature flag: CORTEX_V2_ENABLED
 └── Deliverable: Context beschikbaar, backward compatible
 
 Fase 2: Multi-Intent (Week 2)
@@ -208,9 +208,9 @@ Fase 2: Multi-Intent (Week 2)
 ├── Store chain state
 └── Deliverable: "Zeg af en maak notitie" werkt
 
-Fase 3: Safety Net MVP (Week 3)
+Fase 3: Nudge MVP (Week 3)
 ├── 1 hardcoded protocol regel (wondzorg)
-├── SuggestionToast component
+├── NudgeToast component
 ├── Trigger na dagnotitie
 └── Deliverable: Proactieve suggestie demo
 
@@ -226,9 +226,9 @@ Fase 4: Polish (Week 4)
 De V2 architectuur kan naast V1 draaien:
 
 ```typescript
-// lib/swift/classifier-adapter.ts
-export async function classifyIntent(input: string, context?: SwiftContext) {
-  if (!FEATURE_FLAGS.SWIFT_V2_ENABLED) {
+// lib/cortex/classifier-adapter.ts
+export async function classifyIntent(input: string, context?: CortexContext) {
+  if (!FEATURE_FLAGS.CORTEX_V2_ENABLED) {
     return classifyV1(input);  // Bestaande flow
   }
 
@@ -251,12 +251,12 @@ export async function classifyIntent(input: string, context?: SwiftContext) {
 | `types.ts` | 150 regels | - | S |
 | `reflex-classifier.ts` | 200 regels | upgrade | M |
 | `orchestrator.ts` | 250 regels | upgrade | M |
-| `safety-net.ts` | 200 regels | nieuw | M |
-| `swift-store.ts` | - | +100 regels | S |
+| `nudge.ts` | 200 regels | nieuw | M |
+| `cortex-store.ts` | - | +100 regels | S |
 | `action-chain-card.tsx` | 180 regels | nieuw | M |
-| `suggestion-toast.tsx` | 100 regels | nieuw | S |
+| `nudge-toast.tsx` | 100 regels | nieuw | S |
 | `clarification-card.tsx` | 60 regels | nieuw | S |
-| `/api/swift/context` | 80 regels | nieuw | S |
+| `/api/cortex/context` | 80 regels | nieuw | S |
 | `/api/intent/classify` | 150 regels | nieuw | M |
 | Tests | 300 regels | nieuw | M |
 
@@ -268,7 +268,7 @@ export async function classifyIntent(input: string, context?: SwiftContext) {
 |------|--------|--------------|
 | Fase 1: Foundation | 2-3 dagen | Laag |
 | Fase 2: Multi-Intent | 3-4 dagen | Middel |
-| Fase 3: Safety Net | 2-3 dagen | Middel |
+| Fase 3: Nudge | 2-3 dagen | Middel |
 | Fase 4: Polish | 2-3 dagen | Laag |
 
 **Totaal: 9-13 werkdagen voor MVP**
@@ -286,7 +286,7 @@ export async function classifyIntent(input: string, context?: SwiftContext) {
 
 ### 6.2 DON'T's
 
-1. **Niet alle protocollen tegelijk** - Begin met 1 Safety Net regel
+1. **Niet alle protocollen tegelijk** - Begin met 1 Nudge regel
 2. **Geen over-engineering** - De `ProtocolRule` interface is voor later
 3. **Niet de store herschrijven** - Extend, niet replace
 4. **Geen rollout strategie nodig** - Dit is een prototype
@@ -320,7 +320,7 @@ De Swift Cortex V2 architectuur is **volledig haalbaar** binnen de bestaande cod
 
 ### Volgende Stap
 
-Start met **Fase 1: Foundation** - de SwiftContext API endpoint. Dit is:
+Start met **Fase 1: Foundation** - de CortexContext API endpoint. Dit is:
 - Low risk
 - Onafhankelijk van andere features
 - Direct waarde toevoegend aan bestaande AI classificatie
@@ -334,13 +334,13 @@ Start met **Fase 1: Foundation** - de SwiftContext API endpoint. Dit is:
 
 | Bestand | Regels | Functie |
 |---------|--------|---------|
-| `lib/swift/types.ts` | ~180 | Type definities |
-| `lib/swift/intent-classifier.ts` | ~200 | Layer 1 classifier |
-| `lib/swift/intent-classifier-ai.ts` | ~100 | Layer 2 AI fallback |
-| `lib/swift/entity-extractor.ts` | ~250 | Entity extraction |
-| `lib/swift/date-time-parser.ts` | ~200 | Datum/tijd parsing |
-| `lib/swift/action-parser.ts` | ~150 | Action routing |
-| `stores/swift-store.ts` | ~200 | Zustand state |
+| `lib/cortex/types.ts` | ~180 | Type definities |
+| `lib/cortex/intent-classifier.ts` | ~200 | Layer 1 classifier |
+| `lib/cortex/intent-classifier-ai.ts` | ~100 | Layer 2 AI fallback |
+| `lib/cortex/entity-extractor.ts` | ~250 | Entity extraction |
+| `lib/cortex/date-time-parser.ts` | ~200 | Datum/tijd parsing |
+| `lib/cortex/action-parser.ts` | ~150 | Action routing |
+| `stores/cortex-store.ts` | ~200 | Zustand state |
 
 ### B. V2 Documentatie Verwijzingen
 

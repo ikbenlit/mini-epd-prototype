@@ -7,7 +7,7 @@
 ---
 
 ## 1. Algemene Conclusie
-Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen architectuur die de grootste pijnpunten van V1 (traagheid bij simpele taken, domheid bij complexe taken) effectief oplost. De opsplitsing in drie lagen (Reflex, Orchestrator, Safety Net) is logisch en schaalbaar.
+Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen architectuur die de grootste pijnpunten van V1 (traagheid bij simpele taken, domheid bij complexe taken) effectief oplost. De opsplitsing in drie lagen (Reflex, Orchestrator, Nudge) is logisch en schaalbaar.
 
 **Oordeel:** ✅ **Go for launch**, mits onderstaande punten in acht worden genomen.
 
@@ -21,7 +21,7 @@ Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen 
 *   **Pros:**
     *   **Separation of Concerns:** De scheiding tussen deterministische regex (L1) en probabilistische AI (L2) beschermt de performance van basisfuncties.
     *   **Schaalbaarheid:** L2 is losgekoppeld; we kunnen het model (Claude Haiku) later vervangen door GPT-4o of een local model zonder L1 te breken.
-    *   **Type Safety:** De definities voor `IntentChain` en `SwiftContext` zijn robuust.
+    *   **Type Safety:** De definities voor `IntentChain` en `CortexContext` zijn robuust.
 *   **Cons / Risico's:**
     *   **State Complexity:** Het beheren van een `IntentChain` (met statussen als `pending`, `executing`, `failed`) introduceert complexe state management logica. Wat als stap 1 slaagt maar stap 2 faalt? Rollback support (genoemd in L2 architecture overview) is complex om generiek te bouwen.
     *   **Drift:** Risico dat L1 (Regex) en L2 (AI) uit elkaar groeien. Als de AI "agenda" anders interpreteert dan de Regex.
@@ -42,7 +42,7 @@ Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen 
 **Perspectief:** UI implementatie, feedback loops, React state.
 
 *   **Pros:**
-    *   **Store Integration:** Uitbreiding van `SwiftStore` is logisch.
+    *   **Store Integration:** Uitbreiding van `CortexStore` is logisch.
     *   **Reflex Snelheid:** Client-side regex betekent instant feedback (<20ms), wat de UX enorm verbetert.
 *   **Cons:**
     *   **UI Complexiteit:** Het visualiseren van "Stacked Cards" voor multi-intents is nieuw. Hoe tonen we de voortgang van "Actie 1 klaar, Actie 2 bezig"?
@@ -54,12 +54,12 @@ Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen 
 
 *   **Pros:**
     *   **Killer Feature:** Multi-intent ("Zeg af en email") is een enorme meerwaarde die de gebruiker tijd bespaart.
-    *   **Proactivity:** De Safety Net suggesties ("Wondcontrole inplannen?") transformeren het systeem van typemachine naar partner.
+    *   **Proactivity:** De Nudge suggesties ("Wondcontrole inplannen?") transformeren het systeem van typemachine naar partner.
     *   **No Dead Ends:** Het doel "Nooit 'ik snap het niet' zeggen" is perfect.
 *   **Cons / Risico's:**
     *   **Uncanny Valley:** Als L1 "dom" voelt en L2 "slim", snapt de gebruiker dan wanneer hij tegen wie praat?
-    *   **Over-proactive:** Te veel Safety Net suggesties worden irritant (Clippy effect). "Wil je dit opslaan?" "Wil je dat doen?".
-*   **Advies:** Start Safety Net met zeer conservatieve regels. Alleen medisch kritieke suggesties, geen administratieve "nagging".
+    *   **Over-proactive:** Te veel Nudge suggesties worden irritant (Clippy effect). "Wil je dit opslaan?" "Wil je dat doen?".
+*   **Advies:** Start Nudge met zeer conservatieve regels. Alleen medisch kritieke suggesties, geen administratieve "nagging".
 
 ### 🧪 QA Engineer / Tester
 **Perspectief:** Testbaarheid, betrouwbaarheid.
@@ -96,10 +96,10 @@ Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen 
 |-----------|--------------|--------------|
 | Layer 1 (Reflex) | ⭐⭐⭐⭐⭐ (Hoog) | Laag |
 | Layer 2 (Orchestrator) | ⭐⭐⭐⭐ (Goed) | Middel |
-| Layer 3 (Safety Net) | ⭐⭐⭐⭐ (Goed) | Laag (als we simpel beginnen) |
+| Layer 3 (Nudge) | ⭐⭐⭐⭐ (Goed) | Laag (als we simpel beginnen) |
 | Multi-Intent Frontend | ⭐⭐⭐ (Uitdagend) | Hoog (UI flows) |
 
-**Advies:** Start direct met **Fase 1 (Reflex + Basic Orchestrator)**. Schuif Layer 3 (Safety Net) naar de volgende sprint om focus te houden op de core flow.
+**Advies:** Start direct met **Fase 1 (Reflex + Basic Orchestrator)**. Schuif Layer 3 (Nudge) naar de volgende sprint om focus te houden op de core flow.
 
 ## 6. Concretie Actiepunten
 

@@ -8,10 +8,10 @@
 import { createClient } from '@/lib/auth/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { classifyIntent, isHighConfidence } from '@/lib/swift/intent-classifier';
-import { classifyIntentWithAI } from '@/lib/swift/intent-classifier-ai';
-import { extractEntities } from '@/lib/swift/entity-extractor';
-import type { IntentClassificationResult } from '@/lib/swift/types';
+import { classifyIntent, isHighConfidence } from '@/lib/cortex/intent-classifier';
+import { classifyIntentWithAI } from '@/lib/cortex/intent-classifier-ai';
+import { extractEntities } from '@/lib/cortex/entity-extractor';
+import type { IntentClassificationResult } from '@/lib/cortex/types';
 
 // Request schema
 const ClassifyRequestSchema = z.object({

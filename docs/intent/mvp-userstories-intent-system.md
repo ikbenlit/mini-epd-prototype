@@ -16,7 +16,7 @@ We splitsen de ontwikkeling in **MVP** (Wat we nu bouwen voor de publieke demo) 
 2.  **Multi-Intent:** Het kunnen verwerken van samengestelde zinnen ("Zeg af en maak notitie").
 3.  **Context Awareness:** Het correct interpreteren van "hij", "deze", "morgen" o.b.v. de huidige schermstatus.
 4.  **UI Feedback:** Visualisatie van het "denkproces" en gestapelde resultaten (Stacked Cards).
-5.  **Basic Safety Net:** Eén hardcoded voorbeeld van proactiviteit (bijv. "Wondcontrole suggestie") om het concept te tonen.
+5.  **Basic Nudge:** Eén hardcoded voorbeeld van proactiviteit (bijv. "Wondcontrole suggestie") om het concept te tonen.
 
 ### ❌ Out of Scope (Post-MVP - "The Product")
 *Focus: Veiligheid, robuustheid, edge-cases.*
