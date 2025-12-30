@@ -1,3 +1,5 @@
+> **Note:** "Swift" is hernoemd naar "Cortex". Dit document bevat historische referenties naar de oude naam.
+
 # UX Simulatie: Intent System "Next Level"
 
 **Betreft:** Brainstormsessie voor de volgende fase van de Swift Intent Architectuur.

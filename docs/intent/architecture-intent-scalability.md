@@ -1,3 +1,5 @@
+> **Note:** "Swift" is hernoemd naar "Cortex". Dit document bevat historische referenties naar de oude naam.
+
 # Architecture: Intent System Schaalbaarheid (GGZ)
 
 **Document:** Intent System Scalability & Optimization voor GGZ

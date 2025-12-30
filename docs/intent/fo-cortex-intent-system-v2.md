@@ -1,6 +1,6 @@
-# 🧩 Functioneel Ontwerp (FO) – Swift Intent System V2
+# 🧩 Functioneel Ontwerp (FO) – Cortex Intent System V2
 
-**Projectnaam:** Swift Intent Architecture V2
+**Projectnaam:** Cortex Intent Architecture V2
 **Versie:** v2.0 (Draft)
 **Datum:** 29-12-2025
 **Auteur:** Colin Lit (Antigravity AI)
@@ -9,7 +9,7 @@
 
 ## 1. Doel en relatie met het PRD
 🎯 **Doel van dit document:**
-Dit FO beschrijft de functionele werking van de "Next Gen" Swift Intent Architectuur. Waar V1 focuste op snelheid en basiscommando's ("Reactive"), focust V2 op contextbegrip, meervoudige intenties en proactieve ondersteuning ("Agentic").
+Dit FO beschrijft de functionele werking van de "Next Gen" Cortex Intent Architectuur. Waar V1 focuste op snelheid en basiscommando's ("Reactive"), focust V2 op contextbegrip, meervoudige intenties en proactieve ondersteuning ("Agentic").
 
 📘 **Relatie tot vorige documentatie:**
 Dit document vervangt de architectuur uit `architecture-intent-scalability.md` (Strategie 1: Strict Hierarchy) en kiest voor de **Hybride Route** (Strategie 5 + Agentic extensions) zoals besproken in de UX Evaluatie.
@@ -17,7 +17,7 @@ Dit document vervangt de architectuur uit `architecture-intent-scalability.md` (
 ---
 
 ## 2. Overzicht van de belangrijkste onderdelen
-🎯 **Architectuurmodel:** "The Swift Cortex"
+🎯 **Architectuurmodel:** "The Cortex"
 Het systeem bestaat uit drie samenwerkende lagen die elk een andere rol spelen in de interactie:
 
 1.  **Layer 1: The Reflex Arc (De Snelle Reflex)**
@@ -54,8 +54,8 @@ Het systeem bestaat uit drie samenwerkende lagen die elk een andere rol spelen i
 ### 4.1 Layer 1: The Reflex Arc (Local First)
 *   **Trigger:** Elke gebruikersinput (spraak/tekst).
 *   **Werking:** Checkt razendsnel (<20ms) of de input matcht met een `Local Pattern` (Regex).
-*   **Conditie:** Alleen bij **Confidence > 0.9** (vrijwel zeker) voert hij direct uit.
-*   **Fallback:** Bij twijfel (<0.9) of geen match → *Direct doorsturen naar Layer 2*.
+*   **Conditie:** Alleen bij **Confidence >= 0.7** (industry standard) voert hij direct uit.
+*   **Fallback:** Bij twijfel (<0.7), ambiguïteit (top-2 delta <0.1), of escalatie-triggers → *Direct doorsturen naar Layer 2*.
 
 ### 4.2 Layer 2: The Intent Orchestrator (AI Router)
 *   **Trigger:** Input die te complex of dubbelzinnig is voor Layer 1.
@@ -162,6 +162,6 @@ interface IntentAction {
 ---
 
 ## 8. Bijlagen & Referenties
-*   **PRD/Vision:** `docs/swift/ux-simulation-intent-next-level.md`
+*   **PRD/Vision:** `docs/intent/ux-simulation-intent-next-level.md`
 *   **Technical Base:** `lib/cortex/intent-classifier-ai.ts`
-*   **Legacy Docs:** `docs/swift/intent-architecture-v2-proposal.md`
+*   **Legacy Docs:** `docs/intent/intent-architecture-v2-proposal.md`

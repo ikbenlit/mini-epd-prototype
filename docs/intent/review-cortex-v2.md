@@ -1,13 +1,13 @@
-# Review Rapport: Swift Cortex & Intent System V2
+# Review Rapport: Cortex & Intent System V2
 
-**Datum:** 29-12-2025  
-**Betreft:** Review van `architecture-swift-cortex-v2.md` en `fo-swift-intent-system-v2.md`  
+**Datum:** 29-12-2025
+**Betreft:** Review van `architecture-cortex-v2.md` en `fo-cortex-intent-system-v2.md`  
 **Reviewers (Simulatie):** Architect, Backend Dev, Frontend Dev, UX Designer, QA Engineer
 
 ---
 
 ## 1. Algemene Conclusie
-Het voorgestelde **Hyper-Hybrid model (Swift Cortex)** is een sterke, volwassen architectuur die de grootste pijnpunten van V1 (traagheid bij simpele taken, domheid bij complexe taken) effectief oplost. De opsplitsing in drie lagen (Reflex, Orchestrator, Nudge) is logisch en schaalbaar.
+Het voorgestelde **Hyper-Hybrid model (Cortex)** is een sterke, volwassen architectuur die de grootste pijnpunten van V1 (traagheid bij simpele taken, domheid bij complexe taken) effectief oplost. De opsplitsing in drie lagen (Reflex, Orchestrator, Nudge) is logisch en schaalbaar.
 
 **Oordeel:** ✅ **Go for launch**, mits onderstaande punten in acht worden genomen.
 

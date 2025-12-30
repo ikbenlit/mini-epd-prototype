@@ -1,6 +1,6 @@
-# 🧠 Swift Cortex V2 - Uitgebreid Architectuurplan
+# 🧠 Cortex V2 - Uitgebreid Architectuurplan
 
-**Project:** Swift Intent System V2  
+**Project:** Cortex Intent System V2  
 **Versie:** 2.0  
 **Datum:** 29-12-2025  
 **Status:** Technisch Ontwerp  
@@ -27,9 +27,9 @@
 ## 1. Executive Summary
 
 ### Huidige Situatie (V1)
-Het huidige Swift systeem is **reactief**: gebruiker geeft commando → systeem voert uit. Het werkt met single-intent classificatie en heeft een two-tier architectuur (lokaal regex + AI fallback).
+Het huidige Cortex systeem is **reactief**: gebruiker geeft commando → systeem voert uit. Het werkt met single-intent classificatie en heeft een two-tier architectuur (lokaal regex + AI fallback).
 
-### Doel V2: "The Swift Cortex"
+### Doel V2: "The Cortex"
 Transformatie naar een **agentic systeem** dat:
 - **Multi-intents** begrijpt ("Zeg Jan af **en** maak notitie")
 - **Context-aware** is (snapt wie "hij" is, wat "morgen" betekent)
@@ -113,7 +113,7 @@ Transformatie naar een **agentic systeem** dat:
                                      │                  │               │
                                      ▼                  ▼               ▼
                               ┌─────────────┐    ┌──────────┐    ┌───────────┐
-                              │   Swift     │    │  Artifact │    │ Suggestion│
+                              │   Cortex    │    │  Artifact │    │ Suggestion│
                               │   Store     │◄───│  Updates  │    │   Toast   │
                               └─────────────┘    └──────────┘    └───────────┘
 ```
@@ -716,7 +716,7 @@ import type {
   AIClassificationResult 
 } from './types';
 
-const ORCHESTRATOR_SYSTEM_PROMPT = `Je bent de Intent Orchestrator voor Swift, een Nederlands EPD systeem.
+const ORCHESTRATOR_SYSTEM_PROMPT = `Je bent de Intent Orchestrator voor Cortex, een Nederlands EPD systeem.
 
 ## Je Taak
 Analyseer de gebruikersinput en extraheer ALLE intenties, ook als er meerdere zijn.
@@ -2218,7 +2218,7 @@ export function isCortexV2Enabled(userId?: string): boolean {
 
 ### B. Referenties
 
-- [FO Cortex Intent System V2](./fo-swift-intent-system-v2.md)
+- [FO Cortex Intent System V2](./fo-cortex-intent-system-v2.md)
 - [UX Simulatie Next Level](./ux-simulation-intent-next-level.md)  
 - [UX Evaluatie Schaalbaarheid](./ux-evaluation-intent-scalability.md)
 - [Architecture Proposal V2](./intent-architecture-v2-proposal.md)

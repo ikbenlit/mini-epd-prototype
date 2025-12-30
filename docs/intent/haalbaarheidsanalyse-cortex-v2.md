@@ -1,4 +1,4 @@
-# Haalbaarheidsanalyse: Swift Cortex V2
+# Haalbaarheidsanalyse: Cortex V2
 
 **Datum:** 29-12-2025
 **Auteur:** Claude Code (Opus 4.5)
@@ -10,7 +10,7 @@
 
 **Conclusie: HAALBAAR met gefaseerde aanpak**
 
-De Swift Cortex V2 architectuur is **goed haalbaar** binnen de bestaande codebase. De huidige implementatie biedt een solide fundament met ~70% van de benodigde infrastructuur al aanwezig. De voorgestelde V2 architectuur sluit naadloos aan op bestaande patterns.
+De Cortex V2 architectuur is **goed haalbaar** binnen de bestaande codebase. De huidige implementatie biedt een solide fundament met ~70% van de benodigde infrastructuur al aanwezig. De voorgestelde V2 architectuur sluit naadloos aan op bestaande patterns.
 
 | Aspect | Score | Toelichting |
 |--------|-------|-------------|
@@ -303,7 +303,7 @@ export async function classifyIntent(input: string, context?: CortexContext) {
 
 ### Haalbaarheid: ✅ JA
 
-De Swift Cortex V2 architectuur is **volledig haalbaar** binnen de bestaande codebase:
+De Cortex V2 architectuur is **volledig haalbaar** binnen de bestaande codebase:
 
 1. **70% infrastructuur bestaat al** - Classifier, entity extraction, store, chat API
 2. **Incrementeel te bouwen** - Elke fase levert werkende software
@@ -344,8 +344,8 @@ Start met **Fase 1: Foundation** - de CortexContext API endpoint. Dit is:
 
 ### B. V2 Documentatie Verwijzingen
 
-- `architecture-swift-cortex-v2.md` - Uitgebreid technisch plan
-- `fo-swift-intent-system-v2.md` - Functioneel ontwerp
+- `architecture-cortex-v2.md` - Uitgebreid technisch plan
+- `fo-cortex-intent-system-v2.md` - Functioneel ontwerp
 - `intent-architecture-v2-proposal.md` - Architectuur voorstel
 - `mvp-userstories-intent-system.md` - MVP scope
 

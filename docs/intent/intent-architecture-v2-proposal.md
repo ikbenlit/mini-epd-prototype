@@ -1,3 +1,5 @@
+> **Note:** "Swift" is hernoemd naar "Cortex". Dit document bevat historische referenties naar de oude naam.
+
 # Architecture Proposal: Swift Intent System V2
 
 **Status:** Draft

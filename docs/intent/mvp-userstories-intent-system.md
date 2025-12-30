@@ -1,3 +1,5 @@
+> **Note:** "Swift" is hernoemd naar "Cortex". Dit document bevat historische referenties naar de oude naam.
+
 # 🚀 MVP Userstories & Scope: Swift Cortex (Public Prototype)
 
 **Betreft:** Scope voor de "Build in Public" fase van het Swift Intent System V2.
