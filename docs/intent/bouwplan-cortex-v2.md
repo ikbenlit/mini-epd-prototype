@@ -132,7 +132,7 @@ lib/config/
 | Epic ID | Titel | Doel | Status | Stories | Story Points |
 |---------|-------|------|--------|---------|--------------|
 | **E0** | Foundation & Context | Types, API, feature flags | ✅ Done | 5 | 8 SP |
-| **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ⏳ To Do | 4 | 6 SP |
+| **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ✅ Done | 4 | 6 SP |
 | **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ⏳ To Do | 6 | 13 SP |
 | **E3** | UI Components | ActionChainCard, ClarificationCard | ⏳ To Do | 4 | 8 SP |
 | **E4** | Nudge MVP (Layer 3) | Proactieve suggesties | ⏳ To Do | 3 | 5 SP |
@@ -321,10 +321,10 @@ export const FEATURE_FLAGS = {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E1.S1 | **Pattern matching** implementeren | Regex patterns voor alle intent types met weights | ⏳ | E0.S1 | 2 |
-| E1.S2 | **Escalatie triggers** detectie | Multi-intent signals, context signals, relative time | ⏳ | E1.S1 | 2 |
-| E1.S3 | **Ambiguity detection** | Top-2 score delta < 0.1 → escaleer | ⏳ | E1.S1 | 1 |
-| E1.S4 | **Unit tests** Reflex classifier | Test suite voor simpele en complexe inputs | ⏳ | E1.S1-S3 | 1 |
+| E1.S1 | **Pattern matching** implementeren | Regex patterns voor alle intent types met weights | ✅ | E0.S1 | 2 |
+| E1.S2 | **Escalatie triggers** detectie | Multi-intent signals, context signals, relative time | ✅ | E1.S1 | 2 |
+| E1.S3 | **Ambiguity detection** | Top-2 score delta < 0.1 → escaleer | ✅ | E1.S1 | 1 |
+| E1.S4 | **Unit tests** Reflex classifier | Test suite voor simpele en complexe inputs | ✅ | E1.S1-S3 | 1 |
 
 **Deliverable:** Simpele commando's werken direct (<20ms)
 
@@ -374,9 +374,9 @@ export const AMBIGUITY_THRESHOLD = 0.1;
 ```
 
 *Done criteria:*
-- [ ] "agenda vandaag" → `{ intent: 'agenda_query', shouldEscalateToAI: false }`
-- [ ] Processing time < 20ms
-- [ ] Bestaande V1 classifier blijft werken (backward compatible)
+- [x] "agenda vandaag" → `{ intent: 'agenda_query', shouldEscalateToAI: false }`
+- [x] Processing time < 20ms
+- [x] Bestaande V1 classifier blijft werken (backward compatible)
 
 ---
 
@@ -397,9 +397,9 @@ const RELATIVE_TIME_SIGNALS = /\b(morgen|overmorgen|volgende week|over \d+ dagen
 - Return `escalationReason` voor logging
 
 *Done criteria:*
-- [ ] "Zeg Jan af en maak notitie" → escalates (`multi_intent_detected`)
-- [ ] "Maak notitie voor hem" → escalates (`needs_context`)
-- [ ] "Plan afspraak morgen" → escalates (`relative_time`)
+- [x] "Zeg Jan af en maak notitie" → escalates (`multi_intent_detected`)
+- [x] "Maak notitie voor hem" → escalates (`needs_context`)
+- [x] "Plan afspraak morgen" → escalates (`relative_time`)
 
 ---
 
@@ -422,8 +422,8 @@ if (delta < AMBIGUITY_THRESHOLD) {
 - Delta = 0.04 < 0.1 → escaleer naar AI
 
 *Done criteria:*
-- [ ] Ambigue input triggert escalatie
-- [ ] `secondBestIntent` en `secondBestConfidence` in result
+- [x] Ambigue input triggert escalatie
+- [x] `secondBestIntent` en `secondBestConfidence` in result
 
 ---
 
@@ -454,8 +454,8 @@ describe('Reflex Classifier', () => {
 ```
 
 *Done criteria:*
-- [ ] `pnpm test lib/cortex/__tests__/reflex-classifier.test.ts` slaagt
-- [ ] Coverage voor alle escalatie scenarios
+- [x] `pnpm tsx lib/cortex/__tests__/reflex-classifier.test.ts` slaagt (25 tests)
+- [x] Coverage voor alle escalatie scenarios
 
 ---
 
