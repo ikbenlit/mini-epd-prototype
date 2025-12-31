@@ -270,10 +270,10 @@ export async function getDemoAccessLevel(): Promise<'read_only' | 'interactive' 
 }
 
 /**
- * Update user's preferred interface (Swift or Klassiek)
+ * Update user's preferred interface (Cortex or Klassiek)
  * Stored in user_metadata.preferred_interface
  */
-export type InterfacePreference = 'swift' | 'klassiek'
+export type InterfacePreference = 'cortex' | 'klassiek'
 
 export async function updateInterfacePreference(preference: InterfacePreference) {
   const supabase = createClient()

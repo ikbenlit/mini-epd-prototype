@@ -16,11 +16,11 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [interfacePreference, setInterfacePreference] = useState<InterfacePreference>('klassiek')
+  const [interfacePreference, setInterfacePreference] = useState<InterfacePreference>('cortex')
 
   // Redirect path based on interface preference
   const getRedirectPath = () => {
-    return interfacePreference === 'swift' ? '/epd/swift' : '/epd/clients'
+    return interfacePreference === 'cortex' ? '/epd/cortex' : '/epd/clients'
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,16 +159,16 @@ export function LoginForm() {
             </button>
             <button
               type="button"
-              onClick={() => setInterfacePreference('swift')}
+              onClick={() => setInterfacePreference('cortex')}
               className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                interfacePreference === 'swift'
+                interfacePreference === 'cortex'
                   ? 'border-amber-500 bg-amber-50 text-amber-700'
                   : 'border-slate-200 hover:border-slate-300 text-slate-600'
               }`}
             >
               <Zap className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium text-sm">Swift</div>
+                <div className="font-medium text-sm">Cortex</div>
                 <div className="text-xs opacity-70">Spraak & AI</div>
               </div>
             </button>
