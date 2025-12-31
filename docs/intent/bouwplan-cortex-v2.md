@@ -1,8 +1,8 @@
 # Bouwplan — Cortex Intent System V2
 
 **Projectnaam:** Cortex V2 - Agentic Intent Architecture
-**Versie:** v1.0
-**Datum:** 30-12-2025
+**Versie:** v1.1
+**Datum:** 31-12-2025
 **Auteur:** Colin Lit
 
 ---
@@ -31,9 +31,63 @@
 
 ---
 
-## 2. Uitgangspunten
+## 2. Dev Quick Start
 
-### 2.1 Technische Stack
+### Voor je begint
+
+**Lees eerst (5 min):**
+- Dit bouwplan (je bent hier)
+- TO sectie 4.1 voor volledige type definities: `docs/intent/to-cortex-v2.md`
+
+**Codebase oriëntatie:**
+```
+lib/cortex/                    # Cortex logic (V1 + V2)
+├── types.ts                   # ✅ Bestaand - UITBREIDEN
+├── intent-classifier.ts       # ✅ Bestaand V1 - NIET AANPASSEN
+├── intent-classifier-ai.ts    # ✅ Bestaand V1 AI - referentie
+├── entity-extractor.ts        # ✅ Bestaand - hergebruiken
+├── reflex-classifier.ts       # 🆕 NIEUW in E1
+├── orchestrator.ts            # 🆕 NIEUW in E2
+├── nudge.ts                   # 🆕 NIEUW in E4
+└── logger.ts                  # 🆕 NIEUW in E0
+
+stores/
+└── cortex-store.ts            # ✅ Bestaand - UITBREIDEN in E0.S4
+
+components/cortex/
+├── chat/
+│   ├── action-chain-card.tsx  # 🆕 NIEUW in E3
+│   └── clarification-card.tsx # 🆕 NIEUW in E3
+└── command-center/
+    └── nudge-toast.tsx        # 🆕 NIEUW in E4
+
+app/api/cortex/
+├── context/route.ts           # 🆕 NIEUW in E0.S2
+└── classify/route.ts          # 🆕 NIEUW in E2.S5
+
+lib/config/
+└── feature-flags.ts           # 🆕 NIEUW in E0.S3
+```
+
+**Werkwijze per story:**
+1. Lees story + done criteria
+2. Check bestaande code (zie "Bestaande code" sectie per epic)
+3. Implementeer
+4. Run `pnpm lint` en `pnpm build`
+5. Test handmatig of met test command
+6. Commit met story ID: `feat(cortex): E0.S1 - CortexContext types`
+
+**Belangrijke conventies:**
+- TypeScript strict mode
+- Nederlandse gebruikersteksten, Engelse code/comments
+- Zod voor runtime validatie waar nodig
+- Graceful degradation bij AI failures
+
+---
+
+## 3. Uitgangspunten
+
+### 3.1 Technische Stack
 
 | Component | Technologie | Argumentatie |
 |-----------|-------------|--------------|
@@ -44,7 +98,7 @@
 | **State** | Zustand | Lightweight, devtools, persist |
 | **UI** | shadcn/ui | Bestaande component library |
 
-### 2.2 Projectkaders
+### 3.2 Projectkaders
 
 | Kader | Waarde |
 |-------|--------|
@@ -55,7 +109,7 @@
 | **Data** | Mock-data, geen productie EPD-koppeling |
 | **Doel** | Demonstratie van "Agency" concept |
 
-### 2.3 Programmeer Uitgangspunten
+### 3.3 Programmeer Uitgangspunten
 
 **Code Quality Principles:**
 - **DRY** - Herbruikbare components en utility functions
@@ -71,7 +125,7 @@
 
 ---
 
-## 3. Epics & Stories Overzicht
+## 4. Epics & Stories Overzicht
 
 ### MVP Scope (✅ In Scope)
 
@@ -79,12 +133,12 @@
 |---------|-------|------|--------|---------|--------------|
 | **E0** | Foundation & Context | Types, API, feature flags | ⏳ To Do | 5 | 8 SP |
 | **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ⏳ To Do | 4 | 6 SP |
-| **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ⏳ To Do | 5 | 13 SP |
+| **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ⏳ To Do | 6 | 13 SP |
 | **E3** | UI Components | ActionChainCard, ClarificationCard | ⏳ To Do | 4 | 8 SP |
 | **E4** | Nudge MVP (Layer 3) | Proactieve suggesties | ⏳ To Do | 3 | 5 SP |
 | **E5** | Integration & Polish | End-to-end flow, testing | ⏳ To Do | 4 | 8 SP |
 
-**Totaal MVP: 25 stories, 48 Story Points**
+**Totaal MVP: 26 stories, 48 Story Points**
 
 ### Post-MVP Scope (❌ Niet in Scope)
 
@@ -102,7 +156,7 @@
 
 ---
 
-## 4. Epics & Stories (Uitwerking)
+## 5. Epics & Stories (Uitwerking)
 
 ### Epic 0 — Foundation & Context
 
@@ -112,16 +166,152 @@
 |----------|--------------|---------------------|--------|------------------|----|
 | E0.S1 | **CortexContext types** definiëren | Types in `lib/cortex/types.ts` voor context, intents, chains | ⏳ | — | 2 |
 | E0.S2 | **GET /api/cortex/context** endpoint | Retourneert actieve patiënt, agenda, recente acties | ⏳ | E0.S1 | 2 |
-| E0.S3 | **Feature flags** setup | `CORTEX_V2_ENABLED`, `CORTEX_MULTI_INTENT`, `CORTEX_NUDGE` | ⏳ | — | 1 |
+| E0.S3 | **Feature flags** setup | `CORTEX_V2_ENABLED`, `CORTEX_MULTI_INTENT`, `CORTEX_NUDGE`, `CORTEX_LOGGING` | ⏳ | — | 1 |
 | E0.S4 | **CortexStore V2** extensions | Zustand store met context, chains, suggestions state | ⏳ | E0.S1 | 2 |
 | E0.S5 | **Classification logging** utility | Dev logging + production sanitization | ⏳ | E0.S1 | 1 |
 
-**Technical Notes:**
-- Types gebaseerd op TO sectie 4.1
-- Context injection voor AI classificatie
-- Feature flags voor graduele rollout
-
 **Deliverable:** Context beschikbaar, types gedefinieerd, backward compatible
+
+---
+
+#### 🔧 Dev Context & Instructies — Epic 0
+
+**Bestaande code (NIET VERVANGEN, wel uitbreiden):**
+```
+lib/cortex/
+├── types.ts              # Bestaande types: CortexIntent, ExtractedEntities, BlockType
+├── intent-classifier.ts  # V1 classifier (niet aanpassen in E0)
+├── entity-extractor.ts   # Entity extraction (hergebruiken)
+└── index.ts              # Exports (uitbreiden)
+
+stores/
+└── cortex-store.ts       # Bestaande store met ChatMessage, Artifact, RecentAction
+```
+
+**E0.S1 — CortexContext types**
+
+*Bestand:* `lib/cortex/types.ts`
+*Actie:* Voeg NIEUWE types toe NA bestaande types. Behoud alle bestaande exports.
+
+*Toe te voegen types:*
+- `CortexContext` - Context voor AI classificatie
+- `IntentChain` - Multi-intent container
+- `IntentAction` - Enkele actie in een chain
+- `NudgeSuggestion` - Proactieve suggestie
+- `LocalClassificationResult` - Reflex output (uitbreiding van bestaande `ClassificationResult`)
+- `EscalationReason` - Waarom Reflex escaleert
+
+*Voorbeeld signature:*
+```typescript
+export interface CortexContext {
+  activePatient: { id: string; name: string; } | null;
+  currentView: 'dashboard' | 'patient-detail' | 'agenda' | 'reports' | 'chat';
+  shift: ShiftType;  // Hergebruik bestaande type
+  // ... zie TO sectie 4.1 voor volledige definitie
+}
+```
+
+*Done criteria:*
+- [ ] `pnpm lint` slaagt
+- [ ] Bestaande imports (`CortexIntent`, `ExtractedEntities`) werken nog
+- [ ] Nieuwe types geëxporteerd via `lib/cortex/index.ts`
+
+---
+
+**E0.S2 — Context API endpoint**
+
+*Bestand:* `app/api/cortex/context/route.ts` (NIEUW)
+*Actie:* Maak GET endpoint die context verzamelt uit store/database.
+
+*Endpoint gedrag:*
+- Haal actieve patiënt uit request context of store
+- Haal agenda vandaag uit Supabase (mock data voor MVP)
+- Retourneer `CortexContext` object
+
+*Voorbeeld response:*
+```json
+{
+  "context": {
+    "activePatient": { "id": "123", "name": "Jan de Vries" },
+    "currentView": "patient-detail",
+    "shift": "ochtend",
+    "currentTime": "2025-12-31T10:00:00Z",
+    "agendaToday": [
+      { "time": "14:00", "patientName": "Marie", "type": "intake" }
+    ],
+    "recentIntents": []
+  }
+}
+```
+
+*Done criteria:*
+- [ ] `GET /api/cortex/context` retourneert 200 met valid JSON
+- [ ] Response matcht `CortexContext` type
+
+---
+
+**E0.S3 — Feature flags**
+
+*Bestand:* `lib/config/feature-flags.ts` (NIEUW)
+*Actie:* Maak feature flag utility met env var support.
+
+*Flags te implementeren:*
+```typescript
+export const FEATURE_FLAGS = {
+  CORTEX_V2_ENABLED: process.env.NEXT_PUBLIC_CORTEX_V2 === 'true',
+  CORTEX_MULTI_INTENT: process.env.NEXT_PUBLIC_CORTEX_MULTI_INTENT === 'true',
+  CORTEX_NUDGE: process.env.NEXT_PUBLIC_CORTEX_NUDGE === 'true',
+  CORTEX_LOGGING: process.env.NEXT_PUBLIC_CORTEX_LOGGING === 'true',
+};
+```
+
+*Done criteria:*
+- [ ] Flags werken in dev (hardcoded `true`)
+- [ ] Flags leesbaar vanuit components
+
+---
+
+**E0.S4 — CortexStore V2 extensions**
+
+*Bestand:* `stores/cortex-store.ts`
+*Actie:* UITBREIDEN met nieuwe state en actions. Behoud bestaande `useCortexStore`.
+
+*Toe te voegen state:*
+- `context: CortexContext` - Huidige context
+- `activeChain: IntentChain | null` - Actieve multi-intent chain
+- `chainHistory: IntentChain[]` - Geschiedenis
+- `suggestions: NudgeSuggestion[]` - Pending nudges
+- `pendingClarification` - Clarification state
+
+*Toe te voegen actions:*
+- `setContext()`, `startChain()`, `updateActionStatus()`, `completeChain()`
+- `addSuggestion()`, `acceptSuggestion()`, `dismissSuggestion()`
+
+*Done criteria:*
+- [ ] Bestaande store werkt nog (backward compatible)
+- [ ] Nieuwe state observable in React DevTools
+- [ ] `pnpm lint` slaagt
+
+---
+
+**E0.S5 — Classification logging**
+
+*Bestand:* `lib/cortex/logger.ts` (NIEUW)
+*Actie:* Logging utility met PII sanitization.
+
+*Functies:*
+- `logClassification(result)` - Log naar console (dev) of API (prod)
+- `sanitizeForLogging(input)` - Verwijder namen, BSN, telefoonnummers
+
+*Voorbeeld:*
+```typescript
+// Input: "notitie Jan Jansen medicatie"
+// Output: "notitie [NAAM] medicatie"
+```
+
+*Done criteria:*
+- [ ] Dev logs tonen classificatie resultaten
+- [ ] Namen worden gesanitized in productie mode
 
 ---
 
@@ -136,19 +326,136 @@
 | E1.S3 | **Ambiguity detection** | Top-2 score delta < 0.1 → escaleer | ⏳ | E1.S1 | 1 |
 | E1.S4 | **Unit tests** Reflex classifier | Test suite voor simpele en complexe inputs | ⏳ | E1.S1-S3 | 1 |
 
-**Technical Notes:**
-- Confidence threshold: >= 0.7 voor lokale afhandeling
-- Escalatie redenen: `low_confidence`, `ambiguous`, `multi_intent_detected`, `needs_context`, `relative_time`
-- Implementatie in `lib/cortex/reflex-classifier.ts`
-
-**Escalatie Triggers:**
-```
-Multi-intent:     /\b(en|daarna|ook|eerst|dan|vervolgens)\b/i
-Context:          /\b(hij|zij|hem|haar|zijn|die|deze|dat|dezelfde)\b/i
-Relatieve tijd:   /\b(morgen|overmorgen|volgende week|over \d+ dagen?)\b/i
-```
-
 **Deliverable:** Simpele commando's werken direct (<20ms)
+
+---
+
+#### 🔧 Dev Context & Instructies — Epic 1
+
+**Bestaande code (ter referentie):**
+```
+lib/cortex/
+├── intent-classifier.ts  # V1 classifier - REFERENTIE, niet aanpassen
+│                         # Bevat INTENT_PATTERNS die je kunt hergebruiken
+└── types.ts              # ClassificationResult type bestaat al
+```
+
+**Relatie V1 → V2:**
+De bestaande `intent-classifier.ts` heeft al regex patterns en weights. De nieuwe `reflex-classifier.ts` bouwt hierop voort maar voegt toe:
+- Escalatie logica (wanneer naar AI sturen)
+- Ambiguity detection (top-2 vergelijking)
+- Multi-intent signal detectie
+
+---
+
+**E1.S1 — Pattern matching**
+
+*Bestand:* `lib/cortex/reflex-classifier.ts` (NIEUW)
+*Actie:* Maak nieuwe classifier gebaseerd op V1 patterns, maar met escalatie-aware logic.
+
+*Kernfunctie:*
+```typescript
+export function classifyWithReflex(input: string): LocalClassificationResult {
+  // 1. Check escalatie triggers EERST
+  // 2. Pattern matching met weights
+  // 3. Return result met shouldEscalateToAI flag
+}
+```
+
+*Hergebruik van V1:*
+- Kopieer `INTENT_PATTERNS` uit `intent-classifier.ts`
+- Pas weights aan: alleen >= 0.7 is "high confidence"
+- Voeg `secondBestIntent` tracking toe
+
+*Constants:*
+```typescript
+export const CONFIDENCE_THRESHOLD = 0.7;
+export const AMBIGUITY_THRESHOLD = 0.1;
+```
+
+*Done criteria:*
+- [ ] "agenda vandaag" → `{ intent: 'agenda_query', shouldEscalateToAI: false }`
+- [ ] Processing time < 20ms
+- [ ] Bestaande V1 classifier blijft werken (backward compatible)
+
+---
+
+**E1.S2 — Escalatie triggers**
+
+*Bestand:* `lib/cortex/reflex-classifier.ts`
+*Actie:* Voeg `detectEscalationTriggers()` functie toe.
+
+*Trigger patterns:*
+```typescript
+const MULTI_INTENT_SIGNALS = /\b(en|daarna|ook|eerst|dan|vervolgens)\b/i;
+const CONTEXT_SIGNALS = /\b(hij|zij|hem|haar|zijn|die|deze|dat|dezelfde)\b/i;
+const RELATIVE_TIME_SIGNALS = /\b(morgen|overmorgen|volgende week|over \d+ dagen?)\b/i;
+```
+
+*Logic:*
+- Als EEN trigger matcht → `shouldEscalateToAI: true`
+- Return `escalationReason` voor logging
+
+*Done criteria:*
+- [ ] "Zeg Jan af en maak notitie" → escalates (`multi_intent_detected`)
+- [ ] "Maak notitie voor hem" → escalates (`needs_context`)
+- [ ] "Plan afspraak morgen" → escalates (`relative_time`)
+
+---
+
+**E1.S3 — Ambiguity detection**
+
+*Bestand:* `lib/cortex/reflex-classifier.ts`
+*Actie:* Track top-2 matches en vergelijk scores.
+
+*Logic:*
+```typescript
+// Na pattern matching
+const delta = bestMatch.confidence - secondBestMatch.confidence;
+if (delta < AMBIGUITY_THRESHOLD) {
+  return { ...result, shouldEscalateToAI: true, escalationReason: 'ambiguous' };
+}
+```
+
+*Voorbeeld:*
+- "plan wondzorg" matcht zowel `create_appointment` (0.72) als `dagnotitie` (0.68)
+- Delta = 0.04 < 0.1 → escaleer naar AI
+
+*Done criteria:*
+- [ ] Ambigue input triggert escalatie
+- [ ] `secondBestIntent` en `secondBestConfidence` in result
+
+---
+
+**E1.S4 — Unit tests**
+
+*Bestand:* `lib/cortex/__tests__/reflex-classifier.test.ts` (NIEUW)
+*Actie:* Test suite met Vitest.
+
+*Test cases:*
+```typescript
+describe('Reflex Classifier', () => {
+  describe('Simple intents - should NOT escalate', () => {
+    test('"agenda vandaag"', ...);
+    test('"zoek marie"', ...);
+    test('"notitie jan medicatie"', ...);
+  });
+  
+  describe('Complex intents - SHOULD escalate', () => {
+    test('"zeg jan af en maak notitie"', ...);  // multi_intent
+    test('"maak notitie voor hem"', ...);        // needs_context
+    test('"plan afspraak morgen 14:00"', ...);   // relative_time
+  });
+  
+  describe('Ambiguous intents - SHOULD escalate', () => {
+    test('"plan wondzorg"', ...);  // ambiguous
+  });
+});
+```
+
+*Done criteria:*
+- [ ] `pnpm test lib/cortex/__tests__/reflex-classifier.test.ts` slaagt
+- [ ] Coverage voor alle escalatie scenarios
 
 ---
 
@@ -165,22 +472,204 @@ Relatieve tijd:   /\b(morgen|overmorgen|volgende week|over \d+ dagen?)\b/i
 | E2.S5 | **POST /api/cortex/classify** | Hybrid endpoint: Reflex → Orchestrator fallback | ⏳ | E1.S1-S3, E2.S3-S4 | 3 |
 | E2.S6 | **Graceful fallback** | Bij AI failure → fallback naar Reflex-only | ⏳ | E2.S5 | 2 |
 
-**Technical Notes:**
-- Model: `claude-3-5-haiku-20241022`
-- Temperature: 0 voor consistente output
-- Max tokens: 512
-- Fallback bij Anthropic 503 → Reflex-only mode
+**Deliverable:** "Zeg Jan af en maak notitie" wordt correct geparsed naar 2 acties
 
-**AI Output Format:**
-```json
-{
-  "actions": [{ "intent": "...", "confidence": 0.95, "entities": {...} }],
-  "reasoning": "...",
-  "needsClarification": false
+---
+
+#### 🔧 Dev Context & Instructies — Epic 2
+
+**Bestaande code (ter referentie):**
+```
+lib/cortex/
+├── intent-classifier-ai.ts  # V1 AI classifier - bevat Anthropic setup
+├── chat-api.ts              # Bestaande chat API calls
+└── entity-extractor.ts      # Entity extraction (hergebruiken)
+
+app/api/cortex/             # Bestaande API routes (indien aanwezig)
+```
+
+**Dependencies:**
+- `@anthropic-ai/sdk` is al geïnstalleerd
+- `ANTHROPIC_API_KEY` in `.env.local`
+
+---
+
+**E2.S1 — System prompt**
+
+*Bestand:* `lib/cortex/orchestrator.ts` (NIEUW)
+*Actie:* Definieer `ORCHESTRATOR_SYSTEM_PROMPT` constant.
+
+*Prompt structuur:*
+```typescript
+const ORCHESTRATOR_SYSTEM_PROMPT = `Je bent de Intent Orchestrator voor Cortex...
+
+## Je Taak
+Analyseer de gebruikersinput en extraheer ALLE intenties.
+
+## Context die je krijgt
+- Actieve patiënt, Agenda vandaag, Recente acties, Huidige weergave
+
+## Intent Types
+1. dagnotitie, 2. zoeken, 3. overdracht, 4. agenda_query, 
+5. create_appointment, 6. cancel_appointment, 7. reschedule_appointment
+
+## Multi-Intent Detectie
+Let op: "en", "daarna", "ook", "eerst", "dan", "vervolgens"
+
+## Pronoun Resolution
+"hij/zij" → actieve patiënt
+
+## Output Format
+ALLEEN valid JSON (geen markdown):
+{ "actions": [...], "reasoning": "...", "needsClarification": false }
+`;
+```
+
+*Zie TO sectie 8.3 voor volledige prompt.*
+
+*Done criteria:*
+- [ ] Prompt is duidelijk en in het Nederlands
+- [ ] JSON output format gedocumenteerd
+
+---
+
+**E2.S2 — Context formatting**
+
+*Bestand:* `lib/cortex/orchestrator.ts`
+*Actie:* `formatContextForPrompt(context: CortexContext): string`
+
+*Output format:*
+```
+🧑 Actieve patiënt: Jan de Vries (ID: 123)
+📍 Huidige weergave: patient-detail
+⏰ Tijd: 10:30 (ochtenddienst)
+📅 Agenda vandaag:
+   - 14:00: Marie (intake)
+   - 15:30: Piet (follow-up)
+```
+
+*Done criteria:*
+- [ ] Context leesbaar voor AI
+- [ ] Graceful handling van null values
+
+---
+
+**E2.S3 — AI classification**
+
+*Bestand:* `lib/cortex/orchestrator.ts`
+*Actie:* `classifyWithOrchestrator()` async functie.
+
+*Implementatie outline:*
+```typescript
+export async function classifyWithOrchestrator(
+  input: string,
+  context: CortexContext
+): Promise<AIClassificationResult> {
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  
+  const response = await anthropic.messages.create({
+    model: 'claude-3-5-haiku-20241022',
+    max_tokens: 512,
+    temperature: 0,  // Consistente output
+    system: ORCHESTRATOR_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: `## Context\n${formatContextForPrompt(context)}\n\n## Input\n"${input}"` }],
+  });
+  
+  // Parse JSON response
+  // Build IntentChain
+  // Return result
 }
 ```
 
-**Deliverable:** "Zeg Jan af en maak notitie" wordt correct geparsed naar 2 acties
+*Done criteria:*
+- [ ] Multi-intent input → meerdere actions in response
+- [ ] Processing time ~400ms (acceptabel)
+- [ ] Tokens usage gelogd
+
+---
+
+**E2.S4 — IntentChain parsing**
+
+*Bestand:* `lib/cortex/orchestrator.ts`
+*Actie:* `parseAIResponse()` functie met error handling.
+
+*Parsing logic:*
+```typescript
+function parseAIResponse(rawText: string): ParsedResponse {
+  // 1. Strip markdown code blocks (```json ... ```)
+  // 2. JSON.parse met try/catch
+  // 3. Validate tegen schema
+  // 4. Fallback naar { actions: [{ intent: 'unknown' }] } bij parse error
+}
+```
+
+*Edge cases:*
+- AI retourneert markdown code fence → strip
+- Invalid JSON → fallback to unknown
+- Missing fields → defaults
+
+*Done criteria:*
+- [ ] Valid JSON correct geparsed
+- [ ] Invalid JSON → graceful fallback
+- [ ] IntentChain correct opgebouwd
+
+---
+
+**E2.S5 — Hybrid classify endpoint**
+
+*Bestand:* `app/api/cortex/classify/route.ts` (NIEUW)
+*Actie:* POST endpoint die Reflex → Orchestrator flow implementeert.
+
+*Flow:*
+```typescript
+export async function POST(request: NextRequest) {
+  const { input, context } = await request.json();
+  
+  // Step 1: Try Reflex
+  const reflexResult = classifyWithReflex(input);
+  
+  // Step 2: Escalate if needed
+  if (reflexResult.shouldEscalateToAI) {
+    const aiResult = await classifyWithOrchestrator(input, context);
+    return NextResponse.json({ ...aiResult, handledBy: 'orchestrator' });
+  }
+  
+  // Step 3: Return Reflex result
+  return NextResponse.json({ chain: buildChainFromReflex(reflexResult), handledBy: 'reflex' });
+}
+```
+
+*Done criteria:*
+- [ ] Simpele input → Reflex (geen AI call)
+- [ ] Complexe input → Orchestrator
+- [ ] Response bevat `handledBy` field
+
+---
+
+**E2.S6 — Graceful fallback**
+
+*Bestand:* `lib/cortex/orchestrator.ts`
+*Actie:* try/catch rond AI call met fallback naar Reflex.
+
+*Fallback scenarios:*
+- Anthropic API 503 → use Reflex result
+- Timeout (>5s) → use Reflex result
+- Parse error → use Reflex result met warning
+
+*Voorbeeld:*
+```typescript
+try {
+  return await classifyWithOrchestrator(input, context);
+} catch (error) {
+  console.error('[Cortex] AI failed, fallback to Reflex:', error);
+  return buildFallbackResult(classifyWithReflex(input));
+}
+```
+
+*Done criteria:*
+- [ ] AI failure → geen crash
+- [ ] User ziet resultaat (mogelijk minder intelligent)
+- [ ] Error gelogd voor monitoring
 
 ---
 
@@ -195,26 +684,161 @@ Relatieve tijd:   /\b(morgen|overmorgen|volgende week|over \d+ dagen?)\b/i
 | E3.S3 | **ClarificationCard** component | Vraag + keuze-knoppen bij ambigue input | ⏳ | — | 2 |
 | E3.S4 | **Processing indicator** | Spinner/skeleton bij AI-acties | ⏳ | — | 1 |
 
-**Technical Notes:**
-- Status icons: pending, confirming, executing, success, failed, skipped
-- Confidence badges: groen (>=0.9), amber (0.7-0.9), rood (<0.7)
-- Collapsible AI reasoning
-
-**Component Hierarchy:**
-```
-ActionChainCard
-├── Header (aantal acties)
-├── ActionItem (per actie)
-│   ├── Sequence number
-│   ├── Status icon
-│   ├── Intent label
-│   ├── Entity preview
-│   ├── Confidence badge
-│   └── Confirmation/Error buttons
-└── AI Reasoning (collapsible)
-```
-
 **Deliverable:** Multi-intent flows visueel weergegeven
+
+---
+
+#### 🔧 Dev Context & Instructies — Epic 3
+
+**Bestaande code (ter referentie):**
+```
+components/
+├── cortex/
+│   ├── chat/           # Bestaande chat components
+│   ├── blocks/         # Artifact blocks (dagnotitie, agenda, etc.)
+│   ├── command-center/ # Command center layout
+│   └── artifacts/      # Artifact containers
+└── ui/
+    ├── button.tsx      # shadcn/ui button
+    ├── card.tsx        # shadcn/ui card
+    └── badge.tsx       # shadcn/ui badge
+```
+
+**Styling conventies:**
+- TailwindCSS utility classes
+- shadcn/ui component patterns
+- `cn()` utility voor conditional classes
+
+---
+
+**E3.S1 — ActionChainCard component**
+
+*Bestand:* `components/cortex/chat/action-chain-card.tsx` (NIEUW)
+*Actie:* Container voor multi-intent flow weergave.
+
+*Props interface:*
+```typescript
+interface ActionChainCardProps {
+  chain: IntentChain;
+  onConfirm: (actionId: string) => void;
+  onSkip: (actionId: string) => void;
+  onRetry: (actionId: string) => void;
+}
+```
+
+*Structuur:*
+```tsx
+<div className="bg-white rounded-lg border">
+  {/* Header: "2 acties gedetecteerd" */}
+  {/* ActionItem per actie */}
+  {/* Collapsible AI reasoning */}
+</div>
+```
+
+*Done criteria:*
+- [ ] Toont alle acties in chain
+- [ ] Header toont aantal acties
+- [ ] AI reasoning collapsible (details/summary)
+
+---
+
+**E3.S2 — ActionItem sub-component**
+
+*Bestand:* `components/cortex/chat/action-chain-card.tsx` (in zelfde file of apart)
+*Actie:* Enkele actie row met status en controls.
+
+*Status icons mapping:*
+```typescript
+const STATUS_ICONS = {
+  pending: <div className="w-2 h-2 rounded-full bg-slate-300" />,
+  confirming: <AlertCircle className="w-4 h-4 text-amber-500" />,
+  executing: <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />,
+  success: <Check className="w-4 h-4 text-green-500" />,
+  failed: <X className="w-4 h-4 text-red-500" />,
+  skipped: <X className="w-4 h-4 text-slate-400" />,
+};
+```
+
+*Confidence badge kleuren:*
+```typescript
+confidence >= 0.9  → "bg-green-100 text-green-700"
+confidence >= 0.7  → "bg-amber-100 text-amber-700"
+confidence < 0.7   → "bg-red-100 text-red-700"
+```
+
+*Intent labels (Nederlands):*
+```typescript
+const INTENT_LABELS = {
+  dagnotitie: 'Notitie',
+  zoeken: 'Zoeken',
+  cancel_appointment: 'Afspraak annuleren',
+  // ...
+};
+```
+
+*Done criteria:*
+- [ ] Status icon correct per status
+- [ ] Confidence badge met juiste kleur
+- [ ] Confirmation buttons bij `confirming` status
+- [ ] Retry button bij `failed` status
+
+---
+
+**E3.S3 — ClarificationCard component**
+
+*Bestand:* `components/cortex/chat/clarification-card.tsx` (NIEUW)
+*Actie:* UI voor verduidelijkingsvragen.
+
+*Props interface:*
+```typescript
+interface ClarificationCardProps {
+  question: string;           // "Bedoel je een notitie of afspraak?"
+  options: string[];          // ["Notitie maken", "Afspraak inplannen"]
+  onSelect: (option: string) => void;
+}
+```
+
+*Voorbeeld weergave:*
+```
+┌─────────────────────────────────────────┐
+│ 💡 Bedoel je een notitie of afspraak?   │
+│                                         │
+│ [Notitie maken]  [Afspraak inplannen]   │
+└─────────────────────────────────────────┘
+```
+
+*Done criteria:*
+- [ ] Vraag duidelijk zichtbaar
+- [ ] Knoppen voor elke optie
+- [ ] Click triggert `onSelect` callback
+
+---
+
+**E3.S4 — Processing indicator**
+
+*Bestand:* Integreer in `components/cortex/chat/` of bestaande chat components
+*Actie:* Toon "denk" indicator wanneer AI werkt.
+
+*Wanneer tonen:*
+- Na user input, tijdens classificatie
+- Alleen bij AI calls (niet bij Reflex)
+
+*Varianten:*
+```tsx
+// Optie 1: Simpele spinner met tekst
+<div className="flex items-center gap-2 text-slate-500">
+  <Loader2 className="w-4 h-4 animate-spin" />
+  <span>Even nadenken...</span>
+</div>
+
+// Optie 2: Skeleton loader (chat message style)
+<div className="animate-pulse bg-slate-100 rounded-lg h-20" />
+```
+
+*Done criteria:*
+- [ ] Indicator zichtbaar tijdens AI call
+- [ ] Verdwijnt zodra response binnen is
+- [ ] Geen "frozen" UI gevoel
 
 ---
 
@@ -228,17 +852,144 @@ ActionChainCard
 | E4.S2 | **evaluateNudge** functie | Check protocol rules na actie completion | ⏳ | E4.S1 | 2 |
 | E4.S3 | **NudgeToast** component | Toast met countdown timer, accept/dismiss | ⏳ | E0.S4 | 2 |
 
-**Technical Notes:**
-- MVP: alleen wondzorg-controle protocol
-- Toast expiry: 5 minuten
-- Priority styling: high (red), medium (amber), low (blue)
-
 **Demo Case:**
 ```
 Actie: Notitie "wond verzorgd" → Suggestie: "Wondcontrole inplannen over 3 dagen?"
 ```
 
 **Deliverable:** Proactieve suggestie getoond na wondzorg notitie
+
+---
+
+#### 🔧 Dev Context & Instructies — Epic 4
+
+**Concept uitleg:**
+Nudge is een "post-action" systeem. Nadat een actie succesvol is uitgevoerd, checkt het systeem of er een protocol-regel matcht. Zo ja → toon suggestie.
+
+**Bestaande code:**
+- Geen bestaande nudge code
+- `stores/cortex-store.ts` moet uitgebreid worden met suggestions state (E0.S4)
+
+---
+
+**E4.S1 — Protocol rules**
+
+*Bestand:* `lib/cortex/nudge.ts` (NIEUW)
+*Actie:* Definieer `ProtocolRule` interface en hardcoded regels.
+
+*MVP regels (1-2 voor demo):*
+```typescript
+export const PROTOCOL_RULES: ProtocolRule[] = [
+  {
+    id: 'wondzorg-controle',
+    name: 'Wondcontrole na verzorging',
+    trigger: {
+      intent: 'dagnotitie',
+      conditions: [
+        { field: 'content', operator: 'contains', value: 'wond' },
+      ],
+    },
+    suggestion: {
+      intent: 'create_appointment',
+      message: 'Wondcontrole inplannen over 3 dagen?',
+      prefillFrom: (source) => ({
+        patientName: source.patientName,
+        appointmentType: 'follow-up',
+      }),
+    },
+    priority: 'medium',
+    enabled: true,
+  },
+];
+```
+
+*Condition operators:*
+- `equals` - exact match
+- `contains` - substring (case insensitive)
+- `matches` - regex match
+- `exists` - field is not null/empty
+
+*Done criteria:*
+- [ ] ProtocolRule type gedefinieerd
+- [ ] Minimaal 1 werkende regel (wondzorg)
+
+---
+
+**E4.S2 — evaluateNudge functie**
+
+*Bestand:* `lib/cortex/nudge.ts`
+*Actie:* Check alle regels tegen een voltooide actie.
+
+*Functie signature:*
+```typescript
+export function evaluateNudge(completedAction: IntentAction): NudgeSuggestion[] {
+  // 1. Filter enabled rules
+  // 2. Check trigger.intent match
+  // 3. Check all conditions
+  // 4. Build suggestion if match
+  // 5. Sort by priority (high first)
+}
+```
+
+*Condition checker:*
+```typescript
+function checkCondition(condition: ProtocolCondition, entities: ExtractedEntities): boolean {
+  const value = entities[condition.field];
+  switch (condition.operator) {
+    case 'contains':
+      return typeof value === 'string' && value.toLowerCase().includes(condition.value.toLowerCase());
+    // ...
+  }
+}
+```
+
+*Done criteria:*
+- [ ] Notitie met "wond" → NudgeSuggestion returned
+- [ ] Notitie zonder "wond" → empty array
+- [ ] Suggesties gesorteerd op priority
+
+---
+
+**E4.S3 — NudgeToast component**
+
+*Bestand:* `components/cortex/command-center/nudge-toast.tsx` (NIEUW)
+*Actie:* Toast UI met countdown en actions.
+
+*Props interface:*
+```typescript
+interface NudgeToastProps {
+  suggestion: NudgeSuggestion;
+  onAccept: (suggestionId: string) => void;
+  onDismiss: (suggestionId: string) => void;
+}
+```
+
+*Features:*
+- Progress bar countdown (5 minuten default)
+- Priority-based styling:
+  - `high` → `border-red-200 bg-red-50`
+  - `medium` → `border-amber-200 bg-amber-50`
+  - `low` → `border-blue-200 bg-blue-50`
+- Accept/Dismiss buttons
+- Auto-dismiss na expiry
+
+*Countdown implementatie:*
+```typescript
+useEffect(() => {
+  const interval = setInterval(() => {
+    const remaining = expiresAt - Date.now();
+    if (remaining <= 0) onDismiss(suggestion.id);
+    setTimeLeft(remaining / total * 100);
+  }, 1000);
+  return () => clearInterval(interval);
+}, []);
+```
+
+*Done criteria:*
+- [ ] Toast verschijnt na matching actie
+- [ ] Progress bar animeert
+- [ ] Accept triggert nieuwe actie
+- [ ] Dismiss verwijdert toast
 
 ---
 
@@ -253,10 +1004,6 @@ Actie: Notitie "wond verzorgd" → Suggestie: "Wondcontrole inplannen over 3 dag
 | E5.S3 | **Integration tests** | E2E tests voor hele flow | ⏳ | E5.S1-S2 | 2 |
 | E5.S4 | **Demo scenario** voorbereiden | Happy path + edge cases gedocumenteerd | ⏳ | E5.S3 | 1 |
 
-**Technical Notes:**
-- Backward compatible met V1 via feature flags
-- Test dataset met 50+ zinnen (single, multi, context-dependent, ambiguous)
-
 **Demo Flow (5 minuten):**
 1. Simpel commando → Reflex (direct)
 2. Multi-intent commando → Orchestrator (ActionChainCard)
@@ -267,7 +1014,192 @@ Actie: Notitie "wond verzorgd" → Suggestie: "Wondcontrole inplannen over 3 dag
 
 ---
 
-## 5. Kwaliteit & Testplan
+#### 🔧 Dev Context & Instructies — Epic 5
+
+**Bestaande code (aan te passen):**
+```
+components/cortex/
+├── command-center/
+│   ├── command-center.tsx    # Hoofd container
+│   ├── chat-panel.tsx        # Chat interface (indien aanwezig)
+│   └── index.ts              # Exports
+└── chat/
+    └── chat-messages.tsx     # Message rendering
+```
+
+**Feature flag check:**
+Alle V2 features achter feature flags voor backward compatibility.
+
+---
+
+**E5.S1 — CommandCenter V3 integratie**
+
+*Bestanden:*
+- `components/cortex/command-center/command-center.tsx` (AANPASSEN)
+- Eventueel chat panel component
+
+*Actie:* Integreer nieuwe components in bestaande UI.
+
+*Integratie punten:*
+```tsx
+// In chat messages rendering
+{result.chain.actions.length > 1 ? (
+  <ActionChainCard 
+    chain={result.chain} 
+    onConfirm={handleConfirm}
+    onSkip={handleSkip}
+    onRetry={handleRetry}
+  />
+) : (
+  // Bestaande single-action UI
+)}
+
+// Nudge toast (fixed position)
+{suggestions.length > 0 && (
+  <NudgeToast 
+    suggestion={suggestions[0]}
+    onAccept={handleAcceptSuggestion}
+    onDismiss={handleDismissSuggestion}
+  />
+)}
+```
+
+*Feature flag wrapper:*
+```tsx
+import { FEATURE_FLAGS } from '@/lib/config/feature-flags';
+
+{FEATURE_FLAGS.CORTEX_MULTI_INTENT && chain.actions.length > 1 && (
+  <ActionChainCard ... />
+)}
+```
+
+*Done criteria:*
+- [ ] ActionChainCard toont bij multi-intent
+- [ ] NudgeToast verschijnt na matching actie
+- [ ] V1 UI werkt nog als flags uit staan
+
+---
+
+**E5.S2 — Chain execution flow**
+
+*Bestand:* `lib/cortex/chain-executor.ts` (NIEUW) of in store actions
+*Actie:* Sequentiële uitvoering van acties in een chain.
+
+*Flow:*
+```typescript
+async function executeChain(chain: IntentChain): Promise<void> {
+  for (const action of chain.actions) {
+    // 1. Update status → 'confirming' (als requiresConfirmation)
+    // 2. Wacht op user confirmation OF skip
+    // 3. Update status → 'executing'
+    // 4. Execute action
+    // 5. Update status → 'success' of 'failed'
+    // 6. Trigger Nudge evaluation
+  }
+}
+```
+
+*Confirmation handling:*
+```typescript
+// Als action.requiresConfirmation === true
+// Wacht tot user op "Bevestig" of "Overslaan" klikt
+// Store: pendingConfirmation state
+```
+
+*Done criteria:*
+- [ ] Acties worden sequentieel uitgevoerd
+- [ ] Confirmation dialog werkt
+- [ ] Failed action stopt niet hele chain
+- [ ] Nudge triggered na success
+
+---
+
+**E5.S3 — Integration tests**
+
+*Bestand:* `__tests__/integration/cortex-v2.test.ts` (NIEUW)
+*Actie:* E2E tests voor complete flows.
+
+*Test scenarios:*
+```typescript
+describe('Cortex V2 Integration', () => {
+  describe('Classification Flow', () => {
+    test('simple input → Reflex handles', async () => {
+      const response = await fetch('/api/cortex/classify', {
+        method: 'POST',
+        body: JSON.stringify({ input: 'agenda vandaag', context: mockContext }),
+      });
+      expect(response.handledBy).toBe('reflex');
+    });
+    
+    test('multi-intent → Orchestrator handles', async () => {
+      const response = await fetch('/api/cortex/classify', {
+        method: 'POST',
+        body: JSON.stringify({ input: 'zeg jan af en maak notitie', context: mockContext }),
+      });
+      expect(response.handledBy).toBe('orchestrator');
+      expect(response.chain.actions).toHaveLength(2);
+    });
+  });
+  
+  describe('Nudge Flow', () => {
+    test('wondzorg notitie → suggestion', ...);
+  });
+});
+```
+
+*Done criteria:*
+- [ ] `pnpm test __tests__/integration/` slaagt
+- [ ] Coverage voor happy paths
+- [ ] AI calls gemockt voor deterministische tests
+
+---
+
+**E5.S4 — Demo scenario**
+
+*Bestand:* `docs/intent/demo-script-cortex-v2.md` (NIEUW)
+*Actie:* Documenteer demo flow met exacte zinnen en verwachte resultaten.
+
+*Demo script (5 minuten):*
+```markdown
+## Demo: Cortex V2 - Van Reactief naar Proactief
+
+### Setup
+- Open EPD met patiënt "Jan de Vries"
+- Shift: Ochtenddienst
+
+### Scene 1: Snelheid (30 sec)
+**Zeg:** "Agenda vandaag"
+**Verwacht:** Direct resultaat (<20ms), geen spinner
+**Highlight:** "Dit is Layer 1 - de Reflex Arc"
+
+### Scene 2: Multi-Intent (1.5 min)
+**Zeg:** "Zeg Jan af en maak notitie dat hij griep heeft"
+**Verwacht:** ActionChainCard met 2 acties
+**Highlight:** "Het systeem begrijpt dat dit twee dingen zijn"
+
+### Scene 3: Context (1 min)
+**Zeg:** "Maak notitie voor haar" (met Marie open)
+**Verwacht:** Notitie voor Marie
+**Highlight:** "Het snapt wie 'haar' is"
+
+### Scene 4: Proactiviteit (1.5 min)
+**Zeg:** "Notitie: wond verzorgd, ziet er goed uit"
+**Verwacht:** NudgeToast - "Wondcontrole inplannen?"
+**Highlight:** "Het denkt mee over vervolgacties"
+
+### Backup
+- Als AI down: toon Reflex-only (graceful degradation)
+- Pre-seeded data beschikbaar
+```
+
+*Done criteria:*
+- [ ] Demo script geschreven
+- [ ] Test data geseeded
+- [ ] Backup scenario getest
+
+---
+
+## 6. Kwaliteit & Testplan
 
 ### Test Types
 
@@ -325,7 +1257,7 @@ Actie: Notitie "wond verzorgd" → Suggestie: "Wondcontrole inplannen over 3 dag
 
 ---
 
-## 6. Demo & Presentatieplan
+## 7. Demo & Presentatieplan
 
 ### Demo Scenario
 
@@ -351,7 +1283,7 @@ Actie: Notitie "wond verzorgd" → Suggestie: "Wondcontrole inplannen over 3 dag
 
 ---
 
-## 7. Risico's & Mitigatie
+## 8. Risico's & Mitigatie
 
 | Risico | Kans | Impact | Mitigatie | Owner |
 |--------|------|--------|-----------|-------|
@@ -365,7 +1297,7 @@ Actie: Notitie "wond verzorgd" → Suggestie: "Wondcontrole inplannen over 3 dag
 
 ---
 
-## 8. MVP User Stories Mapping
+## 9. MVP User Stories Mapping
 
 De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdeeld:
 
@@ -392,7 +1324,7 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 
 ---
 
-## 9. Succescriteria
+## 10. Succescriteria
 
 ### Functionele Criteria
 
@@ -422,7 +1354,7 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 
 ---
 
-## 10. Referenties
+## 11. Referenties
 
 ### Mission Control Documents
 
@@ -444,7 +1376,7 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 
 ---
 
-## 11. Glossary
+## 12. Glossary
 
 | Term | Betekenis |
 |------|-----------|
@@ -464,3 +1396,4 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 | Versie | Datum | Auteur | Wijziging |
 |--------|-------|--------|-----------|
 | v1.0 | 30-12-2025 | Colin Lit | Initiële versie op basis van PRD, FO, TO, Architecture docs |
+| v1.1 | 31-12-2025 | Colin Lit | Dev-instructies per epic toegevoegd, file mappings, done criteria |

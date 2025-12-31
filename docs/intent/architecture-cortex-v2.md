@@ -56,11 +56,11 @@ Transformatie naar een **agentic systeem** dat:
 │  LAYER 1: REFLEX ARC                                              [<20ms]   │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │  • Local Regex Pattern Matching                                      │   │
-│  │  • High-confidence simple commands only (>0.9)                       │   │
+│  │  • High-confidence simple commands only (>=0.7)                      │   │
 │  │  • Examples: "agenda", "zoek jan", "notitie"                         │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
-│  Decision: Confidence > 0.9 AND single intent? ──► EXECUTE DIRECTLY        │
+│  Decision: Confidence >= 0.7 AND no escalation triggers? ──► EXECUTE      │
 │            Otherwise ──► Pass to Layer 2                                    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -474,7 +474,7 @@ interface CortexStoreV2 extends CortexStore {
 Razendsnelle (<20ms) afhandeling van **simpele, eenduidige commando's** met hoge confidence.
 
 ### 4.2 Wanneer Layer 1 afhandelt
-- Confidence > 0.9
+- Confidence >= 0.7
 - Geen "en", "daarna", "ook" (multi-intent signals)
 - Geen context-afhankelijke woorden ("hij", "haar", "die afspraak")
 - Geen tijdsrelaties die interpretatie nodig hebben
@@ -636,7 +636,7 @@ export function classifyWithReflex(input: string): LocalClassificationResult {
   const processingTimeMs = performance.now() - startTime;
   
   // Step 3: Decide on escalation
-  if (!bestMatch || bestMatch.confidence < 0.9) {
+  if (!bestMatch || bestMatch.confidence < CONFIDENCE_THRESHOLD) {
     return {
       intent: bestMatch?.intent || 'unknown',
       confidence: bestMatch?.confidence || 0,
@@ -1195,10 +1195,10 @@ export function evaluateNudge(
 
 ### 7.1 Intent Classification API (Enhanced)
 
-**Endpoint:** `POST /api/intent/classify`
+**Endpoint:** `POST /api/cortex/classify`
 
 ```typescript
-// app/api/intent/classify/route.ts (V2)
+// app/api/cortex/classify/route.ts (V2)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { classifyWithReflex } from '@/lib/cortex/reflex-classifier';
@@ -1312,10 +1312,10 @@ export async function POST(request: NextRequest) {
 
 ### 7.2 Action Execution API
 
-**Endpoint:** `POST /api/intent/execute`
+**Endpoint:** `POST /api/cortex/execute`
 
 ```typescript
-// app/api/intent/execute/route.ts
+// app/api/cortex/execute/route.ts
 
 interface ExecuteRequest {
   chainId: string;
@@ -1976,7 +1976,7 @@ describe('Reflex Classifier', () => {
     it('handles "notitie jan medicatie"', () => {
       const result = classifyWithReflex('notitie jan medicatie');
       expect(result.intent).toBe('dagnotitie');
-      expect(result.confidence).toBeGreaterThanOrEqual(0.9);
+      expect(result.confidence).toBeGreaterThanOrEqual(0.7);
       expect(result.shouldEscalateToAI).toBe(false);
     });
     
@@ -2014,10 +2014,10 @@ describe('Reflex Classifier', () => {
 ```typescript
 // __tests__/api/intent-classify.test.ts
 
-describe('POST /api/intent/classify', () => {
+describe('POST /api/cortex/classify', () => {
   describe('Multi-intent handling', () => {
     it('returns chain with multiple actions', async () => {
-      const response = await fetch('/api/intent/classify', {
+      const response = await fetch('/api/cortex/classify', {
         method: 'POST',
         body: JSON.stringify({
           input: 'Zeg de afspraak van Jan af en maak een notitie dat hij ziek is',
@@ -2035,7 +2035,7 @@ describe('POST /api/intent/classify', () => {
   
   describe('Context resolution', () => {
     it('resolves "hij" to active patient', async () => {
-      const response = await fetch('/api/intent/classify', {
+      const response = await fetch('/api/cortex/classify', {
         method: 'POST',
         body: JSON.stringify({
           input: 'Maak notitie voor hem',
