@@ -131,7 +131,7 @@ lib/config/
 
 | Epic ID | Titel | Doel | Status | Stories | Story Points |
 |---------|-------|------|--------|---------|--------------|
-| **E0** | Foundation & Context | Types, API, feature flags | ⏳ To Do | 5 | 8 SP |
+| **E0** | Foundation & Context | Types, API, feature flags | ✅ Done | 5 | 8 SP |
 | **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ⏳ To Do | 4 | 6 SP |
 | **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ⏳ To Do | 6 | 13 SP |
 | **E3** | UI Components | ActionChainCard, ClarificationCard | ⏳ To Do | 4 | 8 SP |
@@ -164,11 +164,11 @@ lib/config/
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E0.S1 | **CortexContext types** definiëren | Types in `lib/cortex/types.ts` voor context, intents, chains | ⏳ | — | 2 |
-| E0.S2 | **GET /api/cortex/context** endpoint | Retourneert actieve patiënt, agenda, recente acties | ⏳ | E0.S1 | 2 |
-| E0.S3 | **Feature flags** setup | `CORTEX_V2_ENABLED`, `CORTEX_MULTI_INTENT`, `CORTEX_NUDGE`, `CORTEX_LOGGING` | ⏳ | — | 1 |
-| E0.S4 | **CortexStore V2** extensions | Zustand store met context, chains, suggestions state | ⏳ | E0.S1 | 2 |
-| E0.S5 | **Classification logging** utility | Dev logging + production sanitization | ⏳ | E0.S1 | 1 |
+| E0.S1 | **CortexContext types** definiëren | Types in `lib/cortex/types.ts` voor context, intents, chains | ✅ | — | 2 |
+| E0.S2 | **GET /api/cortex/context** endpoint | Retourneert actieve patiënt, agenda, recente acties | ✅ | E0.S1 | 2 |
+| E0.S3 | **Feature flags** setup | `CORTEX_V2_ENABLED`, `CORTEX_MULTI_INTENT`, `CORTEX_NUDGE`, `CORTEX_LOGGING` | ✅ | — | 1 |
+| E0.S4 | **CortexStore V2** extensions | Zustand store met context, chains, suggestions state | ✅ | E0.S1 | 2 |
+| E0.S5 | **Classification logging** utility | Dev logging + production sanitization | ✅ | E0.S1 | 1 |
 
 **Deliverable:** Context beschikbaar, types gedefinieerd, backward compatible
 
@@ -212,9 +212,9 @@ export interface CortexContext {
 ```
 
 *Done criteria:*
-- [ ] `pnpm lint` slaagt
-- [ ] Bestaande imports (`CortexIntent`, `ExtractedEntities`) werken nog
-- [ ] Nieuwe types geëxporteerd via `lib/cortex/index.ts`
+- [x] `pnpm lint` slaagt
+- [x] Bestaande imports (`CortexIntent`, `ExtractedEntities`) werken nog
+- [x] Nieuwe types geëxporteerd via `lib/cortex/index.ts`
 
 ---
 
@@ -245,8 +245,8 @@ export interface CortexContext {
 ```
 
 *Done criteria:*
-- [ ] `GET /api/cortex/context` retourneert 200 met valid JSON
-- [ ] Response matcht `CortexContext` type
+- [x] `GET /api/cortex/context` retourneert 200 met valid JSON
+- [x] Response matcht `CortexContext` type
 
 ---
 
@@ -266,8 +266,8 @@ export const FEATURE_FLAGS = {
 ```
 
 *Done criteria:*
-- [ ] Flags werken in dev (hardcoded `true`)
-- [ ] Flags leesbaar vanuit components
+- [x] Flags werken in dev (hardcoded `true`)
+- [x] Flags leesbaar vanuit components
 
 ---
 
@@ -288,9 +288,9 @@ export const FEATURE_FLAGS = {
 - `addSuggestion()`, `acceptSuggestion()`, `dismissSuggestion()`
 
 *Done criteria:*
-- [ ] Bestaande store werkt nog (backward compatible)
-- [ ] Nieuwe state observable in React DevTools
-- [ ] `pnpm lint` slaagt
+- [x] Bestaande store werkt nog (backward compatible)
+- [x] Nieuwe state observable in React DevTools
+- [x] `pnpm lint` slaagt
 
 ---
 
@@ -310,8 +310,8 @@ export const FEATURE_FLAGS = {
 ```
 
 *Done criteria:*
-- [ ] Dev logs tonen classificatie resultaten
-- [ ] Namen worden gesanitized in productie mode
+- [x] Dev logs tonen classificatie resultaten
+- [x] Namen worden gesanitized in productie mode
 
 ---
 
