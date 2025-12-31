@@ -1,25 +1,57 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { Database } from '@/lib/supabase/database.types';
-import type { VerpleegkundigCategory } from '@/lib/types/report';
+
+// Import shared types from lib/cortex (DRY - single source of truth)
+import {
+  getCurrentShift,
+  type CortexIntent,
+  type ShiftType,
+  type ExtractedEntities,
+  type CortexContext,
+  type IntentChain,
+  type IntentAction,
+  type NudgeSuggestion,
+  type ClarificationRequest,
+} from '@/lib/cortex/types';
+
+// Re-export for backward compatibility
+export type { CortexIntent, ShiftType };
 
 // Database types
 export type Patient = Database['public']['Tables']['patients']['Row'];
 
-// Cortex-specific types
-export type ShiftType = 'nacht' | 'ochtend' | 'middag' | 'avond';
-
-export type CortexIntent =
-  | 'dagnotitie'
-  | 'zoeken'
-  | 'overdracht'
-  | 'agenda_query'
-  | 'create_appointment'
-  | 'cancel_appointment'
-  | 'reschedule_appointment'
-  | 'unknown';
-
+// Store-specific types (not in lib/cortex/types.ts)
 export type BlockType = Exclude<CortexIntent, 'unknown'> | 'fallback' | 'patient-dashboard';
+
+// Chat entities - simplified version for AI responses (strings, not Dates)
+// This differs from ExtractedEntities in lib/cortex/types.ts which uses Date objects
+// All properties are optional to match Zod schema flexibility
+export interface ChatEntities {
+  patientName?: string;
+  patientId?: string;
+  category?: 'medicatie' | 'adl' | 'gedrag' | 'incident' | 'observatie';
+  content?: string;
+  query?: string;
+  date?: string;
+  time?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+    label: string;
+  };
+  datetime?: {
+    date?: string;
+    time?: string;
+  };
+  appointmentType?: string;
+  location?: string;
+  identifier?: string;
+  newDatetime?: {
+    date?: string;
+    time?: string;
+  };
+}
 
 // Chat types (v3.0)
 export type ChatMessageType = 'user' | 'assistant' | 'system' | 'error';
@@ -29,12 +61,12 @@ export interface ChatMessage {
   type: ChatMessageType;
   content: string;
   timestamp: Date;
-  action?: ChatAction; // Optional action attached to assistant messages
+  action?: ChatAction;
 }
 
 export interface ChatAction {
   intent: CortexIntent;
-  entities: ExtractedEntities;
+  entities: ChatEntities;
   confidence: number;
   artifact?: {
     type: BlockType;
@@ -42,20 +74,8 @@ export interface ChatAction {
   };
 }
 
-// Extracted entities from user input
-export interface ExtractedEntities {
-  patientName?: string;
-  patientId?: string;
-  category?: VerpleegkundigCategory;
-  content?: string;
-  query?: string;
-  date?: string;
-  time?: string;
-  identifier?: string;
-}
-
-// Block prefill data
-export interface BlockPrefillData extends ExtractedEntities {
+// Block prefill data - uses ChatEntities (string-based) for UI prefilling
+export interface BlockPrefillData extends ChatEntities {
   // Additional prefill data specific to blocks
 }
 
@@ -104,6 +124,19 @@ interface CortexStore {
   openArtifacts: Artifact[];
   activeArtifactId: string | null;
 
+  // V2 Context state
+  context: CortexContext | null;
+
+  // V2 Intent Chain state
+  activeChain: IntentChain | null;
+  chainHistory: IntentChain[];
+
+  // V2 Nudge Suggestions state
+  suggestions: NudgeSuggestion[];
+
+  // V2 Clarification state
+  pendingClarification: ClarificationRequest | null;
+
   // Context actions
   setActivePatient: (patient: Patient | null) => void;
   setShift: (shift: ShiftType) => void;
@@ -134,17 +167,30 @@ interface CortexStore {
   setStreaming: (streaming: boolean) => void;
   setPendingAction: (action: ChatAction | null) => void;
 
+  // V2 Context actions
+  setContext: (context: CortexContext) => void;
+  updateContext: (partial: Partial<CortexContext>) => void;
+
+  // V2 Chain actions
+  startChain: (chain: IntentChain) => void;
+  updateActionStatus: (
+    actionId: string,
+    status: IntentAction['status'],
+    error?: IntentAction['error']
+  ) => void;
+  completeChain: () => void;
+
+  // V2 Nudge actions
+  addSuggestion: (suggestion: NudgeSuggestion) => void;
+  acceptSuggestion: (suggestionId: string) => void;
+  dismissSuggestion: (suggestionId: string) => void;
+
+  // V2 Clarification actions
+  setPendingClarification: (clarification: ClarificationRequest | null) => void;
+  resolveClarification: (selectedOption: string) => void;
+
   // Reset
   reset: () => void;
-}
-
-// Helper to calculate current shift based on time
-function getCurrentShift(): ShiftType {
-  const hour = new Date().getHours();
-  if (hour >= 0 && hour < 7) return 'nacht';
-  if (hour >= 7 && hour < 12) return 'ochtend';
-  if (hour >= 12 && hour < 17) return 'middag';
-  return 'avond';
 }
 
 // Initial state
@@ -156,14 +202,20 @@ const initialState = {
   isBlockLoading: false,
   inputValue: '',
   isVoiceActive: false,
-  recentActions: [],
+  recentActions: [] as RecentAction[],
   // Chat state (v3.0)
-  chatMessages: [],
+  chatMessages: [] as ChatMessage[],
   isStreaming: false,
-  pendingAction: null,
+  pendingAction: null as ChatAction | null,
   // Artifact state (E4)
-  openArtifacts: [],
-  activeArtifactId: null,
+  openArtifacts: [] as Artifact[],
+  activeArtifactId: null as string | null,
+  // V2 state
+  context: null as CortexContext | null,
+  activeChain: null as IntentChain | null,
+  chainHistory: [] as IntentChain[],
+  suggestions: [] as NudgeSuggestion[],
+  pendingClarification: null as ClarificationRequest | null,
 };
 
 // Create the store
@@ -367,6 +419,122 @@ export const useCortexStore = create<CortexStore>()(
           'closeAllArtifacts'
         );
       },
+
+      // V2 Context actions
+      setContext: (context) => set({ context }, false, 'setContext'),
+
+      updateContext: (partial) =>
+        set(
+          (state) => ({
+            context: state.context ? { ...state.context, ...partial } : null,
+          }),
+          false,
+          'updateContext'
+        ),
+
+      // V2 Chain actions
+      startChain: (chain) =>
+        set(
+          {
+            activeChain: chain,
+          },
+          false,
+          'startChain'
+        ),
+
+      updateActionStatus: (actionId, status, error) =>
+        set(
+          (state) => {
+            if (!state.activeChain) return state;
+
+            const actions = state.activeChain.actions.map((action) =>
+              action.id === actionId
+                ? {
+                    ...action,
+                    status,
+                    error,
+                    ...(status === 'executing' ? { startedAt: new Date() } : {}),
+                    ...(status === 'success' || status === 'failed'
+                      ? { completedAt: new Date() }
+                      : {}),
+                  }
+                : action
+            );
+
+            return {
+              activeChain: {
+                ...state.activeChain,
+                actions,
+              },
+            };
+          },
+          false,
+          'updateActionStatus'
+        ),
+
+      completeChain: () =>
+        set(
+          (state) => {
+            if (!state.activeChain) return state;
+
+            // Move to history
+            const completedChain: IntentChain = {
+              ...state.activeChain,
+              status: 'completed',
+            };
+
+            return {
+              activeChain: null,
+              chainHistory: [completedChain, ...state.chainHistory].slice(0, 10), // Keep last 10
+            };
+          },
+          false,
+          'completeChain'
+        ),
+
+      // V2 Nudge actions
+      addSuggestion: (suggestion) =>
+        set(
+          (state) => ({
+            suggestions: [...state.suggestions, suggestion],
+          }),
+          false,
+          'addSuggestion'
+        ),
+
+      acceptSuggestion: (suggestionId) =>
+        set(
+          (state) => ({
+            suggestions: state.suggestions.map((s) =>
+              s.id === suggestionId ? { ...s, status: 'accepted' as const } : s
+            ),
+          }),
+          false,
+          'acceptSuggestion'
+        ),
+
+      dismissSuggestion: (suggestionId) =>
+        set(
+          (state) => ({
+            suggestions: state.suggestions.filter((s) => s.id !== suggestionId),
+          }),
+          false,
+          'dismissSuggestion'
+        ),
+
+      // V2 Clarification actions
+      setPendingClarification: (clarification) =>
+        set({ pendingClarification: clarification }, false, 'setPendingClarification'),
+
+      resolveClarification: (selectedOption) =>
+        set(
+          (state) => {
+            console.log('[Store] Clarification resolved:', selectedOption);
+            return { pendingClarification: null };
+          },
+          false,
+          'resolveClarification'
+        ),
 
       // Reset
       reset: () => set(initialState, false, 'reset'),
