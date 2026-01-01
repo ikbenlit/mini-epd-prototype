@@ -1,7 +1,7 @@
 # Bouwplan — Cortex Intent System V2
 
 **Projectnaam:** Cortex V2 - Agentic Intent Architecture
-**Versie:** v1.2
+**Versie:** v1.3
 **Datum:** 01-01-2026
 **Auteur:** Colin Lit
 
@@ -134,7 +134,7 @@ lib/config/
 | **E0** | Foundation & Context | Types, API, feature flags | ✅ Done | 5 | 8 SP |
 | **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ✅ Done | 4 | 6 SP |
 | **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ✅ Done | 6 | 13 SP |
-| **E3** | UI Components | ActionChainCard, ClarificationCard | ⏳ To Do | 4 | 8 SP |
+| **E3** | UI Components | ActionChainCard, ClarificationCard | ✅ Done | 4 | 8 SP |
 | **E4** | Nudge MVP (Layer 3) | Proactieve suggesties | ⏳ To Do | 3 | 5 SP |
 | **E5** | Integration & Polish | End-to-end flow, testing | ⏳ To Do | 4 | 8 SP |
 
@@ -679,10 +679,10 @@ try {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E3.S1 | **ActionChainCard** component | Stacked cards met sequence, status, confidence | ⏳ | E0.S1 | 3 |
-| E3.S2 | **ActionItem** sub-component | Status icons, confirmation buttons, error states | ⏳ | E3.S1 | 2 |
-| E3.S3 | **ClarificationCard** component | Vraag + keuze-knoppen bij ambigue input | ⏳ | — | 2 |
-| E3.S4 | **Processing indicator** | Spinner/skeleton bij AI-acties | ⏳ | — | 1 |
+| E3.S1 | **ActionChainCard** component | Stacked cards met sequence, status, confidence | ✅ | E0.S1 | 3 |
+| E3.S2 | **ActionItem** sub-component | Status icons, confirmation buttons, error states | ✅ | E3.S1 | 2 |
+| E3.S3 | **ClarificationCard** component | Vraag + keuze-knoppen bij ambigue input | ✅ | — | 2 |
+| E3.S4 | **Processing indicator** | Spinner/skeleton bij AI-acties | ✅ | — | 1 |
 
 **Deliverable:** Multi-intent flows visueel weergegeven
 
@@ -736,9 +736,9 @@ interface ActionChainCardProps {
 ```
 
 *Done criteria:*
-- [ ] Toont alle acties in chain
-- [ ] Header toont aantal acties
-- [ ] AI reasoning collapsible (details/summary)
+- [x] Toont alle acties in chain
+- [x] Header toont aantal acties
+- [x] AI reasoning collapsible (details/summary)
 
 ---
 
@@ -777,10 +777,10 @@ const INTENT_LABELS = {
 ```
 
 *Done criteria:*
-- [ ] Status icon correct per status
-- [ ] Confidence badge met juiste kleur
-- [ ] Confirmation buttons bij `confirming` status
-- [ ] Retry button bij `failed` status
+- [x] Status icon correct per status
+- [x] Confidence badge met juiste kleur
+- [x] Confirmation buttons bij `confirming` status
+- [x] Retry button bij `failed` status
 
 ---
 
@@ -808,9 +808,9 @@ interface ClarificationCardProps {
 ```
 
 *Done criteria:*
-- [ ] Vraag duidelijk zichtbaar
-- [ ] Knoppen voor elke optie
-- [ ] Click triggert `onSelect` callback
+- [x] Vraag duidelijk zichtbaar
+- [x] Knoppen voor elke optie
+- [x] Click triggert `onSelect` callback
 
 ---
 
@@ -836,9 +836,9 @@ interface ClarificationCardProps {
 ```
 
 *Done criteria:*
-- [ ] Indicator zichtbaar tijdens AI call
-- [ ] Verdwijnt zodra response binnen is
-- [ ] Geen "frozen" UI gevoel
+- [x] Indicator zichtbaar tijdens AI call
+- [x] Verdwijnt zodra response binnen is
+- [x] Geen "frozen" UI gevoel
 
 ---
 
@@ -1398,3 +1398,4 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 | v1.0 | 30-12-2025 | Colin Lit | Initiële versie op basis van PRD, FO, TO, Architecture docs |
 | v1.1 | 31-12-2025 | Colin Lit | Dev-instructies per epic toegevoegd, file mappings, done criteria |
 | v1.2 | 01-01-2026 | Colin Lit | Epic 2 (Intent Orchestrator) compleet - alle 6 stories afgerond |
+| v1.3 | 01-01-2026 | Colin Lit | Epic 3 (UI Components) compleet - ActionChainCard, ActionItem, ClarificationCard, ProcessingIndicator |

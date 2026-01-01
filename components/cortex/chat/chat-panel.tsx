@@ -1,24 +1,30 @@
 'use client';
 
 /**
- * Chat Panel (v3.0)
+ * Chat Panel (v4.0)
  *
  * Chat interface met scrollable message list, auto-scroll, en scroll-lock detection.
+ * V2 integratie: ActionChainCard, ClarificationCard, ProcessingIndicator
  *
- * Epic: E2 (Chat Panel & Messages)
- * Story: E2.S3 (ChatPanel component - scrolling)
+ * Epic: E2 (Chat Panel & Messages), E3 (UI Components)
+ * Story: E2.S3 (ChatPanel component - scrolling), E3 Integration
  */
 
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { ArrowDown } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { ChatMessage } from './chat-message';
 import { ChatInput, ChatInputHandle } from './chat-input';
+import { ActionChainCard } from './action-chain-card';
+import { ClarificationCard } from './clarification-card';
+import { ProcessingIndicator } from './processing-indicator';
 import { useCortexStore } from '@/stores/cortex-store';
 import { sendChatMessage } from '@/lib/cortex/chat-api';
 import { parseActionFromResponse, shouldOpenArtifact } from '@/lib/cortex/action-parser';
 import { cn } from '@/lib/utils';
 
 export function ChatPanel() {
+  // Chat state
   const chatMessages = useCortexStore((s) => s.chatMessages);
   const addChatMessage = useCortexStore((s) => s.addChatMessage);
   const updateLastMessage = useCortexStore((s) => s.updateLastMessage);
@@ -27,6 +33,16 @@ export function ChatPanel() {
   const setPendingAction = useCortexStore((s) => s.setPendingAction);
   const activePatient = useCortexStore((s) => s.activePatient);
   const shift = useCortexStore((s) => s.shift);
+
+  // V2 Chain state
+  const activeChain = useCortexStore((s) => s.activeChain);
+  const updateActionStatus = useCortexStore((s) => s.updateActionStatus);
+  const completeChain = useCortexStore((s) => s.completeChain);
+
+  // V2 Clarification state
+  const pendingClarification = useCortexStore((s) => s.pendingClarification);
+  const setPendingClarification = useCortexStore((s) => s.setPendingClarification);
+  const resolveClarification = useCortexStore((s) => s.resolveClarification);
 
   // Refs for scrolling
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -87,6 +103,50 @@ export function ChatPanel() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
+  // V2 Chain action handlers
+  const handleConfirmAction = useCallback((actionId: string) => {
+    console.log('[ChatPanel] Confirming action:', actionId);
+    updateActionStatus(actionId, 'executing');
+    // TODO: E5.S2 - Execute the actual action via API
+    // For now, simulate success after a short delay
+    setTimeout(() => {
+      updateActionStatus(actionId, 'success');
+    }, 500);
+  }, [updateActionStatus]);
+
+  const handleSkipAction = useCallback((actionId: string) => {
+    console.log('[ChatPanel] Skipping action:', actionId);
+    updateActionStatus(actionId, 'skipped');
+  }, [updateActionStatus]);
+
+  const handleRetryAction = useCallback((actionId: string) => {
+    console.log('[ChatPanel] Retrying action:', actionId);
+    updateActionStatus(actionId, 'pending');
+    // Re-trigger confirmation flow
+    setTimeout(() => {
+      updateActionStatus(actionId, 'confirming');
+    }, 100);
+  }, [updateActionStatus]);
+
+  const handleDismissChain = useCallback(() => {
+    console.log('[ChatPanel] Dismissing chain');
+    completeChain();
+  }, [completeChain]);
+
+  const handleSelectClarification = useCallback((option: string) => {
+    console.log('[ChatPanel] Clarification selected:', option);
+    resolveClarification(option);
+    // TODO: E5 - Re-process with selected option
+  }, [resolveClarification]);
+
+  const handleDismissClarification = useCallback(() => {
+    console.log('[ChatPanel] Clarification dismissed');
+    setPendingClarification(null);
+  }, [setPendingClarification]);
+
+  // Check if we should show multi-intent UI
+  const showActionChain = activeChain && activeChain.actions.length > 1;
+
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Chat messages area - scrollable */}
@@ -100,6 +160,42 @@ export function ChatPanel() {
             {chatMessages.map((message) => (
               <ChatMessage key={message.id} message={message} showTimestamp />
             ))}
+
+            {/* V2: Processing indicator while AI is thinking */}
+            {isStreaming && (
+              <div className="self-start">
+                <ProcessingIndicator message="Even nadenken..." />
+              </div>
+            )}
+
+            {/* V2: Multi-intent action chain */}
+            <AnimatePresence mode="wait">
+              {showActionChain && (
+                <ActionChainCard
+                  key={activeChain.id}
+                  chain={activeChain}
+                  onConfirmAction={handleConfirmAction}
+                  onSkipAction={handleSkipAction}
+                  onRetryAction={handleRetryAction}
+                  onDismissChain={handleDismissChain}
+                />
+              )}
+            </AnimatePresence>
+
+            {/* V2: Clarification card for ambiguous input */}
+            <AnimatePresence mode="wait">
+              {pendingClarification && (
+                <ClarificationCard
+                  key="clarification"
+                  question={pendingClarification.question}
+                  options={pendingClarification.options}
+                  originalInput={pendingClarification.originalInput}
+                  onSelectOption={handleSelectClarification}
+                  onDismiss={handleDismissClarification}
+                />
+              )}
+            </AnimatePresence>
+
             {/* Invisible element to scroll to */}
             <div ref={messagesEndRef} />
           </div>
