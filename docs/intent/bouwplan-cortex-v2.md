@@ -1,8 +1,8 @@
 # Bouwplan — Cortex Intent System V2
 
 **Projectnaam:** Cortex V2 - Agentic Intent Architecture
-**Versie:** v1.1
-**Datum:** 31-12-2025
+**Versie:** v1.2
+**Datum:** 01-01-2026
 **Auteur:** Colin Lit
 
 ---
@@ -133,7 +133,7 @@ lib/config/
 |---------|-------|------|--------|---------|--------------|
 | **E0** | Foundation & Context | Types, API, feature flags | ✅ Done | 5 | 8 SP |
 | **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ✅ Done | 4 | 6 SP |
-| **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ⏳ To Do | 6 | 13 SP |
+| **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ✅ Done | 6 | 13 SP |
 | **E3** | UI Components | ActionChainCard, ClarificationCard | ⏳ To Do | 4 | 8 SP |
 | **E4** | Nudge MVP (Layer 3) | Proactieve suggesties | ⏳ To Do | 3 | 5 SP |
 | **E5** | Integration & Polish | End-to-end flow, testing | ⏳ To Do | 4 | 8 SP |
@@ -465,12 +465,12 @@ describe('Reflex Classifier', () => {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E2.S1 | **System prompt** voor Orchestrator | Prompt met context, intent types, output format | ⏳ | E0.S1 | 2 |
-| E2.S2 | **Context formatting** voor AI | `formatContextForPrompt()` functie | ⏳ | E0.S2 | 1 |
-| E2.S3 | **AI classification** endpoint | `classifyWithOrchestrator()` met Claude 3.5 Haiku | ⏳ | E2.S1, E2.S2 | 3 |
-| E2.S4 | **IntentChain parsing** | JSON response naar IntentChain met actions | ⏳ | E2.S3 | 2 |
-| E2.S5 | **POST /api/cortex/classify** | Hybrid endpoint: Reflex → Orchestrator fallback | ⏳ | E1.S1-S3, E2.S3-S4 | 3 |
-| E2.S6 | **Graceful fallback** | Bij AI failure → fallback naar Reflex-only | ⏳ | E2.S5 | 2 |
+| E2.S1 | **System prompt** voor Orchestrator | Prompt met context, intent types, output format | ✅ | E0.S1 | 2 |
+| E2.S2 | **Context formatting** voor AI | `formatContextForPrompt()` functie | ✅ | E0.S2 | 1 |
+| E2.S3 | **AI classification** endpoint | `classifyWithOrchestrator()` met Claude 3.5 Haiku | ✅ | E2.S1, E2.S2 | 3 |
+| E2.S4 | **IntentChain parsing** | JSON response naar IntentChain met actions | ✅ | E2.S3 | 2 |
+| E2.S5 | **POST /api/cortex/classify** | Hybrid endpoint: Reflex → Orchestrator fallback | ✅ | E1.S1-S3, E2.S3-S4 | 3 |
+| E2.S6 | **Graceful fallback** | Bij AI failure → fallback naar Reflex-only | ✅ | E2.S5 | 2 |
 
 **Deliverable:** "Zeg Jan af en maak notitie" wordt correct geparsed naar 2 acties
 
@@ -528,8 +528,8 @@ ALLEEN valid JSON (geen markdown):
 *Zie TO sectie 8.3 voor volledige prompt.*
 
 *Done criteria:*
-- [ ] Prompt is duidelijk en in het Nederlands
-- [ ] JSON output format gedocumenteerd
+- [x] Prompt is duidelijk en in het Nederlands
+- [x] JSON output format gedocumenteerd
 
 ---
 
@@ -549,8 +549,8 @@ ALLEEN valid JSON (geen markdown):
 ```
 
 *Done criteria:*
-- [ ] Context leesbaar voor AI
-- [ ] Graceful handling van null values
+- [x] Context leesbaar voor AI
+- [x] Graceful handling van null values
 
 ---
 
@@ -582,9 +582,9 @@ export async function classifyWithOrchestrator(
 ```
 
 *Done criteria:*
-- [ ] Multi-intent input → meerdere actions in response
-- [ ] Processing time ~400ms (acceptabel)
-- [ ] Tokens usage gelogd
+- [x] Multi-intent input → meerdere actions in response
+- [x] Processing time ~400ms (acceptabel)
+- [x] Tokens usage gelogd
 
 ---
 
@@ -609,9 +609,9 @@ function parseAIResponse(rawText: string): ParsedResponse {
 - Missing fields → defaults
 
 *Done criteria:*
-- [ ] Valid JSON correct geparsed
-- [ ] Invalid JSON → graceful fallback
-- [ ] IntentChain correct opgebouwd
+- [x] Valid JSON correct geparsed
+- [x] Invalid JSON → graceful fallback
+- [x] IntentChain correct opgebouwd
 
 ---
 
@@ -640,9 +640,9 @@ export async function POST(request: NextRequest) {
 ```
 
 *Done criteria:*
-- [ ] Simpele input → Reflex (geen AI call)
-- [ ] Complexe input → Orchestrator
-- [ ] Response bevat `handledBy` field
+- [x] Simpele input → Reflex (geen AI call)
+- [x] Complexe input → Orchestrator
+- [x] Response bevat `handledBy` field
 
 ---
 
@@ -667,9 +667,9 @@ try {
 ```
 
 *Done criteria:*
-- [ ] AI failure → geen crash
-- [ ] User ziet resultaat (mogelijk minder intelligent)
-- [ ] Error gelogd voor monitoring
+- [x] AI failure → geen crash
+- [x] User ziet resultaat (mogelijk minder intelligent)
+- [x] Error gelogd voor monitoring
 
 ---
 
@@ -1397,3 +1397,4 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 |--------|-------|--------|-----------|
 | v1.0 | 30-12-2025 | Colin Lit | Initiële versie op basis van PRD, FO, TO, Architecture docs |
 | v1.1 | 31-12-2025 | Colin Lit | Dev-instructies per epic toegevoegd, file mappings, done criteria |
+| v1.2 | 01-01-2026 | Colin Lit | Epic 2 (Intent Orchestrator) compleet - alle 6 stories afgerond |
