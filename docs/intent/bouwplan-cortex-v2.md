@@ -1,7 +1,7 @@
 # Bouwplan — Cortex Intent System V2
 
 **Projectnaam:** Cortex V2 - Agentic Intent Architecture
-**Versie:** v1.3
+**Versie:** v1.4
 **Datum:** 01-01-2026
 **Auteur:** Colin Lit
 
@@ -135,7 +135,7 @@ lib/config/
 | **E1** | Reflex Arc (Layer 1) | Snelle lokale classificatie | ✅ Done | 4 | 6 SP |
 | **E2** | Intent Orchestrator (Layer 2) | AI-gedreven multi-intent | ✅ Done | 6 | 13 SP |
 | **E3** | UI Components | ActionChainCard, ClarificationCard | ✅ Done | 4 | 8 SP |
-| **E4** | Nudge MVP (Layer 3) | Proactieve suggesties | ⏳ To Do | 3 | 5 SP |
+| **E4** | Nudge MVP (Layer 3) | Proactieve suggesties | ✅ Done | 3 | 5 SP |
 | **E5** | Integration & Polish | End-to-end flow, testing | ⏳ To Do | 4 | 8 SP |
 
 **Totaal MVP: 26 stories, 48 Story Points**
@@ -848,9 +848,9 @@ interface ClarificationCardProps {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | SP |
 |----------|--------------|---------------------|--------|------------------|----|
-| E4.S1 | **Protocol rules** definiëren | Wondzorg-controle regel (hardcoded) | ⏳ | E0.S1 | 1 |
-| E4.S2 | **evaluateNudge** functie | Check protocol rules na actie completion | ⏳ | E4.S1 | 2 |
-| E4.S3 | **NudgeToast** component | Toast met countdown timer, accept/dismiss | ⏳ | E0.S4 | 2 |
+| E4.S1 | **Protocol rules** definiëren | Wondzorg-controle regel (hardcoded) | ✅ | E0.S1 | 1 |
+| E4.S2 | **evaluateNudge** functie | Check protocol rules na actie completion | ✅ | E4.S1 | 2 |
+| E4.S3 | **NudgeToast** component | Toast met countdown timer, accept/dismiss | ✅ | E0.S4 | 2 |
 
 **Demo Case:**
 ```
@@ -910,8 +910,8 @@ export const PROTOCOL_RULES: ProtocolRule[] = [
 - `exists` - field is not null/empty
 
 *Done criteria:*
-- [ ] ProtocolRule type gedefinieerd
-- [ ] Minimaal 1 werkende regel (wondzorg)
+- [x] ProtocolRule type gedefinieerd
+- [x] Minimaal 1 werkende regel (wondzorg)
 
 ---
 
@@ -944,9 +944,9 @@ function checkCondition(condition: ProtocolCondition, entities: ExtractedEntitie
 ```
 
 *Done criteria:*
-- [ ] Notitie met "wond" → NudgeSuggestion returned
-- [ ] Notitie zonder "wond" → empty array
-- [ ] Suggesties gesorteerd op priority
+- [x] Notitie met "wond" → NudgeSuggestion returned
+- [x] Notitie zonder "wond" → empty array
+- [x] Suggesties gesorteerd op priority
 
 ---
 
@@ -986,10 +986,10 @@ useEffect(() => {
 ```
 
 *Done criteria:*
-- [ ] Toast verschijnt na matching actie
-- [ ] Progress bar animeert
-- [ ] Accept triggert nieuwe actie
-- [ ] Dismiss verwijdert toast
+- [x] Toast verschijnt na matching actie
+- [x] Progress bar animeert
+- [x] Accept triggert nieuwe actie
+- [x] Dismiss verwijdert toast
 
 ---
 
@@ -1399,3 +1399,4 @@ De MVP User Stories uit `mvp-userstories-intent-system.md` zijn als volgt verdee
 | v1.1 | 31-12-2025 | Colin Lit | Dev-instructies per epic toegevoegd, file mappings, done criteria |
 | v1.2 | 01-01-2026 | Colin Lit | Epic 2 (Intent Orchestrator) compleet - alle 6 stories afgerond |
 | v1.3 | 01-01-2026 | Colin Lit | Epic 3 (UI Components) compleet - ActionChainCard, ActionItem, ClarificationCard, ProcessingIndicator |
+| v1.4 | 01-01-2026 | Colin Lit | Epic 4 (Nudge MVP) compleet - ProtocolRules, evaluateNudge, NudgeToast, DagnotatieBlock integratie |

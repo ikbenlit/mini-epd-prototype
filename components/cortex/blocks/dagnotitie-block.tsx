@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Search, User, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { safeFetch, getErrorInfo, retryFetch } from '@/lib/cortex/error-handler';
+import { evaluateNudge } from '@/lib/cortex/nudge';
 
 interface DagnotitieBlockProps {
   prefill?: BlockPrefillData;
@@ -39,7 +40,7 @@ interface Patient {
 
 export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
   const config = BLOCK_CONFIGS.dagnotitie;
-  const { closeBlock } = useCortexStore();
+  const { closeBlock, addSuggestion } = useCortexStore();
   const { toast } = useToast();
 
   // Form state
@@ -221,6 +222,23 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
         description: `Notitie voor ${patientName} is opgeslagen`,
       });
 
+      // E4: Evaluate nudge after successful save
+      const nudges = evaluateNudge({
+        intent: 'dagnotitie',
+        actionId: data.id || `dagnotitie-${Date.now()}`,
+        entities: {
+          patientName,
+          category,
+        },
+        content: content.trim(),
+      });
+
+      // Add nudge suggestions to store
+      nudges.forEach((nudge) => {
+        addSuggestion(nudge);
+        console.log('[DagnotatieBlock] Nudge triggered:', nudge.suggestion.message);
+      });
+
       // Close block after short delay
       setTimeout(() => {
         closeBlock();
@@ -241,7 +259,7 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [patientId, content, category, includeInHandover, patientName, toast, closeBlock]);
+  }, [patientId, content, category, includeInHandover, patientName, toast, closeBlock, addSuggestion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

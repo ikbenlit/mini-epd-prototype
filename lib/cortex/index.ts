@@ -10,3 +10,4 @@ export * from './reflex-classifier';
 export * from './entity-extractor';
 export * from './date-time-parser';
 export * from './logger';
+export * from './nudge';

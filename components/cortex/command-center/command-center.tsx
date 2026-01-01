@@ -17,16 +17,28 @@
  */
 
 import { useEffect, useCallback, useRef } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useCortexStore } from '@/stores/cortex-store';
 import { ContextBar } from './context-bar';
 import { OfflineBanner } from './offline-banner';
+import { NudgeToast } from './nudge-toast';
 import { ChatPanel } from '../chat/chat-panel';
 import { ArtifactArea } from '../artifacts/artifact-area';
 import { getArtifactTitle } from '../artifacts/artifact-container';
 import { routeIntentToArtifact } from '@/lib/cortex/action-parser';
 
 export function CommandCenter() {
-  const { closeAllArtifacts, openArtifacts, openArtifact, pendingAction, setPendingAction } = useCortexStore();
+  const {
+    closeAllArtifacts,
+    openArtifacts,
+    openArtifact,
+    pendingAction,
+    setPendingAction,
+    // Nudge state (E4)
+    suggestions,
+    acceptSuggestion,
+    dismissSuggestion,
+  } = useCortexStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcuts
@@ -118,6 +130,43 @@ export function CommandCenter() {
           <ArtifactArea />
         </div>
       </div>
+
+      {/* Nudge Toast - E4 (fixed position, bottom-left above chat) */}
+      <AnimatePresence mode="wait">
+        {suggestions.length > 0 && (
+          <div className="fixed bottom-20 left-4 right-4 lg:left-4 lg:right-auto lg:w-[38%] z-50">
+            <NudgeToast
+              key={suggestions[0].id}
+              suggestion={suggestions[0]}
+              onAccept={(id) => {
+                const suggestion = suggestions.find((s) => s.id === id);
+                if (suggestion) {
+                  // Route the suggested intent to an artifact
+                  const artifact = routeIntentToArtifact(
+                    suggestion.suggestion.intent,
+                    suggestion.suggestion.entities,
+                    1.0 // High confidence since user explicitly accepted
+                  );
+
+                  if (artifact) {
+                    console.log('[CommandCenter] Opening artifact from nudge:', artifact.type);
+                    openArtifact({
+                      type: artifact.type,
+                      prefill: artifact.prefill,
+                      title: artifact.title,
+                    });
+                  }
+                }
+                acceptSuggestion(id);
+              }}
+              onDismiss={(id) => {
+                dismissSuggestion(id);
+                console.log('[CommandCenter] Nudge dismissed:', id);
+              }}
+            />
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
