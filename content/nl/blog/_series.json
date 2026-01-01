@@ -1,0 +1,21 @@
+{
+  "series": [
+    {
+      "id": "ai-speedrun",
+      "title": "AI Speedrun",
+      "description": "4 weken, €200, 1 EPD. De reis van idee naar werkend prototype.",
+      "color": "teal",
+      "order": 1,
+      "status": "completed"
+    },
+    {
+      "id": "cortex-intent",
+      "title": "Intent Driven Cortex",
+      "description": "De volgende stap: een AI-copilot die begrijpt wat je wilt.",
+      "color": "amber",
+      "order": 2,
+      "status": "active"
+    }
+  ]
+}
+

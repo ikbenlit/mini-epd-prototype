@@ -2,6 +2,10 @@
   "logo": "AI SPEEDRUN",
   "links": [
     {
+      "label": "Blog",
+      "href": "/blog"
+    },
+    {
       "label": "Documentatie",
       "href": "/documentatie"
     },
