@@ -20,7 +20,9 @@ import { ClarificationCard } from './clarification-card';
 import { ProcessingIndicator } from './processing-indicator';
 import { useCortexStore } from '@/stores/cortex-store';
 import { sendChatMessage } from '@/lib/cortex/chat-api';
-import { parseActionFromResponse, shouldOpenArtifact } from '@/lib/cortex/action-parser';
+import { parseActionFromResponse, shouldOpenArtifact, routeIntentToArtifact } from '@/lib/cortex/action-parser';
+import { evaluateNudge } from '@/lib/cortex/nudge';
+import { isFeatureEnabled } from '@/lib/config/feature-flags';
 import { cn } from '@/lib/utils';
 
 export function ChatPanel() {
@@ -43,6 +45,10 @@ export function ChatPanel() {
   const pendingClarification = useCortexStore((s) => s.pendingClarification);
   const setPendingClarification = useCortexStore((s) => s.setPendingClarification);
   const resolveClarification = useCortexStore((s) => s.resolveClarification);
+
+  // Artifact & Nudge state (E5.S2)
+  const openArtifact = useCortexStore((s) => s.openArtifact);
+  const addSuggestion = useCortexStore((s) => s.addSuggestion);
 
   // Refs for scrolling
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -103,16 +109,52 @@ export function ChatPanel() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
-  // V2 Chain action handlers
+  // V2 Chain action handlers (E5.S2)
   const handleConfirmAction = useCallback((actionId: string) => {
-    console.log('[ChatPanel] Confirming action:', actionId);
+    // Find the action in the active chain
+    const action = activeChain?.actions.find((a) => a.id === actionId);
+    if (!action || !activeChain) {
+      console.error('[ChatPanel] Action not found:', actionId);
+      return;
+    }
+
+    console.log('[ChatPanel] Confirming action:', actionId, action.intent);
     updateActionStatus(actionId, 'executing');
-    // TODO: E5.S2 - Execute the actual action via API
-    // For now, simulate success after a short delay
-    setTimeout(() => {
-      updateActionStatus(actionId, 'success');
-    }, 500);
-  }, [updateActionStatus]);
+
+    // Route to artifact (uses existing artifact system)
+    const artifact = routeIntentToArtifact(
+      action.intent,
+      action.entities,
+      action.confidence
+    );
+
+    if (artifact) {
+      console.log('[ChatPanel] Opening artifact:', artifact.type);
+      openArtifact({
+        type: artifact.type,
+        prefill: artifact.prefill,
+        title: artifact.title,
+      });
+    }
+
+    // Mark as success (artifact is now open for user to complete)
+    updateActionStatus(actionId, 'success');
+
+    // E5.S2: Trigger nudge evaluation after successful action
+    if (isFeatureEnabled('CORTEX_NUDGE')) {
+      const suggestions = evaluateNudge({
+        intent: action.intent,
+        actionId,
+        entities: action.entities,
+        content: action.entities.content,
+      });
+
+      if (suggestions.length > 0) {
+        console.log('[ChatPanel] Nudge suggestions:', suggestions.length);
+        suggestions.forEach((suggestion) => addSuggestion(suggestion));
+      }
+    }
+  }, [activeChain, updateActionStatus, openArtifact, addSuggestion]);
 
   const handleSkipAction = useCallback((actionId: string) => {
     console.log('[ChatPanel] Skipping action:', actionId);
@@ -144,6 +186,40 @@ export function ChatPanel() {
     setPendingClarification(null);
   }, [setPendingClarification]);
 
+  // E5.S2: Sequential chain execution - auto-advance to next action
+  useEffect(() => {
+    if (!activeChain) return;
+
+    const actions = activeChain.actions;
+    const completedStatuses = ['success', 'skipped', 'failed'];
+
+    // Count completed actions
+    const completedCount = actions.filter((a) =>
+      completedStatuses.includes(a.status)
+    ).length;
+
+    // Find next pending action
+    const nextPending = actions.find((a) => a.status === 'pending');
+
+    // If there's a completed action and a pending one, auto-advance
+    if (completedCount > 0 && nextPending) {
+      // Small delay for UI feedback before advancing
+      const timer = setTimeout(() => {
+        updateActionStatus(nextPending.id, 'confirming');
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+
+    // If all actions are complete, finish the chain
+    if (completedCount === actions.length && actions.length > 0) {
+      const timer = setTimeout(() => {
+        console.log('[ChatPanel] All actions complete, finishing chain');
+        completeChain();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [activeChain, updateActionStatus, completeChain]);
+
   // Check if we should show multi-intent UI
   const showActionChain = activeChain && activeChain.actions.length > 1;
 
@@ -168,33 +244,37 @@ export function ChatPanel() {
               </div>
             )}
 
-            {/* V2: Multi-intent action chain */}
-            <AnimatePresence mode="wait">
-              {showActionChain && (
-                <ActionChainCard
-                  key={activeChain.id}
-                  chain={activeChain}
-                  onConfirmAction={handleConfirmAction}
-                  onSkipAction={handleSkipAction}
-                  onRetryAction={handleRetryAction}
-                  onDismissChain={handleDismissChain}
-                />
-              )}
-            </AnimatePresence>
+            {/* V2: Multi-intent action chain (feature flagged) */}
+            {isFeatureEnabled('CORTEX_MULTI_INTENT') && (
+              <AnimatePresence mode="wait">
+                {showActionChain && (
+                  <ActionChainCard
+                    key={activeChain.id}
+                    chain={activeChain}
+                    onConfirmAction={handleConfirmAction}
+                    onSkipAction={handleSkipAction}
+                    onRetryAction={handleRetryAction}
+                    onDismissChain={handleDismissChain}
+                  />
+                )}
+              </AnimatePresence>
+            )}
 
-            {/* V2: Clarification card for ambiguous input */}
-            <AnimatePresence mode="wait">
-              {pendingClarification && (
-                <ClarificationCard
-                  key="clarification"
-                  question={pendingClarification.question}
-                  options={pendingClarification.options}
-                  originalInput={pendingClarification.originalInput}
-                  onSelectOption={handleSelectClarification}
-                  onDismiss={handleDismissClarification}
-                />
-              )}
-            </AnimatePresence>
+            {/* V2: Clarification card for ambiguous input (feature flagged) */}
+            {isFeatureEnabled('CORTEX_V2_ENABLED') && (
+              <AnimatePresence mode="wait">
+                {pendingClarification && (
+                  <ClarificationCard
+                    key="clarification"
+                    question={pendingClarification.question}
+                    options={pendingClarification.options}
+                    originalInput={pendingClarification.originalInput}
+                    onSelectOption={handleSelectClarification}
+                    onDismiss={handleDismissClarification}
+                  />
+                )}
+              </AnimatePresence>
+            )}
 
             {/* Invisible element to scroll to */}
             <div ref={messagesEndRef} />
