@@ -10,6 +10,21 @@ import { getAllPosts, getSeriesWithCounts, type BlogSeries } from '@/lib/mdx/blo
 export const metadata = {
   title: 'Blog - AI Speedrun',
   description: 'Artikelen over AI-gestuurde software ontwikkeling, healthcare IT en het bouwen van een EPD.',
+  openGraph: {
+    title: 'Blog - AI Speedrun',
+    description: 'Artikelen over AI-gestuurde software ontwikkeling, healthcare IT en het bouwen van een EPD.',
+    type: 'website',
+    siteName: 'AI Speedrun',
+    locale: 'nl_NL',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Blog - AI Speedrun',
+    description: 'Artikelen over AI-gestuurde software ontwikkeling, healthcare IT en het bouwen van een EPD.',
+  },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'}/blog`,
+  },
 }
 
 export default async function BlogPage() {

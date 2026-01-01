@@ -1,0 +1,65 @@
+---
+title: "Stop met klagen dat AI geen goede software bouwt"
+description: "Een one-shot-prompt geeft ook een one-shot-resultaat. En verrassing... dat is 9 van de 10x niet wat je wilde. De 5 gouden regels voor werken met AI agents."
+date: "2024-12-11"
+published: true
+seriesOrder: 10
+tags:
+  - AI
+  - Tips
+  - Development
+  - Best Practices
+---
+
+"*Heb ik geprobeerd. Werkt niet.*"
+
+Ah, de one-shot expert heeft gesproken. Een one-shot-prompt geeft ook een one-shot-resultaat. En verrassing... dat is 9 van de 10x niet wat je wilde.
+
+Noem het one-shot-optimisme: de verwachting dat je in één vraag een werkend product krijgt. Ja, zo werkt het dus niet.
+
+## De realiteit
+
+En dan blijf je achter, want AI coding is geen hype meer. OpenRouter routeert miljarden AI-verzoeken voor developers. Begin dit jaar ging één op de tien over code. En nu in december de helft. Dit is mainstream, maar dan moet je wel weten hoe je ermee werkt.
+
+AI agents zijn net hele eager juniors. Ze beginnen meteen met bouwen zonder enige context. Vraag om een login-pagina en je krijgt OAuth, 2FA, role-based access en een password recovery flow. Terwijl jij gewoon een simpel schermpje wilde.
+
+## De 5 gouden regels voor werken met AI agents
+
+### 1. Niet meteen programmeren
+
+AI is getraind om *helpful* te zijn. En helpful voelt voor een AI als: snel iets opleveren. Geef een half zinnetje en er wordt al gebouwd.
+
+Elke feature begin ik met: "Niet meteen programmeren." Eerst context, dan een plan en dan pas bouwen.
+
+### 2. Geef altijd context
+
+Elke chat begint voor AI als een leeg blad. Geen geheugen van wat je gisteren bouwde. Dus ja, er wordt vrolijk een nieuwe functie geschreven terwijl je die al hebt.
+
+Daarom werk ik altijd met een PRD, functioneel ontwerp en technisch ontwerp. Voor mezelf én als context voor de AI.
+
+### 3. Denk MVP
+
+Vraag om een zoekfunctie en AI bouwt meteen filters, sortering, fuzzy matching, zoeksuggesties en een volledige Elasticsearch-integratie.
+
+Ik vertel de agent altijd: "We bouwen een prototype, een MVP." Prioriteer in MVP en post-MVP. Houd het klein en bouw uit. Dit zorgt ervoor dat je niet direct 100 features tegelijk bouwt, wat je sowieso niet direct wil.
+
+### 4. Werk in iteraties
+
+AI probeert altijd in één keer een "compleet" antwoord te geven. Maar software bouwen is geen one-shot game.
+
+Mijn bouwplan is geen "start met bouwen", maar een gefaseerd plan met epics en stories. De opdracht is "Maak Epic 1, Story 1."
+
+### 5. Jij blijft de baas
+
+AI is een eager junior, geen architect. Slim, snel, maar zonder sturing wordt er de verkeerde kant op gebouwd.
+
+Ik ben geen programmeur, maar wel de product owner. Ik bepaal de richting, AI voert uit.
+
+## Bonus tip
+
+Tools zoals Claude Code en Cursor hebben een "Plan" en "Ask" modus. Gebruik dit! Laat AI eerst denken voordat je 'm laat bouwen.
+
+Die eager junior kan heel veel. Tenminste, als je 'm goed begeleidt. Net als in het echt. 😉
+
+Meer weten over de AI Speedrun? 👉 [aispeedrun.nl](https://aispeedrun.nl)
+

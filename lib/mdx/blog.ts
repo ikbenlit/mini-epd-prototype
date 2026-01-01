@@ -31,6 +31,7 @@ export interface BlogFrontmatter {
   published?: boolean
   seriesOrder: number
   tags?: string[]
+  image?: string // Optional OG image path (relative to /public, e.g. "/images/blog/my-post.png")
 }
 
 export interface BlogPost {

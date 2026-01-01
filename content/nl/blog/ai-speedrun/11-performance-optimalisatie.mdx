@@ -1,0 +1,47 @@
+---
+title: "Dag 28: 'Dat stond niet op mijn lijstje' is geen excuus meer"
+description: "Toen oud-collega Edwin zei dat mijn EPD-prototype wat traag aanvoelde, was mijn eerste reactie defensief. Na een nachtje slapen kon ik de feedback beter waarderen."
+date: "2024-12-12"
+published: true
+seriesOrder: 11
+tags:
+  - Performance
+  - Feedback
+  - AI
+  - Optimization
+---
+
+Toen oud-collega Edwin zei dat mijn EPD-prototype wat traag aanvoelde, was mijn eerste reactie defensief. "*Ja, dat was ook niet echt het doel.* 😤" Performance optimalisatie stond niet op mijn lijstje. Ik was bezig met features bouwen, niet met milliseconden tellen.
+
+Na een nachtje slapen kon ik de feedback beter waarderen. Want iedereen die met enterprise software werkt (zeker EPD's) weet dat trage systemen de realiteit zijn. Eindeloos wachten op schermen die laden, rapportages die vastlopen, behandelaren die gefrustreerd afhaken. Ik ken het uit eigen ervaring. 😞
+
+Maar wat verwacht je? Ik draai op de gratis tier van Vercel en Supabase. Geen dedicated servers, geen geoptimaliseerde database clusters. Dit is een prototype op een hobby-budget.
+
+## Toch opende ik Claude
+
+"*Review deze codebase op performance en geef concrete verbetervoorstellen.*"
+
+Wat volgde was een masterclass die ik niet had verwacht. Baseline metingen. Bottleneck-analyse. Vier iteraties van optimalisaties: parallel data fetching, server-side pagination, database indexes, lazy loading.
+
+## Het resultaat
+
+| Component | Voor | Na |
+|-----------|------|-----|
+| Patient Dashboard | 800ms | 440ms |
+| Rapportage API | 1.67s | 188ms |
+| Rapportage pagina | 2.05s | 343ms |
+
+## Maar dit gaat niet over milliseconden
+
+AI versnelt niet alleen het typen van code. Het versnelt het denken over code. De drempel om iets te fixen is nu zo laag geworden dat feedback negeren een bewuste keuze wordt, niet een praktische beperking.
+
+Dat verandert alles. Niet alleen hoe je software bouwt, maar ook hoe je feedback ontvangt.
+
+"*Daar heb ik nu geen tijd voor*" betekent nu eigenlijk: "*Dat vind ik niet belangrijk genoeg.*"
+
+Eerlijker, maar ook confronterender.
+
+*(Oh, en deze week ook gebouwd: agenda-verbeteringen met drag & drop, behandelplan uitgebreid, en een volledige diagnose-module. Alleen nog geen tijd gehad om er een nette post van te maken.)*
+
+Volgende week: de eindbalans. Kan AI een EPD bouwen? Het antwoord is genuanceerder dan ik vier weken geleden dacht.
+

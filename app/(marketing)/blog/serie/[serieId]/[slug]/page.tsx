@@ -31,14 +31,43 @@ export async function generateMetadata({ params }: PostPageProps) {
     return { title: 'Post niet gevonden' }
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'
+  const postUrl = `${siteUrl}/blog/serie/${serieId}/${slug}`
+  // Use post-specific image if provided, otherwise fall back to default
+  const ogImageUrl = post.frontmatter.image
+    ? `${siteUrl}${post.frontmatter.image.startsWith('/') ? '' : '/'}${post.frontmatter.image}`
+    : `${siteUrl}/og-blog-default.png`
+
   return {
     title: `${post.frontmatter.title} - ${series.title}`,
     description: post.frontmatter.description,
+    authors: [{ name: 'Colin van der Heijden', url: 'https://ikbenlit.nl' }],
+    keywords: post.frontmatter.tags || [],
     openGraph: {
       title: post.frontmatter.title,
       description: post.frontmatter.description,
       type: 'article',
       publishedTime: post.frontmatter.date,
+      authors: ['Colin van der Heijden'],
+      siteName: 'AI Speedrun',
+      locale: 'nl_NL',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.frontmatter.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.frontmatter.title,
+      description: post.frontmatter.description,
+      images: [ogImageUrl],
+    },
+    alternates: {
+      canonical: postUrl,
     },
   }
 }
@@ -54,6 +83,77 @@ export default async function PostPage({ params }: PostPageProps) {
 
   const navigation = await getSeriesNavigation(serieId, slug)
   const { frontmatter, content, readingTime } = post
+
+  // Generate Article structured data for SEO
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'
+  const postUrl = `${siteUrl}/blog/serie/${serieId}/${slug}`
+  // Use post-specific image if provided, otherwise fall back to default
+  const articleImage = frontmatter.image
+    ? `${siteUrl}${frontmatter.image.startsWith('/') ? '' : '/'}${frontmatter.image}`
+    : `${siteUrl}/og-blog-default.png`
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: frontmatter.title,
+    description: frontmatter.description,
+    image: articleImage,
+    datePublished: frontmatter.date,
+    dateModified: frontmatter.date,
+    author: {
+      '@type': 'Person',
+      name: 'Colin van der Heijden',
+      url: 'https://ikbenlit.nl',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AI Speedrun',
+      url: siteUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/images/aispeedrun-logo.webp`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': postUrl,
+    },
+    articleSection: series.title,
+    keywords: frontmatter.tags?.join(', ') || '',
+    wordCount: content.split(/\s+/).length,
+    timeRequired: `PT${readingTime}M`,
+  }
+
+  // Generate BreadcrumbList structured data
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${siteUrl}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: series.title,
+        item: `${siteUrl}/blog/serie/${serieId}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: frontmatter.title,
+        item: postUrl,
+      },
+    ],
+  }
 
   const colorStyles = {
     teal: {
@@ -74,6 +174,16 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <div className="min-h-screen bg-white pb-16">
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <article className="max-w-3xl mx-auto px-4 md:px-8">
         {/* Back link */}
         <div className="pt-20 md:pt-24 mb-6">

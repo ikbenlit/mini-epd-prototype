@@ -50,6 +50,7 @@ export async function middleware(request: NextRequest) {
     '/update-password',
     '/auth/callback',
     '/contact',
+    '/blog',
     '/documentatie',
     '/api/leads',
     '/robots.txt',

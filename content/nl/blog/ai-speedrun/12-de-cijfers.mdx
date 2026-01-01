@@ -1,0 +1,59 @@
+---
+title: "De Cijfers"
+description: "Vier weken geleden startte ik een experiment: hoe ver kom je met AI-tooling als je een compleet EPD-systeem wil bouwen voor de GGZ? Nu heb ik een antwoord en de cijfers."
+date: "2024-12-18"
+published: true
+seriesOrder: 12
+tags:
+  - Results
+  - Statistics
+  - EPD
+  - Conclusion
+---
+
+Vier weken geleden startte ik een experiment: hoe ver kom je met AI-tooling als je een compleet EPD-systeem wil bouwen voor de GGZ?
+
+Nu heb ik een antwoord en de cijfers.
+
+Mijn eerste conclusie: Met AI kun je volwaardige functionaliteit snel opleveren. Maar, en dit is belangrijk, AI verzint geen goede oplossing. Jij moet zelf bedenken waar de waarde zit.
+
+## De cijfers
+
+- 95 commits
+- ~118.000 regels code
+- 140+ documenten (waarvan 75 formele specs: PRD, FO, TO, Bouwplannen)
+- 17 gebruikersdocumentatie pagina's
+- 4 release notes
+- 1 developer + Claude Code
+- €200 budget
+
+## 7 complete modules
+
+1. **Authenticatie met Supabase** - login, signup, wachtwoordreset, email confirmatie
+2. **Screening & intake systeem** - hulpvraag, besluitvorming en risicotaxatie
+3. **Diagnose module** - ICD-10 codering en zoekfunctie
+4. **Agenda** - FullCalendar (dag/week/maand views)
+5. **Verpleegkundige rapportage** - met overdracht
+6. **Behandelplan module** - SMART doelen en leefgebieden
+7. **Client management** - CRUD operations
+
+## 3 AI-integraties
+
+1. **Spraakgestuurde verslaglegging** via Deepgram - gewoon dicteren in plaats van typen
+2. **AI-gegenereerde samenvattingen** voor dienstoverdracht
+3. **AI-assistent** die zowel helpt met systeemgebruik als inhoudelijke vragen over het dossier kan beantwoorden
+
+## Technisch
+
+En voor de '*het-is-vast-spaghetti-code*' critici: dit draait op Next.js 14, TypeScript, Supabase met Row Level Security, een FHIR-compliant datamodel, en production-ready componenten. Volledig Nederlandse UI. Op een hobby-project budget.
+
+## De realisatie
+
+Dit waren de cijfers. Experiment geslaagd zou je zeggen.
+
+Alleen, tijdens het bouwen realiseerde ik me dat ik nog steeds een vrij traditioneel systeem aan het bouwen was. Weliswaar met slimme AI-handigheidjes, maar in de kern? Hetzelfde EPD-denken als de afgelopen 15 jaar.
+
+Mijn aanpak is innovatief, het product eerlijk gezegd niet heel erg. AI versnelt wat je bouwt, maar wát je bouwt, dat bepaal jij. Domeinkennis wordt meer en meer relevanter dan de technische skills.
+
+Ik heb inmiddels een idee over hoe het EPD van de toekomst eruit moet zien en dat is niet wat er nu staat.
+

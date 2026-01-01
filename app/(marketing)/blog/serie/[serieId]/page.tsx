@@ -25,9 +25,27 @@ export async function generateMetadata({ params }: SeriesPageProps) {
     return { title: 'Serie niet gevonden' }
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://aispeedrun.vercel.app'
+  const seriesUrl = `${siteUrl}/blog/serie/${serieId}`
+
   return {
-    title: `${series.title} - Blog`,
+    title: `${series.title} - Blog | AI Speedrun`,
     description: series.description,
+    openGraph: {
+      title: series.title,
+      description: series.description,
+      type: 'website',
+      siteName: 'AI Speedrun',
+      locale: 'nl_NL',
+    },
+    twitter: {
+      card: 'summary',
+      title: series.title,
+      description: series.description,
+    },
+    alternates: {
+      canonical: seriesUrl,
+    },
   }
 }
 
