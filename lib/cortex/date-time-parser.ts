@@ -3,6 +3,12 @@
  *
  * Parses natural language date and time expressions (Dutch)
  * for Cortex agenda functionality.
+ *
+ * IMPORTANT: All functions accept an optional `referenceDate` parameter.
+ * - Server-side: pass `getServerNow()` from `lib/utils/server-date.ts`
+ * - Client-side: omit for backward compatibility (uses `new Date()`)
+ *
+ * This ensures consistent date handling between Cortex and regular EPD.
  */
 
 import {
@@ -43,15 +49,23 @@ export interface DateRange {
  * - Absolute dates: "30 december", "28-12-2024"
  *
  * @param input - Natural language date expression
+ * @param referenceDate - Reference date for relative calculations (default: new Date())
+ *                        Server-side: pass getServerNow() for consistency
  * @returns Date object, DateRange, or null if unparseable
  *
  * @example
- * parseRelativeDate("morgen") // tomorrow's date
- * parseRelativeDate("deze week") // { start: Mon, end: Sun, label: "deze week" }
- * parseRelativeDate("dinsdag") // next Tuesday
+ * // Client-side (backward compatible):
+ * parseRelativeDate("morgen")
+ *
+ * // Server-side (consistent):
+ * import { getServerNow } from '@/lib/utils/server-date';
+ * parseRelativeDate("morgen", getServerNow())
  */
-export function parseRelativeDate(input: string): Date | DateRange | null {
-  const today = new Date();
+export function parseRelativeDate(
+  input: string,
+  referenceDate: Date = new Date()
+): Date | DateRange | null {
+  const today = referenceDate;
   const normalized = input.toLowerCase().trim();
 
   // Single day patterns (check longer patterns first to avoid "morgen" matching in "overmorgen")
@@ -294,10 +308,16 @@ export function combineDatetime(date: Date | string, time: string): string {
  *
  * @param date - Date to validate
  * @param allowToday - Whether today is considered valid (default: true)
+ * @param referenceDate - Reference date for "today" (default: new Date())
+ *                        Server-side: pass getServerNow() for consistency
  * @returns true if date is valid (not in past)
  */
-export function isNotInPast(date: Date, allowToday = true): boolean {
-  const today = startOfDay(new Date());
+export function isNotInPast(
+  date: Date,
+  allowToday = true,
+  referenceDate: Date = new Date()
+): boolean {
+  const today = startOfDay(referenceDate);
   const checkDate = startOfDay(date);
 
   if (allowToday) {

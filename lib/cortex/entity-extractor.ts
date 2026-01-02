@@ -2,6 +2,10 @@
  * Entity Extractor
  *
  * Extracts entities (patient name, category, content, date/time) from user input.
+ *
+ * IMPORTANT: All functions accept an optional `referenceDate` parameter.
+ * Server-side: pass `getServerNow()` from `lib/utils/server-date.ts`
+ * This ensures consistent date handling between Cortex and regular EPD.
  */
 
 import type { VerpleegkundigCategory } from '@/lib/types/report';
@@ -89,8 +93,17 @@ const COMMON_NAMES = new Set([
 
 /**
  * Extract entities from user input based on the detected intent.
+ *
+ * @param input - User input text
+ * @param intent - Detected intent
+ * @param referenceDate - Reference date for relative date calculations (default: new Date())
+ *                        Server-side: pass getServerNow() for consistency
  */
-export function extractEntities(input: string, intent: CortexIntent): ExtractedEntities {
+export function extractEntities(
+  input: string,
+  intent: CortexIntent,
+  referenceDate: Date = new Date()
+): ExtractedEntities {
   const trimmedInput = input.trim().toLowerCase();
   const entities: ExtractedEntities = {};
 
@@ -103,13 +116,13 @@ export function extractEntities(input: string, intent: CortexIntent): ExtractedE
       // Overdracht doesn't need entity extraction
       return entities;
     case 'agenda_query':
-      return extractAgendaQueryEntities(trimmedInput, input);
+      return extractAgendaQueryEntities(trimmedInput, input, referenceDate);
     case 'create_appointment':
-      return extractCreateAppointmentEntities(trimmedInput, input);
+      return extractCreateAppointmentEntities(trimmedInput, input, referenceDate);
     case 'cancel_appointment':
-      return extractCancelAppointmentEntities(trimmedInput, input);
+      return extractCancelAppointmentEntities(trimmedInput, input, referenceDate);
     case 'reschedule_appointment':
-      return extractRescheduleAppointmentEntities(trimmedInput, input);
+      return extractRescheduleAppointmentEntities(trimmedInput, input, referenceDate);
     default:
       return entities;
   }
@@ -259,7 +272,11 @@ export function parseCategory(input: string): VerpleegkundigCategory | undefined
  * - "wat is volgende afspraak" → dateRange: from now (no explicit range)
  * - "afspraken deze week" → dateRange: this week
  */
-function extractAgendaQueryEntities(lowerInput: string, originalInput: string): ExtractedEntities {
+function extractAgendaQueryEntities(
+  lowerInput: string,
+  originalInput: string,
+  referenceDate: Date
+): ExtractedEntities {
   const entities: ExtractedEntities = {};
   const words = lowerInput.split(/\s+/);
 
@@ -267,7 +284,7 @@ function extractAgendaQueryEntities(lowerInput: string, originalInput: string): 
   // Check multi-word patterns first (e.g., "deze week", "volgende week")
   for (let i = 0; i < words.length - 1; i++) {
     const twoWords = `${words[i]} ${words[i + 1]}`;
-    const parsed = parseRelativeDate(twoWords);
+    const parsed = parseRelativeDate(twoWords, referenceDate);
     if (parsed) {
       if (isDateRange(parsed)) {
         entities.dateRange = parsed;
@@ -280,7 +297,7 @@ function extractAgendaQueryEntities(lowerInput: string, originalInput: string): 
 
   // Check single word patterns
   for (const word of words) {
-    const parsed = parseRelativeDate(word);
+    const parsed = parseRelativeDate(word, referenceDate);
     if (parsed) {
       if (isDateRange(parsed)) {
         entities.dateRange = parsed;
@@ -292,8 +309,7 @@ function extractAgendaQueryEntities(lowerInput: string, originalInput: string): 
   }
 
   // Default to today if no date specified
-  const today = new Date();
-  entities.dateRange = dateToRange(today, 'vandaag');
+  entities.dateRange = dateToRange(referenceDate, 'vandaag');
 
   return entities;
 }
@@ -305,7 +321,11 @@ function extractAgendaQueryEntities(lowerInput: string, originalInput: string): 
  * - "plan intake marie vrijdag 10:00" → patient: Marie, type: intake, date: friday, time: 10:00
  * - "afspraak met piet 14:00" → patient: Piet, time: 14:00, date: today (implied)
  */
-function extractCreateAppointmentEntities(lowerInput: string, originalInput: string): ExtractedEntities {
+function extractCreateAppointmentEntities(
+  lowerInput: string,
+  originalInput: string,
+  referenceDate: Date
+): ExtractedEntities {
   const entities: ExtractedEntities = {};
   const words = lowerInput.split(/\s+/);
 
@@ -367,7 +387,7 @@ function extractCreateAppointmentEntities(lowerInput: string, originalInput: str
   // Try multi-word date patterns
   for (let i = 0; i < filteredWords.length - 1; i++) {
     const twoWords = `${filteredWords[i]} ${filteredWords[i + 1]}`;
-    const parsed = parseRelativeDate(twoWords);
+    const parsed = parseRelativeDate(twoWords, referenceDate);
     if (parsed && !isDateRange(parsed)) {
       foundDate = parsed;
       break;
@@ -377,7 +397,7 @@ function extractCreateAppointmentEntities(lowerInput: string, originalInput: str
   // Try single word date patterns
   if (!foundDate) {
     for (const word of filteredWords) {
-      const parsed = parseRelativeDate(word);
+      const parsed = parseRelativeDate(word, referenceDate);
       if (parsed && !isDateRange(parsed)) {
         foundDate = parsed;
         break;
@@ -419,9 +439,9 @@ function extractCreateAppointmentEntities(lowerInput: string, originalInput: str
       time: '', // Will be filled by UI or AI
     };
   } else if (foundTime) {
-    // Time without date (assume today)
+    // Time without date (assume today based on referenceDate)
     entities.datetime = {
-      date: new Date(),
+      date: referenceDate,
       time: foundTime,
     };
   }
@@ -436,7 +456,11 @@ function extractCreateAppointmentEntities(lowerInput: string, originalInput: str
  * - "cancel de 14:00 afspraak" → identifier: { type: time, time: 14:00 }
  * - "annuleer jan morgen" → identifier: { type: both, patientName: Jan, date: tomorrow }
  */
-function extractCancelAppointmentEntities(lowerInput: string, originalInput: string): ExtractedEntities {
+function extractCancelAppointmentEntities(
+  lowerInput: string,
+  originalInput: string,
+  referenceDate: Date
+): ExtractedEntities {
   const entities: ExtractedEntities = {};
   const words = lowerInput.split(/\s+/);
 
@@ -466,7 +490,7 @@ function extractCancelAppointmentEntities(lowerInput: string, originalInput: str
   // Extract date
   let date: Date | null = null;
   for (const word of filteredWords) {
-    const parsed = parseRelativeDate(word);
+    const parsed = parseRelativeDate(word, referenceDate);
     if (parsed && !isDateRange(parsed)) {
       date = parsed;
       break;
@@ -505,7 +529,11 @@ function extractCancelAppointmentEntities(lowerInput: string, originalInput: str
  * - "verzet jan naar dinsdag" → identifier: { patientName: Jan }, newDatetime: { date: tuesday }
  * - "verzet de afspraak naar morgen 10:00" → newDatetime: { date: tomorrow, time: 10:00 }
  */
-function extractRescheduleAppointmentEntities(lowerInput: string, originalInput: string): ExtractedEntities {
+function extractRescheduleAppointmentEntities(
+  lowerInput: string,
+  originalInput: string,
+  referenceDate: Date
+): ExtractedEntities {
   const entities: ExtractedEntities = {};
   const words = lowerInput.split(/\s+/);
 
@@ -539,7 +567,7 @@ function extractRescheduleAppointmentEntities(lowerInput: string, originalInput:
 
   let oldDate: Date | null = null;
   for (const word of oldWords) {
-    const parsed = parseRelativeDate(word);
+    const parsed = parseRelativeDate(word, referenceDate);
     if (parsed && !isDateRange(parsed)) {
       oldDate = parsed;
       break;
@@ -576,7 +604,7 @@ function extractRescheduleAppointmentEntities(lowerInput: string, originalInput:
     // Try multi-word date patterns
     for (let i = 0; i < newWords.length - 1; i++) {
       const twoWords = `${newWords[i]} ${newWords[i + 1]}`;
-      const parsed = parseRelativeDate(twoWords);
+      const parsed = parseRelativeDate(twoWords, referenceDate);
       if (parsed && !isDateRange(parsed)) {
         newDate = parsed;
         break;
@@ -586,7 +614,7 @@ function extractRescheduleAppointmentEntities(lowerInput: string, originalInput:
     // Try single word date patterns
     if (!newDate) {
       for (const word of newWords) {
-        const parsed = parseRelativeDate(word);
+        const parsed = parseRelativeDate(word, referenceDate);
         if (parsed && !isDateRange(parsed)) {
           newDate = parsed;
           break;
@@ -617,7 +645,7 @@ function extractRescheduleAppointmentEntities(lowerInput: string, originalInput:
 
     if (newDate || newTime) {
       entities.newDatetime = {
-        date: newDate || new Date(), // Default to today if only time specified
+        date: newDate || referenceDate, // Default to referenceDate if only time specified
         time: newTime || '',
       };
     }

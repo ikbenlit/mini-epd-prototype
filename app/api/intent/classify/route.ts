@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       };
     } else {
       // High confidence local result - extract entities locally
-      const entities = extractEntities(input, localResult.intent);
+      const entities = extractEntities(input, localResult.intent, new Date());
 
       finalResult = {
         intent: localResult.intent,
