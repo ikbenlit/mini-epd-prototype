@@ -43,6 +43,7 @@ export interface ChatEntities {
   datetime?: {
     date?: string;
     time?: string;
+    label?: string; // Voor relatieve datums: vandaag, morgen, etc.
   };
   appointmentType?: string;
   location?: string;
@@ -50,6 +51,7 @@ export interface ChatEntities {
   newDatetime?: {
     date?: string;
     time?: string;
+    label?: string; // Voor relatieve datums
   };
 }
 

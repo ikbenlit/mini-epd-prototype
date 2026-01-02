@@ -118,7 +118,9 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
 
   // Handle date range change from calendar
   const handleDateChange = useCallback((start: Date, end: Date) => {
-    setCurrentDate(start);
+    setCurrentDate((prev) => 
+      prev.toDateString() === start.toDateString() ? prev : start
+    );
     fetchEvents(start, end);
   }, [fetchEvents]);
 
@@ -262,6 +264,7 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
             events={events}
             initialView={currentView}
             currentView={currentView}
+            currentDate={currentDate}
             onEventClick={handleEventClick}
             onDateSelect={handleDateSelect}
             onEventDrop={handleEventDrop}

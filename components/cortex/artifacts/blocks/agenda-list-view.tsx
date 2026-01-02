@@ -17,7 +17,7 @@ import {
 
 interface AgendaListViewProps {
     appointments?: CalendarEvent[];
-    dateRange?: { start: Date; end: Date; label: string };
+    dateRange?: { start?: Date; end?: Date; label: string };
     onClose?: () => void;
     onCancelAppointment?: (encounter: CalendarEvent) => void;
     onViewDetails?: (encounter: CalendarEvent) => void;
@@ -48,7 +48,7 @@ export function AgendaListView({
 
     const formatDateLabel = () => {
         if (dateRange?.label) {
-            if (dateRange.label === 'vandaag' || dateRange.label === 'morgen') {
+            if ((dateRange.label === 'vandaag' || dateRange.label === 'morgen') && dateRange.start) {
                 const dateStr = format(dateRange.start, 'd MMMM', { locale: nl });
                 return `Afspraken ${dateRange.label} - ${dateStr}`;
             }

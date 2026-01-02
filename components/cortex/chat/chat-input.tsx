@@ -23,6 +23,7 @@ interface ChatInputProps {
 export interface ChatInputHandle {
   focus: () => void;
   clear: () => void;
+  setValue: (value: string) => void;
 }
 
 export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function ChatInput({
@@ -34,7 +35,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const addChatMessage = useCortexStore((s) => s.addChatMessage);
 
-  // Expose focus and clear methods to parent
+  // Expose focus, clear, and setValue methods to parent
   useImperativeHandle(ref, () => ({
     focus: () => {
       textareaRef.current?.focus();
@@ -44,6 +45,21 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
+    },
+    setValue: (value: string) => {
+      setInputValue(value);
+      // Auto-resize after setting value
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        // Use setTimeout to ensure the value is set before measuring
+        setTimeout(() => {
+          if (textareaRef.current) {
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+          }
+        }, 0);
+      }
+      // Focus the input after setting value
+      textareaRef.current?.focus();
     },
   }));
 

@@ -107,28 +107,47 @@ interface CreateEncounterParams {
 export async function createEncounter(params: CreateEncounterParams) {
   const supabase = await createClient();
 
+  console.log('[createEncounter] Starting with params:', {
+    patientId: params.patientId,
+    periodStart: params.periodStart,
+    periodEnd: params.periodEnd,
+    typeCode: params.typeCode,
+  });
+
+  const insertData = {
+    patient_id: params.patientId,
+    practitioner_id: params.practitionerId || null,
+    period_start: params.periodStart,
+    period_end: params.periodEnd,
+    type_code: params.typeCode,
+    type_display: params.typeDisplay,
+    class_code: params.classCode,
+    class_display: params.classDisplay,
+    notes: params.notes,
+    status: 'planned',
+  };
+
+  console.log('[createEncounter] Insert data:', insertData);
+
   const { data, error } = await supabase
     .from('encounters')
-    .insert({
-      patient_id: params.patientId,
-      practitioner_id: params.practitionerId || null,
-      period_start: params.periodStart,
-      period_end: params.periodEnd,
-      type_code: params.typeCode,
-      type_display: params.typeDisplay,
-      class_code: params.classCode,
-      class_display: params.classDisplay,
-      notes: params.notes,
-      status: 'planned',
-    })
+    .insert(insertData)
     .select()
     .single();
 
+  console.log('[createEncounter] Result:', { data, error });
+
   if (error) {
-    console.error('Error creating encounter:', error);
+    console.error('[createEncounter] Error:', error);
     return { success: false, error: error.message };
   }
 
+  if (!data) {
+    console.error('[createEncounter] No data returned after insert');
+    return { success: false, error: 'Geen data teruggegeven na insert' };
+  }
+
+  console.log('[createEncounter] Success! Created encounter:', data.id);
   revalidatePath('/epd/agenda');
   return { success: true, data };
 }

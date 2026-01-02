@@ -19,6 +19,7 @@ import { PatientDashboardBlock } from '../blocks/patient-dashboard-block';
 import { FallbackPicker } from '../blocks/fallback-picker';
 import { APPOINTMENT_TYPES, type AppointmentTypeCode, type LocationClassCode } from '@/app/epd/agenda/types';
 import type { Artifact, BlockType } from '@/stores/cortex-store';
+import { parseRelativeDate, isDateRange } from '@/lib/cortex/date-time-parser';
 
 interface ArtifactContainerProps {
   artifacts: Artifact[];
@@ -55,13 +56,13 @@ function coerceDate(value: unknown): Date | undefined {
 }
 
 function coerceDateRange(raw: any): AgendaBlockProps['dateRange'] | undefined {
-  const start = coerceDate(raw?.start);
-  const end = coerceDate(raw?.end);
-  if (!start || !end) return undefined;
+  const label = typeof raw?.label === 'string' ? raw.label : undefined;
+  if (!label) return undefined;
+
   return {
-    start,
-    end,
-    label: typeof raw?.label === 'string' ? raw.label : 'custom',
+    start: coerceDate(raw?.start),
+    end: coerceDate(raw?.end),
+    label,
   };
 }
 
@@ -78,6 +79,21 @@ function resolveLocation(value: unknown): LocationClassCode | undefined {
   return undefined;
 }
 
+/**
+ * Convert date label to Date using central date-time-parser (DRY)
+ */
+function resolveDateFromLabel(label?: string): Date | null {
+  if (!label) return null;
+
+  const parsed = parseRelativeDate(label);
+  if (!parsed) return null;
+
+  // DateRange → return start date
+  if (isDateRange(parsed)) return parsed.start;
+
+  return parsed;
+}
+
 function buildAgendaPrefill(prefill: Record<string, any> | undefined): AgendaBlockProps['prefillData'] {
   if (!prefill || typeof prefill !== 'object') return undefined;
 
@@ -90,9 +106,15 @@ function buildAgendaPrefill(prefill: Record<string, any> | undefined): AgendaBlo
         }
       : undefined);
 
+  // Try to resolve date from label first (more reliable than AI-generated dates)
+  const dateLabel = prefill?.datetime?.label || prefill?.dateRange?.label;
+  const resolvedDate = resolveDateFromLabel(dateLabel);
+  
   const datetimeDate =
+    resolvedDate ||  // Prefer calculated date from label
     coerceDate(prefill?.datetime?.date) ||
     (prefill?.datetime?.time ? new Date() : undefined);
+    
   const datetime = datetimeDate
     ? {
         date: datetimeDate,
@@ -103,7 +125,12 @@ function buildAgendaPrefill(prefill: Record<string, any> | undefined): AgendaBlo
   const appointmentType = resolveAppointmentType(prefill?.appointmentType || prefill?.type);
   const location = resolveLocation(prefill?.location);
 
+  // Also resolve newDatetime from label
+  const newDateLabel = prefill?.newDatetime?.label;
+  const resolvedNewDate = resolveDateFromLabel(newDateLabel);
+  
   const newDatetimeDate =
+    resolvedNewDate ||  // Prefer calculated date from label
     coerceDate(prefill?.newDatetime?.date) ||
     (prefill?.newDatetime?.time ? new Date() : undefined);
   const newDatetime = newDatetimeDate

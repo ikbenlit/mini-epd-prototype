@@ -15,12 +15,14 @@ import { ArrowDown } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { ChatMessage } from './chat-message';
 import { ChatInput, ChatInputHandle } from './chat-input';
+import { ChatSuggestions } from './chat-suggestions';
+import { ChatEmptyState } from './chat-empty-state';
 import { ActionChainCard } from './action-chain-card';
 import { ClarificationCard } from './clarification-card';
 import { ProcessingIndicator } from './processing-indicator';
 import { useCortexStore } from '@/stores/cortex-store';
 import { sendChatMessage } from '@/lib/cortex/chat-api';
-import { parseActionFromResponse, shouldOpenArtifact, routeIntentToArtifact } from '@/lib/cortex/action-parser';
+import { parseActionFromResponse, shouldOpenArtifact, routeIntentToArtifact, getDefaultConfirmationMessage } from '@/lib/cortex/action-parser';
 import { evaluateNudge } from '@/lib/cortex/nudge';
 import { isFeatureEnabled } from '@/lib/config/feature-flags';
 import { cn } from '@/lib/utils';
@@ -61,7 +63,16 @@ export function ChatPanel() {
   const [isScrolledUp, setIsScrolledUp] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
+  // Intent Helper state: minimize suggestions after first message
+  const [isSuggestionsMinimized, setIsSuggestionsMinimized] = useState(false);
+  const hasAutoMinimizedRef = useRef(false);
+
   const hasMessages = chatMessages.length > 0;
+
+  // Get active patient name for suggestion placeholders
+  const activePatientName = activePatient
+    ? `${activePatient.name_given?.[0] || ''} ${activePatient.name_family || ''}`.trim()
+    : undefined;
 
   // Scroll to bottom function
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
@@ -94,6 +105,19 @@ export function ChatPanel() {
   useEffect(() => {
     scrollToBottom('auto');
   }, [scrollToBottom]);
+
+  // Auto-minimize suggestions after first message is sent (only once)
+  useEffect(() => {
+    if (hasMessages && !hasAutoMinimizedRef.current) {
+      hasAutoMinimizedRef.current = true;
+      setIsSuggestionsMinimized(true);
+    }
+  }, [hasMessages]);
+
+  // Handle suggestion selection - fill input with selected text
+  const handleSelectSuggestion = useCallback((text: string) => {
+    chatInputRef.current?.setValue(text);
+  }, []);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -280,23 +304,10 @@ export function ChatPanel() {
             <div ref={messagesEndRef} />
           </div>
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="max-w-md text-center text-slate-500">
-              <div className="text-4xl mb-4">💬</div>
-              <h3 className="text-lg font-medium text-slate-700 mb-2">
-                Welkom bij Cortex Assistent
-              </h3>
-              <p className="text-sm mb-4">
-                Typ of spreek wat je wilt doen...
-              </p>
-              <div className="text-left text-sm space-y-1 bg-slate-50 rounded-lg p-4">
-                <p className="font-medium text-slate-700 mb-2">Voorbeelden:</p>
-                <p>• &ldquo;Notitie voor Jan: medicatie gegeven&rdquo;</p>
-                <p>• &ldquo;Zoek Marie van den Berg&rdquo;</p>
-                <p>• &ldquo;Maak overdracht voor deze dienst&rdquo;</p>
-              </div>
-            </div>
-          </div>
+          <ChatEmptyState
+            onSelectAction={handleSelectSuggestion}
+            activePatientName={activePatientName}
+          />
         )}
 
         {/* Scroll to bottom button */}
@@ -318,6 +329,14 @@ export function ChatPanel() {
           </button>
         )}
       </div>
+
+      {/* Suggestion strip above input */}
+      <ChatSuggestions
+        isMinimized={isSuggestionsMinimized}
+        onToggleMinimize={() => setIsSuggestionsMinimized(!isSuggestionsMinimized)}
+        onSelectSuggestion={handleSelectSuggestion}
+        activePatientName={activePatientName}
+      />
 
       {/* Chat input */}
       <ChatInput
@@ -361,8 +380,12 @@ export function ChatPanel() {
               if (parsed.action) {
                 console.log('[ChatPanel] Action detected:', parsed.action);
 
-                // Update last message with cleaned text content and action
-                updateLastMessage(parsed.textContent, parsed.action);
+                // If textContent is empty but we have an action, generate a default confirmation message
+                const displayContent = parsed.textContent.trim() || 
+                  getDefaultConfirmationMessage(parsed.action.intent, parsed.action.entities);
+
+                // Update last message with text content (or default) and action
+                updateLastMessage(displayContent, parsed.action);
 
                 // Store action in pendingAction for artifact opening (E3.S6)
                 if (shouldOpenArtifact(parsed.action.confidence)) {

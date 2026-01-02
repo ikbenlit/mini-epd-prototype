@@ -42,10 +42,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Parse and validate query parameters
+    // Note: searchParams.get() returns null if not present, but Zod expects undefined
     const searchParams = request.nextUrl.searchParams;
-    const start = searchParams.get('start');
-    const end = searchParams.get('end');
-    const label = searchParams.get('label');
+    const start = searchParams.get('start') ?? undefined;
+    const end = searchParams.get('end') ?? undefined;
+    const label = searchParams.get('label') ?? undefined;
 
     const validation = QuerySchema.safeParse({ start, end, label });
     if (!validation.success) {

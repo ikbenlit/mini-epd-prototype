@@ -31,15 +31,16 @@ const ActionSchema = z.object({
     query: z.string().optional(), // For zoeken intent
     dateRange: z
       .object({
-        start: z.string(),
-        end: z.string(),
+        start: z.string().optional(),
+        end: z.string().optional(),
         label: z.string(),
       })
       .optional(),
     datetime: z
       .object({
-        date: z.string(),
-        time: z.string(),
+        date: z.string().optional(),
+        time: z.string().optional(),
+        label: z.string().optional(), // Voor relatieve datums: vandaag, morgen, etc.
       })
       .optional(),
     appointmentType: z.string().optional(),
@@ -61,6 +62,7 @@ const ActionSchema = z.object({
       .object({
         date: z.string().optional(),
         time: z.string().optional(),
+        label: z.string().optional(), // Voor relatieve datums
       })
       .optional(),
   }),
@@ -195,6 +197,56 @@ export function getConfidenceLabel(confidence: number): string {
   if (confidence >= 0.7) return 'Redelijk zeker';
   if (confidence >= 0.5) return 'Onzeker';
   return 'Zeer onzeker';
+}
+
+/**
+ * Generate a default confirmation message for an intent when AI response has no text
+ */
+export function getDefaultConfirmationMessage(intent: CortexIntent, entities: Record<string, any>): string {
+  const dateLabel = entities?.dateRange?.label || entities?.datetime?.label;
+  const patientName = entities?.patientName;
+
+  switch (intent) {
+    case 'agenda_query':
+      if (dateLabel) {
+        return `Ik toon je de afspraken voor ${dateLabel}.`;
+      }
+      return 'Ik toon je de agenda.';
+
+    case 'create_appointment':
+      if (patientName && dateLabel) {
+        return `Ik open het afspraakformulier voor ${patientName} op ${dateLabel}.`;
+      }
+      if (patientName) {
+        return `Ik open het afspraakformulier voor ${patientName}.`;
+      }
+      return 'Ik open het afspraakformulier.';
+
+    case 'cancel_appointment':
+      return 'Ik help je met het annuleren van een afspraak.';
+
+    case 'reschedule_appointment':
+      return 'Ik help je met het verzetten van een afspraak.';
+
+    case 'dagnotitie':
+      if (patientName) {
+        return `Ik open de dagnotitie voor ${patientName}.`;
+      }
+      return 'Ik open het dagnotitie formulier.';
+
+    case 'zoeken':
+      const query = entities?.query || entities?.patientName;
+      if (query) {
+        return `Ik zoek naar "${query}".`;
+      }
+      return 'Ik open de zoekfunctie.';
+
+    case 'overdracht':
+      return 'Ik bereid de overdracht voor.';
+
+    default:
+      return 'Ik help je verder.';
+  }
 }
 
 /**

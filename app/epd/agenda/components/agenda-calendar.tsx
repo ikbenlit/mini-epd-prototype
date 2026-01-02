@@ -20,6 +20,7 @@ interface AgendaCalendarProps {
   events: CalendarEvent[];
   initialView?: CalendarView;
   currentView?: CalendarView;
+  currentDate?: Date;
   onEventClick?: (event: CalendarEvent) => void;
   onDateSelect?: (start: Date, end: Date) => void;
   onEventDrop?: (eventId: string, newStart: Date, newEnd: Date | null) => void;
@@ -31,6 +32,7 @@ export function AgendaCalendar({
   events,
   initialView = 'timeGridWeek',
   currentView,
+  currentDate,
   onEventClick,
   onDateSelect,
   onEventDrop,
@@ -47,13 +49,26 @@ export function AgendaCalendar({
       if (api.view.type !== currentView) {
         isChangingViewRef.current = true;
         api.changeView(currentView);
-        // Reset flag after a short delay to allow the view change to complete
         setTimeout(() => {
           isChangingViewRef.current = false;
         }, 100);
       }
     }
   }, [currentView]);
+
+  // Sync date when currentDate prop changes
+  useEffect(() => {
+    if (currentDate && internalRef.current) {
+      const api = internalRef.current.getApi();
+      if (api.getDate().toDateString() !== currentDate.toDateString()) {
+        isChangingViewRef.current = true;
+        api.gotoDate(currentDate);
+        setTimeout(() => {
+          isChangingViewRef.current = false;
+        }, 100);
+      }
+    }
+  }, [currentDate]);
 
   const handleEventClick = useCallback((info: EventClickArg) => {
     if (onEventClick) {
