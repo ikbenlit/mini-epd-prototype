@@ -7,6 +7,7 @@
  * Extracted from ZoekenBlock for DRY compliance.
  *
  * Epic: E0.S4 (Patient Selectie - Refactor)
+ * Epic: E3.S3 (Smart Defaults - Re-route after patient selection)
  */
 
 import { useState, useCallback } from 'react';
@@ -25,6 +26,8 @@ interface UsePatientSelectionOptions {
   trackRecentAction?: boolean;
   /** Show toast on success (default: true) */
   showSuccessToast?: boolean;
+  /** Handle pending action after selection (default: true) */
+  handlePendingAction?: boolean;
 }
 
 interface UsePatientSelectionReturn {
@@ -46,13 +49,15 @@ export function usePatientSelection(
     onError,
     trackRecentAction = true,
     showSuccessToast = true,
+    handlePendingAction = true,
   } = options;
 
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { setActivePatient, addRecentAction } = useCortexStore();
+  // E3.S3: Get pendingAction and openArtifact for re-route functionality
+  const { setActivePatient, addRecentAction, pendingAction, setPendingAction, openArtifact } = useCortexStore();
 
   const selectPatient = useCallback(
     async (patient: PatientSearchResult): Promise<Patient | null> => {
@@ -91,6 +96,30 @@ export function usePatientSelection(
           });
         }
 
+        // E3.S3: Handle pending action - re-route to artifact with patient info
+        if (handlePendingAction && pendingAction && !pendingAction.entities.patientId) {
+          const artifactType = pendingAction.artifact?.type || pendingAction.intent;
+
+          // Only open artifact if the type is valid (not 'unknown')
+          if (artifactType !== 'unknown') {
+            // Open artifact with patient info merged into prefill
+            openArtifact({
+              type: artifactType,
+              title: `${pendingAction.intent} - ${patient.name}`,
+              prefill: {
+                ...pendingAction.entities,
+                patientId: dbPatient.id,
+                patientName: patient.name,
+              },
+            });
+
+            console.log('[usePatientSelection] E3.S3: Re-routed pendingAction to', artifactType);
+          }
+
+          // Clear pending action regardless
+          setPendingAction(null);
+        }
+
         // Call success callback
         onSuccess?.(dbPatient, patient.name);
 
@@ -113,7 +142,7 @@ export function usePatientSelection(
         setSelectedId(null);
       }
     },
-    [setActivePatient, addRecentAction, toast, trackRecentAction, showSuccessToast, onSuccess, onError]
+    [setActivePatient, addRecentAction, toast, trackRecentAction, showSuccessToast, handlePendingAction, pendingAction, setPendingAction, openArtifact, onSuccess, onError]
   );
 
   const clearSelection = useCallback(() => {

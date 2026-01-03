@@ -12,7 +12,7 @@
 import { Loader2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PatientSearchResult } from '@/lib/cortex/hooks/use-patient-search';
-import { getPatientInitials } from '@/lib/fhir/patient-mapper';
+import { getPatientInitials, calculatePatientAge } from '@/lib/fhir/patient-mapper';
 
 interface PatientListItemProps {
   /** Patient data */
@@ -29,26 +29,6 @@ interface PatientListItemProps {
   className?: string;
 }
 
-/**
- * Calculate age from birth date string
- */
-function calculateAge(birthDate: string): number | null {
-  if (!birthDate) return null;
-
-  const birth = new Date(birthDate);
-  if (isNaN(birth.getTime())) return null;
-
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-
-  return age;
-}
-
 export function PatientListItem({
   patient,
   isLoading = false,
@@ -57,7 +37,7 @@ export function PatientListItem({
   showIdentifiers = true,
   className,
 }: PatientListItemProps) {
-  const age = calculateAge(patient.birthDate);
+  const age = calculatePatientAge(patient.birthDate);
   const initials = getPatientInitials(patient.name);
 
   const isSm = size === 'sm';

@@ -169,7 +169,7 @@ export function LoginForm() {
               <Zap className="w-5 h-5" />
               <div className="text-left">
                 <div className="font-medium text-sm">Cortex</div>
-                <div className="text-xs opacity-70">Spraak & AI</div>
+                <div className="text-xs opacity-70">Je EPD dat meedenkt</div>
               </div>
             </button>
           </div>

@@ -20,6 +20,8 @@ import { useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useCortexStore } from '@/stores/cortex-store';
 import { cn } from '@/lib/utils';
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { useMediaQuery } from '@/hooks/use-media-query';
 import { ContextBar } from './context-bar';
 import { OfflineBanner } from './offline-banner';
 import { NudgeToast } from './nudge-toast';
@@ -143,20 +145,42 @@ export function CommandCenter() {
 
       {/* Split-screen container - flex-1 */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Chat Panel - 40% (desktop), 100% (mobile) */}
-        <div className="w-full lg:w-[40%] border-r border-slate-200 flex flex-col h-full">
-          <ChatPanel />
-        </div>
+        {/* Mobile View / Desktop Resizable View Toggle */}
+        <PanelGroup direction="horizontal" className="flex-1 hidden lg:flex">
+          {/* Chat Panel Panel */}
+          <Panel defaultSize={40} minSize={20} className="flex flex-col h-full border-r border-slate-200">
+            <ChatPanel />
+          </Panel>
 
-        {/* Artifact Area - 60% (desktop), overlay on mobile */}
-        <div
-          className={cn(
-            "lg:flex lg:w-[60%] flex-col bg-white transition-transform duration-300 ease-in-out lg:transform-none lg:static absolute inset-0 z-20",
-            // On mobile: hidden by default, visible (slide in) when openArtifacts > 0
-            openArtifacts.length > 0 ? "translate-x-0" : "translate-x-full lg:translate-x-0"
-          )}
-        >
-          <ArtifactArea />
+          {/* Resize Handle - Premium feel */}
+          <PanelResizeHandle className="w-1.5 hover:w-2 group relative transition-all duration-300 ease-in-out bg-slate-50 hover:bg-slate-100 flex items-center justify-center">
+            {/* Visual indicator (line) */}
+            <div className="h-12 w-1 rounded-full bg-slate-200 group-hover:bg-amber-400 group-active:bg-amber-500 transition-colors" />
+
+            {/* Interaction Area (Invisible width boost) */}
+            <div className="absolute inset-y-0 -left-1 -right-1 cursor-col-resize" />
+          </PanelResizeHandle>
+
+          {/* Artifact Area Panel */}
+          <Panel defaultSize={60} minSize={30} className="flex flex-col bg-white">
+            <ArtifactArea />
+          </Panel>
+        </PanelGroup>
+
+        {/* Mobile-only Layout (Legacy overlay behavior) */}
+        <div className="lg:hidden flex flex-1 overflow-hidden relative">
+          <div className="w-full flex flex-col h-full">
+            <ChatPanel />
+          </div>
+
+          <div
+            className={cn(
+              "flex flex-col bg-white transition-transform duration-300 ease-in-out absolute inset-0 z-20",
+              openArtifacts.length > 0 ? "translate-x-0" : "translate-x-full"
+            )}
+          >
+            <ArtifactArea />
+          </div>
         </div>
       </div>
 

@@ -10,6 +10,7 @@ import type {
   ExtractedEntities,
   NudgePriority,
   NudgeSuggestion,
+  ProtocolMetadata,
 } from './types';
 
 // -----------------------------------------------------------------------------
@@ -51,6 +52,8 @@ export interface ProtocolRule {
     /** Function to prefill entities from source action */
     prefillEntities: (source: ExtractedEntities) => Partial<ExtractedEntities>;
   };
+  /** Protocol metadata for clinical context (optional) */
+  protocol?: ProtocolMetadata;
   /** Priority for sorting multiple suggestions */
   priority: NudgePriority;
   /** Whether this rule is active */
@@ -153,6 +156,7 @@ export function evaluateNudge(input: NudgeEvaluationInput): NudgeSuggestion[] {
           entities: rule.suggestion.prefillEntities(input.entities),
           message: rule.suggestion.message,
           rationale: rule.name,
+          protocol: rule.protocol,
         },
         status: 'pending',
         priority: rule.priority,
@@ -204,6 +208,11 @@ export const PROTOCOL_RULES: ProtocolRule[] = [
         patientName: source.patientName,
         appointmentType: 'follow-up',
       }),
+    },
+    protocol: {
+      name: 'V&VN Richtlijn Wondzorg',
+      reference: '§4.2 Controlefrequentie',
+      rationale: 'Vroege hercontrole na wondverzorging verkleint het risico op infectie en bevordert optimale wondgenezing.',
     },
     priority: 'medium',
     enabled: true,

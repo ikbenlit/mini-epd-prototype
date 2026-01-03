@@ -26,6 +26,7 @@ import { Loader2, Search, User, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { safeFetch, getErrorInfo, retryFetch } from '@/lib/cortex/error-handler';
 import { evaluateNudge } from '@/lib/cortex/nudge';
+import { formatPatientName as formatPatientNameFromDb } from '@/lib/fhir/patient-mapper';
 
 interface DagnotitieBlockProps {
   prefill?: BlockPrefillData;
@@ -40,20 +41,25 @@ interface Patient {
 
 export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
   const config = BLOCK_CONFIGS.dagnotitie;
-  const { closeBlock, addSuggestion } = useCortexStore();
+  const { closeBlock, addChatMessage, activePatient } = useCortexStore();
   const { toast } = useToast();
 
-  // Form state
-  const [patientId, setPatientId] = useState<string>(prefill?.patientId || '');
-  const [patientName, setPatientName] = useState<string>(prefill?.patientName || '');
+  // E3.S1: Determine initial patient from prefill OR activePatient
+  const initialPatientId = prefill?.patientId || activePatient?.id || '';
+  const initialPatientName = prefill?.patientName || (activePatient ? formatPatientNameFromDb(activePatient) : '');
+  const hasPrefillPatient = Boolean(prefill?.patientId);
+
+  // Form state - E3.S1: Use activePatient as fallback
+  const [patientId, setPatientId] = useState<string>(initialPatientId);
+  const [patientName, setPatientName] = useState<string>(initialPatientName);
   const [category, setCategory] = useState<VerpleegkundigCategory>(
     prefill?.category || 'observatie'
   );
   const [content, setContent] = useState<string>(prefill?.content || '');
   const [includeInHandover, setIncludeInHandover] = useState<boolean>(false);
 
-  // Patient search state
-  const [searchQuery, setSearchQuery] = useState<string>(prefill?.patientName || '');
+  // Patient search state - E3.S1: Use activePatient as fallback
+  const [searchQuery, setSearchQuery] = useState<string>(initialPatientName);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showPatientDropdown, setShowPatientDropdown] = useState(false);
@@ -61,18 +67,33 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Prefill patient if patientId is provided
+  // E3.S1: Prefill patient from prefill OR activePatient
   useEffect(() => {
+    // Priority 1: Explicit prefill
     if (prefill?.patientId && prefill?.patientName) {
       setPatientId(prefill.patientId);
       setPatientName(prefill.patientName);
+      setSearchQuery(prefill.patientName);
       setSelectedPatient({
         id: prefill.patientId,
         name_family: prefill.patientName.split(' ').pop(),
         name_given: prefill.patientName.split(' ').slice(0, -1),
       });
     }
-  }, [prefill]);
+    // Priority 2: activePatient (only if no prefill patient)
+    else if (!hasPrefillPatient && activePatient) {
+      const name = formatPatientNameFromDb(activePatient);
+      setPatientId(activePatient.id);
+      setPatientName(name);
+      setSearchQuery(name);
+      setSelectedPatient({
+        id: activePatient.id,
+        name_family: activePatient.name_family || undefined,
+        name_given: activePatient.name_given || [],
+        identifier_bsn: activePatient.identifier_bsn || undefined,
+      });
+    }
+  }, [prefill, activePatient, hasPrefillPatient]);
 
   // Patient search with debouncing
   const searchPatients = useCallback(async (query: string) => {
@@ -223,6 +244,7 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
       });
 
       // E4: Evaluate nudge after successful save
+      // Now adds nudges as chat messages instead of toast
       const nudges = evaluateNudge({
         intent: 'dagnotitie',
         actionId: data.id || `dagnotitie-${Date.now()}`,
@@ -233,10 +255,14 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
         content: content.trim(),
       });
 
-      // Add nudge suggestions to store
+      // Add nudge suggestions as chat messages
       nudges.forEach((nudge) => {
-        addSuggestion(nudge);
-        console.log('[DagnotatieBlock] Nudge triggered:', nudge.suggestion.message);
+        addChatMessage({
+          type: 'nudge',
+          content: nudge.suggestion.message,
+          nudge: nudge,
+        });
+        console.log('[DagnotatieBlock] Nudge chat message:', nudge.suggestion.message);
       });
 
       // Close block after short delay
@@ -259,7 +285,7 @@ export function DagnotatieBlock({ prefill }: DagnotitieBlockProps) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [patientId, content, category, includeInHandover, patientName, toast, closeBlock, addSuggestion]);
+  }, [patientId, content, category, includeInHandover, patientName, toast, closeBlock, addChatMessage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

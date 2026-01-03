@@ -156,3 +156,36 @@ export function getPatientInitials(name: string): string {
     .slice(0, 2)
     .toUpperCase();
 }
+
+/**
+ * PatientSearchResult interface (duplicated to avoid circular import)
+ * Matches the interface in use-patient-search.ts
+ */
+export interface PatientSearchResult {
+  id: string;
+  name: string;
+  birthDate: string;
+  identifier_bsn?: string;
+  identifier_client_number?: string;
+  matchScore: number;
+}
+
+/**
+ * Converts a database Patient to PatientSearchResult format
+ *
+ * Used for displaying recent patients in sidebar/dropdown
+ * where we have full Patient data but need search result format.
+ *
+ * @param patient - Database Patient object
+ * @returns PatientSearchResult for UI components
+ */
+export function dbPatientToSearchResult(patient: Patient): PatientSearchResult {
+  return {
+    id: patient.id,
+    name: formatPatientName(patient) || 'Onbekend',
+    birthDate: patient.birth_date || '',
+    identifier_bsn: patient.identifier_bsn || undefined,
+    identifier_client_number: patient.identifier_client_number || undefined,
+    matchScore: 1,
+  };
+}

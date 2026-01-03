@@ -12,8 +12,9 @@
 import { useEffect, useRef } from 'react';
 import { X, Search, Clock, Users } from 'lucide-react';
 import { useCortexStore } from '@/stores/cortex-store';
-import { usePatientSearch, type PatientSearchResult } from '@/lib/cortex/hooks/use-patient-search';
+import { usePatientSearch } from '@/lib/cortex/hooks/use-patient-search';
 import { usePatientSelection } from '@/lib/cortex/hooks/use-patient-selection';
+import { dbPatientToSearchResult } from '@/lib/fhir/patient-mapper';
 import {
   PatientListItem,
   PatientListEmpty,
@@ -77,16 +78,6 @@ export function PatientSidebar() {
 
   const showResults = query.length >= 2;
   const showRecent = !showResults && recentPatients.length > 0;
-
-  // Map DB patient to search result format for PatientListItem
-  const mapPatientToSearchResult = (patient: typeof recentPatients[0]): PatientSearchResult => ({
-    id: patient.id,
-    name: `${patient.name_given?.[0] || ''} ${patient.name_family || ''}`.trim() || 'Onbekend',
-    birthDate: patient.birth_date || '',
-    identifier_bsn: patient.identifier_bsn || undefined,
-    identifier_client_number: patient.identifier_client_number || undefined,
-    matchScore: 1,
-  });
 
   const handleBackdropClick = () => {
     setPatientSidebarOpen(false);
@@ -177,7 +168,7 @@ export function PatientSidebar() {
               </h3>
               <div className="space-y-1.5">
                 {recentPatients.map((patient) => {
-                  const searchResult = mapPatientToSearchResult(patient);
+                  const searchResult = dbPatientToSearchResult(patient);
                   return (
                     <PatientListItem
                       key={patient.id}

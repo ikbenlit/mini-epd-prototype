@@ -102,7 +102,7 @@ export function ChatEmptyState({ onSelectAction, activePatientName }: ChatEmptyS
           Welkom bij Cortex Assistent
         </h2>
         <p className="text-sm text-slate-500 max-w-md">
-          Typ of spreek wat je wilt doen. Klik op een kaart om snel te starten.
+          Jij zorgt. Ik regel de rest.
         </p>
       </motion.div>
 

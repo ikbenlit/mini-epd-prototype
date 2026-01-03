@@ -284,7 +284,7 @@ export function ArtifactContainer({
       </div>
 
       {artifacts.length > 1 && (
-        <div className="hidden lg:flex bg-white border-b border-slate-200">
+        <div className="hidden lg:flex bg-white border-b border-slate-200 justify-center">
           {artifacts.map((artifact) => (
             <ArtifactTab
               key={artifact.id}
@@ -298,9 +298,9 @@ export function ArtifactContainer({
       )}
 
       {/* Active artifact content */}
-      <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto bg-slate-50">
         {activeArtifact ? (
-          <div key={activeArtifact.id} className="artifact-enter w-full">
+          <div key={activeArtifact.id} className="artifact-enter w-full flex justify-center">
             {renderArtifactBlock(activeArtifact, onCloseArtifact)}
           </div>
         ) : (

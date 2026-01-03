@@ -47,6 +47,12 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, showTimestamp = false }: ChatMessageProps) {
+  // Nudge messages are handled by NudgeChatMessage component
+  // This shouldn't be called for nudge type, but guard just in case
+  if (message.type === 'nudge') {
+    return null;
+  }
+
   const styles = MESSAGE_STYLES[message.type];
 
   // Don't show border for system messages

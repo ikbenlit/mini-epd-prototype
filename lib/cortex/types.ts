@@ -282,6 +282,16 @@ export type NudgePriority = 'low' | 'medium' | 'high';
 /** Nudge suggestion status */
 export type NudgeStatus = 'pending' | 'accepted' | 'dismissed' | 'expired';
 
+/** Protocol metadata for clinical context */
+export interface ProtocolMetadata {
+  /** Official protocol name (e.g., "V&VN Richtlijn Wondzorg") */
+  name: string;
+  /** Specific section reference (e.g., "§4.2 Controlefrequentie") */
+  reference?: string;
+  /** Clinical rationale/justification for the suggestion */
+  rationale: string;
+}
+
 /** Proactive suggestion after action completion */
 export interface NudgeSuggestion {
   id: string;
@@ -295,6 +305,8 @@ export interface NudgeSuggestion {
     entities: Partial<ExtractedEntities>;
     message: string;
     rationale: string;
+    /** Protocol metadata for clinical context (optional) */
+    protocol?: ProtocolMetadata;
   };
   status: NudgeStatus;
   priority: NudgePriority;

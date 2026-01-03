@@ -56,7 +56,7 @@ export interface ChatEntities {
 }
 
 // Chat types (v3.0)
-export type ChatMessageType = 'user' | 'assistant' | 'system' | 'error';
+export type ChatMessageType = 'user' | 'assistant' | 'system' | 'error' | 'nudge';
 
 export interface ChatMessage {
   id: string;
@@ -64,6 +64,8 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   action?: ChatAction;
+  /** Nudge suggestion data (only for type='nudge') */
+  nudge?: NudgeSuggestion;
 }
 
 export interface ChatAction {

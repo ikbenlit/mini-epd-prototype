@@ -23,9 +23,11 @@ import { safeFetch, getErrorInfo } from '@/lib/cortex/error-handler';
 import { useToast } from '@/hooks/use-toast';
 import { BLOCK_CONFIGS } from '@/lib/cortex/types';
 import type { BlockPrefillData } from '@/stores/cortex-store';
+import { useCortexStore } from '@/stores/cortex-store';
 import type { FHIRPatient } from '@/lib/fhir';
 import type { Intake } from '@/lib/types/intake';
 import { cn } from '@/lib/utils';
+import { formatPatientName } from '@/lib/fhir/patient-mapper';
 
 interface PatientDashboardBlockProps {
   prefill?: BlockPrefillData;
@@ -103,8 +105,12 @@ function getPatientBsn(patient?: FHIRPatient): string | null {
 
 export function PatientDashboardBlock({ prefill }: PatientDashboardBlockProps) {
   const config = BLOCK_CONFIGS['patient-dashboard'];
-  const patientId = prefill?.patientId;
+  const { activePatient } = useCortexStore();
   const { toast } = useToast();
+
+  // E3.S2: Use activePatient as fallback for patientId
+  const patientId = prefill?.patientId || activePatient?.id;
+  const patientNameFromPrefill = prefill?.patientName || (activePatient ? formatPatientName(activePatient) : undefined);
 
   const [data, setData] = useState<PatientDashboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(Boolean(patientId));
@@ -178,8 +184,9 @@ export function PatientDashboardBlock({ prefill }: PatientDashboardBlockProps) {
     ? data?.carePlan?.activities.length
     : 0;
 
-  const title = prefill?.patientName
-    ? `${config.title} - ${prefill.patientName}`
+  // E3.S2: Use patientNameFromPrefill for title
+  const title = patientNameFromPrefill
+    ? `${config.title} - ${patientNameFromPrefill}`
     : config.title;
 
   return (

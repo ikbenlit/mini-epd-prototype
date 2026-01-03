@@ -14,13 +14,14 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { ChatMessage } from './chat-message';
+import { NudgeChatMessage } from './nudge-chat-message';
 import { ChatInput, ChatInputHandle } from './chat-input';
 import { ChatSuggestions } from './chat-suggestions';
 import { ChatEmptyState } from './chat-empty-state';
 import { ActionChainCard } from './action-chain-card';
 import { ClarificationCard } from './clarification-card';
 import { ProcessingIndicator } from './processing-indicator';
-import { useCortexStore } from '@/stores/cortex-store';
+import { useCortexStore, type ChatMessage as ChatMessageType } from '@/stores/cortex-store';
 import { sendChatMessage } from '@/lib/cortex/chat-api';
 import { parseActionFromResponse, shouldOpenArtifact, routeIntentToArtifact, getDefaultConfirmationMessage } from '@/lib/cortex/action-parser';
 import { evaluateNudge } from '@/lib/cortex/nudge';
@@ -48,9 +49,12 @@ export function ChatPanel() {
   const setPendingClarification = useCortexStore((s) => s.setPendingClarification);
   const resolveClarification = useCortexStore((s) => s.resolveClarification);
 
-  // Artifact & Nudge state (E5.S2)
+  // Artifact state (E5.S2)
   const openArtifact = useCortexStore((s) => s.openArtifact);
-  const addSuggestion = useCortexStore((s) => s.addSuggestion);
+
+  // Nudge state (chat-based nudges)
+  const acceptSuggestion = useCortexStore((s) => s.acceptSuggestion);
+  const dismissSuggestion = useCortexStore((s) => s.dismissSuggestion);
 
   // Refs for scrolling
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -165,6 +169,7 @@ export function ChatPanel() {
     updateActionStatus(actionId, 'success');
 
     // E5.S2: Trigger nudge evaluation after successful action
+    // Now adds nudges as chat messages instead of toast
     if (isFeatureEnabled('CORTEX_NUDGE')) {
       const suggestions = evaluateNudge({
         intent: action.intent,
@@ -174,11 +179,18 @@ export function ChatPanel() {
       });
 
       if (suggestions.length > 0) {
-        console.log('[ChatPanel] Nudge suggestions:', suggestions.length);
-        suggestions.forEach((suggestion) => addSuggestion(suggestion));
+        console.log('[ChatPanel] Nudge suggestions (chat-based):', suggestions.length);
+        suggestions.forEach((suggestion) => {
+          // Add as chat message with nudge type
+          addChatMessage({
+            type: 'nudge',
+            content: suggestion.suggestion.message,
+            nudge: suggestion,
+          });
+        });
       }
     }
-  }, [activeChain, updateActionStatus, openArtifact, addSuggestion]);
+  }, [activeChain, updateActionStatus, openArtifact, addChatMessage]);
 
   const handleSkipAction = useCallback((actionId: string) => {
     console.log('[ChatPanel] Skipping action:', actionId);
@@ -209,6 +221,35 @@ export function ChatPanel() {
     console.log('[ChatPanel] Clarification dismissed');
     setPendingClarification(null);
   }, [setPendingClarification]);
+
+  // Nudge handlers (chat-based nudges)
+  const handleAcceptNudge = useCallback((suggestionId: string, suggestion: ChatMessageType['nudge']) => {
+    console.log('[ChatPanel] Nudge accepted:', suggestionId);
+    acceptSuggestion(suggestionId);
+
+    if (suggestion) {
+      // Route to artifact with prefilled entities
+      const artifact = routeIntentToArtifact(
+        suggestion.suggestion.intent,
+        suggestion.suggestion.entities,
+        0.9 // High confidence for nudge-initiated actions
+      );
+
+      if (artifact) {
+        console.log('[ChatPanel] Opening artifact from nudge:', artifact.type);
+        openArtifact({
+          type: artifact.type,
+          prefill: artifact.prefill,
+          title: artifact.title,
+        });
+      }
+    }
+  }, [acceptSuggestion, openArtifact]);
+
+  const handleDismissNudge = useCallback((suggestionId: string) => {
+    console.log('[ChatPanel] Nudge dismissed:', suggestionId);
+    dismissSuggestion(suggestionId);
+  }, [dismissSuggestion]);
 
   // E5.S2: Sequential chain execution - auto-advance to next action
   useEffect(() => {
@@ -258,7 +299,16 @@ export function ChatPanel() {
         {hasMessages ? (
           <div className="flex flex-col space-y-3">
             {chatMessages.map((message) => (
-              <ChatMessage key={message.id} message={message} showTimestamp />
+              message.type === 'nudge' && message.nudge ? (
+                <NudgeChatMessage
+                  key={message.id}
+                  suggestion={message.nudge}
+                  onAccept={(id) => handleAcceptNudge(id, message.nudge)}
+                  onDismiss={handleDismissNudge}
+                />
+              ) : (
+                <ChatMessage key={message.id} message={message} showTimestamp />
+              )
             ))}
 
             {/* V2: Processing indicator while AI is thinking */}
@@ -366,9 +416,18 @@ export function ChatPanel() {
               shift,
             },
             (chunk) => {
-              // On each chunk, append to accumulated content and update last message
+              // On each chunk, append to accumulated content
               accumulatedContent += chunk;
-              updateLastMessage(accumulatedContent);
+
+              // Filter out JSON blocks during streaming - users don't need to see the raw JSON
+              // Show "Verwerken..." when JSON is being generated but no readable text yet
+              const displayContent = accumulatedContent
+                .replace(/```json[\s\S]*?```/g, '') // Remove complete JSON blocks
+                .replace(/```json[\s\S]*$/g, '')    // Remove incomplete JSON block at end
+                .trim();
+
+              // If we have displayable content, show it; otherwise show processing message
+              updateLastMessage(displayContent || 'Verwerken...');
             },
             () => {
               // On done - parse action from complete response
