@@ -1,0 +1,167 @@
+---
+title: "Proactieve Suggesties"
+category: "cortex-nudge"
+group: "cortex"
+version: "2.0.0"
+releaseDate: "2025-01-03"
+status: "active"
+description: "Automatische suggesties na acties"
+---
+
+## Wat is Nudge?
+
+Nudge is het proactieve suggestie-systeem van Cortex. Na bepaalde acties geeft Cortex automatisch relevante follow-up suggesties.
+
+**Doel:**
+- Belangrijke vervolgacties niet vergeten
+- Protocollen ondersteunen
+- Workflow stroomlijnen
+
+---
+
+## Hoe het Werkt
+
+1. U voert een actie uit (bijv. notitie maken)
+2. Nudge analyseert de inhoud
+3. Bij een match toont Cortex een suggestie
+4. U kiest of u de suggestie accepteert
+
+---
+
+## Huidige Nudge Regels
+
+### Wondzorg Protocol
+
+**Trigger:** Notitie bevat een van deze woorden:
+- "wond"
+- "wondzorg"
+- "verbandwissel"
+- "decubitus"
+- "zwelling"
+
+**Suggestie:** "Wondcontrole inplannen over 3 dagen?"
+
+**Actie bij acceptatie:**
+- Opent afspraak formulier
+- Patiënt vooringevuld
+- Datum +3 dagen vooringevuld
+- Type: "Wondcontrole"
+
+### Medicatie Wijziging
+
+**Trigger:** Notitie bevat:
+- "medicatie gewijzigd"
+- "dosering aangepast"
+- "nieuwe medicatie"
+
+**Suggestie:** "Medicatie review inplannen over 1 week?"
+
+### Val Incident
+
+**Trigger:** Notitie met categorie "Incident" bevat:
+- "gevallen"
+- "val"
+- "uitgegleden"
+
+**Suggestie:** "Valrisico herbeoordeling inplannen?"
+
+---
+
+## Suggestie Interface
+
+### Toast Notificatie
+
+De suggestie verschijnt als een toast rechtsonder in het scherm:
+
+```
+┌────────────────────────────────────┐
+│ 💡 Suggestie                       │
+│                                    │
+│ Wondcontrole inplannen over        │
+│ 3 dagen?                           │
+│                                    │
+│ [Nee, bedankt]  [Ja, doe maar]     │
+└────────────────────────────────────┘
+```
+
+### Reageren
+
+| Knop | Actie |
+|------|-------|
+| **Ja, doe maar** | Voert de gesuggereerde actie uit |
+| **Nee, bedankt** | Sluit de suggestie |
+| *Wachten* | Na 10 seconden verdwijnt automatisch |
+
+### Keyboard
+
+| Toets | Actie |
+|-------|-------|
+| `Enter` | Accepteer suggestie |
+| `Escape` | Wijs suggestie af |
+
+---
+
+## Nudge Configuratie
+
+### Per Gebruiker
+
+In de toekomst kunnen gebruikers per nudge-type instellen:
+- Aan/uit per protocol
+- Timing aanpassen (bijv. 2 dagen i.p.v. 3)
+- Altijd tonen vs. alleen bij hoge urgentie
+
+### Per Organisatie
+
+Organisaties kunnen eigen nudge-regels definiëren:
+- Specifieke protocollen
+- Compliance vereisten
+- Workflow optimalisaties
+
+---
+
+## Nudge vs. Alerts
+
+| Aspect | Nudge | Alert |
+|--------|-------|-------|
+| **Trigger** | Na actie | Continue monitoring |
+| **Urgentie** | Suggestie | Waarschuwing |
+| **Actie vereist** | Optioneel | Vaak verplicht |
+| **Weergave** | Toast (10 sec) | Persistent |
+
+---
+
+## Best Practices
+
+### Wanneer Accepteren
+
+- Bij routine controles (wondzorg, medicatie review)
+- Als het protocol dit voorschrijft
+- Als u anders zou vergeten
+
+### Wanneer Afwijzen
+
+- Als de controle al gepland is
+- Als het niet van toepassing is op deze patiënt
+- Bij one-time observaties zonder follow-up
+
+### Handmatig Triggeren
+
+U kunt ook handmatig een suggestie-actie uitvoeren:
+```
+"Plan wondcontrole voor Jan over 3 dagen"
+```
+
+---
+
+## Toekomstige Uitbreidingen
+
+**Gepland:**
+- Medicatie interactie checks
+- Lab waarden follow-up
+- Behandelplan milestones
+- Team notificaties
+
+**In overweging:**
+- Machine learning voor patronen
+- Gepersonaliseerde timing
+- Cross-patient insights

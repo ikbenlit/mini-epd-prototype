@@ -19,16 +19,22 @@
       "order": 3
     },
     {
+      "id": "cortex",
+      "title": "Cortex Intent Driven EPD",
+      "description": "AI-gestuurd commandocentrum met natuurlijke taal interface",
+      "order": 4
+    },
+    {
       "id": "infrastructure",
       "title": "Infrastructure",
       "description": "Ondersteunende systemen",
-      "order": 4
+      "order": 5
     },
     {
       "id": "bugs",
       "title": "Bugs & Fixes",
       "description": "Opgeloste bugs en troubleshooting",
-      "order": 5
+      "order": 6
     }
   ],
   "categories": [
@@ -154,6 +160,14 @@
       "description": "Chat widget voor hulp bij het gebruik van het EPD",
       "order": 13,
       "status": "completed"
+    },
+    {
+      "slug": "cortex-command-center",
+      "title": "Cortex Command Center",
+      "group": "cortex",
+      "description": "AI-gestuurd commandocentrum voor spraak- en tekstopdrachten met multi-intent support",
+      "order": 1,
+      "status": "active"
     },
     {
       "slug": "voice-controlled-reporting",

@@ -1,0 +1,154 @@
+---
+title: "Intent Systeem"
+category: "cortex-intent-systeem"
+group: "cortex"
+version: "2.0.0"
+releaseDate: "2025-01-03"
+status: "active"
+description: "Hoe Cortex opdrachten classificeert en verwerkt"
+---
+
+## Hoe Cortex Werkt
+
+Cortex gebruikt een drie-lagen architectuur om uw opdrachten te begrijpen en uit te voeren.
+
+---
+
+## Layer 1: Reflex Arc
+
+De eerste laag is een snelle, lokale pattern matcher die veelvoorkomende opdrachten direct herkent.
+
+**Kenmerken:**
+- Verwerking in < 10ms
+- Geen AI/netwerk nodig
+- Herkent ~80% van dagelijkse opdrachten
+
+**Voorbeelden die direct worden herkend:**
+| Opdracht | Intent |
+|----------|--------|
+| "Agenda vandaag" | `agenda_query` |
+| "Zoek Jansen" | `zoeken` |
+| "Notitie: medicatie gegeven" | `dagnotitie` |
+| "Overdracht" | `overdracht` |
+
+Wanneer de Reflex Arc niet zeker genoeg is (confidence < 0.7), escaleert het naar Layer 2.
+
+---
+
+## Layer 2: Orchestrator
+
+De tweede laag gebruikt Claude AI voor complexe classificatie.
+
+**Wanneer gebruikt:**
+- Multi-intent opdrachten ("Zeg Jan af en maak notitie")
+- Verwijzingen naar context ("zijn medicatie", "afspraak van morgen")
+- Relatieve tijd ("volgende week", "over 3 dagen")
+- Ambigue opdrachten
+
+**Voorbeeld verwerking:**
+
+Invoer: `"Zeg Jan af voor morgen en noteer dat hij ziek is"`
+
+Orchestrator output:
+```json
+{
+  "intents": [
+    {
+      "type": "cancel_appointment",
+      "patient": "Jan",
+      "date": "2025-01-04"
+    },
+    {
+      "type": "dagnotitie",
+      "patient": "Jan",
+      "content": "hij is ziek"
+    }
+  ]
+}
+```
+
+---
+
+## Layer 3: Nudge
+
+De derde laag geeft proactieve suggesties na voltooide acties.
+
+**Voorbeeld:**
+- U maakt een notitie over wondzorg
+- Nudge suggereert: "Wondcontrole inplannen over 3 dagen?"
+
+Zie [Proactieve Suggesties](/documentatie/cortex-nudge) voor meer details.
+
+---
+
+## Intent Types
+
+Cortex herkent de volgende intents:
+
+| Intent | Beschrijving | Trigger woorden |
+|--------|--------------|-----------------|
+| `dagnotitie` | Notitie aanmaken | notitie, rapportage, observatie |
+| `zoeken` | Patiënt zoeken | zoek, vind, patiënt |
+| `overdracht` | Overdracht openen | overdracht, dienstoverdracht |
+| `agenda_query` | Agenda bekijken | agenda, afspraken, planning |
+| `create_appointment` | Afspraak maken | plan, maak afspraak, inplannen |
+| `cancel_appointment` | Afspraak annuleren | annuleer, zeg af, cancel |
+| `reschedule_appointment` | Afspraak verzetten | verzet, verplaats, reschedule |
+
+---
+
+## Context-Aware Classificatie
+
+Cortex gebruikt context om opdrachten beter te begrijpen:
+
+### Actieve Patiënt
+
+Als er een patiënt geselecteerd is in de context bar:
+
+| Invoer | Interpretatie |
+|--------|---------------|
+| "Maak notitie voor haar" | Notitie voor actieve patiënt |
+| "Plan afspraak met hem" | Afspraak voor actieve patiënt |
+| "Zijn medicatie" | Medicatie van actieve patiënt |
+
+### Recente Context
+
+Cortex onthoudt recente acties:
+
+| Situatie | Invoer | Interpretatie |
+|----------|--------|---------------|
+| Net Jan gezocht | "Open dossier" | Open Jan's dossier |
+| Net afspraak gemaakt | "Verzet naar vrijdag" | Verzet zojuist gemaakte afspraak |
+
+---
+
+## Confidence Scores
+
+Elke classificatie heeft een confidence score (0.0 - 1.0):
+
+| Score | Betekenis | Actie |
+|-------|-----------|-------|
+| ≥ 0.9 | Zeer zeker | Direct uitvoeren |
+| 0.7 - 0.9 | Waarschijnlijk | Uitvoeren, toon bevestiging |
+| 0.5 - 0.7 | Onzeker | Vraag verduidelijking |
+| < 0.5 | Onduidelijk | Escaleer naar AI of vraag opnieuw |
+
+---
+
+## Foutafhandeling
+
+### Onbekende Intent
+
+Als Cortex een opdracht niet begrijpt:
+
+1. Toont een vriendelijke melding
+2. Suggereert mogelijke alternatieven
+3. Biedt optie om te chatten voor hulp
+
+### Meerdere Matches
+
+Als een opdracht meerdere patiënten of opties kan matchen:
+
+1. Toont een keuzelijst
+2. Gebruiker selecteert de juiste optie
+3. Actie wordt uitgevoerd

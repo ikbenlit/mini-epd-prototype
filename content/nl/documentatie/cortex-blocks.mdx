@@ -1,0 +1,176 @@
+---
+title: "Blocks"
+category: "cortex-blocks"
+group: "cortex"
+version: "2.0.0"
+releaseDate: "2025-01-03"
+status: "active"
+description: "Dagnotitie, Zoeken, Overdracht en andere actie-blocks"
+---
+
+## Wat zijn Blocks?
+
+Blocks zijn de actie-schermen die Cortex opent na een commando. Elk block biedt een specifieke functionaliteit.
+
+| Block | Functie | Opent bij |
+|-------|---------|-----------|
+| **Dagnotitie** | Notitie invoeren | "Notitie...", "Rapportage..." |
+| **Zoeken** | Patiënt zoeken | "Zoek...", "Patiënt..." |
+| **Overdracht** | Dienst overdracht | "Overdracht" |
+| **Patient Dashboard** | Patiënt overzicht | Na patiënt selectie |
+
+Elk block kan worden gesloten met `Escape` of de sluitknop.
+
+---
+
+## Dagnotitie Block
+
+Het Dagnotitie block opent wanneer u een notitie wilt maken.
+
+### Openen
+
+Via commando:
+```
+"Notitie voor Jan: medicatie ingenomen"
+"Rapportage: wond verzorgd, ziet er goed uit"
+"Observatie Marie: onrustig gedrag na bezoek"
+```
+
+### Velden
+
+| Veld | Beschrijving |
+|------|--------------|
+| **Patiënt** | Automatisch ingevuld bij @mention of actieve patiënt |
+| **Categorie** | Keuze uit 5 types (zie onder) |
+| **Notitie** | Vrije tekst (max 500 karakters) |
+| **Overdracht** | Checkbox om in overdracht op te nemen |
+
+### Categorieën
+
+| Categorie | Kleur | Gebruik |
+|-----------|-------|---------|
+| Medicatie | Blauw | Medicatie-gerelateerde observaties |
+| ADL/verzorging | Groen | Activiteiten dagelijks leven |
+| Gedragsobservatie | Paars | Gedrag en stemming |
+| Incident | Rood | Incidenten en bijzonderheden |
+| Algemene observatie | Grijs | Overige observaties |
+
+### Opslaan
+
+- Klik op **Opslaan** knop
+- Of druk `⌘Enter` (Mac) / `Ctrl+Enter` (Windows)
+
+### Slimme Prefill
+
+Als een patiënt actief is in de context bar, wordt deze automatisch ingevuld.
+
+---
+
+## Zoeken Block
+
+Het Zoeken block helpt u patiënten te vinden.
+
+### Openen
+
+Via commando:
+```
+"Zoek Jansen"
+"Patiënt Marie"
+"Vind client 12345"
+```
+
+### Zoeken op
+
+| Zoekveld | Voorbeeld |
+|----------|-----------|
+| Naam | "Jan Jansen" |
+| Achternaam | "Jansen" |
+| BSN | "123456789" |
+| Clientnummer | "C-2024-001" |
+
+### Resultaten
+
+- Toont matchende patiënten met avatar en basisinfo
+- Klik om te selecteren als actieve patiënt
+- Dubbel-klik om direct naar dossier te gaan
+
+---
+
+## Overdracht Block
+
+Het Overdracht block toont het overzicht voor dienstoverdracht.
+
+### Openen
+
+Via commando:
+```
+"Overdracht"
+"Dienstoverdracht"
+```
+
+### Inhoud
+
+Per patiënt met notities van de huidige dienst:
+- Aantal notities
+- Alerts en waarschuwingen
+- Risico-indicatoren
+
+### AI Samenvatting
+
+1. Selecteer een patiënt in het overzicht
+2. Klik op **"Genereer samenvatting"**
+3. AI analyseert alle notities en geeft:
+   - Korte samenvatting (1-2 zinnen)
+   - Aandachtspunten met urgentie
+   - Actiepunten voor volgende dienst
+
+---
+
+## Patient Dashboard Block
+
+Het Patient Dashboard toont het complete overzicht van een patiënt.
+
+### Openen
+
+- Selecteer een patiënt uit zoekresultaten
+- Via commando: "Open dossier Jan"
+- Via @mention gevolgd door "dossier"
+
+### Secties
+
+| Sectie | Inhoud |
+|--------|--------|
+| **Header** | Naam, foto, basisgegevens |
+| **Timeline** | Recente notities en events |
+| **Medicatie** | Huidige medicatie |
+| **Diagnoses** | Actieve diagnoses |
+| **Afspraken** | Geplande afspraken |
+
+---
+
+## Agenda Block
+
+Het Agenda block toont afspraken en planning.
+
+### Openen
+
+Via commando:
+```
+"Agenda vandaag"
+"Afspraken morgen"
+"Agenda deze week"
+```
+
+### Weergave
+
+- **Dagweergave**: Uren van de dag met afspraken
+- **Weekweergave**: Overzicht van de week
+- Kleur-gecodeerd per afspraaktype
+
+### Afspraken Beheren
+
+| Actie | Commando |
+|-------|----------|
+| Plannen | "Plan afspraak met Jan volgende week" |
+| Annuleren | "Zeg Jan af voor vandaag" |
+| Verzetten | "Verzet afspraak Jan naar vrijdag" |

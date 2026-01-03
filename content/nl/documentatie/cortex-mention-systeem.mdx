@@ -1,0 +1,157 @@
+---
+title: "@Mention Systeem"
+category: "cortex-mention-systeem"
+group: "cortex"
+version: "2.0.0"
+releaseDate: "2025-01-03"
+status: "active"
+description: "Patiënt selectie via @mentions en sidebar"
+---
+
+## Overzicht
+
+Het @Mention systeem biedt drie manieren om patiënten te selecteren in Cortex.
+
+---
+
+## Methode 1: @Mention (Aanbevolen)
+
+Typ `@` gevolgd door een naam direct in uw bericht:
+
+1. Typ `@jan` in het invoerveld
+2. Een dropdown verschijnt met zoekresultaten
+3. Klik op de juiste patiënt
+4. De naam wordt ingevoegd: `@Jan Jansen`
+5. Ga verder met uw opdracht
+
+**Voorbeeld:** `@jan heeft griep` → Notitie voor Jan Jansen
+
+### Dropdown Navigatie
+
+| Toets | Actie |
+|-------|-------|
+| `↓` / `↑` | Navigeer door resultaten |
+| `Enter` | Selecteer huidige optie |
+| `Escape` | Sluit dropdown |
+| `1` `2` `3` | Selecteer optie op nummer |
+
+### Zoeken in @Mention
+
+De dropdown zoekt op:
+- Voornaam
+- Achternaam
+- Combinatie
+
+Typ minimaal 2 karakters na `@` voor resultaten.
+
+---
+
+## Methode 2: Patient Sidebar
+
+Druk `⌘P` (Mac) of `Ctrl+P` (Windows) om de patiënt-sidebar te openen.
+
+### Sidebar Onderdelen
+
+| Sectie | Beschrijving |
+|--------|--------------|
+| **Zoekbalk** | Zoek op naam, BSN of clientnummer |
+| **Resultaten** | Matchende patiënten |
+| **Recent** | 5 laatst bezochte patiënten |
+
+### Gebruik
+
+1. **Zoeken**: Typ naam, BSN of clientnummer
+2. **Recent**: Klik op een recente patiënt
+3. **Selecteren**: Klik op een patiënt om deze actief te maken
+4. **Sluiten**: Druk `Escape` of klik buiten de sidebar
+
+De geselecteerde patiënt verschijnt in de **context bar** bovenaan.
+
+### Recente Patiënten
+
+De sidebar onthoudt uw 5 laatst bezochte patiënten:
+- Automatisch bijgewerkt bij elke patiënt-interactie
+- Snelle toegang zonder te zoeken
+- Toont naam en laatste bezoek-datum
+
+---
+
+## Methode 3: Context-Aware
+
+Wanneer een patiënt actief is in de context bar, begrijpt Cortex verwijzingen.
+
+### Voornaamwoorden
+
+| Invoer | Interpretatie |
+|--------|---------------|
+| "Maak notitie voor haar" | Notitie voor actieve patiënt |
+| "Plan afspraak met hem" | Afspraak voor actieve patiënt |
+| "Zijn medicatie" | Medicatie van actieve patiënt |
+| "Haar dossier" | Dossier van actieve patiënt |
+
+### Impliciete Referenties
+
+| Invoer | Interpretatie |
+|--------|---------------|
+| "Maak notitie" | Notitie voor actieve patiënt (indien aanwezig) |
+| "Open dossier" | Dossier van actieve patiënt |
+| "Volgende afspraak" | Volgende afspraak met actieve patiënt |
+
+### Wanneer Geen Patiënt Actief
+
+Als er geen patiënt in de context bar staat en de opdracht een patiënt vereist:
+
+1. Cortex vraagt: "Voor welke patiënt?"
+2. U kunt dan een @mention gebruiken of zoeken
+3. Na selectie wordt de actie uitgevoerd
+
+---
+
+## Context Bar
+
+De context bar bovenaan Cortex toont de actieve patiënt.
+
+### Elementen
+
+| Element | Functie |
+|---------|---------|
+| **Avatar** | Profielfoto of initialen |
+| **Naam** | Volledige naam patiënt |
+| **Wissen knop** | Verwijder actieve patiënt (×) |
+
+### Actieve Patiënt Wissen
+
+- Klik op de **×** naast de naam
+- Of selecteer een andere patiënt
+- Of druk `Escape` wanneer geen block open is
+
+---
+
+## Best Practices
+
+### Snelste Workflow
+
+1. Begin met `@` + eerste letters van naam
+2. Selecteer uit dropdown (pijltjes + Enter)
+3. Typ uw opdracht door
+
+**Voorbeeld flow:**
+```
+@jan[Enter] heeft koorts, 38.2 graden
+```
+
+### Bij Veel Patiënten met Zelfde Naam
+
+Als er meerdere "Jan" patiënten zijn:
+
+1. Typ meer van de achternaam: `@jan jans`
+2. Of gebruik BSN: `@123456789`
+3. Of gebruik clientnummer: `@C-2024-001`
+
+### Wisselen Tussen Patiënten
+
+Voor snelle navigatie:
+1. `⌘P` opent sidebar met recente patiënten
+2. Klik op andere patiënt
+3. Context bar update direct
+4. Ga verder met opdrachten voor nieuwe patiënt
