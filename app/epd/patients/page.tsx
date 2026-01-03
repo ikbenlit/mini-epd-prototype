@@ -32,10 +32,10 @@ export default async function PatientsPage({
           </div>
           <Link
             href="/epd/patients/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all"
+            className="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all"
           >
             <Plus className="h-4 w-4" />
-            <span>Nieuwe patiënt</span>
+            <span className="hidden md:inline">Nieuwe patiënt</span>
           </Link>
         </div>
       </div>

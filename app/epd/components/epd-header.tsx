@@ -50,12 +50,12 @@ export const EPDHeader = memo(function EPDHeader({ className = "" }: EPDHeaderPr
     const name = patient.name?.[0];
     const fullName = name
       ? [
-          ...(name.prefix || []),
-          ...(name.given || []),
-          name.family,
-        ]
-          .filter(Boolean)
-          .join(' ')
+        ...(name.prefix || []),
+        ...(name.given || []),
+        name.family,
+      ]
+        .filter(Boolean)
+        .join(' ')
       : '';
 
     // Extract status from extension
@@ -67,29 +67,29 @@ export const EPDHeader = memo(function EPDHeader({ className = "" }: EPDHeaderPr
     // Extract birth date
     const birthDate = patient.birthDate
       ? new Date(patient.birthDate).toLocaleDateString('nl-NL', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
       : null;
 
     // Extract BSN from identifiers
     const bsnIdentifier = patient.identifier?.find(
       (id: any) => id.system === 'http://fhir.nl/fhir/NamingSystem/bsn' ||
-                   id.system?.includes('bsn') ||
-                   id.type?.coding?.[0]?.code === 'BSN'
+        id.system?.includes('bsn') ||
+        id.type?.coding?.[0]?.code === 'BSN'
     );
     const bsn = bsnIdentifier?.value;
 
     // Extract last modified
     const lastModified = patient.meta?.lastUpdated
       ? new Date(patient.meta.lastUpdated).toLocaleString('nl-NL', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
       : null;
 
     // Check if John Doe
@@ -141,7 +141,7 @@ export const EPDHeader = memo(function EPDHeader({ className = "" }: EPDHeaderPr
           </div>
 
           {/* Patient Details */}
-          <div className="flex items-center gap-3 text-xs text-slate-500">
+          <div className="hidden md:flex items-center gap-3 text-xs text-slate-500">
             {birthDate && <span>Geb: {birthDate}</span>}
             {bsn && <span>BSN: {bsn}</span>}
             <span>ID: {patient.id}</span>
@@ -184,7 +184,7 @@ export const EPDHeader = memo(function EPDHeader({ className = "" }: EPDHeaderPr
           <input
             type="text"
             placeholder="Zoek patiënt..."
-            className="w-64 pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+            className="w-full md:w-64 pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
           />
         </div>
       </div>

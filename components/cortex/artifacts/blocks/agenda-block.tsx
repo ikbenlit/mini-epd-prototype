@@ -36,7 +36,7 @@ export function AgendaBlock({
 }: AgendaBlockProps) {
     // State for fetched appointments (only used in list mode)
     const [appointments, setAppointments] = useState<CalendarEvent[] | undefined>(initialAppointments);
-    const [dateRange, setDateRange] = useState<{ start: Date; end: Date; label: string } | undefined>(initialDateRange);
+    const [dateRange, setDateRange] = useState<{ start?: Date; end?: Date; label: string } | undefined>(initialDateRange);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [refetchKey, setRefetchKey] = useState(0);

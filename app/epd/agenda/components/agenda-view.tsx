@@ -10,6 +10,7 @@ import React, { useState, useCallback, useRef, useTransition, useEffect } from '
 import dynamic from 'next/dynamic';
 import { startOfWeek, endOfWeek, addDays, format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 // Lazy load FullCalendar component (~150KB+ savings)
 const AgendaCalendar = dynamic(
@@ -61,6 +62,14 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
   // Reschedule dialog state
   const [pendingReschedule, setPendingReschedule] = useState<PendingReschedule | null>(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
+
+  // Auto-switch to day view on mobile
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  useEffect(() => {
+    if (isMobile) {
+      setCurrentView('timeGridDay');
+    }
+  }, [isMobile]);
 
   const calendarRef = useRef<{ getApi: () => { prev: () => void; next: () => void; today: () => void; changeView: (view: string) => void; getDate: () => Date } } | null>(null);
 
@@ -118,7 +127,7 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
 
   // Handle date range change from calendar
   const handleDateChange = useCallback((start: Date, end: Date) => {
-    setCurrentDate((prev) => 
+    setCurrentDate((prev) =>
       prev.toDateString() === start.toDateString() ? prev : start
     );
     fetchEvents(start, end);
@@ -246,7 +255,7 @@ export function AgendaView({ initialEvents, initialDate, highlightEncounterId }:
 
       <div className="flex flex-1 gap-4 min-h-0">
         {/* Mini calendar sidebar */}
-        <div className="w-64 flex-shrink-0">
+        <div className="w-64 flex-shrink-0 hidden md:block">
           <MiniCalendar
             selectedDate={currentDate}
             onDateSelect={handleMiniCalendarDateSelect}

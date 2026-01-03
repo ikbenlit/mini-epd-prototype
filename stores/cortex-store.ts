@@ -36,8 +36,8 @@ export interface ChatEntities {
   date?: string;
   time?: string;
   dateRange?: {
-    start: string;
-    end: string;
+    start?: string;
+    end?: string;
     label: string;
   };
   datetime?: {

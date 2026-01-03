@@ -11,6 +11,7 @@
  */
 
 import { ArtifactTab } from './artifact-tab';
+import { ChevronLeft } from 'lucide-react';
 import { AgendaBlock, type AgendaBlockProps } from './blocks/agenda-block';
 import { DagnotatieBlock } from '../blocks/dagnotitie-block';
 import { ZoekenBlock } from '../blocks/zoeken-block';
@@ -101,25 +102,25 @@ function buildAgendaPrefill(prefill: Record<string, any> | undefined): AgendaBlo
     prefill.patient ||
     (prefill.patientName || prefill.patientId
       ? {
-          id: prefill.patientId || '',
-          name: prefill.patientName || '',
-        }
+        id: prefill.patientId || '',
+        name: prefill.patientName || '',
+      }
       : undefined);
 
   // Try to resolve date from label first (more reliable than AI-generated dates)
   const dateLabel = prefill?.datetime?.label || prefill?.dateRange?.label;
   const resolvedDate = resolveDateFromLabel(dateLabel);
-  
+
   const datetimeDate =
     resolvedDate ||  // Prefer calculated date from label
     coerceDate(prefill?.datetime?.date) ||
     (prefill?.datetime?.time ? new Date() : undefined);
-    
+
   const datetime = datetimeDate
     ? {
-        date: datetimeDate,
-        time: typeof prefill?.datetime?.time === 'string' ? prefill.datetime.time : '',
-      }
+      date: datetimeDate,
+      time: typeof prefill?.datetime?.time === 'string' ? prefill.datetime.time : '',
+    }
     : undefined;
 
   const appointmentType = resolveAppointmentType(prefill?.appointmentType || prefill?.type);
@@ -128,16 +129,16 @@ function buildAgendaPrefill(prefill: Record<string, any> | undefined): AgendaBlo
   // Also resolve newDatetime from label
   const newDateLabel = prefill?.newDatetime?.label;
   const resolvedNewDate = resolveDateFromLabel(newDateLabel);
-  
+
   const newDatetimeDate =
     resolvedNewDate ||  // Prefer calculated date from label
     coerceDate(prefill?.newDatetime?.date) ||
     (prefill?.newDatetime?.time ? new Date() : undefined);
   const newDatetime = newDatetimeDate
     ? {
-        date: newDatetimeDate,
-        time: typeof prefill?.newDatetime?.time === 'string' ? prefill.newDatetime.time : '',
-      }
+      date: newDatetimeDate,
+      time: typeof prefill?.newDatetime?.time === 'string' ? prefill.newDatetime.time : '',
+    }
     : undefined;
 
   return {
@@ -264,9 +265,26 @@ export function ArtifactContainer({
 
   return (
     <div className="h-full flex flex-col bg-slate-50">
-      {/* Tabs - alleen tonen bij >1 artifact */}
+      {/* Tabs - alleen tonen bij >1 artifact */
+        /* Echter op mobile: ALTIJD een header tonen met back knop als er een artifact open is */
+      }
+
+      {/* Mobile Header: Back button + Title */}
+      <div className="lg:hidden flex items-center p-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <button
+          onClick={() => activeArtifact && onCloseArtifact(activeArtifact.id)}
+          className="flex items-center text-slate-600 hover:text-slate-900 mr-3"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          <span className="font-medium">Terug</span>
+        </button>
+        <span className="font-semibold text-slate-800 truncate flex-1">
+          {activeArtifact ? activeArtifact.title : 'Details'}
+        </span>
+      </div>
+
       {artifacts.length > 1 && (
-        <div className="flex bg-white border-b border-slate-200">
+        <div className="hidden lg:flex bg-white border-b border-slate-200">
           {artifacts.map((artifact) => (
             <ArtifactTab
               key={artifact.id}

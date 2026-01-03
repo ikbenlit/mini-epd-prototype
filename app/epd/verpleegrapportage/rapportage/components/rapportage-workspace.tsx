@@ -172,9 +172,9 @@ export function RapportageWorkspace({ patients }: RapportageWorkspaceProps) {
   const groupedLogs = groupLogsByDayAndPart(logs);
 
   return (
-    <div className="h-full flex bg-slate-50">
+    <div className="h-full flex flex-col md:flex-row bg-slate-50">
       {/* Sidebar - Patiënten */}
-      <aside className="w-80 border-r border-slate-200 bg-white flex-shrink-0 overflow-hidden flex flex-col">
+      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200 bg-white flex-shrink-0 overflow-hidden flex flex-col h-48 md:h-auto">
         <div className="p-4 border-b border-slate-200">
           <h2 className="font-semibold text-slate-900">Ronde overzicht</h2>
         </div>
@@ -190,11 +190,10 @@ export function RapportageWorkspace({ patients }: RapportageWorkspaceProps) {
               <button
                 key={patient.id}
                 onClick={() => setSelectedPatientId(patient.id)}
-                className={`w-full px-4 py-3 text-left transition-colors ${
-                  isSelected
+                className={`w-full px-4 py-3 text-left transition-colors ${isSelected
                     ? 'bg-teal-50'
                     : 'hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <span className={`font-medium truncate ${isSelected ? 'text-teal-900' : 'text-slate-900'}`}>
@@ -229,92 +228,92 @@ export function RapportageWorkspace({ patients }: RapportageWorkspaceProps) {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto p-6 space-y-4">
-          {/* Risico alerts */}
-          {selectedPatient && selectedPatient.alerts.high_risk_count > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <div>
-                <span className="font-medium text-red-900">
-                  {selectedPatient.alerts.high_risk_count} hoog risico
-                </span>
-                <span className="text-red-700 text-sm ml-2">
-                  Let op verhoogde aandachtspunten voor deze cliënt
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Invoerformulier */}
-          {selectedPatientId && (
-            <QuickEntryForm
-              patientId={selectedPatientId}
-              onSuccess={handleRefresh}
-            />
-          )}
-
-          {/* Stats row - alleen tonen als er data is */}
-          {logs.length > 0 && (
-            <div className="flex items-center gap-4 text-sm">
-              <span className="text-slate-600">
-                <span className="font-semibold text-slate-900">{logs.length}</span> notities
+        {/* Risico alerts */}
+        {selectedPatient && selectedPatient.alerts.high_risk_count > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">
+                {selectedPatient.alerts.high_risk_count} hoog risico
               </span>
-              {markedForHandover > 0 && (
-                <span className="flex items-center gap-1 text-teal-700">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="font-semibold">{markedForHandover}</span> overdracht
-                </span>
-              )}
+              <span className="text-red-700 text-sm ml-2">
+                Let op verhoogde aandachtspunten voor deze cliënt
+              </span>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Timeline */}
-          {isLoading ? (
-            <div className="bg-white rounded-lg border border-slate-200 p-8 text-center">
-              <Loader2 className="h-8 w-8 text-slate-400 animate-spin mx-auto" />
-              <p className="text-sm text-slate-500 mt-2">Laden...</p>
-            </div>
-          ) : logs.length === 0 ? (
-            <div className="bg-white rounded-lg border border-slate-200 p-8 text-center">
-              <FileText className="h-10 w-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-600">Nog geen notities</p>
-              <p className="text-sm text-slate-500">Voeg een notitie toe via het formulier hierboven</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {groupedLogs.map(dayGroup => (
-                <div key={dayGroup.date} className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                  <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-                    <span className="font-medium text-slate-700 capitalize text-sm">{dayGroup.dateLabel}</span>
-                  </div>
+        {/* Invoerformulier */}
+        {selectedPatientId && (
+          <QuickEntryForm
+            patientId={selectedPatientId}
+            onSuccess={handleRefresh}
+          />
+        )}
 
-                  {dayGroup.dayParts.map(partGroup => {
-                    const PartIcon = DAY_PART_CONFIG[partGroup.part].icon;
-                    return (
-                      <div key={partGroup.part}>
-                        <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-50/50 border-b border-slate-50">
-                          <PartIcon className={`h-3.5 w-3.5 ${DAY_PART_CONFIG[partGroup.part].color}`} />
-                          <span className="text-xs font-medium text-slate-500">{DAY_PART_CONFIG[partGroup.part].label}</span>
-                        </div>
+        {/* Stats row - alleen tonen als er data is */}
+        {logs.length > 0 && (
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-slate-600">
+              <span className="font-semibold text-slate-900">{logs.length}</span> notities
+            </span>
+            {markedForHandover > 0 && (
+              <span className="flex items-center gap-1 text-teal-700">
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="font-semibold">{markedForHandover}</span> overdracht
+              </span>
+            )}
+          </div>
+        )}
 
-                        <div className="relative pl-8">
-                          <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-slate-100" />
-
-                          {partGroup.logs.map((log, idx) => (
-                            <TimelineItem
-                              key={log.id}
-                              log={log}
-                              onRefresh={handleRefresh}
-                              isLast={idx === partGroup.logs.length - 1}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
+        {/* Timeline */}
+        {isLoading ? (
+          <div className="bg-white rounded-lg border border-slate-200 p-8 text-center">
+            <Loader2 className="h-8 w-8 text-slate-400 animate-spin mx-auto" />
+            <p className="text-sm text-slate-500 mt-2">Laden...</p>
+          </div>
+        ) : logs.length === 0 ? (
+          <div className="bg-white rounded-lg border border-slate-200 p-8 text-center">
+            <FileText className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+            <p className="text-slate-600">Nog geen notities</p>
+            <p className="text-sm text-slate-500">Voeg een notitie toe via het formulier hierboven</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {groupedLogs.map(dayGroup => (
+              <div key={dayGroup.date} className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
+                  <span className="font-medium text-slate-700 capitalize text-sm">{dayGroup.dateLabel}</span>
                 </div>
-              ))}
-            </div>
-          )}
+
+                {dayGroup.dayParts.map(partGroup => {
+                  const PartIcon = DAY_PART_CONFIG[partGroup.part].icon;
+                  return (
+                    <div key={partGroup.part}>
+                      <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-50/50 border-b border-slate-50">
+                        <PartIcon className={`h-3.5 w-3.5 ${DAY_PART_CONFIG[partGroup.part].color}`} />
+                        <span className="text-xs font-medium text-slate-500">{DAY_PART_CONFIG[partGroup.part].label}</span>
+                      </div>
+
+                      <div className="relative pl-8">
+                        <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-slate-100" />
+
+                        {partGroup.logs.map((log, idx) => (
+                          <TimelineItem
+                            key={log.id}
+                            log={log}
+                            onRefresh={handleRefresh}
+                            isLast={idx === partGroup.logs.length - 1}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
@@ -389,11 +388,10 @@ function QuickEntryForm({ patientId, onSuccess }: { patientId: string; onSuccess
               key={cat}
               type="button"
               onClick={() => setCategory(cat)}
-              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                isSelected
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${isSelected
                   ? `${config.bgColor} ${config.textColor}`
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+                }`}
             >
               <Icon className="h-3 w-3" />
               {config.label}
@@ -426,11 +424,10 @@ function QuickEntryForm({ patientId, onSuccess }: { patientId: string; onSuccess
         <button
           type="button"
           onClick={() => setIncludeInHandover(!includeInHandover)}
-          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium transition-colors ${
-            includeInHandover
+          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium transition-colors ${includeInHandover
               ? 'bg-teal-100 text-teal-800'
               : 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-700'
-          }`}
+            }`}
         >
           <CheckCircle2 className="h-3.5 w-3.5" />
           Overdracht
@@ -533,9 +530,8 @@ function TimelineItem({ log, onRefresh, isLast }: { log: Report; onRefresh: () =
                   key={cat}
                   type="button"
                   onClick={() => setEditCategory(cat)}
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    editCategory === cat ? `${catConfig.bgColor} ${catConfig.textColor}` : 'bg-slate-100 text-slate-600'
-                  }`}
+                  className={`text-xs px-2 py-0.5 rounded-full ${editCategory === cat ? `${catConfig.bgColor} ${catConfig.textColor}` : 'bg-slate-100 text-slate-600'
+                    }`}
                 >
                   {catConfig.label}
                 </button>
@@ -585,11 +581,10 @@ function TimelineItem({ log, onRefresh, isLast }: { log: Report; onRefresh: () =
             <button
               onClick={toggleHandover}
               disabled={isPending}
-              className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
-                log.include_in_handover
+              className={`text-xs px-1.5 py-0.5 rounded transition-colors ${log.include_in_handover
                   ? 'bg-teal-100 text-teal-700'
                   : 'bg-slate-100 text-slate-400 hover:bg-teal-50 hover:text-teal-600'
-              }`}
+                }`}
             >
               <CheckCircle2 className={`h-3 w-3 inline ${isPending ? 'animate-pulse' : ''}`} />
             </button>

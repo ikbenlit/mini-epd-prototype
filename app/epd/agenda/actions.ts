@@ -124,7 +124,7 @@ export async function createEncounter(params: CreateEncounterParams) {
     class_code: params.classCode,
     class_display: params.classDisplay,
     notes: params.notes,
-    status: 'planned',
+    status: 'planned' as const,
   };
 
   console.log('[createEncounter] Insert data:', insertData);

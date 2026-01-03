@@ -17,6 +17,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { createEncounter } from '@/app/epd/agenda/actions';
 import {
     APPOINTMENT_TYPES,
@@ -153,7 +155,22 @@ export function AgendaCreateForm({ prefillData, onClose }: AgendaCreateFormProps
             });
 
             if (result.success) {
-                onClose?.(); // Close on success
+                const formattedDate = format(startDate, "EEEE d MMMM 'om' HH:mm", { locale: nl });
+                
+                toast({
+                    title: '✓ Afspraak ingepland',
+                    description: `${patientName} — ${formattedDate}`,
+                    action: (
+                        <ToastAction 
+                            altText="Bekijk afspraak"
+                            onClick={() => window.location.href = `/epd/agenda?highlight=${result.data?.id}&date=${date}`}
+                        >
+                            Bekijken
+                        </ToastAction>
+                    ),
+                });
+                
+                onClose?.();
             } else {
                 setError(result.error || 'Er is een fout opgetreden.');
             }

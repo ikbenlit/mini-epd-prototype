@@ -19,6 +19,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useCortexStore } from '@/stores/cortex-store';
+import { cn } from '@/lib/utils';
 import { ContextBar } from './context-bar';
 import { OfflineBanner } from './offline-banner';
 import { NudgeToast } from './nudge-toast';
@@ -120,14 +121,20 @@ export function CommandCenter() {
       <ContextBar />
 
       {/* Split-screen container - flex-1 */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Chat Panel - 40% (desktop), 100% (mobile) */}
-        <div className="w-full lg:w-[40%] border-r border-slate-200 flex flex-col">
+        <div className="w-full lg:w-[40%] border-r border-slate-200 flex flex-col h-full">
           <ChatPanel />
         </div>
 
-        {/* Artifact Area - 60% (desktop), hidden on mobile */}
-        <div className="hidden lg:flex lg:w-[60%] flex-col">
+        {/* Artifact Area - 60% (desktop), overlay on mobile */}
+        <div
+          className={cn(
+            "lg:flex lg:w-[60%] flex-col bg-white transition-transform duration-300 ease-in-out lg:transform-none lg:static absolute inset-0 z-20",
+            // On mobile: hidden by default, visible (slide in) when openArtifacts > 0
+            openArtifacts.length > 0 ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+          )}
+        >
           <ArtifactArea />
         </div>
       </div>

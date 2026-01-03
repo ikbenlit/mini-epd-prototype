@@ -21,10 +21,10 @@ interface AgendaToolbarProps {
   onNewAppointment: () => void;
 }
 
-const VIEW_OPTIONS: { value: CalendarView; label: string }[] = [
+const VIEW_OPTIONS: { value: CalendarView; label: string; className?: string }[] = [
   { value: 'timeGridDay', label: 'Dag' },
-  { value: 'timeGridWeek', label: 'Week' },
-  { value: 'timeGridWorkWeek', label: 'Werkweek' },
+  { value: 'timeGridWeek', label: 'Week', className: 'hidden md:block' },
+  { value: 'timeGridWorkWeek', label: 'Werkweek', className: 'hidden md:block' },
 ];
 
 export function AgendaToolbar({
@@ -60,7 +60,7 @@ export function AgendaToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 mb-4">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
       {/* Left: Title and Date */}
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-slate-900">Agenda</h1>
@@ -104,11 +104,10 @@ export function AgendaToolbar({
             <button
               key={option.value}
               onClick={() => onViewChange(option.value)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                currentView === option.value
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${currentView === option.value
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+                } ${option.className || ''}`}
             >
               {option.label}
             </button>
@@ -116,9 +115,10 @@ export function AgendaToolbar({
         </div>
 
         {/* New Appointment Button */}
-        <Button onClick={onNewAppointment} className="gap-2">
+        <Button onClick={onNewAppointment} className="gap-2 w-full md:w-auto">
           <Plus className="h-4 w-4" />
-          Nieuwe Afspraak
+          <span className="hidden md:inline">Nieuwe Afspraak</span>
+          <span className="md:hidden">Nieuw</span>
         </Button>
       </div>
     </div>
