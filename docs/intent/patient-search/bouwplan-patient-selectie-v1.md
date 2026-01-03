@@ -106,12 +106,9 @@ Dit kost tijd en zorgt voor context verlies. De nieuwe aanpak introduceert:
 | E2 | @Mention Systeem | Inline patient selectie in chat | ✅ Done | 3 | 4 SP |
 | E3 | Smart Defaults | ActivePatient auto-use in blocks | ⏳ To Do | 3 | 5 SP |
 
-**Totaal:** 16 stories, **23 Story Points** (~2.5 weken)
+**Totaal:** 14 stories, **19 Story Points**
 
-**Belangrijk:**
-- **Fase 0 eerst!** Extract bestaande code voor hergebruik
-- Bouw per epic en per story
-- Test elke story voor commit
+**Voortgang:** E0 ✅ + E1 ✅ + E2 ✅ = **14/19 SP (74%)**
 
 ---
 
