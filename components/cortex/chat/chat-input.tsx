@@ -13,6 +13,9 @@ import { useState, useRef, KeyboardEvent, ChangeEvent, forwardRef, useImperative
 import { Send, Mic } from 'lucide-react';
 import { useCortexStore } from '@/stores/cortex-store';
 import { cn } from '@/lib/utils';
+import { usePatientSelection } from '@/lib/cortex/hooks/use-patient-selection';
+import type { PatientSearchResult } from '@/lib/cortex/hooks/use-patient-search';
+import { PatientMentionDropdown } from '../command-center/patient-mention-dropdown';
 
 interface ChatInputProps {
   placeholder?: string;
@@ -34,6 +37,17 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
   const [inputValue, setInputValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const addChatMessage = useCortexStore((s) => s.addChatMessage);
+
+  // @mention state (E2)
+  const [mentionState, setMentionState] = useState<{
+    query: string;
+    startIndex: number;
+  } | null>(null);
+
+  // Patient selection hook
+  const { selectPatient } = usePatientSelection({
+    showSuccessToast: false,
+  });
 
   // Expose focus, clear, and setValue methods to parent
   useImperativeHandle(ref, () => ({
@@ -63,9 +77,45 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
     },
   }));
 
+  // @mention detection
+  const detectMention = (value: string) => {
+    const lastAtIndex = value.lastIndexOf('@');
+    if (lastAtIndex !== -1) {
+      const afterAt = value.slice(lastAtIndex + 1);
+      // Active if: no space after @, and at least 1 char
+      if (!afterAt.includes(' ') && afterAt.length > 0) {
+        setMentionState({ query: afterAt, startIndex: lastAtIndex });
+        return;
+      }
+    }
+    setMentionState(null);
+  };
+
+  // Handle @mention selection
+  const handleMentionSelect = (patient: PatientSearchResult) => {
+    if (!mentionState) return;
+
+    // Replace @query with @name in input
+    const before = inputValue.slice(0, mentionState.startIndex);
+    const after = inputValue.slice(mentionState.startIndex + mentionState.query.length + 1);
+    const newValue = `${before}@${patient.name} ${after}`.trim();
+    setInputValue(newValue);
+
+    // Set activePatient
+    selectPatient(patient);
+
+    // Close dropdown
+    setMentionState(null);
+
+    // Focus back on textarea
+    textareaRef.current?.focus();
+  };
+
   // Handle input change and auto-resize
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
+    const value = e.target.value;
+    setInputValue(value);
+    detectMention(value);
 
     // Auto-resize textarea
     if (textareaRef.current) {
@@ -108,9 +158,13 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
       handleSubmit();
     }
 
-    // Escape to clear input
+    // Escape: close dropdown first, then clear input
     if (e.key === 'Escape') {
       e.preventDefault();
+      if (mentionState) {
+        setMentionState(null);
+        return;
+      }
       setInputValue('');
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
@@ -123,6 +177,15 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
   return (
     <div className="border-t border-slate-200 p-4 bg-white">
       <div className="relative flex items-end gap-2">
+        {/* @mention dropdown */}
+        {mentionState && (
+          <PatientMentionDropdown
+            query={mentionState.query}
+            onSelect={handleMentionSelect}
+            onClose={() => setMentionState(null)}
+          />
+        )}
+
         {/* Textarea input */}
         <textarea
           ref={textareaRef}
