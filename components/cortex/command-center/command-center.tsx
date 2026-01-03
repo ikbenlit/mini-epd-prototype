@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { ContextBar } from './context-bar';
 import { OfflineBanner } from './offline-banner';
 import { NudgeToast } from './nudge-toast';
+import { PatientSidebar } from '../patient-sidebar';
 import { ChatPanel } from '../chat/chat-panel';
 import { ArtifactArea } from '../artifacts/artifact-area';
 import { getArtifactTitle } from '../artifacts/artifact-container';
@@ -40,16 +41,27 @@ export function CommandCenter() {
     suggestions,
     acceptSuggestion,
     dismissSuggestion,
+    // Patient sidebar (E1)
+    togglePatientSidebar,
+    patientSidebarOpen,
+    setPatientSidebarOpen,
   } = useCortexStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcuts
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // Escape: close all artifacts
-      if (e.key === 'Escape' && openArtifacts.length > 0) {
-        e.preventDefault();
-        closeAllArtifacts();
+      // Escape: close sidebar first, then artifacts
+      if (e.key === 'Escape') {
+        if (patientSidebarOpen) {
+          e.preventDefault();
+          setPatientSidebarOpen(false);
+          return;
+        }
+        if (openArtifacts.length > 0) {
+          e.preventDefault();
+          closeAllArtifacts();
+        }
       }
 
       // Cmd/Ctrl + K: focus input (chat input in v3.0)
@@ -57,8 +69,14 @@ export function CommandCenter() {
         e.preventDefault();
         inputRef.current?.focus();
       }
+
+      // Cmd/Ctrl + P: toggle patient sidebar (E1.S3)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        e.preventDefault();
+        togglePatientSidebar();
+      }
     },
-    [openArtifacts, closeAllArtifacts]
+    [openArtifacts, closeAllArtifacts, patientSidebarOpen, setPatientSidebarOpen, togglePatientSidebar]
   );
 
   useEffect(() => {
@@ -114,6 +132,9 @@ export function CommandCenter() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      {/* Patient Sidebar (E1.S2) */}
+      <PatientSidebar />
+
       {/* Offline Banner */}
       <OfflineBanner />
 

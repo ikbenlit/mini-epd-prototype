@@ -105,6 +105,10 @@ interface CortexStore {
   activePatient: Patient | null;
   shift: ShiftType;
 
+  // Patient sidebar (E1)
+  recentPatients: Patient[];
+  patientSidebarOpen: boolean;
+
   // Block state
   activeBlock: BlockType | null;
   prefillData: BlockPrefillData;
@@ -142,6 +146,11 @@ interface CortexStore {
   // Context actions
   setActivePatient: (patient: Patient | null) => void;
   setShift: (shift: ShiftType) => void;
+
+  // Patient sidebar actions (E1)
+  addRecentPatient: (patient: Patient) => void;
+  togglePatientSidebar: () => void;
+  setPatientSidebarOpen: (open: boolean) => void;
 
   // Block actions (legacy - will be replaced by artifact actions)
   openBlock: (type: BlockType, prefill?: BlockPrefillData) => void;
@@ -199,6 +208,10 @@ interface CortexStore {
 const initialState = {
   activePatient: null,
   shift: getCurrentShift(),
+  // Patient sidebar (E1)
+  recentPatients: [] as Patient[],
+  patientSidebarOpen: false,
+  // Block state
   activeBlock: null,
   prefillData: {},
   isBlockLoading: false,
@@ -230,6 +243,29 @@ export const useCortexStore = create<CortexStore>()(
       setActivePatient: (patient) => set({ activePatient: patient }, false, 'setActivePatient'),
 
       setShift: (shift) => set({ shift }, false, 'setShift'),
+
+      // Patient sidebar actions (E1)
+      addRecentPatient: (patient) =>
+        set(
+          (state) => ({
+            recentPatients: [
+              patient,
+              ...state.recentPatients.filter((p) => p.id !== patient.id),
+            ].slice(0, 5),
+          }),
+          false,
+          'addRecentPatient'
+        ),
+
+      togglePatientSidebar: () =>
+        set(
+          (state) => ({ patientSidebarOpen: !state.patientSidebarOpen }),
+          false,
+          'togglePatientSidebar'
+        ),
+
+      setPatientSidebarOpen: (open) =>
+        set({ patientSidebarOpen: open }, false, 'setPatientSidebarOpen'),
 
       // Block actions
       openBlock: (type, prefill = {}) => {

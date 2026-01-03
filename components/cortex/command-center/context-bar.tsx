@@ -8,7 +8,7 @@
  */
 
 import { useCortexStore, type ShiftType } from '@/stores/cortex-store';
-import { Sun, Moon, Sunrise, Sunset, X, User, ArrowLeft } from 'lucide-react';
+import { Sun, Moon, Sunrise, Sunset, X, User, ArrowLeft, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useOffline } from './offline-banner';
 
@@ -20,7 +20,7 @@ const SHIFT_CONFIG: Record<ShiftType, { icon: typeof Sun; label: string; color: 
 };
 
 export function ContextBar() {
-  const { shift, activePatient, setActivePatient } = useCortexStore();
+  const { shift, activePatient, setActivePatient, togglePatientSidebar } = useCortexStore();
   const isOffline = useOffline();
   const shiftConfig = SHIFT_CONFIG[shift];
   const ShiftIcon = shiftConfig.icon;
@@ -47,6 +47,18 @@ export function ContextBar() {
           <ShiftIcon size={14} />
           <span className="text-xs font-medium">{shiftConfig.label}</span>
         </div>
+
+        <div className="h-4 w-px bg-slate-200" />
+
+        {/* Patient Sidebar Toggle (E1.S3) */}
+        <button
+          type="button"
+          onClick={togglePatientSidebar}
+          className="p-1.5 hover:bg-slate-100 rounded-md transition-colors text-slate-600 hover:text-slate-900"
+          title="Patienten (⌘P)"
+        >
+          <Users size={16} />
+        </button>
       </div>
 
       {/* Center: Active Patient */}

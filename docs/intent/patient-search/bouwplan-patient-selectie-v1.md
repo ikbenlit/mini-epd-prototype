@@ -1,7 +1,7 @@
-# Bouwplan Patient Selectie v1.2
+# Bouwplan Patient Selectie v1.3
 
 **Projectnaam:** Patient Selectie UX Verbetering
-**Versie:** v1.2
+**Versie:** v1.3
 **Datum:** 03-01-2025
 **Auteur:** Colin Lit
 
@@ -102,7 +102,7 @@ Dit kost tijd en zorgt voor context verlies. De nieuwe aanpak introduceert:
 | Epic ID | Titel | Doel | Status | Stories | Story Points |
 |---------|-------|------|--------|---------|--------------|
 | E0 | Refactor & Extract | DRY: extract bestaande code naar hooks | ✅ Done | 4 | 4 SP |
-| E1 | Patient Sidebar | Collapsible overlay sidebar | ⏳ To Do | 4 | 6 SP |
+| E1 | Patient Sidebar | Collapsible overlay sidebar | ✅ Done | 4 | 6 SP |
 | E2 | @Mention Systeem | Inline patient selectie in chat | ⏳ To Do | 5 | 8 SP |
 | E3 | Smart Defaults | ActivePatient auto-use in blocks | ⏳ To Do | 3 | 5 SP |
 
@@ -477,10 +477,10 @@ export function usePatientSelection(options: UsePatientSelectionOptions = {}) {
 
 | Story ID | Beschrijving | Acceptatiecriteria | Status | Afhankelijkheden | Story Points |
 |----------|--------------|---------------------|--------|------------------|--------------|
-| E1.S1 | `recentPatients` in store | Max 5, nieuwste eerst, geen duplicaten | ⏳ | E0.S4 | 1 |
-| E1.S2 | PatientSidebar component | Overlay sidebar met search + recent | ⏳ | E1.S1 | 2 |
-| E1.S3 | Toggle button + Cmd+P shortcut | Knop in ContextBar, keyboard shortcut | ⏳ | E1.S2 | 2 |
-| E1.S4 | Click-to-select flow | Selectie sluit sidebar, zet activePatient | ⏳ | E1.S3 | 1 |
+| E1.S1 | `recentPatients` in store | Max 5, nieuwste eerst, geen duplicaten | ✅ | E0.S4 | 1 |
+| E1.S2 | PatientSidebar component | Overlay sidebar met search + recent | ✅ | E1.S1 | 2 |
+| E1.S3 | Toggle button + Cmd+P shortcut | Knop in ContextBar, keyboard shortcut | ✅ | E1.S2 | 2 |
+| E1.S4 | Click-to-select flow | Selectie sluit sidebar, zet activePatient | ✅ | E1.S3 | 1 |
 
 **Technical Notes:**
 
@@ -691,11 +691,12 @@ useEffect(() => {
 }, [togglePatientSidebar]);
 ```
 
-**Deliverables E1:**
-- Store update: `recentPatients`, `patientSidebarOpen`, actions
-- `components/cortex/patient-sidebar/patient-sidebar.tsx`
-- ContextBar update met toggle button
-- CommandCenter update met Cmd+P shortcut
+**Deliverables E1:** ✅ Completed 03-01-2025
+- `stores/cortex-store.ts` - recentPatients, patientSidebarOpen state + actions
+- `components/cortex/patient-sidebar/patient-sidebar.tsx` (195 regels)
+- `components/cortex/patient-sidebar/index.ts` (1 regel)
+- `components/cortex/command-center/context-bar.tsx` - Users toggle button
+- `components/cortex/command-center/command-center.tsx` - Cmd+P shortcut, PatientSidebar integratie
 
 ---
 
@@ -1035,3 +1036,4 @@ if (pendingAction && !pendingAction.entities.patientId) {
 | v1.0 | 03-01-2025 | Colin Lit | Initiele versie |
 | v1.1 | 03-01-2025 | Colin Lit | Review: DRY/KISS/SOC/YAGNI toegepast, Epic 0 toegevoegd, SP gereduceerd van 38 naar 23 |
 | v1.2 | 03-01-2025 | Colin Lit | Epic 0 compleet: 4 stories done, ZoekenBlock refactored (-64% code) |
+| v1.3 | 03-01-2025 | Claude Code | Epic 1 compleet: Patient Sidebar met Cmd+P, search, recent patients |
