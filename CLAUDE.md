@@ -38,15 +38,40 @@ Required in `.env.local`:
 - `/api/overdracht` - Handover data: patients, patient details, AI summary generation
 - `/api/verpleegrapportage` - Patient data for nursing report views
 - `/api/behandelplan` - Treatment plan management
+- `/api/cortex/*` - Cortex AI command center APIs (classify, chat, agenda, patients)
 
 **API Route Pattern**: All routes use Zod validation, return Dutch error messages, and get the current user via `createClient()` from `lib/auth/server.ts`.
 
 ### EPD Modules (`app/epd/`)
+- `/epd/dashboard` - Main dashboard with Cortex command center
 - `/epd/verpleegrapportage` - Overdracht overzicht (patiënten met AI-samenvatting)
 - `/epd/verpleegrapportage/rapportage` - Rapportage invoer workspace (timeline view)
 - `/epd/patients/[id]` - Patient dossier with intakes, conditions, observations
 - `/epd/agenda` - Appointment calendar (FullCalendar)
 - `/epd/clients` - Client management
+
+### Cortex - AI Command Center (`lib/cortex/`, `components/cortex/`)
+
+Three-layer architecture for natural language processing:
+
+**Layer 1 - Reflex Arc** (`reflex-classifier.ts`): Fast local pattern matching for common intents. Escalates to AI when confidence < 0.7 or ambiguous.
+
+**Layer 2 - Orchestrator** (`orchestrator.ts`): Claude-powered intent classification for complex cases (multi-intent, pronouns, relative time). Handles context-dependent resolution.
+
+**Layer 3 - Nudge** (`nudge.ts`): Proactive suggestions after action completion.
+
+**Intent Types** (defined in `lib/cortex/types.ts`):
+```typescript
+type CortexIntent = 'dagnotitie' | 'zoeken' | 'overdracht' | 'agenda_query' |
+                    'create_appointment' | 'cancel_appointment' |
+                    'reschedule_appointment' | 'unknown';
+```
+
+**UI Components** (`components/cortex/command-center/`):
+- `command-center.tsx` - Main container with command input
+- `command-input.tsx` - Voice/text input with ⌘K focus, ⌘Enter submit
+- `context-bar.tsx` - Shows active patient/context
+- `canvas-area.tsx` - Displays action blocks based on classified intent
 
 ### Key Patterns
 
@@ -68,6 +93,8 @@ type Category = 'medicatie' | 'adl' | 'gedrag' | 'incident' | 'observatie';
 
 ### AI Integration
 - Claude API for generating handover summaries (`/api/overdracht/generate`)
+- Claude API for Cortex intent classification (`/api/cortex/classify`)
+- Claude API for Cortex chat (`/api/cortex/chat`) - streaming SSE responses
 - Deepgram for speech-to-text (`/api/deepgram`)
 - AI responses validated with Zod schemas
 
@@ -76,6 +103,7 @@ type Category = 'medicatie' | 'adl' | 'gedrag' | 'incident' | 'observatie';
 - Lucide React for icons
 - date-fns with Dutch locale for date formatting
 - Timeline views grouped by day and day-part (nacht/ochtend/middag/avond)
+- Zustand for state management (`lib/stores/`)
 
 ## Database Migrations
 
@@ -93,5 +121,6 @@ After schema changes:
 
 ## Documentation
 
-- Specs in `docs/specs/` organized by module
+- Swift/Cortex specs in `docs/swift/` (bouwplan, FO docs, implementation notes)
+- General specs in `docs/specs/` organized by module
 - Release notes in `docs/releasenotes/`
