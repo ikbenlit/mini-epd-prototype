@@ -51,14 +51,19 @@ export async function GET(request: NextRequest) {
     }
 
     const query = validation.data.q.trim();
+    
+    // Capitalize first letter, lowercase rest (matches Dutch name format)
+    const capitalizedQuery = query.charAt(0).toUpperCase() + 
+                             query.slice(1).toLowerCase();
 
     // Fuzzy search on patient names
     // Search in both name_family and name_given fields
+    // name_family uses ilike (case-insensitive), name_given uses cs with capitalized query
     const { data: patients, error: searchError } = await supabase
       .from('patients')
       .select('id, name_family, name_given, birth_date, identifier_bsn')
       .or(
-        `name_family.ilike.%${query}%,name_given.cs.{"${query}"}`
+        `name_family.ilike.%${query}%,name_given.cs.{"${capitalizedQuery}"}`
       )
       .limit(10)
       .order('name_family', { ascending: true });

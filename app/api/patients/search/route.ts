@@ -129,9 +129,14 @@ export async function GET(request: NextRequest) {
         `identifier_bsn.ilike.%${searchQuery}%,identifier_client_number.ilike.%${searchQuery}%`
       );
     } else {
+      // Capitalize first letter, lowercase rest (matches Dutch name format)
+      const capitalizedQuery = searchQuery.charAt(0).toUpperCase() + 
+                               searchQuery.slice(1).toLowerCase();
+      
       // Search name fields (family name and given names)
+      // name_family uses ilike (case-insensitive), name_given uses cs with capitalized query
       dbQuery = dbQuery.or(
-        `name_family.ilike.%${searchQuery}%,name_given.cs.{${searchQuery}}`
+        `name_family.ilike.%${searchQuery}%,name_given.cs.{${capitalizedQuery}}`
       );
     }
 
