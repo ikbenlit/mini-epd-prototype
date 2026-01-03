@@ -22,6 +22,9 @@ import { Mic, MicOff, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { safeFetch, getErrorInfo } from '@/lib/cortex/error-handler';
 import { routeIntentToArtifact } from '@/lib/cortex/action-parser';
+import { usePatientSelection } from '@/lib/cortex/hooks/use-patient-selection';
+import type { PatientSearchResult } from '@/lib/cortex/hooks/use-patient-search';
+import { PatientMentionDropdown } from './patient-mention-dropdown';
 
 export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_, ref) {
   const {
@@ -52,7 +55,55 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
   const waveformRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
 
+  // @mention state (E2.S1)
+  const [mentionState, setMentionState] = useState<{
+    query: string;
+    startIndex: number;
+  } | null>(null);
+
+  // Patient selection hook (E2.S3)
+  const { selectPatient } = usePatientSelection({
+    showSuccessToast: false, // Don't show toast for @mention selection
+  });
+
   const hasValue = inputValue.trim().length > 0;
+
+  // @mention detection (E2.S1)
+  const detectMention = (value: string) => {
+    const lastAtIndex = value.lastIndexOf('@');
+    if (lastAtIndex !== -1) {
+      const afterAt = value.slice(lastAtIndex + 1);
+      // Active if: no space after @, and at least 1 char
+      if (!afterAt.includes(' ') && afterAt.length > 0) {
+        setMentionState({ query: afterAt, startIndex: lastAtIndex });
+        return;
+      }
+    }
+    setMentionState(null);
+  };
+
+  // Handle input change with @mention detection
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    detectMention(value);
+  };
+
+  // Handle @mention selection (E2.S3)
+  const handleMentionSelect = (patient: PatientSearchResult) => {
+    if (!mentionState) return;
+
+    // 1. Replace @query with @name in input
+    const before = inputValue.slice(0, mentionState.startIndex);
+    const after = inputValue.slice(mentionState.startIndex + mentionState.query.length + 1);
+    const newValue = `${before}@${patient.name} ${after}`.trim();
+    setInputValue(newValue);
+
+    // 2. Set activePatient via selection hook
+    selectPatient(patient);
+
+    // 3. Close dropdown
+    setMentionState(null);
+  };
 
   // Waveform visualization
   useEffect(() => {
@@ -216,8 +267,17 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
   return (
     <footer className="h-16 border-t border-slate-200 flex items-center px-4 shrink-0 bg-white">
       <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-2">
-        {/* Input wrapper with optional waveform */}
+        {/* Input wrapper with optional waveform and @mention dropdown */}
         <div className="relative flex-1">
+          {/* @mention dropdown (E2.S2) */}
+          {mentionState && (
+            <PatientMentionDropdown
+              query={mentionState.query}
+              onSelect={handleMentionSelect}
+              onClose={() => setMentionState(null)}
+            />
+          )}
+
           {/* Waveform canvas (shown when recording) */}
           {isRecording && (
             <canvas
@@ -232,7 +292,7 @@ export const CommandInput = forwardRef<HTMLInputElement>(function CommandInput(_
             ref={ref}
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder={getPlaceholder()}
             disabled={isDisabled}
             className={`w-full bg-white border rounded-xl py-3 text-slate-900 placeholder:text-slate-400
